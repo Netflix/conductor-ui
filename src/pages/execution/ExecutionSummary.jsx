@@ -1,6 +1,7 @@
 import React from "react";
 import { Paper, NavLink, KeyValueTable } from "../../components";
 import { makeStyles } from "@material-ui/styles";
+import { useAppContext } from "../../export";
 
 const useStyles = makeStyles({
   paper: {
@@ -13,6 +14,8 @@ const useStyles = makeStyles({
 
 export default function ExecutionSummary({ execution }) {
   const classes = useStyles();
+
+  const { customExecutionSummaryRows } = useAppContext();
 
   // To accommodate unexecuted tasks, read type & name out of workflowTask
   const data = [
@@ -68,6 +71,22 @@ export default function ExecutionSummary({ execution }) {
       type: "externalWorkflowOutput",
     });
   }
+
+  Array.prototype.push.apply(
+    data,
+    customExecutionSummaryRows.map((row) => ({
+      label: row.label,
+      value: row.renderer(execution),
+    }))
+  );
+
+  console.log(
+    customExecutionSummaryRows.map((row) => ({
+      label: row.label,
+      value: row.renderer(execution),
+    })),
+    data
+  );
 
   return (
     <div className={classes.wrapper}>

@@ -67,8 +67,8 @@ const useStyles = makeStyles({
     gap: 8,
   },
   editorLineDecorator: {
-    backgroundColor: "rgb(45, 45, 45, 0.1)"
-  }
+    backgroundColor: "rgb(45, 45, 45, 0.1)",
+  },
 });
 
 const actions = {
@@ -240,21 +240,26 @@ export default function Workflow() {
   };
 
   const handleWorkflowNodeClick = (node) => {
-    let editor = editorRef.current.getModel()
-    let searchResult = editor.findMatches(`"taskReferenceName": "${node.ref}"`)
-    if (searchResult.length){
-      editorRef.current.revealLineInCenter(searchResult[0]?.range?.startLineNumber, 0);
-      setDecorations(editorRef.current.deltaDecorations(decorations, [
-        {
-          range: searchResult[0]?.range,
-          options: {
-            isWholeLine: true,
-            inlineClassName: classes.editorLineDecorator
-          }
-        }
-      ]))
+    let editor = editorRef.current.getModel();
+    let searchResult = editor.findMatches(`"taskReferenceName": "${node.ref}"`);
+    if (searchResult.length) {
+      editorRef.current.revealLineInCenter(
+        searchResult[0]?.range?.startLineNumber,
+        0
+      );
+      setDecorations(
+        editorRef.current.deltaDecorations(decorations, [
+          {
+            range: searchResult[0]?.range,
+            options: {
+              isWholeLine: true,
+              inlineClassName: classes.editorLineDecorator,
+            },
+          },
+        ])
+      );
     }
-  }
+  };
 
   return (
     <>
