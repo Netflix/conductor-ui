@@ -2,9 +2,11 @@ import React from "react";
 import _ from "lodash";
 import { NavLink, KeyValueTable } from "../../components";
 import { useTime } from "../../hooks/useTime";
+import { useAppContext } from "../../export";
 
 export default function TaskSummary({ taskResult }) {
   const now = useTime();
+  const { customTaskSummaryRows } = useAppContext();
 
   // To accommodate unexecuted tasks, read type & name & ref out of workflow
   const data = [
@@ -131,6 +133,14 @@ export default function TaskSummary({ taskResult }) {
       type: "externalTaskOutput",
     });
   }
+
+  Array.prototype.push.apply(
+    data,
+    customTaskSummaryRows.map((row) => ({
+      label: row.label,
+      value: row.renderer(taskResult),
+    }))
+  );
 
   return <KeyValueTable data={data} />;
 }

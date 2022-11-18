@@ -10,6 +10,7 @@ export default function DefaultAppContextProvider({ ...props }) {
         defaultStack: "default",
         customTypeRenderers: {},
         customExecutionSummaryRows: [],
+        customTaskSummaryRows: [],
         fetchWithContext: function (path, fetchParams) {
           const newParams = { ...fetchParams };
 

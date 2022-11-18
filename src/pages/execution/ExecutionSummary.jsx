@@ -80,14 +80,6 @@ export default function ExecutionSummary({ execution }) {
     }))
   );
 
-  console.log(
-    customExecutionSummaryRows.map((row) => ({
-      label: row.label,
-      value: row.renderer(execution),
-    })),
-    data
-  );
-
   return (
     <div className={classes.wrapper}>
       <Paper className={classes.paper}>
