@@ -134,13 +134,15 @@ export default function TaskSummary({ taskResult }) {
     });
   }
 
-  Array.prototype.push.apply(
-    data,
-    customTaskSummaryRows.map((row) => ({
-      label: row.label,
-      value: row.renderer(taskResult),
-    }))
-  );
+  for (const row of customTaskSummaryRows) {
+    const rendered = row.renderer(taskResult);
+    if (rendered !== undefined) {
+      data.push({
+        label: row.label,
+        value: rendered,
+      });
+    }
+  }
 
   return <KeyValueTable data={data} />;
 }

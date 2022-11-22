@@ -22,7 +22,6 @@ import {
 import SaveWorkflowDialog from "./SaveWorkflowDialog";
 import update from "immutability-helper";
 import { usePushHistory } from "../../components/NavLink";
-import { timestampRenderer } from "../../utils/helpers";
 
 import {
   KeyboardArrowLeftRounded,
@@ -301,7 +300,7 @@ export default function Workflow() {
               <MenuItem value="">Latest Version</MenuItem>
               {versions.map((row) => (
                 <MenuItem value={row.version} key={row.version}>
-                  Version {row.version} ({versionTime(row)})
+                  Version {row.version}
                 </MenuItem>
               ))}
             </Select>
@@ -379,12 +378,5 @@ export default function Workflow() {
         </div>
       </div>
     </>
-  );
-}
-
-function versionTime(versionObj) {
-  return (
-    versionObj &&
-    timestampRenderer(versionObj.updateTime || versionObj.createTime)
   );
 }
