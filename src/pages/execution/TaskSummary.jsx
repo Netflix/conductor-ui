@@ -95,14 +95,14 @@ export default function TaskSummary({ taskResult }) {
     });
   }
   if (taskResult.workflowTask.type === "SUB_WORKFLOW") {
+    const subWorkflowName =
+      taskResult.inputData?.subWorkflowName ||
+      taskResult.workflowTask?.subWorkflowParam?.name;
     data.push({
       label: "Subworkflow Definition",
       value: (
-        <NavLink
-          newTab
-          path={`/workflowDef/${taskResult.workflowTask.subWorkflowParam.name}`}
-        >
-          {taskResult.workflowTask.subWorkflowParam.name}{" "}
+        <NavLink newTab path={`/workflowDef/${subWorkflowName}`}>
+          {subWorkflowName}{" "}
         </NavLink>
       ),
     });
