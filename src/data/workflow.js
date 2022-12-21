@@ -1,8 +1,9 @@
 import { useMemo } from "react";
-import { useQuery, useMutation, useQueryClient } from "react-query";
+import { useQuery, useMutation, useQueryClient, useQueries } from "react-query";
 import useAppContext from "../hooks/useAppContext";
 import { useFetch, useFetchParallel } from "./common";
 import qs from "qs";
+import _ from "lodash";
 
 const STALE_TIME_WORKFLOW_DEFS = 600000; // 10 mins
 const STALE_TIME_SEARCH = 60000; // 1 min
@@ -98,6 +99,41 @@ export function useWorkflowNamesAndVersions() {
   );
 }
 
+export function usePaginatedWorkflowDefs(from = 0, to = 15, filter = "") {
+  const { fetchWithContext, stack } = useAppContext();
+
+  const rawNames = useWorkflowNames();
+
+  const filteredNames = _.isEmpty(filter)
+    ? rawNames
+    : rawNames.filter((name) => name.includes(filter));
+  const paginatedNames = filteredNames.slice(from, to);
+
+  const results = useQueries(
+    paginatedNames.map((name) => ({
+      queryKey: [stack, "workflowDef", name],
+      queryFn: () => fetchWithContext(`/metadata/workflow/${name}`),
+    }))
+  );
+
+  const isFetching = useMemo(
+    () =>
+      _.isEmpty(rawNames) || results.findIndex((row) => !row.isSuccess) !== -1,
+    [rawNames, results]
+  );
+  const workflows = useMemo(
+    () => (isFetching ? [] : results.map((row) => row.data)),
+    [results, isFetching]
+  );
+
+  return {
+    isFetching,
+    rawHits: isFetching ? null : rawNames.length,
+    totalHits: isFetching ? null : filteredNames.length,
+    workflows: workflows,
+  };
+}
+
 export function useLatestWorkflowDefs() {
   const { data, ...rest } = useWorkflowDefs();
 
@@ -145,7 +181,9 @@ export function useWorkflowNames() {
   // Extract unique names
   return useMemo(() => {
     if (data) {
-      return Object.keys(data).sort();
+      return Object.keys(data)
+        .map((val) => val.trim())
+        .sort();
     } else {
       return [];
     }

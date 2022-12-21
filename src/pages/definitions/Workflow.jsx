@@ -3,13 +3,23 @@ import { NavLink, DataTable, Button } from "../../components";
 import { makeStyles } from "@material-ui/styles";
 import _ from "lodash";
 import { useQueryState } from "react-router-use-location-state";
-import { useLatestWorkflowDefs } from "../../data/workflow";
+import { usePaginatedWorkflowDefs } from "../../data/workflow";
 import Header from "./Header";
 import sharedStyles from "../styles";
 import { Helmet } from "react-helmet";
 import AddIcon from "@material-ui/icons/Add";
+import { CircularProgress } from "@material-ui/core";
 
-const useStyles = makeStyles(sharedStyles);
+const useStyles = makeStyles({
+  ...sharedStyles,
+  progress: {
+    height: 200,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
 
 const columns = [
   {
@@ -17,23 +27,40 @@ const columns = [
     renderer: (val) => (
       <NavLink path={`/workflowDef/${val.trim()}`}>{val.trim()}</NavLink>
     ),
+    grow: 2,
   },
-  { name: "description", grow: 2 },
-  { name: "createTime", type: "date" },
-  { name: "version", label: "Latest Version", grow: 0.5 },
-  { name: "schemaVersion", grow: 0.5 },
-  { name: "restartable", grow: 0.5 },
-  { name: "workflowStatusListenerEnabled", grow: 0.5 },
-  { name: "ownerEmail" },
-  { name: "inputParameters", type: "json", sortable: false },
-  { name: "outputParameters", type: "json", sortable: false },
-  { name: "timeoutPolicy", grow: 0.5 },
-  { name: "timeoutSeconds", grow: 0.5 },
+  { name: "description", grow: 2, sortable: false, searchable: false },
+  { name: "createTime", type: "date", sortable: false, searchable: false },
+  {
+    name: "version",
+    label: "Latest Version",
+    grow: 0.5,
+    sortable: false,
+    searchable: false,
+  },
+  { name: "schemaVersion", grow: 0.5, sortable: false, searchable: false },
+  { name: "restartable", grow: 0.5, sortable: false, searchable: false },
+  {
+    name: "workflowStatusListenerEnabled",
+    grow: 0.5,
+    sortable: false,
+    searchable: false,
+  },
+  { name: "ownerEmail", sortable: false, searchable: false },
+  { name: "inputParameters", type: "json", sortable: false, searchable: false },
+  {
+    name: "outputParameters",
+    type: "json",
+    sortable: false,
+    searchable: false,
+  },
+  { name: "timeoutPolicy", grow: 0.5, sortable: false, searchable: false },
+  { name: "timeoutSeconds", grow: 0.5, sortable: false, searchable: false },
   {
     id: "task_types",
     name: "tasks",
     label: "Task Types",
-    searchable: "calculated",
+    searchable: false,
     sortable: false,
     renderer: (val) => {
       const taskTypeSet = new Set();
@@ -47,7 +74,7 @@ const columns = [
     id: "task_count",
     name: "tasks",
     label: "Tasks",
-    searchable: "calculated",
+    searchable: false,
     sortable: false,
     grow: 0.5,
     renderer: (val) => (_.isArray(val) ? val.length : 0),
@@ -68,48 +95,36 @@ const columns = [
 ];
 
 export default function WorkflowDefinitions() {
+  const PAGE_SIZE = 15;
   const classes = useStyles();
 
-  const { data, isFetching } = useLatestWorkflowDefs();
-
-  const [filterParam, setFilterParam] = useQueryState("filter", "");
-  const filterObj = filterParam === "" ? undefined : JSON.parse(filterParam);
+  const [nameFilter, setNameFilter] = useQueryState("filter", "");
+  const [page, setPage] = useQueryState("page", 1);
+  const { isFetching, totalHits, workflows } = usePaginatedWorkflowDefs(
+    PAGE_SIZE * (page - 1),
+    PAGE_SIZE * page,
+    nameFilter
+  );
 
   const handleFilterChange = (obj) => {
-    if (obj) {
-      setFilterParam(JSON.stringify(obj));
+    setPage(1);
+    if (obj && obj.columnName === "name") {
+      setNameFilter(obj.substring);
     } else {
-      setFilterParam("");
+      setNameFilter("");
     }
   };
 
-  const workflows = useMemo(() => {
-    // Extract latest versions only
-    if (data) {
-      const unique = new Map();
-      const types = new Set();
-      for (let workflowDef of data) {
-        if (!unique.has(workflowDef.name)) {
-          unique.set(workflowDef.name, workflowDef);
-        } else if (unique.get(workflowDef.name).version < workflowDef.version) {
-          unique.set(workflowDef.name, workflowDef);
-        }
-
-        for (let task of workflowDef.tasks) {
-          types.add(task.type);
-        }
-      }
-
-      return Array.from(unique.values());
-    }
-  }, [data]);
+  const handlePageChange = (page, totalRows) => {
+    setPage(page);
+  };
 
   return (
     <div className={classes.wrapper}>
       <Helmet>
         <title>Conductor UI - Workflow Definitions</title>
       </Helmet>
-      <Header tabIndex={0} loading={isFetching} />
+      <Header tabIndex={0} />
 
       <div className={classes.tabContent}>
         <div className={classes.buttonRow}>
@@ -122,26 +137,39 @@ export default function WorkflowDefinitions() {
           </Button>
         </div>
 
-        {workflows && (
-          <DataTable
-            title={`${workflows.length} results`}
-            localStorageKey="definitionsTable"
-            defaultShowColumns={[
-              "name",
-              "description",
-              "version",
-              "createTime",
-              "ownerEmail",
-              "task_count",
-              "executions_link",
-            ]}
-            keyField="name"
-            onFilterChange={handleFilterChange}
-            initialFilterObj={filterObj}
-            data={workflows}
-            columns={columns}
-          />
-        )}
+        <DataTable
+          title={totalHits !== null && `${totalHits} results`}
+          localStorageKey="definitionsTable"
+          defaultShowColumns={[
+            "name",
+            "description",
+            "version",
+            "createTime",
+            "ownerEmail",
+            "task_count",
+            "executions_link",
+          ]}
+          keyField="name"
+          onFilterChange={handleFilterChange}
+          o
+          initialFilterObj={{
+            columnName: "name",
+            substring: nameFilter,
+          }}
+          data={workflows}
+          columns={columns}
+          paginationServer
+          paginationTotalRows={totalHits}
+          paginationRowsPerPageOptions={[PAGE_SIZE]}
+          onChangePage={handlePageChange}
+          paginationDefaultPage={page}
+          progressPending={isFetching}
+          progressComponent={
+            <div className={classes.progress}>
+              <CircularProgress />
+            </div>
+          }
+        />
       </div>
     </div>
   );

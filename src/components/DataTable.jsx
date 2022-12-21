@@ -119,6 +119,8 @@ export default function DataTable(props) {
   }, [tableState, columns]);
 
   const filteredItems = useMemo(() => {
+    if (paginationServer) return data;
+
     const column = dataTableColumns.find(
       (col) => col.id === filterObj.columnName
     );
@@ -154,7 +156,7 @@ export default function DataTable(props) {
         return [];
       }
     }
-  }, [data, dataTableColumns, filterObj]);
+  }, [data, dataTableColumns, filterObj, paginationServer]);
 
   return (
     <RawDataTable
@@ -167,7 +169,7 @@ export default function DataTable(props) {
       paginationRowsPerPageOptions={[15, 30, 100, 1000]}
       actions={
         <>
-          {!paginationServer && showFilter && (
+          {showFilter && (
             <Filter
               columns={columns}
               filterObj={filterObj}

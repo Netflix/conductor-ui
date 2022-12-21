@@ -165,6 +165,7 @@ export default function ResultsTable({
             },
           }}
           paginationComponent={showMore ? ShowMore : null}
+          showFilter={false}
         />
       )}
     </Paper>

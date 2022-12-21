@@ -9,6 +9,8 @@ import {
   FormControl,
   IconButton,
   Toolbar,
+  LinearProgress,
+  CircularProgress,
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import {
@@ -67,6 +69,9 @@ export default function KitchenSink() {
         </Grid>
         <Grid item xs={12}>
           <Toggles />
+        </Grid>
+        <Grid item xs={12}>
+          <Progress />
         </Grid>
         <Grid item xs={12}>
           <Checkboxes />
@@ -370,3 +375,25 @@ const Inputs = () => (
     <Input label="DateTime" type="datetime-local" />
   </Paper>
 );
+
+const Progress = () => {
+  return (
+    <Paper style={{ padding: 15 }}>
+      <Heading level={3} gutterBottom>
+        Progress
+      </Heading>
+      <LinearProgress />
+      <div
+        style={{
+          height: 200,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <CircularProgress />
+      </div>
+    </Paper>
+  );
+};
