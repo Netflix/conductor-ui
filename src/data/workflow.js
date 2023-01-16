@@ -113,16 +113,20 @@ export function usePaginatedWorkflowDefs(from = 0, to = 15, filter = "") {
     paginatedNames.map((name) => ({
       queryKey: [stack, "workflowDef", name],
       queryFn: () => fetchWithContext(`/metadata/workflow/${name}`),
+      retry: 5,
     }))
   );
 
   const isFetching = useMemo(
     () =>
-      _.isEmpty(rawNames) || results.findIndex((row) => !row.isSuccess) !== -1,
+      _.isEmpty(rawNames) || results.findIndex((row) => row.isLoading) !== -1,
     [rawNames, results]
   );
   const workflows = useMemo(
-    () => (isFetching ? [] : results.map((row) => row.data)),
+    () =>
+      isFetching
+        ? []
+        : results.filter((row) => row.isSuccess).map((row) => row.data),
     [results, isFetching]
   );
 
