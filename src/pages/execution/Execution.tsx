@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useCallback } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { useQueryState } from "react-router-use-location-state";
 import Alert from "@material-ui/lab/Alert";
 import {
@@ -8,7 +8,9 @@ import {
   SecondaryButton,
   LinearProgress,
   Heading,
+  StatusBadge
 } from "../../components";
+
 import { Tooltip } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { useRouteMatch } from "react-router-dom";
@@ -23,13 +25,12 @@ import CloseIcon from "@material-ui/icons/Close";
 import FullscreenIcon from "@material-ui/icons/Fullscreen";
 import FullscreenExitIcon from "@material-ui/icons/FullscreenExit";
 import RightPanel from "./RightPanel";
-import WorkflowDAG from "../../components/diagram/WorkflowDAG";
-import StatusBadge from "../../components/StatusBadge";
 import { Helmet } from "react-helmet";
 import sharedStyles from "../styles";
 import rison from "rison";
-import { useWorkflow } from "../../data/workflow";
-
+import { useExecutionAndTasks, useWorkflowDag } from "../../data/execution";
+import { TaskCoordinate } from "../../components/diagram/WorkflowDAG";
+import { useWhatChanged } from '@simbathesailor/use-what-changed';
 const maxWindowWidth = window.innerWidth;
 const INIT_DRAWER_WIDTH = 650;
 
@@ -41,7 +42,7 @@ const useStyles = makeStyles({
     top: 0,
     right: 0,
     bottom: 0,
-    width: (state) => (state.isFullWidth ? "100%" : state.drawerWidth),
+    width: (state: any) => (state.isFullWidth ? "100%" : state.drawerWidth),
   },
   drawerHeader: {
     display: "flex",
@@ -61,7 +62,7 @@ const useStyles = makeStyles({
     padding: "4px 0 0",
     position: "absolute",
     height: "100%",
-    zIndex: "100",
+    zIndex: 100,
     backgroundColor: "#f4f7f9",
   },
   drawerMain: {
@@ -114,15 +115,25 @@ const useStyles = makeStyles({
   },
 });
 
+type RouteParams = {
+  id: string
+}
+
 export default function Execution() {
-  const match = useRouteMatch();
-
+  const match = useRouteMatch<RouteParams>();
+/*
   const {
-    data: execution,
-    isFetching,
-    refetch: refresh,
+    data: executionWithoutTasks,
+    isFetching: isFetchingExecution,
+    refetch: refetchExecutions,
   } = useWorkflow(match.params.id);
-
+  
+  const { 
+    data: tasks, 
+    isFetching: isFetchingTasks, 
+    refetch: refetchTasks 
+  } = useWorkflowTasksBackfill(match.params.id);
+*/
   const [isFullWidth, setIsFullWidth] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [drawerWidth, setDrawerWidth] = useState(INIT_DRAWER_WIDTH);
@@ -130,17 +141,31 @@ export default function Execution() {
   const [tabIndex, setTabIndex] = useQueryState("tabIndex", 0);
   const [selectedTaskRison, setSelectedTaskRison] = useQueryState("task", "");
 
-  const dag = useMemo(
-    () => (execution ? new WorkflowDAG(execution) : null),
-    [execution]
-  );
+  //const isFetching = useMemo(() => isFetchingExecution || isFetchingTasks, [isFetchingExecution, isFetchingTasks]);
+  /*
+  const execution = useMemo(() => {
+    if(executionWithoutTasks && tasks){
+      return {
+        ...executionWithoutTasks,
+        tasks
+      }
+    }
+  }, [executionWithoutTasks, tasks]);
+*/
+  const isFetching = false;
+  const executionAndTasks = useExecutionAndTasks(match.params.id);
+  const dag = useWorkflowDag(executionAndTasks);
 
-  const selectedTask = useMemo(
-    () => selectedTaskRison && rison.decode(selectedTaskRison),
+
+  const execution = executionAndTasks?.execution;
+  const tasks = executionAndTasks?.tasks;
+
+  const selectedTask: TaskCoordinate | undefined = useMemo(
+    () => selectedTaskRison ? rison.decode(selectedTaskRison): undefined,
     [selectedTaskRison]
   );
 
-  const setSelectedTask = (taskPointer) => {
+  const setSelectedTask = (taskPointer: TaskCoordinate) => {
     setSelectedTaskRison(rison.encode(taskPointer));
   };
 
@@ -150,7 +175,7 @@ export default function Execution() {
   });
 
   const handleMousemove = useCallback(
-    (e) => {
+    (e:MouseEvent) => {
       // we don't want to do anything if we aren't resizing.
       if (!isResizing) {
         return;
@@ -169,7 +194,13 @@ export default function Execution() {
     [isResizing]
   );
 
-  const handleMousedown = (e) => setIsResizing(true);
+  const refresh = () => {
+//    refetchExecutions();
+    //refetchTasks();
+  }
+
+
+  const handleMousedown = (e: React.MouseEvent) => setIsResizing(true);
 
   const handleClose = () => {
     setSelectedTaskRison(null);
@@ -185,7 +216,7 @@ export default function Execution() {
 
   // On load and destroy only
   useEffect(() => {
-    const mouseUp = (e) => setIsResizing(false);
+    const mouseUp = (e: Event) => setIsResizing(false);
 
     document.addEventListener("mousemove", handleMousemove);
     document.addEventListener("mouseup", mouseUp);
@@ -195,6 +226,8 @@ export default function Execution() {
       document.removeEventListener("mouseup", mouseUp);
     };
   }, [handleMousemove]);
+
+  const ready = !!execution && !!dag;
 
   return (
     <>
@@ -207,7 +240,7 @@ export default function Execution() {
         })}
       >
         {isFetching && <LinearProgress />}
-        {execution && (
+        {ready && (
           <>
             <div className={classes.header}>
               <div className={classes.fr}>
@@ -235,7 +268,7 @@ export default function Execution() {
                 <ActionModule execution={execution} triggerReload={refresh} />
               </div>
               <Heading level={3} gutterBottom>
-                {execution.workflowType || execution.workflowName}{" "}
+                {execution.workflowName}{" "}
                 <StatusBadge status={execution.status} />
               </Heading>
               <Heading level={0} className={classes.headerSubtitle}>
@@ -263,6 +296,7 @@ export default function Execution() {
                 <TaskDetails
                   dag={dag}
                   execution={execution}
+                  tasks={tasks}
                   setSelectedTask={setSelectedTask}
                   selectedTask={selectedTask}
                 />
@@ -274,7 +308,7 @@ export default function Execution() {
           </>
         )}
       </div>
-      {selectedTask && (
+      {selectedTask && ready && (
         <div className={classes.drawer}>
           <div
             id="dragger"
@@ -304,7 +338,7 @@ export default function Execution() {
             </div>
             <div className={classes.drawerContent}>
               <RightPanel
-                className={classes.rightPanel}
+                workflowId={execution.workflowId}
                 selectedTask={selectedTask}
                 dag={dag}
                 onTaskChange={setSelectedTask}

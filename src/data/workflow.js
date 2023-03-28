@@ -37,11 +37,7 @@ export function useWorkflowSearch(searchObj) {
   );
 }
 
-export function useWorkflow(workflowId) {
-  return useFetch(["workflow", workflowId], `/workflow/${workflowId}`, {
-    enabled: !!workflowId,
-  });
-}
+
 
 export function useWorkflowsByIds(workflowIds, reactQueryOptions) {
   return useFetchParallel(

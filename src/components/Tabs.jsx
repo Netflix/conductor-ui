@@ -44,7 +44,7 @@ const useContextualTabsStyles = makeStyles({
   },
 });
 
-export default function Tabs({ contextual, children, ...props }) {
+export default function Tabs({ contextual=false, children, ...props }) {
   const classes = useContextualTabsStyles();
   return (
     <RawTabs
@@ -61,7 +61,7 @@ export default function Tabs({ contextual, children, ...props }) {
   );
 }
 
-export function Tab({ contextual, ...props }) {
+export function Tab({ contextual=false, ...props }) {
   const classes = useContextualTabStyles();
   return <RawTab classes={contextual ? classes : null} {...props} />;
 }

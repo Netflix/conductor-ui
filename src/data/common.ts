@@ -1,12 +1,12 @@
 import _ from "lodash";
-import { useQuery, useQueries, useMutation } from "react-query";
+import { useQuery, useQueries, useMutation, MutationOptions } from "react-query";
 import useAppContext from "../hooks/useAppContext";
 
-export function useFetchParallel(paths, reactQueryOptions) {
+export function useFetchParallel(paths: string[][], reactQueryOptions?: any) {
   const { fetchWithContext, ready, stack } = useAppContext();
 
   return useQueries(
-    paths.map((path) => {
+    paths.map((path: string[]) => {
       return {
         queryKey: [stack, ...path],
         queryFn: () => fetchWithContext(`/${path.join("/")}`),
@@ -18,10 +18,10 @@ export function useFetchParallel(paths, reactQueryOptions) {
   );
 }
 
-export function useFetch(key, path, reactQueryOptions, defaultResponse) {
+export function useFetch<TData>(key: string[], path: string, reactQueryOptions?: any, defaultResponse?: any) {
   const { fetchWithContext, ready, stack } = useAppContext();
 
-  return useQuery(
+  return useQuery<TData>(
     [stack, ...key],
     () => {
       if (path) {
@@ -38,9 +38,9 @@ export function useFetch(key, path, reactQueryOptions, defaultResponse) {
   );
 }
 
-export function useAction(path, method = "post", callbacks) {
+export function useAction<TData>(path: string, method = "post", callbacks?: MutationOptions) {
   const { fetchWithContext } = useAppContext();
-  return useMutation(
+  return useMutation<TData>(
     (mutateParams) =>
       fetchWithContext(path, {
         method,

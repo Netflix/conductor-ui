@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { makeStyles } from "@material-ui/styles";
 import { isFailedTask } from "../../utils/helpers";
 import { DropdownButton } from "../../components";
@@ -45,6 +46,14 @@ export default function ActionModule({ execution, triggerReload }) {
   }
 
   const options = [];
+
+  const hasRetryableSubworkflow = useMemo(() =>
+    ["FAILED", "TIMED_OUT", "TERMINATED"].includes(execution.status) &&
+    execution.tasks.find(
+      (task) =>
+        task.taskType === "SUB_WORKFLOW" && isFailedTask(task.status)
+    ), [execution.tasks]);
+
 
   // RESTART buttons
   if (
@@ -124,13 +133,7 @@ export default function ActionModule({ execution, triggerReload }) {
   }
 
   // RETRY (failed subworkflow) button
-  if (
-    ["FAILED", "TIMED_OUT", "TERMINATED"].includes(execution.status) &&
-    execution.tasks.find(
-      (task) =>
-        task.workflowTask.type === "SUB_WORKFLOW" && isFailedTask(task.status)
-    )
-  ) {
+  if (hasRetryableSubworkflow) {
     options.push({
       label: (
         <>

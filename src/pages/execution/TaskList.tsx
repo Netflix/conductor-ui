@@ -1,18 +1,19 @@
 import { DataTable, TaskLink } from "../../components";
+import WorkflowDAG, { TaskCoordinate, TaskResult } from "../../components/diagram/WorkflowDAG";
 
-export default function TaskList({ selectedTask, tasks, workflowId }) {
+export default function TaskList({ selectedTask, tasks, dag, workflowId }: { selectedTask: TaskCoordinate, tasks: TaskResult[], dag: WorkflowDAG, workflowId: string }) {
   const taskDetailFields = [
     { name: "seq", grow: 0.2 },
     {
       name: "taskId",
-      renderer: (taskId) => (
+      renderer: (taskId: string) => (
         <TaskLink workflowId={workflowId} taskId={taskId} />
       ),
       grow: 2,
     },
-    { name: "workflowTask.name", id: "taskName", label: "Task Name" },
+    { name: "taskId", id: "name", renderer: (taskId: string) => dag.getTaskConfigByCoord({ id: taskId })?.name, label: "Task Name" },
     { name: "referenceTaskName", label: "Ref" },
-    { name: "workflowTask.type", id: "taskType", label: "Type", grow: 0.5 },
+    { name: "taskType", label: "Type", grow: 0.5 },
     { name: "scheduledTime", type: "date-ms" },
     { name: "startTime", type: "date-ms" },
     { name: "endTime", type: "date-ms" },

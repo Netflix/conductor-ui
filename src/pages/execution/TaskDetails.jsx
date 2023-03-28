@@ -16,6 +16,7 @@ const useStyles = makeStyles({
 export default function TaskDetails({
   execution,
   dag,
+  tasks,
   selectedTask,
   setSelectedTask,
 }) {
@@ -43,7 +44,7 @@ export default function TaskDetails({
           <TaskList
             workflowId={execution.workflowId}
             selectedTask={selectedTask}
-            tasks={execution.tasks}
+            tasks={tasks}
             dag={dag}
             onClick={setSelectedTask}
           />
@@ -51,7 +52,7 @@ export default function TaskDetails({
         {tabIndex === 2 && (
           <Timeline
             selectedTask={selectedTask}
-            tasks={execution.tasks}
+            tasks={tasks}
             dag={dag}
             onClick={setSelectedTask}
           />

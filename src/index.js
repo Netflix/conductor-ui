@@ -20,7 +20,6 @@ const queryClient = new QueryClient({
 });
 
 ReactDOM.render(
-  <React.StrictMode>
     <ThemeProvider>
       <BrowserRouter>
         <DefaultAppContextProvider>
@@ -32,8 +31,7 @@ ReactDOM.render(
           </QueryClientProvider>
         </DefaultAppContextProvider>
       </BrowserRouter>
-    </ThemeProvider>
-  </React.StrictMode>,
+    </ThemeProvider>,
   document.getElementById("root")
 );
 

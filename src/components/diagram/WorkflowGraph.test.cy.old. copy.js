@@ -6,7 +6,7 @@ describe("<WorkflowGraph>", () => {
   it("Dynamic Fork - success", () => {
     const onClickSpy = cy.spy().as("onClickSpy");
     cy.fixture("dynamicFork/success").then((data) => {
-      const dag = new WorkflowDAG(data);
+      const dag = WorkflowDAG.fromExecutionAndTasks(data);
       mount(
         <WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />
       );

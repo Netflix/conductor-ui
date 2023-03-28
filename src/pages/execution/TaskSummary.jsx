@@ -4,21 +4,21 @@ import { NavLink, KeyValueTable } from "../../components";
 import { useTime } from "../../hooks/useTime";
 import { useAppContext } from "../../export";
 
-export default function TaskSummary({ taskResult }) {
+export default function TaskSummary({ taskResult, taskConfig }) {
   const now = useTime();
   const { customTaskSummaryRows } = useAppContext();
 
   // To accommodate unexecuted tasks, read type & name & ref out of workflow
   const data = [
-    { label: "Task Type", value: taskResult.workflowTask.type },
+    { label: "Task Type", value: taskConfig.type },
     { label: "Status", value: taskResult.status || "Not executed" },
-    { label: "Task Name", value: taskResult.workflowTask.name },
+    { label: "Task Name", value: taskConfig.name },
     {
       label: "Task Reference",
       value:
         taskResult.referenceTaskName ||
-        taskResult.workflowTask.aliasForRef ||
-        taskResult.workflowTask.taskReferenceName,
+        taskResult.aliasForRef ||
+        taskConfig.taskReferenceName,
     },
   ];
 
@@ -94,10 +94,10 @@ export default function TaskSummary({ taskResult }) {
         taskResult.outputData.caseOutput[0],
     });
   }
-  if (taskResult.workflowTask.type === "SUB_WORKFLOW") {
+  if (taskConfig.type === "SUB_WORKFLOW") {
     const subWorkflowName =
       taskResult.inputData?.subWorkflowName ||
-      taskResult.workflowTask?.subWorkflowParam?.name;
+      taskConfig?.subWorkflowParam?.name;
     data.push({
       label: "Subworkflow Definition",
       value: (

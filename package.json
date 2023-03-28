@@ -7,6 +7,13 @@
     "@material-ui/lab": "^4.0.0-alpha.60",
     "@material-ui/styles": "^4.11.4",
     "@monaco-editor/react": "^4.3.1",
+    "@types/d3-zoom": "^3.0.2",
+    "@types/dagre-d3": "^0.6.3",
+    "@types/react-helmet": "^6.1.6",
+    "@types/react-router-dom": "^5.3.3",
+    "@types/rison": "^0.0.7",
+    "@types/url-parse": "^1.4.8",
+    "@types/uuid": "^9.0.1",
     "clsx": "^1.1.1",
     "cronstrue": "^1.72.0",
     "d3": "^6.2.0",
@@ -28,7 +35,7 @@
     "react-helmet": "^6.1.0",
     "react-is": "^17.0.2",
     "react-query": "^3.19.4",
-    "react-resize-detector": "^5.2.0",
+    "react-resize-detector": "^8.0.4",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "react-router-use-location-state": "^2.5.0",
@@ -38,6 +45,7 @@
     "styled-components": "^5.3.0",
     "url-parse": "^1.5.1",
     "use-local-storage-state": "^10.0.0",
+    "uuid": "^9.0.0",
     "xss": "^1.0.8",
     "yup": "^0.32.11"
   },
@@ -75,6 +83,7 @@
     "@babel/register": "^7.17.7",
     "@cypress/react": "^5.12.5",
     "@cypress/webpack-dev-server": "^1.8.4",
+    "@simbathesailor/use-what-changed": "^2.0.0",
     "cypress": "^10.0.3",
     "eslint-plugin-cypress": "^2.12.1",
     "http-server": "^14.1.1",
@@ -89,5 +98,6 @@
   },
   "license": "Apache-2.0",
   "main": "src/export.js",
-  "module": "src/export.js"
+  "module": "src/export.js",
+  "types": "src/types/index.d.ts"
 }
