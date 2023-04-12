@@ -127,7 +127,6 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
 
   highlightSelectedNode = () => {
     const { selectedTask } = this.props;
-    //const dag = this.props.dag;
     let selectedRef: string | undefined;
 
     const taskResult = this.props.dag.getTaskResultByCoord(selectedTask);
@@ -136,32 +135,6 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
       selectedRef = taskResult?.referenceTaskName;
     }
 
-    /*
-    const selectedRef = taskResult? (taskResult as TaskResult).referenceTaskName: undefined;
-
-    let resolvedRef;
-    if (!selectedRef) {
-      resolvedRef = undefined;
-    } else if (this.graph.hasNode(selectedRef)) {
-      resolvedRef = selectedRef;
-    } else if (dagGraph.hasNode(selectedRef)) {
-      // if ref cannot be found in this.graph, it may be rendered as a stacked placeholder.
-
-      const parentRef = dagGraph.predecessors(selectedRef)?.[0];
-      if(!parentRef) throw new Error("parentRef should not be null");
-      
-      const parentType = dagGraph.node(parentRef).type;
-      if(!(parentType === "FORK_JOIN_DYNAMIC" || parentType === "DO_WHILE")){
-        throw new Error("unexpected parentType");
-      }  
-
-      resolvedRef = this.graph
-        .successors(parentRef)
-        ?.find((ref) => ref.type?.includes("DF_TASK_PLACEHOLDER"));
-    } else {
-      throw new Error("Invalid select node");
-    }
-  */
     const { inner } = this;
     if (inner) {
       inner.selectAll("g.node").classed("selected", false);
@@ -283,11 +256,11 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
     this.renderer(inner, graph);
 
     // Expand barNodes and rerender
-    /*
+    
     for (const barRef of this.barNodes) {
       this.expandBar(barRef);
     }
-    */
+    
     // svg.width=100% via CSS
     svg.attr("height", (graph.graph() as any).height + BOTTOM_MARGIN);
 
@@ -308,12 +281,12 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
     const taskRef = path[1]?.id || path[2].id; // could be 2 layers down
     const node = this.graph.node(taskRef)
 
-    if (node.type === "DF_CHILDREN_PLACEHOLDER" || node.type === "LOOP_CHILDREN_PLACEHOLDER") {
+    if ((node.type === "DF_CHILDREN_PLACEHOLDER") || (node.type === "LOOP_CHILDREN_PLACEHOLDER")) {
       if (this.props.onClick && node.placeholderRef) {
         this.props.onClick({ ref: node.placeholderRef });
       }
     }
-    if(node.type === "DO_WHILE_END") {
+    else if(node.type === "DO_WHILE_END") {
       if (this.props.onClick && node.aliasForRef) {
         this.props.onClick({ ref: node.aliasForRef });
       }

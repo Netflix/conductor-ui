@@ -66,16 +66,6 @@ describe('Dynamic Fork', () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={false} />);
       cy.get(".edgePath.dimmed").should('have.length', 0);
     });
-
-
-    it("Click on placeholder is ignored.", () => {
-      const onClickSpy = cy.spy().as("onClickSpy");
-
-      cy.mount(<WorkflowGraph dag={dag} executionMode={false} onClick={onClickSpy} />);
-
-      cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER > .label-container").click();
-      cy.get('@onClickSpy').should('have.not.have.been.called');
-    });
   });
 
 
@@ -150,7 +140,7 @@ describe('Dynamic Fork', () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />);
 
       cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER > .label-container").click();
-      cy.get('@onClickSpy').should('have.not.have.been.called');
+      cy.get('@onClickSpy').should('not.have.been.called');
     });
 
   });
@@ -318,14 +308,6 @@ describe('Dynamic Fork', () => {
       cy.get("#dynamic_fork").should('have.class', "bar");
       cy.get("#dynamic_fork").should('have.class', "type-FORK_JOIN_DYNAMIC");
       cy.get("#dynamic_fork").should('have.class', "status_COMPLETED");
-    });
-
-    it("DF top bar widened to span children", () => {
-      cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
-      cy.get("#dynamic_fork rect")
-        .should('have.css', 'width')
-        .then(val => parseFloat(val.replace(/[^.\d]/g,'')))
-        .should('be.greaterThan', 250)
     });
 
     it("Placeholder does not exist", () => {

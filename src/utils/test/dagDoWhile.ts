@@ -21,8 +21,7 @@ export function dagDoWhileUnexecuted() {
 }
 
 
-export function 
-dagDoWhileSuccess(iterations = 5) {
+export function dagDoWhileSuccess(iterations = 5) {
   const workflow = new WorkflowExecution("test_workflow", "COMPLETED");
   workflow.pushDoWhile("loop_task", 2, iterations);
 

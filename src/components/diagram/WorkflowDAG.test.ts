@@ -6,7 +6,7 @@ import { dagSimpleUnexecuted, dagSimpleSuccess, dagSimpleFailure, dagSimpleRetri
 import { dagStaticForkSuccess, dagStaticForkFailure, dagStaticForkRetries, dagStaticForkDefOnly } from "../../utils/test/dagStaticFork";
 import { dagDynamicForkNoneSpawned, dagDynamicForkSuccess, dagDynamicForkFailure, dagDynamicForkRetries, dagDynamicForkDefOnly } from "../../utils/test/dagDynamicFork";
 import { dagDoWhileDefOnly, dagDoWhileSuccess, dagDoWhileFailure, dagDoWhileRetries } from "../../utils/test/dagDoWhile";
-import { dagSwitchDefOnly, dagSwitchSuccess } from "../../utils/test/dagSwitch";
+import { dagSwitchDefOnly, dagSwitchDoWhileDefOnly, dagSwitchSuccess } from "../../utils/test/dagSwitch";
 
 const FANOUT_HIGH = 5, FANOUT_LOW = 2;
 
@@ -747,6 +747,14 @@ describe("Switch", () => {
       assert.equal(dag.graph.node("default_0").status, undefined);
       assert.equal(dag.graph.node("default_1").status, undefined);
       assert.equal(dag.graph.node("__final").status, undefined);
+    });
+  });
+
+  describe("SWITCH inside loop - Definition Only", () => {
+    const dag = dagSwitchDoWhileDefOnly();
+
+    it("All 3 branches point to DO_WHILE_END", () => {
+      assert.deepEqual(dag.graph.predecessors("do_while-END")?.sort(), ["case0_1", "case1_1", "default_1"].sort() )
     });
   });
 });

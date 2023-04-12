@@ -1,5 +1,5 @@
 import WorkflowGraph from "../../src/components/diagram/WorkflowGraph";
-import { dagSwitchDefOnly, dagSwitchSuccess, dagSwitchUnexecuted } from "../../src/utils/test/dagSwitch";
+import { dagSwitchDefOnly, dagSwitchSuccess, dagSwitchUnexecuted, dagSwitchDoWhileDefOnly, dagSwitchDoWhileSuccess } from "../../src/utils/test/dagSwitch";
 import React from "react";
 
 describe('Switch', () => {
@@ -139,5 +139,35 @@ describe('Switch', () => {
       cy.get("#switch_task > .label-container").click();
       cy.get('@onClickSpy').should('have.been.calledWith', { ref: "switch_task" });;
     });
+  });
+
+
+  describe('Switch at bottom of Do-While', () => {
+    const dag = dagSwitchDoWhileDefOnly();
+
+    it("top bar widened to span children", () => {
+      cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
+      cy.get("#do_while rect")
+        .should('have.css', 'width')
+        .then(val => parseFloat(val.replace(/[^.\d]/g,'')))
+        .should('be.greaterThan', 300)
+    });
+
+    it("Expect 13 edges (incl. cosmetic loop arrow)", () => {
+      cy.mount(<WorkflowGraph dag={dag} executionMode={false} />);
+      cy.get(".edgePath").should('have.length', 13);
+    });
+  });
+
+
+  describe('Switch at bottom of Do-While - Executed', () => {
+    const dag = dagSwitchDoWhileSuccess();
+
+    // TODO Verify how many tasks should be collapsed.
+    it("Placeholder has correct count", () => {
+      cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
+      cy.get("#do_while_LOOP_CHILDREN_PLACEHOLDER").should('contain.text', "1 of 1 tasks succeeded");
+    });
+
   });
 });

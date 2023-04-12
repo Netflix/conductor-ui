@@ -137,7 +137,8 @@ export class WorkflowExecution implements Execution {
           taskType: "SIMPLE",
           referenceTaskName: childRef,
           taskDefName: `${ref}_child${j}_name`,
-          status: "COMPLETED"
+          status: "COMPLETED",
+          iteration: i
         })
       }
     }

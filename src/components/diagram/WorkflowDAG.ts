@@ -37,6 +37,7 @@ export type BaseTaskResult = {
   status: TaskStatus;
   parentTaskReferenceName?: string;
   retryCount?: number;
+  iteration?: number;
 }
 export type TaskResult = BaseTaskResult | DynamicForkTaskResult;
 
@@ -45,11 +46,11 @@ type TerminalTaskResult = {
   taskType: "TERMINAL";
   status: TaskStatus;
 }
+
 export interface DynamicForkTaskResult extends BaseTaskResult {
   taskType: "FORK",
   forkedTaskRefs: Set<string>;
 }
-
 
 type ExtendedTaskResult = TaskResult | TerminalTaskResult;
 
@@ -315,11 +316,10 @@ export default class WorkflowDAG {
       // Special case - When the antecedent of an executed node is a SWITCH or DECISION, the edge may not necessarily be highlighted.
       // E.g. the default edge not taken.
       //
-      // SWITCH is the newer version of DECISION and DECISION is deprecated
-      //
-      // Skip this if current type is DO_WHILE_END - which means the SWITCH is one of the bundled
-      // loop tasks and the current task is not the result of a decision
-      if ((antecedentConfig.type === "SWITCH" || antecedentConfig.type === "DECISION") && taskConfig.type !== "DO_WHILE_END") {
+      // No need for special case for DO_WHILE_END any more because executed loops are always collapsed.
+      
+
+      if (antecedentConfig.type === "SWITCH" || antecedentConfig.type === "DECISION") {
         
         edgeParams.caseValue = getCaseValue(
           taskConfig.taskReferenceName,
@@ -355,7 +355,7 @@ export default class WorkflowDAG {
 
   // Nodes are connected to previous
   processSwitchTask(decisionTask: SwitchTaskConfig, antecedents: GenericTaskConfig[]) {
-    const retval = [];
+    const retval: GenericTaskConfig[] = [];
 
     this.addVertex(decisionTask, antecedents);
 
@@ -374,7 +374,6 @@ export default class WorkflowDAG {
         })
       )
     );
-
     return retval;
   }
 
@@ -464,23 +463,29 @@ export default class WorkflowDAG {
         throw new Error("loopOver cannot be empty")
       }
 
-      // Connect the end of each case to the loop end
+      // Special case - Connect the end of each case to the loop end
+      // This only occurs in DefOnly view. Executed loops are always collapsed.
       if (
         lastLoopTask?.type === "SWITCH" ||
         lastLoopTask?.type === "DECISION"
       ) {
-        Object.entries(lastLoopTask.decisionCases).forEach(
+        
+        const tails = Object.entries(lastLoopTask.decisionCases).map(
           ([caseValue, tasks]) => {
-            const lastTaskInCase = _.last(tasks);
-            if (lastTaskInCase) {
-              this.addVertex(endDoWhileTaskConfig, [lastTaskInCase]);
-            }
+            return tasks[tasks.length-1]
           }
         );
+        
+        if(lastLoopTask.defaultCase){
+          tails.push(lastLoopTask.defaultCase[lastLoopTask.defaultCase.length - 1]);
+        }
+        this.addVertex(endDoWhileTaskConfig, tails);
+      }      
+      else {
+        this.addVertex(endDoWhileTaskConfig, [lastLoopTask]);
       }
 
-      // Default case
-      this.addVertex(endDoWhileTaskConfig, [lastLoopTask]);
+      
     }
 
 
@@ -507,8 +512,7 @@ export default class WorkflowDAG {
     return [joinTask];
   }
 
-  // returns tails = [...]
-  processTask(task: GenericTaskConfig, antecedents: GenericTaskConfig[]) {
+  processTask(task: GenericTaskConfig, antecedents: GenericTaskConfig[]): GenericTaskConfig[] {
     switch (task.type) {
       case "FORK_JOIN": {
         return this.processForkJoin(task, antecedents);
