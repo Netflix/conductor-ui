@@ -1,135 +1,151 @@
-import WorkflowDAG, { ForkTaskConfig, SimpleTaskConfig, TaskResult, TaskType } from "./WorkflowDAG";
-import { WorkflowExecution } from "../../utils/harness";
+import "mocha";
+
+import { NodeData, TaskResult } from "./WorkflowDAG";
 import assert from "assert";
-import { v4 as uuidv4 } from "uuid";
+import { dagSimpleUnexecuted, dagSimpleSuccess, dagSimpleFailure, dagSimpleRetries, dagSimpleDefOnly } from "../../utils/test/dagSimple";
+import { dagStaticForkSuccess, dagStaticForkFailure, dagStaticForkRetries, dagStaticForkDefOnly } from "../../utils/test/dagStaticFork";
+import { dagDynamicForkNoneSpawned, dagDynamicForkSuccess, dagDynamicForkFailure, dagDynamicForkRetries, dagDynamicForkDefOnly } from "../../utils/test/dagDynamicFork";
+import { dagDoWhileDefOnly, dagDoWhileSuccess, dagDoWhileFailure, dagDoWhileRetries } from "../../utils/test/dagDoWhile";
+import { dagSwitchDefOnly, dagSwitchSuccess } from "../../utils/test/dagSwitch";
 
 const FANOUT_HIGH = 5, FANOUT_LOW = 2;
 
 describe("Simple Task", () => {
+
   describe("Success", () => {
-    const workflow = new WorkflowExecution("test_workflow", "COMPLETED")
-    workflow.pushSimple("simple_task")
-    const executionAndTasks = workflow.toJSON();
+    const dag = dagSimpleSuccess();
 
-    const dag = WorkflowDAG.fromExecutionAndTasks(executionAndTasks);
-
-    test("Start node present and marked COMPLETED.", () => {
+    it("Start node present and marked COMPLETED.", () => {
       assert.equal(dag.graph.node("__start").status, "COMPLETED");
     });
 
-    test("SIMPLE task to follow start and marked COMPLETED.", () => {
+    it("SIMPLE task to follow start and marked COMPLETED.", () => {
       const start_successors = dag.graph.successors("__start");
-      assert.equal(start_successors?.length, 1)
-      assert.equal(start_successors?.[0], "simple_task")
+      assert.deepEqual(start_successors, ["simple_task"])
       assert.equal(dag.graph.node("simple_task").status, "COMPLETED")
     });
 
-    test("Final node present and marked COMPLETED.", () => {
+    it("Final node present and marked COMPLETED.", () => {
       const simple_task_successors = dag.graph.successors("simple_task");
-      assert.equal(simple_task_successors?.[0], "__final");
+      assert.deepEqual(simple_task_successors, ["__final"]);
       assert.equal(dag.graph.successors("__final")?.length, 0)
       assert.equal(dag.graph.node("__final").status, "COMPLETED");
     });
   });
 
   describe("Failure", () => {
-    const workflow = new WorkflowExecution("test_workflow", "FAILED")
-    workflow.pushSimple("simple_task", "FAILED")
-    const executionAndTasks = workflow.toJSON();
+    const dag = dagSimpleFailure();
 
-    const dag = WorkflowDAG.fromExecutionAndTasks(executionAndTasks);
-
-    test("Start node present and marked COMPLETED.", () => {
+    it("Start node present and marked COMPLETED.", () => {
       assert.equal(dag.graph.node("__start").status, "COMPLETED");
     });
 
-    test("SIMPLE task to follow start and marked FAILED", () => {
+    it("SIMPLE task to follow start and marked FAILED", () => {
       const start_successors = dag.graph.successors("__start");
-      assert.equal(start_successors?.length, 1)
-      assert.equal(start_successors?.[0], "simple_task")
+      assert.deepEqual(start_successors, ["simple_task"])
       assert.equal(dag.graph.node("simple_task").status, "FAILED")
     });
 
-    test("Final node present but not executed.", () => {
+    it("Final node present but not executed.", () => {
       const simple_task_successors = dag.graph.successors("simple_task");
-      assert.equal(simple_task_successors?.length, 1);
-      assert.equal(simple_task_successors?.[0], "__final");
+      assert.deepEqual(simple_task_successors, ["__final"]);
       assert.equal(dag.graph.node("__final").status, undefined);
     });
   });
 
 
   describe("Retries", () => {
-    const workflow = new WorkflowExecution("test_workflow", "COMPLETED");
-    workflow.pushSimple("simple_task", "COMPLETED", 3);
-    workflow.tasks[0].status = "FAILED";
-    workflow.tasks[1].status = "FAILED";
+    const dag = dagSimpleRetries();
 
-    const executionAndTasks = workflow.toJSON();
-
-    const dag = WorkflowDAG.fromExecutionAndTasks(executionAndTasks);
     const simple_task_node = dag.graph.node("simple_task");
 
-    test("Start node present and marked COMPLETED.", () => {
+    it("Start node present and marked COMPLETED.", () => {
       assert.equal(dag.graph.node("__start").status, "COMPLETED");
     });
 
-    test("SIMPLE task to follow start and be marked COMPLETED", () => {
+    it("SIMPLE task to follow start and be marked COMPLETED", () => {
       const start_successors = dag.graph.successors("__start");
-      assert.equal(start_successors?.length, 1)
-      assert.equal(start_successors?.[0], "simple_task")
+      assert.deepEqual(start_successors, ["simple_task"])
 
       assert.equal(simple_task_node.status, "COMPLETED")
       assert.equal(simple_task_node.taskResults.length, 3);
     });
 
-    test("Helpers are returning the last (successful) retry;", () => {
+    it("Helpers are returning the last (successful) retry;", () => {
       const lastTaskId = simple_task_node.taskResults[2].taskId;
       assert.equal((dag.getTaskResultByRef("simple_task") as TaskResult).taskId, lastTaskId);
       assert.equal((dag.getTaskResultByCoord({ ref: "simple_task" }) as TaskResult).taskId, lastTaskId);
     });
 
-    test("Final node present and COMPLETED.", () => {
+    it("Final node present and COMPLETED.", () => {
       const simple_task_successors = dag.graph.successors("simple_task");
-      assert.equal(simple_task_successors?.length, 1);
-      assert.equal(simple_task_successors?.[0], "__final");
+      assert.deepEqual(simple_task_successors, ["__final"]);
       assert.equal(dag.graph.node("__final").status, "COMPLETED");
     });
   });
-});
 
+  describe("Unexecuted", () => {
+    const dag = dagSimpleUnexecuted();
+
+    it("Start node present and COMPLETED", () => {
+      assert.equal(dag.graph.node("__start").status, "COMPLETED");
+    });
+
+    it("SIMPLE task to follow start and unexecuted", () => {
+      const start_successors = dag.graph.successors("__start");
+      assert.deepEqual(start_successors, ["simple_task"])
+      assert.equal(dag.graph.node("simple_task").status, undefined)
+    });
+
+    it("Final node present and unexecuted", () => {
+      const simple_task_successors = dag.graph.successors("simple_task");
+      assert.deepEqual(simple_task_successors, ["__final"]);
+      assert.equal(dag.graph.successors("__final")?.length, 0)
+      assert.equal(dag.graph.node("__final").status, undefined);
+    });
+  });
+
+  describe("Definition Only", () => {
+    const dag = dagSimpleDefOnly();
+
+    it("All nodes are unexecuted", () => {
+      assert.equal(dag.graph.node("__start").status, undefined)
+      assert.equal(dag.graph.node("simple_task").status, undefined)
+      assert.equal(dag.graph.node("__final").status, undefined);
+    });
+  });
+});
 describe("Dynamic Fork", () => {
+
   describe("Low fanout - success", () => {
     const dag = dagDynamicForkSuccess(FANOUT_LOW);
 
-    test("FORK_JOIN_DYNAMIC is COMPLETED", () => {
+    it("FORK_JOIN_DYNAMIC follows start", () => {
       const start_successors = dag.graph.successors("__start");
-      assert.equal(start_successors?.length, 1);
-      assert.equal(start_successors?.[0], "dynamic_fork");
-      assert.equal(dag.graph.node("dynamic_fork").status, "COMPLETED");
+      assert.deepEqual(start_successors, ["dynamic_fork"]);
     });
 
-    test("Forked children displayed separately", () => {
+    it("Forked children displayed separately", () => {
       const dynamic_fork_successors = dag.graph.successors("dynamic_fork");
-      assert.equal(dynamic_fork_successors?.length, 2);
-      assert.equal(dynamic_fork_successors?.[0], "dynamic_fork_child_0");
-      assert.equal(dynamic_fork_successors?.[1], "dynamic_fork_child_1");
+      assert.deepEqual(dynamic_fork_successors, ["dynamic_fork_child_0", "dynamic_fork_child_1"]);
+    });
+
+    it("JOIN follows children", () => {
+      const fork_join_predecessors = dag.graph.predecessors("dynamic_fork_join");
+      assert.deepEqual(fork_join_predecessors, ["dynamic_fork_child_0", "dynamic_fork_child_1"]);
+    });
+
+    it("Final node present", () => {
+      const fork_join_successors = dag.graph.successors("dynamic_fork_join");
+      assert.deepEqual(fork_join_successors, ["__final"]);
+    });
+
+    it("All nodes are COMPLETED", () => {
+      assert.equal(dag.graph.node("__start").status, "COMPLETED")
+      assert.equal(dag.graph.node("dynamic_fork").status, "COMPLETED")
       assert.equal(dag.graph.node("dynamic_fork_child_0").status, "COMPLETED");
       assert.equal(dag.graph.node("dynamic_fork_child_1").status, "COMPLETED");
-    });
-
-    test("JOIN connected and COMPLETED", () => {
-      const fork_join_predecessors = dag.graph.predecessors("dynamic_fork_join");
-      assert.equal(fork_join_predecessors?.length, 2);
-      assert.equal(fork_join_predecessors?.[0], "dynamic_fork_child_0");
-      assert.equal(fork_join_predecessors?.[1], "dynamic_fork_child_1");
       assert.equal(dag.graph.node("dynamic_fork_join").status, "COMPLETED");
-    });
-
-    test("Final node present and marked COMPLETED.", () => {
-      const fork_join_successors = dag.graph.successors("dynamic_fork_join");
-      assert.equal(fork_join_successors?.length, 1);
-      assert.equal(fork_join_successors?.[0], "__final");
       assert.equal(dag.graph.node("__final").status, "COMPLETED");
     });
   });
@@ -137,34 +153,32 @@ describe("Dynamic Fork", () => {
   describe("Low fanout - failure", () => {
     const dag = dagDynamicForkFailure(FANOUT_LOW);
 
-    test("FORK_JOIN_DYNAMIC is COMPLETED even if children fail", () => {
+    it("FORK_JOIN_DYNAMIC follows start", () => {
       const start_successors = dag.graph.successors("__start");
-      assert.equal(start_successors?.length, 1);
-      assert.equal(start_successors?.[0], "dynamic_fork");
-      assert.equal(dag.graph.node("dynamic_fork").status, "COMPLETED");
+      assert.deepEqual(start_successors, ["dynamic_fork"]);
     });
 
-    test("Children - Separate and 1 failure", () => {
+    it("Children separately displayed", () => {
       const dynamic_fork_successors = dag.graph.successors("dynamic_fork");
-      assert.equal(dynamic_fork_successors?.length, 2);
-      assert.equal(dynamic_fork_successors?.[0], "dynamic_fork_child_0");
-      assert.equal(dynamic_fork_successors?.[1], "dynamic_fork_child_1");
+      assert.deepEqual(dynamic_fork_successors, ["dynamic_fork_child_0", "dynamic_fork_child_1"]);
+    });
+
+    it("JOIN follows both children", () => {
+      const fork_join_predecessors = dag.graph.predecessors("dynamic_fork_join");
+      assert.deepEqual(fork_join_predecessors, ["dynamic_fork_child_0", "dynamic_fork_child_1"]);
+    });
+
+    it("Final node present", () => {
+      const fork_join_successors = dag.graph.successors("dynamic_fork_join");
+      assert.deepEqual(fork_join_successors, ["__final"]);
+    });
+
+    it("Status as expected. DYNAMIC_FORK succeeds even if child fails.", () => {
+      assert.equal(dag.graph.node("__start").status, "COMPLETED")
+      assert.equal(dag.graph.node("dynamic_fork").status, "COMPLETED")
       assert.equal(dag.graph.node("dynamic_fork_child_0").status, "COMPLETED");
       assert.equal(dag.graph.node("dynamic_fork_child_1").status, "FAILED");
-    });
-
-    test("JOIN is connected and FAILED", () => {
-      const fork_join_predecessors = dag.graph.predecessors("dynamic_fork_join");
-      assert.equal(fork_join_predecessors?.length, 2);
-      assert.equal(fork_join_predecessors?.[0], "dynamic_fork_child_0");
-      assert.equal(fork_join_predecessors?.[1], "dynamic_fork_child_1");
       assert.equal(dag.graph.node("dynamic_fork_join").status, "FAILED");
-    });
-
-    test("Final node present and not executed", () => {
-      const fork_join_successors = dag.graph.successors("dynamic_fork_join");
-      assert.equal(fork_join_successors?.length, 1);
-      assert.equal(fork_join_successors?.[0], "__final");
       assert.equal(dag.graph.node("__final").status, undefined);
     });
   });
@@ -172,36 +186,36 @@ describe("Dynamic Fork", () => {
   describe("Low fanout - retries", () => {
     const dag = dagDynamicForkRetries(2);
 
-    test("FORK_JOIN_DYNAMIC is COMPLETED", () => {
+    it("FORK_JOIN_DYNAMIC follows start", () => {
       const start_successors = dag.graph.successors("__start");
-      assert.equal(start_successors?.length, 1);
-      assert.equal(start_successors?.[0], "dynamic_fork");
-      assert.equal(dag.graph.node("dynamic_fork").status, "COMPLETED");
+      assert.deepEqual(start_successors, ["dynamic_fork"]);
     });
 
-    test("2 Children both COMPLETED", () => {
+    it("2 Children", () => {
       const dynamic_fork_successors = dag.graph.successors("dynamic_fork");
-      assert.equal(dynamic_fork_successors?.length, 2);
-      assert.equal(dynamic_fork_successors?.[0], "dynamic_fork_child_0");
-      assert.equal(dynamic_fork_successors?.[1], "dynamic_fork_child_1");
-      assert.equal(dag.graph.node("dynamic_fork_child_0").status, "COMPLETED");
-      assert.equal(dag.graph.node("dynamic_fork_child_1").status, "COMPLETED");
+      assert.deepEqual(dynamic_fork_successors, ["dynamic_fork_child_0", "dynamic_fork_child_1"]);
     });
-    test("Retry history is accessible", () => {
-      const failedRetryResult = dag.getAllTaskResultsByRef("dynamic_fork_child_1")?.[0];
+
+    it("Retry history is accessible", () => {
+      const failedRetryResult = dag.getTaskResultsByRef("dynamic_fork_child_1")?.[0];
       assert.equal(failedRetryResult?.status, "FAILED");
     });
-    test("JOIN is COMPLETED", () => {
+
+    it("JOIN follows both children", () => {
       const fork_join_predecessors = dag.graph.predecessors("dynamic_fork_join");
-      assert.equal(fork_join_predecessors?.length, 2);
-      assert.equal(fork_join_predecessors?.[0], "dynamic_fork_child_0");
-      assert.equal(fork_join_predecessors?.[1], "dynamic_fork_child_1");
-      assert.equal(dag.graph.node("dynamic_fork_join").status, "COMPLETED");
+      assert.deepEqual(fork_join_predecessors, ["dynamic_fork_child_0", "dynamic_fork_child_1"]);
     });
-    test("Final node present and marked COMPLETED.", () => {
+    it("Final node present", () => {
       const fork_join_successors = dag.graph.successors("dynamic_fork_join");
-      assert.equal(fork_join_successors?.length, 1);
-      assert.equal(fork_join_successors?.[0], "__final");
+      assert.deepEqual(fork_join_successors, ["__final"]);
+    });
+
+    it("All nodes COMPLETED. Retry does not result in failure of placeholder", () => {
+      assert.equal(dag.graph.node("__start").status, "COMPLETED")
+      assert.equal(dag.graph.node("dynamic_fork").status, "COMPLETED")
+      assert.equal(dag.graph.node("dynamic_fork_child_0").status, "COMPLETED");
+      assert.equal(dag.graph.node("dynamic_fork_child_1").status, "COMPLETED");
+      assert.equal(dag.graph.node("dynamic_fork_join").status, "COMPLETED");
       assert.equal(dag.graph.node("__final").status, "COMPLETED");
     });
   });
@@ -211,56 +225,52 @@ describe("Dynamic Fork", () => {
     const dag = dagDynamicForkSuccess(FANOUT_HIGH);
 
     const placeholder_node = dag.graph.node("dynamic_fork_DF_CHILDREN_PLACEHOLDER");
-    const taskResult = placeholder_node.taskResults?.[0];
 
-    test("FORK_JOIN_DYNAMIC is COMPLETED", () => {
+    it("FORK_JOIN_DYNAMIC follows start", () => {
       const start_successors = dag.graph.successors("__start");
-      assert.equal(start_successors?.length, 1);
-      assert.equal(start_successors?.[0], "dynamic_fork");
-      assert.equal(dag.graph.node("dynamic_fork").status, "COMPLETED");
+      assert.deepEqual(start_successors, ["dynamic_fork"]);
     });
 
-    test("Expect Collapsed cards", () => {
+    it("Expect Collapsed cards", () => {
       const dynamic_fork_successors = dag.graph.successors("dynamic_fork");
-      assert.equal(dynamic_fork_successors?.length, 1);
-      assert.equal(dynamic_fork_successors?.[0], "dynamic_fork_DF_CHILDREN_PLACEHOLDER");
+      assert.deepEqual(dynamic_fork_successors, ["dynamic_fork_DF_CHILDREN_PLACEHOLDER"]);
+      assert.equal(dag.graph.node("dynamic_fork_child_0"), undefined)
     });
 
-    test("Placeholder is marked COMPLETED", () => {
-      assert.equal(placeholder_node.status, "COMPLETED");
-      assert.equal(placeholder_node.taskResults?.length, 1);
+    it("Placeholder has no taskResults", () => {
+      assert.deepEqual(placeholder_node.taskResults, []);
+    })
+
+    it("Tally should match fanout", () => {
+      assert.equal(placeholder_node.tally.total, FANOUT_HIGH);
+      assert.equal(placeholder_node.tally.success, FANOUT_HIGH);
     });
 
-    test("Tally should match fanout", () => {
-      assert.equal(taskResult.tally.total, FANOUT_HIGH);
-      assert.equal(taskResult.tally.success, FANOUT_HIGH);
+    it("ForkedTaskRefs match fanout", () => {
+      assert.deepEqual(placeholder_node.containsTaskRefs, ["dynamic_fork_child_0", "dynamic_fork_child_1", "dynamic_fork_child_2", "dynamic_fork_child_3", "dynamic_fork_child_4"]);
     });
 
-    test("ForkedTaskRefs match fanout", () => {
-      assert.equal(taskResult.forkedTaskRefs.size, 5);
-      assert.ok(taskResult.forkedTaskRefs.has("dynamic_fork_child_0"));
-      assert.ok(taskResult.forkedTaskRefs.has("dynamic_fork_child_1"));
-      assert.ok(taskResult.forkedTaskRefs.has("dynamic_fork_child_2"));
-      assert.ok(taskResult.forkedTaskRefs.has("dynamic_fork_child_3"));
-      assert.ok(taskResult.forkedTaskRefs.has("dynamic_fork_child_4"));
-    });
-
-    test("Forked task results can be retrieved", () => {
+    it("Forked task results can be retrieved", () => {
       const childResult = dag.getTaskResultByRef("dynamic_fork_child_0")
       assert.equal(childResult?.status, "COMPLETED");
     });
 
-    test("Forked task config is partially reconstructed", () => {
+    it("Forked task config is partially reconstructed", () => {
       const childConfig = dag.getTaskConfigByCoord({ ref: "dynamic_fork_child_0" });
       assert.equal(childConfig?.taskReferenceName, "dynamic_fork_child_0");
       assert.equal(childConfig?.type, undefined);
     });
 
-    test("JOIN is connected and COMPLETED", () => {
+    it("JOIN is connected", () => {
       const fork_join_predecessors = dag.graph.predecessors("dynamic_fork_join");
-      assert.equal(fork_join_predecessors?.length, 1);
-      assert.equal(fork_join_predecessors?.[0], "dynamic_fork_DF_CHILDREN_PLACEHOLDER");
-      assert.equal(dag.graph.node("dynamic_fork_join").status, "COMPLETED");
+      assert.deepEqual(fork_join_predecessors, ["dynamic_fork_DF_CHILDREN_PLACEHOLDER"]);
+    });
+
+    it("All nodes COMPLETED", () => {
+      assert.equal(dag.graph.node("__start").status, "COMPLETED")
+      assert.equal(dag.graph.node("dynamic_fork").status, "COMPLETED")
+      assert.equal(dag.graph.node("dynamic_fork_DF_CHILDREN_PLACEHOLDER").status, "COMPLETED");
+      assert.equal(dag.graph.node("__final").status, "COMPLETED");
     });
   });
 
@@ -268,48 +278,46 @@ describe("Dynamic Fork", () => {
   describe("High fanout - failure", () => {
     const dag = dagDynamicForkFailure(FANOUT_HIGH);
     const placeholder_node = dag.graph.node("dynamic_fork_DF_CHILDREN_PLACEHOLDER");
-    const taskResult = placeholder_node.taskResults?.[0];
 
-    test("FORK_JOIN_DYNAMIC marked COMPLETED even if children fail", () => {
+    it("FORK_JOIN_DYNAMIC follows start", () => {
       const start_successors = dag.graph.successors("__start");
-      assert.equal(start_successors?.length, 1);
-      assert.equal(start_successors?.[0], "dynamic_fork");
-      assert.equal(dag.graph.node("dynamic_fork").status, "COMPLETED");
+      assert.deepEqual(start_successors, ["dynamic_fork"]);
     });
 
-    test("Placeholder is marked FAILED", () => {
-      assert.equal(placeholder_node.status, "FAILED");
-      assert.equal(placeholder_node.taskResults?.length, 1);
+    it("Placeholder has no taskResults", () => {
+      assert.deepEqual(placeholder_node.taskResults, []);
+    })
+
+    it("Tally should indicate failure", () => {
+      assert.equal(placeholder_node.tally.total, FANOUT_HIGH);
+      assert.equal(placeholder_node.tally.success, FANOUT_HIGH - 1);
     });
 
-    test("Tally should indicate failure", () => {
-      assert.equal(taskResult.tally.total, FANOUT_HIGH);
-      assert.equal(taskResult.tally.success, FANOUT_HIGH - 1);
+    it("forkedTaskRef size should match fanout", () => {
+      assert.equal(placeholder_node.containsTaskRefs.length, FANOUT_HIGH);
     });
 
-    test("forkedTaskRef size should match fanout", () => {
-      assert.equal(taskResult.forkedTaskRefs.size, FANOUT_HIGH);
-    });
-
-    test("Forked task results can be retrieved", () => {
+    it("Forked task results can be retrieved", () => {
       const childResult = dag.getTaskResultByRef("dynamic_fork_child_4")
       assert.equal(childResult?.status, "FAILED");
     });
 
-    test("Forked task config is partially reconstructed", () => {
+    it("Forked task config is partially reconstructed", () => {
       const childConfig = dag.getTaskConfigByCoord({ ref: "dynamic_fork_child_4" });
       assert.equal(childConfig?.taskReferenceName, "dynamic_fork_child_4");
       assert.equal(childConfig?.type, undefined);
     });
 
-    test("JOIN is FAILED", () => {
+    it("JOIN is FAILED", () => {
       const fork_join_predecessors = dag.graph.predecessors("dynamic_fork_join");
-      assert.equal(fork_join_predecessors?.length, 1);
-      assert.equal(fork_join_predecessors?.[0], "dynamic_fork_DF_CHILDREN_PLACEHOLDER");
-      assert.equal(dag.graph.node("dynamic_fork_join").status, "FAILED");
+      assert.deepEqual(fork_join_predecessors, ["dynamic_fork_DF_CHILDREN_PLACEHOLDER"]);
     });
 
-    test("final bubble is unexecuted", () => {
+    it("All node status as expected", () => {
+      assert.equal(dag.graph.node("__start").status, "COMPLETED")
+      assert.equal(dag.graph.node("dynamic_fork").status, "COMPLETED")
+      assert.equal(dag.graph.node("dynamic_fork_DF_CHILDREN_PLACEHOLDER").status, "FAILED");
+      assert.equal(dag.graph.node("dynamic_fork_join").status, "FAILED");
       assert.equal(dag.graph.node("__final").status, undefined);
     });
   });
@@ -318,74 +326,165 @@ describe("Dynamic Fork", () => {
   describe("High fanout - retries", () => {
     const dag = dagDynamicForkRetries(FANOUT_HIGH);
     const placeholder_node = dag.graph.node("dynamic_fork_DF_CHILDREN_PLACEHOLDER");
-    const taskResult = placeholder_node.taskResults?.[0];
 
-    test("Placeholder is marked COMPLETED", () => {
-      assert.equal(placeholder_node.status, "COMPLETED");
-      assert.equal(placeholder_node.taskResults?.length, 1);
+    it("Placeholder has no taskResults", () => {
+      assert.deepEqual(placeholder_node.taskResults, []);
+    })
+
+    it("Tally - is (5/5). Retried task should not count as failure", () => {
+      assert.equal(placeholder_node.tally.total, FANOUT_HIGH);
+      assert.equal(placeholder_node.tally.success, FANOUT_HIGH);
     });
 
-    test("Tally - is (5/5). Retried task should not count as failure", () => {
-      assert.equal(taskResult.tally.total, FANOUT_HIGH);
-      assert.equal(taskResult.tally.success, FANOUT_HIGH);
+    it("forkedTasksRefs - dupe is removed", () => {
+      assert.equal(placeholder_node.containsTaskRefs.length, 5);
     });
 
-    test("forkedTasksRefs - dupe is removed", () => {
-      assert.equal(taskResult.forkedTaskRefs.size, 5);
-    });
-
-    test("Retry history can be retrieved", () => {
+    it("Retry history can be retrieved", () => {
       const childResult = dag.getTaskResultByRef("dynamic_fork_child_4")
       assert.equal(childResult?.status, "COMPLETED");
 
-      const failedRetryResult = dag.getAllTaskResultsByRef("dynamic_fork_child_4")?.[0];
+      const failedRetryResult = dag.getTaskResultsByRef("dynamic_fork_child_4")?.[0];
       assert.equal(failedRetryResult?.status, "FAILED");
     });
 
-    test("Forked task config is partially reconstructed", () => {
+    it("Forked task config is partially reconstructed", () => {
       const childConfig = dag.getTaskConfigByCoord({ ref: "dynamic_fork_child_4" });
       assert.equal(childConfig?.taskReferenceName, "dynamic_fork_child_4");
       assert.equal(childConfig?.type, undefined);
     });
 
-    test("JOIN is correctly attached and COMPLETED", () => {
+    it("JOIN is correctly attached and COMPLETED", () => {
       const fork_join_predecessors = dag.graph.predecessors("dynamic_fork_join");
-      assert.equal(fork_join_predecessors?.length, 1);
-      assert.equal(fork_join_predecessors?.[0], "dynamic_fork_DF_CHILDREN_PLACEHOLDER");
+      assert.deepEqual(fork_join_predecessors, ["dynamic_fork_DF_CHILDREN_PLACEHOLDER"]);
       assert.equal(dag.graph.node("dynamic_fork_join").status, "COMPLETED");
     });
 
-    test("final bubble is COMPLETED", () => {
+    it("All node status as expected", () => {
+      assert.equal(dag.graph.node("__start").status, "COMPLETED")
+      assert.equal(dag.graph.node("dynamic_fork").status, "COMPLETED")
+      assert.equal(dag.graph.node("dynamic_fork_DF_CHILDREN_PLACEHOLDER").status, "COMPLETED");
+      assert.equal(dag.graph.node("dynamic_fork_join").status, "COMPLETED");
       assert.equal(dag.graph.node("__final").status, "COMPLETED");
     });
   });
+  describe("Definition Only", () => {
+    const dag = dagDynamicForkDefOnly();
+    const placeholder_node: NodeData = dag.graph.node("dynamic_fork_DF_CHILDREN_PLACEHOLDER");
+
+    it("Placeholder follows FORK_JOIN_DYNAMIC", () => {
+      const dynamic_fork_successors = dag.graph.successors("dynamic_fork");
+      assert.deepEqual(dynamic_fork_successors, ["dynamic_fork_DF_CHILDREN_PLACEHOLDER"]);
+    });
+
+    it("Placeholder has no attached containedTaskRefs, tally or taskResults", () => {
+      assert.equal(placeholder_node.containsTaskRefs, undefined);
+      assert.equal(placeholder_node.tally, undefined);
+      assert.deepEqual(placeholder_node.taskResults, []);
+    });
+
+    it("Placeholder links to placeholder task config", () => {
+      assert.equal(placeholder_node.taskConfig?.type, "DF_CHILDREN_PLACEHOLDER");
+    });
+
+    it("JOIN follows placeholder", () => {
+      const fork_join_predecessors = dag.graph.predecessors("dynamic_fork_join");
+      assert.deepEqual(fork_join_predecessors, ["dynamic_fork_DF_CHILDREN_PLACEHOLDER"]);
+    });
+
+
+    it("All nodes are not executed", () => {
+      assert.equal(dag.graph.node("__start").status, undefined)
+      assert.equal(dag.graph.node("dynamic_fork").status, undefined)
+      assert.equal(placeholder_node.status, undefined);
+      assert.equal(dag.graph.node("dynamic_fork_join").status, undefined);
+      assert.equal(dag.graph.node("__final").status, undefined);
+    });
+  });
+
+  describe("None Spawned", () => {
+    const dag = dagDynamicForkNoneSpawned();
+    const placeholder_node: NodeData = dag.graph.node("dynamic_fork_DF_CHILDREN_PLACEHOLDER");
+
+    it("FORK_JOIN_DYNAMIC follows start", () => {
+      const start_successors = dag.graph.successors("__start");
+      assert.deepEqual(start_successors, ["dynamic_fork"])
+    });
+
+    it("Placeholder follows FORK_JOIN_DYNAMIC", () => {
+      const dynamic_fork_successors = dag.graph.successors("dynamic_fork");
+      assert.deepEqual(dynamic_fork_successors, ["dynamic_fork_DF_CHILDREN_PLACEHOLDER"]);
+    });
+
+    it("Placeholder has zero (not undefined) containedTaskRefs, tally. taskResults should be empty.", () => {
+      assert.deepEqual(placeholder_node.containsTaskRefs, []);
+      assert.equal(placeholder_node.tally?.total, 0);
+      assert.equal(placeholder_node.tally?.success, 0);
+      assert.deepEqual(placeholder_node.taskResults, []);
+    });
+
+    it("Placeholder links to placeholder task config", () => {
+      assert.equal(placeholder_node.taskConfig?.type, "DF_CHILDREN_PLACEHOLDER");
+    });
+
+    it("JOIN connected", () => {
+      const fork_join_predecessors = dag.graph.predecessors("dynamic_fork_join");
+      assert.deepEqual(fork_join_predecessors, ["dynamic_fork_DF_CHILDREN_PLACEHOLDER"]);
+    });
+
+    it("Final node present and follows JOIN.", () => {
+      const fork_join_successors = dag.graph.successors("dynamic_fork_join");
+      assert.deepEqual(fork_join_successors, ["__final"]);
+    });
+
+    it("All nodes are COMPLETED", () => {
+      assert.equal(dag.graph.node("__start").status, "COMPLETED")
+      assert.equal(dag.graph.node("dynamic_fork").status, "COMPLETED")
+      assert.equal(placeholder_node.status, "COMPLETED");
+      assert.equal(dag.graph.node("dynamic_fork_join").status, "COMPLETED");
+      assert.equal(dag.graph.node("__final").status, "COMPLETED");
+    });
+
+  });
+
 });
 
 describe("Static Fork", () => {
+  describe("Definition Only", () => {
+    const dag = dagStaticForkDefOnly();
+
+    it("All nodes are marked unexecuted", () => {
+      assert.equal(dag.graph.node("__start").status, undefined);
+      assert.equal(dag.graph.node("static_fork").status, undefined);
+      assert.equal(dag.graph.node("static_fork_task_0").status, undefined);
+      assert.equal(dag.graph.node("static_fork_task_1").status, undefined);
+      assert.equal(dag.graph.node("static_fork_task_2").status, undefined);
+      assert.equal(dag.graph.node("static_fork_task_3").status, undefined);
+      assert.equal(dag.graph.node("static_join").status, undefined);
+      assert.equal(dag.graph.node("__final").status, undefined);
+    });
+  });
+
   describe("Success", () => {
     const dag = dagStaticForkSuccess();
 
-    test("FORK has 2 successor chains", () => {
+    it("FORK has 2 successor chains", () => {
       const forkSuccessors = dag.graph.successors("static_fork");
-      assert.equal(forkSuccessors?.length, 2);
-      assert.equal(forkSuccessors?.[0], "static_fork_task_0");
-      assert.equal(forkSuccessors?.[1], "static_fork_task_2");
+      assert.deepEqual(forkSuccessors, ["static_fork_task_0", "static_fork_task_2"]);
     });
 
 
-    test("Chains are connected", () => {
-      assert.equal(dag.graph.successors("static_fork_task_0")?.[0], "static_fork_task_1");
-      assert.equal(dag.graph.successors("static_fork_task_2")?.[0], "static_fork_task_3");
+    it("Chains are connected", () => {
+      assert.deepEqual(dag.graph.successors("static_fork_task_0"), ["static_fork_task_1"]);
+      assert.deepEqual(dag.graph.successors("static_fork_task_2"), ["static_fork_task_3"]);
     });
 
-    test("Chains merge into JOIN", () => {
+    it("Chains merge into JOIN", () => {
       const joinPredecessors = dag.graph.predecessors("static_join");
-      assert.equal(joinPredecessors?.length, 2);
-      assert.ok(joinPredecessors?.includes("static_fork_task_1"));
-      assert.ok(joinPredecessors?.includes("static_fork_task_3"));
+      assert.deepEqual(joinPredecessors, ["static_fork_task_1", "static_fork_task_3"]);
     });
 
-    test("All nodes are marked COMPLETED", () => {
+    it("All nodes are marked COMPLETED", () => {
       assert.equal(dag.graph.node("__start").status, "COMPLETED");
       assert.equal(dag.graph.node("static_fork").status, "COMPLETED");
       assert.equal(dag.graph.node("static_fork_task_0").status, "COMPLETED");
@@ -400,7 +499,7 @@ describe("Static Fork", () => {
   describe("Failure", () => {
     const dag = dagStaticForkFailure();
 
-    test("Node statuses as expected", () => {
+    it("Node statuses as expected", () => {
       assert.equal(dag.graph.node("__start").status, "COMPLETED");
       assert.equal(dag.graph.node("static_fork").status, "COMPLETED");
       assert.equal(dag.graph.node("static_fork_task_2").status, "FAILED");
@@ -413,32 +512,28 @@ describe("Static Fork", () => {
   describe("Retries", () => {
     const dag = dagStaticForkRetries();
 
-    test("FORK has 2 successor chains", () => {
+    it("FORK has 2 successor chains", () => {
       const forkSuccessors = dag.graph.successors("static_fork");
-      assert.equal(forkSuccessors?.length, 2);
-      assert.equal(forkSuccessors?.[0], "static_fork_task_0");
-      assert.equal(forkSuccessors?.[1], "static_fork_task_2");
+      assert.deepEqual(forkSuccessors, ["static_fork_task_0", "static_fork_task_2"]);
     });
 
-    test("Chains are connected", () => {
-      assert.equal(dag.graph.successors("static_fork_task_0")?.[0], "static_fork_task_1");
-      assert.equal(dag.graph.successors("static_fork_task_2")?.[0], "static_fork_task_3");
+    it("Chains are connected", () => {
+      assert.deepEqual(dag.graph.successors("static_fork_task_0"), ["static_fork_task_1"]);
+      assert.deepEqual(dag.graph.successors("static_fork_task_2"), ["static_fork_task_3"]);
     });
 
-    test("Retry history can be retrieved", () => {
-      const taskResults = dag.getAllTaskResultsByRef("static_fork_task_3");
+    it("Retry history can be retrieved", () => {
+      const taskResults = dag.getTaskResultsByRef("static_fork_task_3");
       assert.equal(taskResults?.[0].status, "FAILED");
       assert.equal(taskResults?.[1].status, "COMPLETED");
     });
 
-    test("Chains merge into JOIN", () => {
+    it("Chains merge into JOIN", () => {
       const joinPredecessors = dag.graph.predecessors("static_join");
-      assert.equal(joinPredecessors?.length, 2);
-      assert.ok(joinPredecessors?.includes("static_fork_task_1"));
-      assert.ok(joinPredecessors?.includes("static_fork_task_3"));
+      assert.deepEqual(joinPredecessors, ["static_fork_task_1", "static_fork_task_3"]);
     });
 
-    test("All nodes are marked COMPLETED", () => {
+    it("All nodes are marked COMPLETED", () => {
       assert.equal(dag.graph.node("__start").status, "COMPLETED");
       assert.equal(dag.graph.node("static_fork").status, "COMPLETED");
       assert.equal(dag.graph.node("static_fork_task_0").status, "COMPLETED");
@@ -453,135 +548,209 @@ describe("Static Fork", () => {
 
 
 describe("Do-While", () => {
-  describe("Success", () => {
+  describe("Definition Only", () => {
+    const dag = dagDoWhileDefOnly();
 
+    it("DO_WHILE follows __start", () => {
+      assert.deepEqual(dag.graph.successors("__start"), ["loop_task"]);
+    });
+
+    it("Loop implemention follows DO_WHILE", () => {
+      assert.deepEqual(dag.graph.successors("loop_task"), ["loop_task_child0"]);
+    });
+
+    it("Implementation expanded explicitly", () => {
+      assert.deepEqual(dag.graph.successors("loop_task_child0"), ["loop_task_child1"]);
+    });
+
+    it("End Bar follows implementation", () => {
+      assert.deepEqual(dag.graph.successors("loop_task_child1"), ["loop_task-END"]);
+    });
+
+    it("End Bar has alias to DO_WHILE", () => {
+      assert.equal(dag.getTaskConfigByRef("loop_task-END").aliasForRef, "loop_task");
+    })
+
+    it("End Bar is followed by __final", () => {
+      assert.deepEqual(dag.graph.predecessors("__final"), ["loop_task-END"]);
+    });
+
+    it("All nodes are not executed", () => {
+      assert.equal(dag.graph.node("__start").status, undefined);
+      assert.equal(dag.graph.node("loop_task").status, undefined);
+      assert.equal(dag.graph.node("loop_task_child0").status, undefined);
+      assert.equal(dag.graph.node("loop_task_child1").status, undefined);
+      assert.equal(dag.graph.node("loop_task-END").status, undefined);
+      assert.equal(dag.graph.node("__final").status, undefined);
+    });
+  });
+
+  describe("Success", () => {
+    const ITERATIONS = 2;
+    const dag = dagDoWhileSuccess(ITERATIONS);
+
+    const placeholder_node: NodeData = dag.graph.node("loop_task_LOOP_CHILDREN_PLACEHOLDER");
+
+    it("DO_WHILE follows __start", () => {
+      assert.deepEqual(dag.graph.successors("__start"), ["loop_task"]);
+    });
+
+    it("Placeholder follows DO_WHILE", () => {
+      assert.equal(dag.graph.successors("loop_task")?.length, 1);
+      assert.deepEqual(dag.graph.successors("loop_task"), ["loop_task_LOOP_CHILDREN_PLACEHOLDER"]);
+    });
+
+    it("Placeholder Node has taskConfig", () => {
+      assert.equal(placeholder_node.taskConfig.type, "LOOP_CHILDREN_PLACEHOLDER");
+    });
+
+    it("Placeholder Node has no taskResults", () => {
+      assert.deepEqual(placeholder_node.taskResults, []);
+    });
+
+    it("Placeholder Node has containsTaskRefs ", () => {
+      assert.deepEqual(placeholder_node.containsTaskRefs, ["loop_task_child0__0", "loop_task_child1__0", "loop_task_child0__1", "loop_task_child1__1"]);
+    });
+
+    it("Placeholder Node has correct tally ", () => {
+      assert.deepEqual(placeholder_node.tally, { total: 4, success: 4, inProgress: 0, canceled: 0 });
+    });
+
+    it("End Bar follows placeholder", () => {
+      assert.deepEqual(dag.graph.successors("loop_task_LOOP_CHILDREN_PLACEHOLDER"), ["loop_task-END"]);
+    });
+
+    it("End Bar has type DO_WHILE_END and has alias to DO_WHILE", () => {
+      const config = dag.getTaskConfigByRef("loop_task-END");
+      assert.equal(config.aliasForRef, "loop_task");
+      assert.equal(config.type, "DO_WHILE_END");
+    })
+
+    it("End Bar is followed by __final", () => {
+      assert.deepEqual(dag.graph.predecessors("__final"), ["loop_task-END"]);
+    });
+
+    it("Node status all COMPLETED", () => {
+      assert.equal(dag.graph.node("loop_task").status, "COMPLETED");
+      assert.equal(placeholder_node.status, "COMPLETED");
+      assert.equal(dag.graph.node("loop_task-END").status, "COMPLETED");
+      assert.equal(dag.graph.node("__final").status, "COMPLETED");
+    });
   });
 
   describe("Failure", () => {
+    const ITERATIONS = 2;
+    const dag = dagDoWhileFailure(ITERATIONS);
+    const placeholder_node: NodeData = dag.graph.node("loop_task_LOOP_CHILDREN_PLACEHOLDER");
+
+    it("Placeholder Node has correct tally ", () => {
+      assert.deepEqual(placeholder_node.tally, { total: 4, success: 3, inProgress: 0, canceled: 0 });
+    });
+
+    it("Node status as expected", () => {
+      assert.equal(dag.graph.node("loop_task").status, "FAILED");
+      assert.equal(placeholder_node.status, "FAILED");
+      assert.equal(dag.graph.node("loop_task-END").status, "FAILED");
+      assert.equal(dag.graph.node("__final").status, undefined);
+    });
 
   });
 
   describe("Retries", () => {
+    const ITERATIONS = 2;
+    const dag = dagDoWhileRetries(ITERATIONS);
+    const placeholder_node: NodeData = dag.graph.node("loop_task_LOOP_CHILDREN_PLACEHOLDER");
 
+    it("Placeholder Node has correct tally. Retry does not contribute to tally.", () => {
+      assert.deepEqual(placeholder_node.tally, { total: 4, success: 4, inProgress: 0, canceled: 0 });
+    });
+
+    it("Retry history can be retrieved", () => {
+      const retried = dag.getTaskResultsByRef(`loop_task_child1__1`);
+      assert.equal(retried?.length, 2);
+      assert.equal(retried?.[0].status, "FAILED");
+      assert.equal(retried?.[1].status, "COMPLETED");
+    });
   });
 });
 
 
-// Test DAG objects
+describe("Switch", () => {
+  describe("Success - Default", () => {
+    const dag = dagSwitchSuccess();
 
-export function dagStaticForkSuccess() {
-  const workflow = new WorkflowExecution("test_workflow", "COMPLETED")
-  workflow.pushTask("static_fork", "FORK_JOIN", {
-    forkTasks: []
+    it("SWITCH follows __start", () => {
+      assert.deepEqual(dag.graph.successors("__start"), ["switch_task"]);
+    });
+
+    it("DECISION has 3 successor chains", () => {
+      const forkSuccessors = dag.graph.successors("switch_task");
+      assert.deepEqual(forkSuccessors?.sort(), ["case0_0", "case1_0", "default_0"].sort());
+    });
+
+    it("Chains are connected", () => {
+      assert.deepEqual(dag.graph.successors("case0_0"), ["case0_1"]);
+      assert.deepEqual(dag.graph.successors("case1_0"), ["case1_1"]);
+      assert.deepEqual(dag.graph.successors("default_0"), ["default_1"]);
+    });
+
+    it("Chains merge into final", () => {
+      const joinPredecessors = dag.graph.predecessors("__final");
+      assert.deepEqual(joinPredecessors?.sort(), ["case0_1", "case1_1", "default_1"].sort());
+    });
+
+    it("Edges labeled with cases", () => {
+      assert.equal(dag.graph.edge("switch_task", "default_0")?.caseValue, "default");
+      assert.equal(dag.graph.edge("switch_task", "case0_0")?.caseValue, "case_0");
+      assert.equal(dag.graph.edge("switch_task", "case1_0")?.caseValue, "case_1");
+    });
+
+    it("Only default edge is marked executed", () => {
+      assert.equal(dag.graph.edge("switch_task", "default_0")?.executed, true);
+      assert.equal(dag.graph.edge("switch_task", "case0_0")?.executed, undefined);
+      assert.equal(dag.graph.edge("switch_task", "caes1_0")?.executed, undefined);
+    });
+
+    it("Only default tasks marked COMPLETED", () => {
+      assert.equal(dag.graph.node("__start").status, "COMPLETED");
+      assert.equal(dag.graph.node("switch_task").status, "COMPLETED");
+      assert.equal(dag.graph.node("case0_0").status, undefined);
+      assert.equal(dag.graph.node("case0_1").status, undefined);
+      assert.equal(dag.graph.node("case1_0").status, undefined);
+      assert.equal(dag.graph.node("case1_1").status, undefined);
+      assert.equal(dag.graph.node("default_0").status, "COMPLETED");
+      assert.equal(dag.graph.node("default_1").status, "COMPLETED");
+      assert.equal(dag.graph.node("__final").status, "COMPLETED");
+    });
   });
 
-  workflow.pushSimple("static_fork_task_0");
-  workflow.pushSimple("static_fork_task_1");
+  describe("Success - Case 0", () => {
+    const dag = dagSwitchSuccess(0);
 
-  workflow.pushSimple("static_fork_task_2");
-  workflow.pushSimple("static_fork_task_3");
-
-  const forkTasks = (workflow.workflowDefinition.tasks[0] as ForkTaskConfig).forkTasks;
-  // Move taskdefs inside static fork
-  forkTasks.push([workflow.workflowDefinition.tasks[1], workflow.workflowDefinition.tasks[2]]);
-  forkTasks.push([workflow.workflowDefinition.tasks[3], workflow.workflowDefinition.tasks[4]]);
-  workflow.workflowDefinition.tasks = workflow.workflowDefinition.tasks.splice(0, 1);
-
-
-  workflow.pushTask("static_join", "JOIN", {
-    joinOn: ["static_fork_task_1", "static_fork_task_3"]
-  });
-  const executionAndTasks = workflow.toJSON();
-  return WorkflowDAG.fromExecutionAndTasks(executionAndTasks);
-}
-
-export function dagStaticForkFailure() {
-  const workflow = new WorkflowExecution("test_workflow", "FAILED")
-  workflow.pushTask("static_fork", "FORK_JOIN", {
-    forkTasks: []
+    it("Only case 0 edge is marked executed", () => {
+      assert.equal(dag.graph.edge("switch_task", "default_0")?.executed, undefined);
+      assert.equal(dag.graph.edge("switch_task", "case0_0")?.executed, true);
+      assert.equal(dag.graph.edge("switch_task", "caes1_0")?.executed, undefined);
+    });
   });
 
-  workflow.pushSimple("static_fork_task_0");
-  workflow.pushSimple("static_fork_task_1");
+  describe("Definition Only", () => {
+    const dag = dagSwitchDefOnly();
 
-  workflow.pushSimple("static_fork_task_2");
-  workflow.pushSimple("static_fork_task_3");
-
-  const forkTasks = (workflow.workflowDefinition.tasks[0] as ForkTaskConfig).forkTasks;
-  // Move taskdefs inside static fork
-  forkTasks.push([workflow.workflowDefinition.tasks[1], workflow.workflowDefinition.tasks[2]]);
-  forkTasks.push([workflow.workflowDefinition.tasks[3], workflow.workflowDefinition.tasks[4]]);
-  workflow.workflowDefinition.tasks = workflow.workflowDefinition.tasks.splice(0, 1);
-
-  // Fail one of the branches.
-  (workflow.tasks.find(task => task.referenceTaskName === "static_fork_task_2") as TaskResult).status = "FAILED";
-  workflow.tasks = workflow.tasks.filter(task => task.referenceTaskName !== "static_fork_task_3");
-
-  workflow.pushTask("static_join", "JOIN", {
-    joinOn: ["static_fork_task_1", "static_fork_task_3"]
-  }, "FAILED");
-
-  const executionAndTasks = workflow.toJSON();
-
-  return WorkflowDAG.fromExecutionAndTasks(executionAndTasks);
-}
-
-export function dagStaticForkRetries() {
-  const workflow = new WorkflowExecution("test_workflow", "COMPLETED")
-  workflow.pushTask("static_fork", "FORK_JOIN", {
-    forkTasks: []
+    it("All nodes are not executed", () => {
+      assert.equal(dag.graph.node("__start").status, undefined);
+      assert.equal(dag.graph.node("switch_task").status, undefined);
+      assert.equal(dag.graph.node("case0_0").status, undefined);
+      assert.equal(dag.graph.node("case0_1").status, undefined);
+      assert.equal(dag.graph.node("case1_0").status, undefined);
+      assert.equal(dag.graph.node("case1_1").status, undefined);
+      assert.equal(dag.graph.node("default_0").status, undefined);
+      assert.equal(dag.graph.node("default_1").status, undefined);
+      assert.equal(dag.graph.node("__final").status, undefined);
+    });
   });
+});
 
-  workflow.pushSimple("static_fork_task_0");
-  workflow.pushSimple("static_fork_task_1");
 
-  workflow.pushSimple("static_fork_task_2");
-  workflow.pushSimple("static_fork_task_3");
 
-  const forkTasks = (workflow.workflowDefinition.tasks[0] as ForkTaskConfig).forkTasks;
-  // Move taskdefs inside static fork
-  forkTasks.push([workflow.workflowDefinition.tasks[1], workflow.workflowDefinition.tasks[2]]);
-  forkTasks.push([workflow.workflowDefinition.tasks[3], workflow.workflowDefinition.tasks[4]]);
-  workflow.workflowDefinition.tasks = workflow.workflowDefinition.tasks.splice(0, 1);
 
-  // Retry static_fork_task_3.
-  const taskToRetry = workflow.tasks[4];
-  taskToRetry.status = "FAILED";
-  workflow.tasks.splice(5, 0, { ...taskToRetry, taskId: uuidv4(), status: "COMPLETED" });
-
-  workflow.pushTask("static_join", "JOIN", {
-    joinOn: ["static_fork_task_1", "static_fork_task_3"]
-  });
-  const executionAndTasks = workflow.toJSON();
-  return WorkflowDAG.fromExecutionAndTasks(executionAndTasks);
-}
-
-export function dagDynamicForkSuccess(fanout: number) {
-  const workflow = new WorkflowExecution("test_workflow", "COMPLETED")
-  workflow.pushDynamicFork("dynamic_fork", fanout)
-
-  const executionAndTasks = workflow.toJSON();
-  return WorkflowDAG.fromExecutionAndTasks(executionAndTasks);
-}
-
-export function dagDynamicForkFailure(fanout: number) {
-  const workflow = new WorkflowExecution("test_workflow", "FAILED")
-  workflow.pushDynamicFork("dynamic_fork", fanout, fanout - 1)
-
-  const executionAndTasks = workflow.toJSON();
-  return WorkflowDAG.fromExecutionAndTasks(executionAndTasks);
-}
-
-export function dagDynamicForkRetries(fanout: number) {
-
-  const workflow = new WorkflowExecution("test_workflow", "COMPLETED")
-  workflow.pushDynamicFork("dynamic_fork", fanout)
-
-  // Append extra retry to one of the forked tasks
-  const taskToRetry = workflow.tasks[fanout];
-  taskToRetry.status = "FAILED";
-  workflow.tasks.splice(fanout + 1, 0, { ...taskToRetry, taskId: uuidv4(), status: "COMPLETED" });
-
-  const executionAndTasks = workflow.toJSON();
-  return WorkflowDAG.fromExecutionAndTasks(executionAndTasks);
-}

@@ -20,6 +20,7 @@ $node-text-size: 12px;
   width: 100%;
   min-height: 600px;
   flex-grow: 1;
+  font-family: "Roboto", sans-serif;
 }
 
 @mixin nodeColor($colorfg, $colorbg: #fff) {

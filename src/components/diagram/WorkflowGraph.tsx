@@ -10,8 +10,8 @@ import ZoomOutIcon from "@material-ui/icons/ZoomOut";
 import ZoomOutMapIcon from "@material-ui/icons/ZoomOutMap";
 import HomeIcon from "@material-ui/icons/Home";
 import "./diagram.scss";
-import WorkflowDAG, { DagEdgeProperties, PlaceholderTaskResult, TaskCoordinate, TaskResult } from "./WorkflowDAG";
-import { ExtendedTaskType, NodeData } from "./WorkflowDAG";
+import WorkflowDAG, { DagEdgeProperties, TaskCoordinate, TaskResult } from "./WorkflowDAG";
+import { ExtendedTaskConfigType, NodeData } from "./WorkflowDAG";
 
 const BAR_MARGIN = 50;
 const BOTTOM_MARGIN = 30;
@@ -32,21 +32,21 @@ type Tally = {
 type FanDir = "up" | "down";
 type ZoomDir = "in" | "out";
 
-interface GraphNodeProperties  {
+interface GraphNodeProperties {
   label?: string;
   shape?: string;
   height?: number;
   labelStyle?: string;
   padding?: number;
 
-  id?: string;  
+  id?: string;
   name?: string;
-  type?: ExtendedTaskType;
+  type?: ExtendedTaskConfigType;
   ref?: string;
   class?: string;
   tally?: Tally;
   aliasForRef?: string;
-  firstDfRef?: string;
+  placeholderRef?: string;
   status?: string;
   taskResults?: TaskResult;
   fanDir?: FanDir;
@@ -55,16 +55,17 @@ interface GraphNodeProperties  {
 }
 type GraphNode = dagre.Node<GraphNodeProperties>;
 
-interface GraphEdgeProperties {
+interface GraphEdge {
   label?: string;
   labelStyle?: string;
   class?: string;
-  executed?: boolean;
-  type?: "loop";
+
+  executed?: boolean; // Only used for Loops. Typically refer to dagEdge.executed
+  reverse?: boolean;
 }
 
 class WorkflowGraph extends React.Component<WorkflowGraphProps> {
-  renderer : Render;
+  renderer: Render;
   svgRef: React.RefObject<SVGSVGElement>;
   svg?: d3.Selection<any, {}, HTMLElement | null, any>;
   inner?: d3.Selection<any, {}, HTMLElement | null, any>;
@@ -75,7 +76,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
   constructor(props: WorkflowGraphProps) {
     super(props);
     this.svgRef = React.createRef();
-    this.graph =  new dagre.graphlib.Graph({ compound: true });
+    this.graph = new dagre.graphlib.Graph({ compound: true, multigraph: true });
     this.barNodes = [];
 
     this.renderer = new dagreD3Render();
@@ -112,7 +113,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
         }
       })
       .on("zoom", (event: any) => {
-        if(this.inner){
+        if (this.inner) {
           this.inner.attr("transform", event.transform);
         }
       });
@@ -126,15 +127,12 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
 
   highlightSelectedNode = () => {
     const { selectedTask } = this.props;
-    const dag = this.props.dag;
+    //const dag = this.props.dag;
     let selectedRef: string | undefined;
 
     const taskResult = this.props.dag.getTaskResultByCoord(selectedTask);
 
-    if(taskResult?.taskType === "DF_CHILDREN_PLACEHOLDER"){
-      selectedRef = dag.getFirstForkedRef(taskResult).referenceTaskName;
-    }
-    else {
+    if (taskResult) {
       selectedRef = taskResult?.referenceTaskName;
     }
 
@@ -165,7 +163,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
     }
   */
     const { inner } = this;
-    if(inner){
+    if (inner) {
       inner.selectAll("g.node").classed("selected", false);
 
       if (selectedRef) {
@@ -176,7 +174,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
 
   zoomInOut = (dir: ZoomDir) => {
     const { svg, inner } = this;
-    if(!inner || !svg)  return;
+    if (!inner || !svg) return;
 
     const currTransform = d3.zoomTransform(inner.node());
     const newZoom =
@@ -191,7 +189,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
 
   zoomHome = () => {
     const { svg, inner } = this;
-    if(!inner || !svg) return;
+    if (!inner || !svg) return;
     const containerWidth = svg.node().getBoundingClientRect().width;
     const graphWidth = (this.graph.graph() as any).width;
 
@@ -209,7 +207,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
 
   zoomToFit = () => {
     const { svg, inner } = this;
-    if(!inner || !svg) return;
+    if (!inner || !svg) return;
 
     const containerWidth = svg.node().getBoundingClientRect().width;
     const scale = Math.min(containerWidth / (this.graph.graph() as any).width, 1);
@@ -225,7 +223,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
 
 
   drawGraph = () => {
-    if(!this.svg) return;
+    if (!this.svg) return;
     if (this.inner) this.inner.remove();
     this.inner = this.svg.append("g");
     const { svg, inner } = this;
@@ -246,101 +244,50 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
       graph.setEdge(v, w);
     }
 
-    // Collapse Dynamic Fork children
-    /*
-    const dfNodes = dagGraph
-      .nodes()
-      .filter((nodeId) => dagGraph.node(nodeId).type === "FORK_JOIN_DYNAMIC");
-
-    for (const parentRef of dfNodes) {
-      const childRefs = dagGraph.successors(parentRef);
-
-      if (Array.isArray(childRefs) && childRefs.length > 2) {
-        this.collapseDfChildren(parentRef, childRefs);
-      }
-    }
-    */
-
-    // Collapse Do_while children
-    /*
-    const doWhileNodes = dagGraph
-      .nodes()
-      .filter((nodeId) => dagGraph.node(nodeId).type === "DO_WHILE");
-
-    for (const parentRef of doWhileNodes) {
-      const parentNode: NodeData = dagGraph.node(parentRef);
-
-      // Only collapse executed DO_WHILE loops
-      if (parentNode.status) {
-        const childRefs = dagGraph
-          .successors(parentRef)
-          ?.map((ref) => dagGraph.node(ref))
-          .filter((node) => node.type !== "DO_WHILE_END")
-          .map((node) => node.ref);
-
-        if (Array.isArray(childRefs) && childRefs.length > 0) {
-          this.collapseDfChildren(parentRef, childRefs);
-        }
-      }
-    }
-    */
-
     // Render Nodes
     for (const nodeId of graph.nodes()) {
       graph.setNode(nodeId, this.renderVertex(nodeId)); // Update nodes with render info
     }
 
     // Render Edges
-    for (const edgeId of graph.edges()) {
-      const dagEdge = dagGraph.edge(edgeId) as DagEdgeProperties;
+    for (const dagreEdge of graph.edges()) {
+      const dagEdge = dagGraph.edge({v:dagreEdge.v, w: dagreEdge.w}) as DagEdgeProperties | undefined;
+      const graphEdge = graph.edge(dagreEdge);
 
-      let caseValue: string | undefined;
-      let type: string | undefined;
+      let classes: string[] = [];
+      let labelStyle: string = "";
 
-      if(dagEdge){
-        caseValue = dagEdge.caseValue;
-      }
-      else {
-        const graphEdge = graph.edge(edgeId) as GraphEdgeProperties;
-        type = graphEdge.type;
-      }
-
-      let classes: string[] = [],
-        label: string,
-        labelStyle: string | undefined;
-
-      if (type === "loop") {
-        label = "LOOP";
+      if (!!graphEdge?.reverse) {
         classes.push("reverse");
-      } else {
-        label = caseValue || "";
-      }
+      } 
 
       if (this.props.executionMode) {
-        const executed = dagEdge.executed;
+        const executed = dagEdge?.executed || graphEdge?.executed || false;
         if (executed) {
           classes.push("executed");
-          labelStyle = "";
-        } else {
+        } 
+        else {
           classes.push("dimmed");
           labelStyle = "fill: #ccc";
         }
       }
 
-      graph.setEdge(edgeId.v, edgeId.w, {
-        label: label,
-        labelStyle: labelStyle,
+      const newProps: GraphEdge = {
+        label: graphEdge?.label || dagEdge?.caseValue || "",
+        labelStyle,
         class: classes.join(" "),
-      } as GraphEdgeProperties);
+      };
+      graph.setEdge(dagreEdge.v, dagreEdge.w, newProps, dagreEdge.name);
     }
 
     this.renderer(inner, graph);
 
     // Expand barNodes and rerender
+    /*
     for (const barRef of this.barNodes) {
       this.expandBar(barRef);
     }
-
+    */
     // svg.width=100% via CSS
     svg.attr("height", (graph.graph() as any).height + BOTTOM_MARGIN);
 
@@ -350,26 +297,34 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
 
     // Attach click handler
     inner.selectAll("g.node").on("click", this.handleClick);
+
+    // Make svg visible
+    svg.attr("visibility", "visible")
   };
 
-  handleClick = (e: any) => { 
+  handleClick = (e: any) => {
     const path = e.composedPath && e.composedPath() as SVGGElement[];
 
     const taskRef = path[1]?.id || path[2].id; // could be 2 layers down
     const node = this.graph.node(taskRef)
-    
-    if (node.type === "DF_CHILDREN_PLACEHOLDER") {
-      if (this.props.onClick && node.firstDfRef){
-        this.props.onClick({ ref: node.firstDfRef });
+
+    if (node.type === "DF_CHILDREN_PLACEHOLDER" || node.type === "LOOP_CHILDREN_PLACEHOLDER") {
+      if (this.props.onClick && node.placeholderRef) {
+        this.props.onClick({ ref: node.placeholderRef });
       }
-    } 
-    else if(node.type !== "TERMINAL"){
+    }
+    if(node.type === "DO_WHILE_END") {
+      if (this.props.onClick && node.aliasForRef) {
+        this.props.onClick({ ref: node.aliasForRef });
+      }
+    }
+    else if (node.type !== "TERMINAL") {
       // Non-DF, or unexecuted DF vertex
       if (this.props.onClick) {
         this.props.onClick({ ref: taskRef });
       }
     }
-    
+
   };
 
   render() {
@@ -492,8 +447,6 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
 
     const dagNode = dag.graph.node(ref) as NodeData;
     const { type, name } = dagNode.taskConfig;
-      
-    ref = dagNode.taskConfig.aliasForRef || dagNode.taskConfig.taskReferenceName;
 
     let retval: GraphNodeProperties = {
       id: ref,
@@ -515,12 +468,12 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
         break;
       case "FORK_JOIN":
       case "FORK_JOIN_DYNAMIC":
-        retval = composeBarNode(ref, name, type, "down");
+        retval = composeBarNode(ref, `${ref} (${name})`, type, "down");
         this.barNodes.push(ref);
         break;
       case "JOIN":
       case "EXCLUSIVE_JOIN":
-        retval = composeBarNode(ref, name, type, "up");
+        retval = composeBarNode(ref, `${ref} (${name})`, type, "up");
         this.barNodes.push(ref);
         break;
       case "DECISION":
@@ -530,17 +483,18 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
         retval.height = 40;
         break;
       case "DF_CHILDREN_PLACEHOLDER":
+      case "LOOP_CHILDREN_PLACEHOLDER":
+
         retval.shape = "stack";
-        if(!dagNode.status){
-          retval.label="Dynamically spawned tasks";
+        if (!dagNode.status) {
+          retval.label = "Dynamically spawned tasks";
         }
-        else {
-          const taskResult = dag.getTaskResultByRef(ref) as PlaceholderTaskResult;
-          const { tally, forkedTaskRefs: forkedTasks } = taskResult;
-          if(!tally || tally.total === 0){
-            retval.label="No tasks spawned";
+        else {      
+          const { tally, containsTaskRefs } = dagNode;
+          if (!tally || tally.total === 0) {
+            retval.label = "No tasks spawned";
           }
-          else{
+          else {
             retval.label = `${tally.success} of ${tally.total} tasks succeeded`;
             if (tally?.inProgress) {
               retval.label += `\n${tally.inProgress} pending`;
@@ -548,23 +502,37 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
             if (tally?.canceled) {
               retval.label += `\n${tally.canceled} canceled`;
             }
-            retval.firstDfRef = (forkedTasks.values().next().value as TaskResult).referenceTaskName;
+            retval.placeholderRef = containsTaskRefs?.[0];
           }
         }
         retval.shape = "stack";
         break;
       case "DO_WHILE":
-      case "DO_WHILE_END":
-        retval = composeBarNode(ref, name, type, "down");
-        retval.label = `${retval.label} [DO_WHILE]`;
+        retval = composeBarNode(ref, `${ref} (${name}) [DO_WHILE]`, type, "down");
         this.barNodes.push(ref);
+        break;
+      case "DO_WHILE_END":
+        const alias = dagNode.taskConfig.aliasForRef as string;
+        const aliasName = dag.getTaskConfigByRef(alias).name;
+        retval = {...composeBarNode(ref,  `${alias} (${aliasName}) [DO_WHILE]`, type, "down"), 
+          aliasForRef: alias
+        };
+        this.barNodes.push(ref);
+
+        // Add reverse decorative edge
+        this.graph.setEdge(alias, ref,  {
+          label: "LOOP",
+          reverse: true,
+          executed: !!dagNode.status
+        } as GraphEdge, `${ref}_loop_reverse`);
+        
         break;
       default:
         retval.label = `${ref}\n(${name})`;
         retval.shape = "rect";
     }
 
-    const attempts = dag.getAllTaskResultsByRef(ref)?.length || 0;
+    const attempts = dag.getTaskResultsByRef(ref)?.length || 0;
     if (attempts > 1) {
       retval.label += `\n${attempts} Attempts`;
     }
@@ -582,9 +550,9 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
     return retval;
   };
 
-  expandBar(barRef: string) {  
+  expandBar(barRef: string) {
     const barNode = this.graph.node(barRef);
-    if(!barNode.elem) return;
+    if (!barNode.elem) return;
 
     let fanOut: any;
     if (barNode.fanDir === "down") {
@@ -609,7 +577,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
     let minX = barNode.x - barWidth / 2;
     let maxX = barNode.x + barWidth / 2;
 
-    if(fanOut){
+    if (fanOut) {
       for (const point of fanOut) {
         const left = point[1] - BAR_MARGIN;
         const right = point[1] + BAR_MARGIN;
@@ -650,24 +618,22 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
 
 export default withResizeDetector(WorkflowGraph);
 
-function composeBarNode(ref: string, name: string="", type: ExtendedTaskType, fanDir: FanDir) {
+function composeBarNode(id: string, label: string, type: ExtendedTaskConfigType, fanDir: FanDir) {
   const retval: GraphNodeProperties = {
-    id: ref,
-    ref: ref,
-    name: name,
+    id: id,
     type: type,
     fanDir: fanDir,
     class: `bar type-${type}`,
     shape: "bar",
     labelStyle: "font-size:11px",
     padding: 4,
-    label: `${name} (${ref})`,
+    label,
   };
   return retval;
 }
 
 function barRenderer(parent: any, bbox: any, node: GraphNode): d3.Selection<any, string, any, any> {
-  
+
   const group = parent.insert("g", ":first-child");
   group
     .insert("rect")
@@ -689,7 +655,7 @@ function barRenderer(parent: any, bbox: any, node: GraphNode): d3.Selection<any,
     return {
       x:
         (node.fanDir === "down" && point.y > node.y) ||
-        (node.fanDir === "up" && point.y < node.y)
+          (node.fanDir === "up" && point.y < node.y)
           ? point.x
           : intersect.rect(node, point).x,
       y: point.y < node.y ? node.y - bbox.height / 2 : node.y + bbox.height / 2,
@@ -700,7 +666,7 @@ function barRenderer(parent: any, bbox: any, node: GraphNode): d3.Selection<any,
 }
 
 const STACK_OFFSET = 5;
-function stackRenderer(parent: any, bbox: any, node: GraphNode): d3.Selection<any, string, any, any>  {
+function stackRenderer(parent: any, bbox: any, node: GraphNode): d3.Selection<any, string, any, any> {
   const group = parent.insert("g", ":first-child");
 
   group
@@ -709,8 +675,7 @@ function stackRenderer(parent: any, bbox: any, node: GraphNode): d3.Selection<an
     .attr("height", bbox.height)
     .attr(
       "transform",
-      `translate(${-bbox.width / 2 - STACK_OFFSET * 2}, ${
-        -bbox.height / 2 - STACK_OFFSET * 2
+      `translate(${-bbox.width / 2 - STACK_OFFSET * 2}, ${-bbox.height / 2 - STACK_OFFSET * 2
       })`
     );
   group
@@ -719,8 +684,7 @@ function stackRenderer(parent: any, bbox: any, node: GraphNode): d3.Selection<an
     .attr("height", bbox.height)
     .attr(
       "transform",
-      `translate(${-bbox.width / 2 - STACK_OFFSET}, ${
-        -bbox.height / 2 - STACK_OFFSET
+      `translate(${-bbox.width / 2 - STACK_OFFSET}, ${-bbox.height / 2 - STACK_OFFSET
       })`
     );
   group
