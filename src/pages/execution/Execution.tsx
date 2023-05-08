@@ -34,8 +34,13 @@ const defaultLayout: LayoutData = {
             content: <TileFactory component="WorkflowSummary" />,
           },
           {
+            id: "WorkflowJson",
+            title: "JSON",
+            content: <TileFactory component="WorkflowJson" />,
+          },
+          {
             id: "TaskList",
-            title: "Task List",
+            title: "Tasks",
             content: <TileFactory component="TaskList" />,
           },
           {
@@ -45,12 +50,12 @@ const defaultLayout: LayoutData = {
           },
           {
             id: "WorkflowInput",
-            title: "Workflow Input",
+            title: "Input",
             content: <TileFactory component="WorkflowInput" />,
           },
           {
             id: "WorkflowOutput",
-            title: "Workflow Output",
+            title: "Output",
             content: <TileFactory component="WorkflowOutput" />,
           },
           {

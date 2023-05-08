@@ -58,4 +58,5 @@ export type Execution = {
   status: ExecutionStatus;
   workflowDefinition: WorkflowDef;
   reasonForIncompletion?: string;
+  workflowEngine?: string;
 };

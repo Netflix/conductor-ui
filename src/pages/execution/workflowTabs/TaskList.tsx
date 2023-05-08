@@ -1,4 +1,4 @@
-import { DataTable, TaskLink } from "../../../components";
+import { ReactJson } from "../../../components";
 import { TaskResult } from "../../../types/execution";
 
 export default function TaskList({
@@ -8,6 +8,7 @@ export default function TaskList({
   tasks: TaskResult[];
   workflowId: string;
 }) {
+  /*
   const taskDetailFields = [
     { name: "seq", grow: 0.2 },
     {
@@ -28,8 +29,14 @@ export default function TaskList({
     { name: "callbackAfterSeconds" },
     { name: "pollCount", grow: 0.5 },
   ];
-
+  */
   return (
+    <ReactJson
+    src={tasks}
+    label="Executed tasks (Table WIP)"
+    path="tasks.json"
+  />
+    /*
     <DataTable
       style={{ minHeight: 400 }}
       data={tasks}
@@ -46,5 +53,6 @@ export default function TaskList({
       ]}
       localStorageKey="taskListTable"
     />
+    */
   );
 }

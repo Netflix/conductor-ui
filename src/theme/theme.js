@@ -223,10 +223,6 @@ const additionalOptions = {
         deleteIconColorPrimary: {
           color: colors.white,
         },
-        colorSecondary: {
-          color: colors.white,
-          backgroundColor: colors.lime07,
-        },
       },
     },
     MuiRadio: {

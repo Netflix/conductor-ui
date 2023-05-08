@@ -3,6 +3,7 @@ import { NavLink, Heading, StatusBadge, Text } from "../../components";
 
 import { makeStyles } from "@mui/styles";
 import { ExecutionAndTasks } from "../../types/execution";
+import EngineBadge from "../../components/EngineBadge";
 
 const useStyles = makeStyles({
   header: {
@@ -68,7 +69,7 @@ export default function ExecutionHeader({
         */}
       </div>
       <Heading level={1} gutterBottom>
-        {execution.workflowName} <StatusBadge status={execution.status} />
+        {execution.workflowName} <StatusBadge status={execution.status} /> <EngineBadge engine={execution.workflowEngine} />
       </Heading>
       <Text level={0} className={classes.headerSubtitle}>
         {execution.workflowId}

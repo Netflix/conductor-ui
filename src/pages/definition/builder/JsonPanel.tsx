@@ -233,11 +233,11 @@ export default function JsonPanel() {
           ))}
         </Select>
 
-        {/*isModified ? (
-                  <Pill color="yellow" label="Modified" />
-                ) : (
-                  <Pill color="gray" label="Unmodified" />
-                )*/}
+        {isModified ? (
+          <Pill color="yellow" label="Modified" />
+        ) : (
+          <Pill label="Unmodified" />
+        )}
         {!_.isEmpty(jsonErrors) && (
           <Tooltip
             disableFocusListener

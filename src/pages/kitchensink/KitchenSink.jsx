@@ -11,6 +11,7 @@ import {
   Toolbar,
   LinearProgress,
   CircularProgress,
+  Tooltip,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
@@ -234,9 +235,11 @@ const HeadingSection = () => {
       <div>Default &lt;div&gt;</div>
       <p>Default &lt;p&gt;</p>
       <div>
-        Pill: <Pill label="default" /> <Pill color="red" label="Red" /> <Pill color="green" label="Green" /> <Pill color="yellow" label="Yellow" />
+        Pill: <Pill label="Default" tooltip="tooltip" /> <Pill color="red" label="Red" /> <Pill color="green" label="Green" /> <Pill color="yellow" label="Yellow" />  <Pill color="blue" label="Blue" />
       </div>
-
+      <div>
+        Outline Pill: <Pill label="Default" variant="outlined" /> <Pill color="red" label="Red" variant="outlined" /> <Pill color="green" label="Green" variant="outlined" /> <Pill color="yellow" label="Yellow" variant="outlined" />  <Pill color="blue" label="Blue" variant="outlined" />
+      </div>
 
     </Paper>
   );

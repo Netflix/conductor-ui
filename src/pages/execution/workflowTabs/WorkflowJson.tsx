@@ -1,19 +1,16 @@
 import { ReactJson } from "../../../components";
-import { useWorkflowVariables } from "../../../data/execution";
+import { Execution } from "../../../types/execution";
 
-export default function WorkflowVariables({
-  workflowId,
+export default function WorkflowJson({
+  execution,
 }: {
-  workflowId: string;
+  execution: Execution;
 }) {
-  const { data }: { data: any } = useWorkflowVariables(workflowId);
   return (
-    <>
-      <ReactJson
-        src={data}
-        label="Workflow Variables"
-        path="workflowVariables"
-      />
-    </>
+    <ReactJson
+      src={execution}
+      label="Execution JSON (Includes Definition, but not Tasks)"
+      path="execution.json"
+    />
   );
 }

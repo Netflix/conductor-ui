@@ -1,33 +1,58 @@
 import { makeStyles } from "@mui/styles";
 import Chip from "@mui/material/Chip";
+import { colors } from "../theme/variables"
+import React from "react";
+import { Tooltip } from "@mui/material";
 
-type PillColor = "red" | "yellow" | "green";
+type PillColor = "red" | "yellow" | "green" | "blue";
 type PillProps = {
-  color: PillColor;
+  color?: PillColor;
   label?: string;
+  variant?: "filled" | "outlined";
+  tooltip?: string;
 }
-const COLORS: { [key in PillColor]: string} = {
+const COLORS: { [key in PillColor]: string } = {
   red: "rgb(229, 9, 20)",
   yellow: "rgb(251, 164, 4)",
   green: "rgb(65, 185, 87)",
+  blue: colors.brand,
 };
 
 const useStyles = makeStyles({
-  pill: {
-    //borderColor: ({color}: {color: PillColor}) => COLORS[color],
-    backgroundColor: ({color}: {color: PillColor}) => COLORS[color]
+  colorPrimary: {
+    backgroundColor: ({ color }: { color: PillColor }) => color && COLORS[color]
   },
+  outlinedPrimary: {
+    borderColor: ({ color }: { color: PillColor }) => color && COLORS[color],
+    color: ({ color }: { color: PillColor }) => color && COLORS[color]
+  }
 });
 
-export default function Pill({ color, label }: PillProps) {
-  const classes = useStyles({ color });
+const Pill = ({ color, label, tooltip, variant = "filled" }: PillProps) => {
+  const classes = useStyles({ color: color || "blue" });
+
+  let overrideClasses;
+  if (variant === "filled") {
+    overrideClasses = {
+      colorPrimary: classes.colorPrimary,
+    }
+  }
+  else {
+    overrideClasses = {
+      outlinedPrimary: classes.outlinedPrimary,
+    }
+  }
 
   return (
+    <Tooltip title={tooltip}>
     <Chip
-      color="primary"
-      variant="filled"
+      color={color && "primary"}
+      variant={variant}
       label={label}
-      classes={{ colorPrimary: classes.pill }}
+      classes={overrideClasses}
     />
+    </Tooltip>
   );
-}
+};
+
+export default Pill;

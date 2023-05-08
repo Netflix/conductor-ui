@@ -21,6 +21,7 @@ import TimelineComponent from "./workflowTabs/Timeline";
 import WorkflowInput from "./workflowTabs/WorkflowInput";
 import WorkflowOutput from "./workflowTabs/WorkflowOutput";
 import WorkflowVariables from "./workflowTabs/WorkflowVariables";
+import WorkflowJson from "./workflowTabs/WorkflowJson";
 
 export type TaskSelection = {
   ref?: string;
@@ -73,10 +74,10 @@ export default function TileFactory({ component }: { component: string }) {
           onTaskSelect={setSelectedTask}
         />
       );
-    case "JSON":
+    case "WorkflowJson":
       return (
-        <WorkflowVariables
-          workflowId={executionAndTasks.execution.workflowId}
+        <WorkflowJson
+          execution={executionAndTasks.execution}
         />
       );
 
