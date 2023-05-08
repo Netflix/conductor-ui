@@ -1,15 +1,13 @@
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { LinearProgress } from "../../components";
-import { makeStyles } from "@mui/styles";
 import { Helmet } from "react-helmet";
-import _ from "lodash";
 import { useWorkflowDef } from "../../data/workflow";
 import { NEW_WORKFLOW_TEMPLATE } from "../../schema/workflow";
 
 import { TaskCoordinate, WorkflowDef } from "../../types/workflowDef";
 import React from "react";
-import DockLayout, { LayoutData } from "rc-dock";
+import DockLayout from "rc-dock";
 import JsonPanel from "./builder/JsonPanel";
 import WorkflowBuilder from "./builder/WorkflowBuilder";
 
@@ -25,6 +23,7 @@ export type IDefEditorContext = {
   selectedTask?: TaskCoordinate;
   setWorkflowDef: (workflowDef: WorkflowDef) => void;
   setSelectedTask: (coord: TaskCoordinate) => void;
+  refetchWorkflow: () => void;
 };
 
 export const DefEditorContext = React.createContext<
@@ -47,11 +46,7 @@ export default function Workflow() {
     data: remoteWorkflowDef,
     isFetching,
     refetch: refetchWorkflow,
-  } = useWorkflowDef(workflowName, workflowVersion, NEW_WORKFLOW_TEMPLATE) as {
-    data: WorkflowDef;
-    isFetching: boolean;
-    refetch: Function;
-  };
+  } = useWorkflowDef(workflowName, workflowVersion, NEW_WORKFLOW_TEMPLATE);
 
   useEffect(() => {
     setWorkflowDef(remoteWorkflowDef);
@@ -75,6 +70,7 @@ export default function Workflow() {
             selectedTask,
             setSelectedTask,
             setWorkflowDef,
+            refetchWorkflow
           }}
         >
           <DockLayout

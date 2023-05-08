@@ -17,7 +17,7 @@ import { NamesAndVersions } from "../../../types/namesAndVersions";
 import { useWorkflowNamesAndVersions } from "../../../data/workflow";
 import ResetConfirmationDialog from "../ResetConfirmationDialog";
 import SaveWorkflowDialog from "../SaveWorkflowDialog";
-import { TaskCoordinate } from "../../../types/workflowDef";
+
 // TODO: import Marker type
 type Marker = any;
 
@@ -88,8 +88,7 @@ export default function JsonPanel() {
     refetch: refetchNamesAndVersions,
   }: { data?: NamesAndVersions; refetch: Function } =
     useWorkflowNamesAndVersions();
-  const { workflowName, workflowVersion, workflowDef, selectedTask } =
-    context || {};
+  const { workflowName, workflowVersion, workflowDef, selectedTask, refetchWorkflow } = context!;
 
   const versions = useMemo(
     () => _.get(namesAndVersions, workflowName!, []),
@@ -178,7 +177,7 @@ export default function JsonPanel() {
     refetchNamesAndVersions();
 
     if (name === workflowName && version === workflowVersion) {
-      //refetchWorkflow();
+      refetchWorkflow();
     } else {
       navigate(`/workflowDef/${name}/${version}`);
     }

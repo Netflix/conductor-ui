@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from "react";
-import Editor from "@monaco-editor/react";
 import { makeStyles } from "@mui/styles";
 import { InputLabel, IconButton, Tooltip } from "@mui/material";
 import clsx from "clsx";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
+import { Editor } from "@monaco-editor/react";
 
 const useStyles = makeStyles({
   monaco: {},
@@ -35,26 +35,24 @@ const useStyles = makeStyles({
   },
 });
 
+type ReactJsonProps = {
+  className?: string;
+  label?: string;
+  src: any;
+  lineNumbers?: boolean;
+  path?: string;
+}
+
 export default function ReactJson({
   className,
   label,
   src,
   lineNumbers = true,
-}) {
+}: ReactJsonProps) {
   const classes = useStyles();
-  const editorRef = useRef(null);
+  const editorRef = useRef<any>(null);
 
-  /*
-  useEffect(() => {
-    if (editorRef.current) {
-      console.log('setting src', src)
-      const editor = editorRef.current;
-      editor.getModel().setValue(JSON.stringify(src, null, 2));
-    }
-  }, [src]);
-  */
-
-  function handleEditorMount(editor) {
+  function handleEditorMount(editor: any) {
     editorRef.current = editor;
   }
 

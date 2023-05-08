@@ -3,7 +3,6 @@ import {
   borders,
   colors,
   spacings,
-  breakpoints,
   fontSizes,
   lineHeights,
   fontWeights,
@@ -13,22 +12,6 @@ import {
 function toNumber(v) {
   return parseFloat(v);
 }
-
-const spacingFn = (factor) => {
-  const unit = toNumber(spacings.space0);
-
-  // Support theme.spacing('space3')
-  if (typeof factor === "string") {
-    return toNumber(spacings[factor]);
-  }
-
-  if (typeof factor === "number") {
-    // Support theme.spacing(2)
-    return unit * factor;
-  }
-
-  return unit;
-};
 
 const baseThemeOptions = {
   palette: {

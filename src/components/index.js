@@ -30,6 +30,7 @@ export { default as ReactJson } from "./ReactJson";
 export { default as LinearProgress } from "./LinearProgress";
 export { default as Pill } from "./Pill";
 export { default as StatusBadge } from "./StatusBadge";
+export { default as AppBarButton } from "./AppBarButton";
 
 // Conductor Specific
 export { default as WorkflowNameInput } from "./WorkflowNameInput";

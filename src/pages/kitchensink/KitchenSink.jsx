@@ -28,6 +28,7 @@ import {
   Input,
   Select,
   Button,
+  Pill,
 } from "../../components";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import * as Yup from "yup";
@@ -231,7 +232,12 @@ const HeadingSection = () => {
       <Text level={2}>Text Level Two</Text>
 
       <div>Default &lt;div&gt;</div>
-      <div>Default &lt;p&gt;</div>
+      <p>Default &lt;p&gt;</p>
+      <div>
+        Pill: <Pill label="default" /> <Pill color="red" label="Red" /> <Pill color="green" label="Green" /> <Pill color="yellow" label="Yellow" />
+      </div>
+
+
     </Paper>
   );
 };

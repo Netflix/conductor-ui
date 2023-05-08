@@ -42,8 +42,7 @@ export const TileFactoryContext = React.createContext<
 
 export default function TileFactory({ component }: { component: string }) {
   const context = useContext(TileFactoryContext);
-  const { selectedTask, setSelectedTask, dag, executionAndTasks } =
-    context || {};
+  const { selectedTask, setSelectedTask, dag, executionAndTasks } = context!;
 
   const taskSelection: TaskSelection | undefined = useMemo(() => {
     if (!dag || !selectedTask || !executionAndTasks) {
