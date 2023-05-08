@@ -1,7 +1,7 @@
-import { useRouteMatch } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import sharedStyles from "../styles";
 import { usePollData, useQueueSizes, useTaskNames } from "../../data/task";
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@mui/styles";
 import { Helmet } from "react-helmet";
 import { usePushHistory } from "../../components/NavLink";
 import { formatRelative } from "date-fns";
@@ -32,8 +32,9 @@ export default function TaskDefinition() {
   const taskNames = useTaskNames();
   const pushHistory = usePushHistory();
   const classes = useStyles();
-  const match = useRouteMatch();
-  const taskName = match.params.name || "";
+
+  const params = useParams();
+  const taskName = params.name || "";
 
   const { data: pollData, isFetching } = usePollData(taskName);
   const domains = pollData ? pollData.map((row) => row.domain) : null;

@@ -1,11 +1,10 @@
-import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import ThemeProvider from "./theme/ThemeProvider";
 import { BrowserRouter } from "react-router-dom";
-import CssBaseline from "@material-ui/core/CssBaseline";
+import CssBaseline from "@mui/material/CssBaseline";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import DefaultAppContextProvider from "./components/context/DefaultAppContextProvider";
@@ -20,18 +19,18 @@ const queryClient = new QueryClient({
 });
 
 ReactDOM.render(
-    <ThemeProvider>
-      <BrowserRouter>
-        <DefaultAppContextProvider>
-          <QueryClientProvider client={queryClient}>
-            <CssBaseline />
-            <ReactQueryDevtools />
+  <ThemeProvider>
+    <BrowserRouter>
+      <DefaultAppContextProvider>
+        <QueryClientProvider client={queryClient}>
+          <CssBaseline />
+          <ReactQueryDevtools />
 
-            <App />
-          </QueryClientProvider>
-        </DefaultAppContextProvider>
-      </BrowserRouter>
-    </ThemeProvider>,
+          <App />
+        </QueryClientProvider>
+      </DefaultAppContextProvider>
+    </BrowserRouter>
+  </ThemeProvider>,
   document.getElementById("root")
 );
 

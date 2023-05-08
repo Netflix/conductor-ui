@@ -1,5 +1,5 @@
-import { makeStyles } from "@material-ui/styles";
-import Chip from "@material-ui/core/Chip";
+import { makeStyles } from "@mui/styles";
+import Chip from "@mui/material/Chip";
 
 const COLORS = {
   red: "rgb(229, 9, 20)",
@@ -19,7 +19,7 @@ export default function Pill({ color, ...props }) {
 
   return (
     <Chip
-      color={color && "primary"}
+      color={color}
       variant="outlined"
       {...props}
       classes={{ colorPrimary: classes.pill }}

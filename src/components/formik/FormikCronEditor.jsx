@@ -1,5 +1,5 @@
 import React from "react";
-import { InputLabel } from "@material-ui/core";
+import { InputLabel } from "@mui/material";
 import { useField } from "formik";
 import Cron from "react-cron-generator";
 

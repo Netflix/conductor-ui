@@ -8,19 +8,29 @@ import Path from "../utils/path";
 
 const STALE_TIME_SEARCH = 60000; // 1 min
 
-export function useTask(taskName, defaultTask) {
-  let path;
-  if (taskName) {
-    path = `/metadata/taskdefs/${taskName}`;
-  }
-  return useFetch(["taskDef", taskName], path, {}, defaultTask);
+export function useTask(taskName: string | undefined, defaultTask: any) {
+  let path = `/metadata/taskdefs/${taskName}`;
+
+  return useFetch(
+    ["taskDef", taskName!],
+    path,
+    {
+      enabled: !!taskName,
+    },
+    defaultTask
+  );
 }
 
-export function useTaskSearch({ searchReady, ...searchObj }) {
+export function useTaskSearch({
+  searchReady,
+  ...searchObj
+}: {
+  searchReady: boolean;
+}) {
   const { fetchWithContext, ready, stack } = useAppContext();
 
   const pathRoot = "/tasks/search?";
-  const { rowsPerPage, page, sort, freeText, query } = searchObj;
+  const { rowsPerPage, page, sort, freeText, query } = searchObj as any;
 
   const isEmptySearch = _.isEmpty(query) && freeText === "*";
 
@@ -54,7 +64,7 @@ export function useTaskSearch({ searchReady, ...searchObj }) {
   );
 }
 
-export function usePollData(taskName) {
+export function usePollData(taskName?: string) {
   const { fetchWithContext, ready, stack } = useAppContext();
 
   const pollDataPath = `/tasks/queue/polldata?taskType=${taskName}`;
@@ -64,11 +74,13 @@ export function usePollData(taskName) {
   });
 }
 
-export function useQueueSize(taskName, domain) {
+export function useQueueSize(taskName: string | undefined, domain: string) {
   const { fetchWithContext, ready, stack } = useAppContext();
 
   const path = new Path("/tasks/queue/size");
-  path.search.append("taskType", taskName);
+  if (taskName) {
+    path.search.append("taskType", taskName);
+  }
 
   if (!_.isUndefined(domain)) {
     path.search.append("domain", domain);
@@ -76,19 +88,21 @@ export function useQueueSize(taskName, domain) {
 
   return useQuery([stack, "queueSize", taskName, domain], () =>
     fetchWithContext(path.toString(), {
-      enabled: ready,
+      enabled: ready && !_.isEmpty(taskName),
     })
   );
 }
 
-export function useQueueSizes(taskName, domains) {
+export function useQueueSizes(taskName: string | undefined, domains: string[]) {
   const { fetchWithContext, ready, stack } = useAppContext();
 
   return useQueries(
     domains
       ? domains.map((domain) => {
           const path = new Path("/tasks/queue/size");
-          path.search.append("taskType", taskName);
+          if (taskName) {
+            path.search.append("taskType", taskName);
+          }
 
           if (!_.isUndefined(domain)) {
             path.search.append("domain", domain);
@@ -103,7 +117,7 @@ export function useQueueSizes(taskName, domains) {
                 size: result,
               };
             },
-            enabled: ready && !!domains,
+            enabled: ready && !_.isEmpty(taskName),
           };
         })
       : []
@@ -119,20 +133,23 @@ export function useTaskNames() {
 }
 
 export function useTaskDefs() {
-  return useFetch(["taskDefs"], "/metadata/taskdefs");
+  return useFetch<Array<any>>(["taskDefs"], "/metadata/taskdefs");
 }
 
-export function useSaveTask(callbacks) {
+export function useSaveTask(callbacks: any) {
   const path = "/metadata/taskdefs";
   const { fetchWithContext } = useAppContext();
 
-  return useMutation(({ body, isNew }) => {
-    return fetchWithContext(path, {
-      method: isNew ? "post" : "put",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(isNew ? [body] : body), // Note: application of [] is opposite of workflow
-    });
-  }, callbacks);
+  return useMutation<any, unknown, { body: any; isNew: boolean }>(
+    ({ body, isNew }) => {
+      return fetchWithContext(path, {
+        method: isNew ? "post" : "put",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(isNew ? [body] : body), // Note: application of [] is opposite of workflow
+      });
+    },
+    callbacks
+  );
 }

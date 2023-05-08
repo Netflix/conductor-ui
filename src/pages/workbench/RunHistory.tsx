@@ -8,13 +8,13 @@ import {
   ListItemSecondaryAction,
   Toolbar,
   IconButton,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/styles";
+} from "@mui/material";
+import { makeStyles } from "@mui/styles";
 import { immutableReplaceAt } from "../../utils/helpers";
 import { formatRelative } from "date-fns";
-import DeleteIcon from "@material-ui/icons/DeleteForever";
+import DeleteIcon from "@mui/icons-material/DeleteForever";
 import { colors } from "../../theme/variables";
-import CloseIcon from "@material-ui/icons/Close";
+import CloseIcon from "@mui/icons-material/Close";
 import _ from "lodash";
 import useAppContext from "../../hooks/useAppContext";
 
@@ -134,7 +134,7 @@ const RunHistory = forwardRef((props: RunHistoryProps, ref) => {
         <Text level={0} className={classes.title}>
           Run History
         </Text>
-        <IconButton onClick={handleDeleteAll}>
+        <IconButton onClick={handleDeleteAll} size="large">
           <DeleteIcon />
         </IconButton>
       </Toolbar>
@@ -150,7 +150,11 @@ const RunHistory = forwardRef((props: RunHistoryProps, ref) => {
               secondary={formatRelative(new Date(run.createTime), new Date())}
             />
             <ListItemSecondaryAction>
-              <IconButton edge="end" onClick={() => handleDeleteItem(run)}>
+              <IconButton
+                edge="end"
+                onClick={() => handleDeleteItem(run)}
+                size="large"
+              >
                 <CloseIcon />
               </IconButton>
             </ListItemSecondaryAction>

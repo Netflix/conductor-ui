@@ -7,8 +7,8 @@ import {
   TertiaryButton,
   Text,
 } from "../../components";
-import { Alert, AlertTitle } from "@material-ui/lab";
-import { makeStyles } from "@material-ui/styles";
+import { Alert, AlertTitle } from "@mui/material";
+import { makeStyles } from "@mui/styles";
 import BulkActionModule from "./BulkActionModule";
 import executionsStyles from "./executionsStyles";
 import sharedStyles from "../styles";

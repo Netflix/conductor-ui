@@ -1,15 +1,15 @@
 import { Text, Pill } from "../../components";
-import { Toolbar, IconButton, Tooltip } from "@material-ui/core";
+import { Toolbar, IconButton, Tooltip } from "@mui/material";
 import FormikInput from "../../components/formik/FormikInput";
 import FormikJsonInput from "../../components/formik/FormikJsonInput";
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@mui/styles";
 import _ from "lodash";
 import { Form, setNestedObjectValues, withFormik } from "formik";
 import { useWorkflowDef } from "../../data/workflow";
 import FormikVersionDropdown from "../../components/formik/FormikVersionDropdown";
-import PlayArrowIcon from "@material-ui/icons/PlayArrow";
-import PlaylistAddIcon from "@material-ui/icons/PlaylistAdd";
-import SaveIcon from "@material-ui/icons/Save";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
+import SaveIcon from "@mui/icons-material/Save";
 import { colors } from "../../theme/variables";
 import { timestampRenderer } from "../../utils/helpers";
 import * as Yup from "yup";
@@ -149,14 +149,14 @@ function WorkbenchForm(props) {
       <Toolbar className={classes.toolbar}>
         <Text className={classes.workflowName}>Workflow Workbench</Text>
         <Tooltip title="Execute Workflow">
-          <IconButton onClick={handleRun}>
+          <IconButton onClick={handleRun} size="large">
             <PlayArrowIcon />
           </IconButton>
         </Tooltip>
 
         <Tooltip title="Save Workflow Trigger">
           <div>
-            <IconButton disabled={!dirty} onClick={handleSave}>
+            <IconButton disabled={!dirty} onClick={handleSave} size="large">
               <SaveIcon />
             </IconButton>
           </div>
@@ -167,6 +167,7 @@ function WorkbenchForm(props) {
             <IconButton
               disabled={!values.workflowName}
               onClick={triggerPopulateInput}
+              size="large"
             >
               <PlaylistAddIcon />
             </IconButton>

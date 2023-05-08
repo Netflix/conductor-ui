@@ -1,10 +1,10 @@
 import React from "react";
 import { Input } from "./";
-import Autocomplete from "@material-ui/lab/Autocomplete";
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
-import CloseIcon from "@material-ui/icons/Close";
-import { InputAdornment, CircularProgress } from "@material-ui/core";
+import Autocomplete from "@mui/material/Autocomplete";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import CloseIcon from "@mui/icons-material/Close";
+import { InputAdornment, CircularProgress } from "@mui/material";
 
 export default function ({
   label,
@@ -25,7 +25,7 @@ export default function ({
       <Autocomplete
         {...props}
         disabled={loading || disabled}
-        closeIcon={<CloseIcon />}
+        clearIcon={<CloseIcon />}
         renderInput={({ InputProps, ...params }) => (
           <Input
             {...params}

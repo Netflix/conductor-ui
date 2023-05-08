@@ -1,14 +1,18 @@
 import { FC, useState, useEffect, useMemo, ChangeEvent } from "react";
-import { Tabs, Tab, ReactJson, Dropdown, Banner } from "../../components";
-import { TabPanel, TabContext } from "@material-ui/lab";
-import WorkflowDAG, { TaskResult, TaskCoordinate } from "../../components/diagram/WorkflowDAG";
-
+import { Tabs, Tab, ReactJson, Dropdown } from "../../components";
+import { TabPanel, TabContext } from "@mui/lab";
+import WorkflowDAG from "../../components/diagram/WorkflowDAG";
+import { TaskCoordinate } from "../../types/workflowDef";
+import { TaskResult } from "../../types/execution";
+import { Close } from "@mui/icons-material"
 import TaskSummary from "./TaskSummary";
-import TaskLogs from "./TaskLogs";
+import TaskLogs from "./taskTabs/TaskLogs";
 
-import { makeStyles } from "@material-ui/styles";
-import _ from "lodash";
+import { makeStyles } from "@mui/styles";
 import TaskPollData from "./TaskPollData";
+import TaskInput from "./TaskInput";
+import TaskOutput from "./TaskOutput";
+import { IconButton } from "@mui/material";
 
 type RightPanelProps = {
   workflowId: string;
@@ -49,7 +53,7 @@ const RightPanel: FC< RightPanelProps> = ({ workflowId, selectedTask, dag, onTas
     () => dag?.getDFSiblingsByCoord(selectedTask) as TaskResult[],
     [dag, selectedTask]
   );
-  const retryOptions = useMemo(
+  const attempts = useMemo(
     () => dag && dag.getTaskResultAttemptsByCoord(selectedTask) as TaskResult[],
     [dag, selectedTask]
   );
@@ -58,10 +62,14 @@ const RightPanel: FC< RightPanelProps> = ({ workflowId, selectedTask, dag, onTas
     [dag, selectedTask]
   );
 
-  if (!taskResult || !taskConfig) {
+  if (!taskConfig) {
     return null;
   }
   return (
+    <div style={{height: '100%', overflow: 'hidden', background: 'white', display: 'flex', flexDirection: 'column'}}>
+    <IconButton style={{ position: 'absolute', top: 0, right: 0, zIndex:1}} onClick={() => onTaskChange(null)}>
+      <Close />
+    </IconButton>
     <TabContext value={tabIndex}>
       {dfOptions && (
         <div className={classes.dfSelect}>
@@ -80,7 +88,7 @@ const RightPanel: FC< RightPanelProps> = ({ workflowId, selectedTask, dag, onTas
         </div>
       )}
 
-      {Array.isArray(retryOptions) && retryOptions.length >= 1 && (
+      {Array.isArray(attempts) && attempts.length > 1 && (
         <div className={classes.dfSelect}>
           <Dropdown
             label="Retried Task - Select an instance"
@@ -90,8 +98,8 @@ const RightPanel: FC< RightPanelProps> = ({ workflowId, selectedTask, dag, onTas
                 id: v.taskId,
               });
             }}
-            options={retryOptions}
-            value={retryOptions.find(
+            options={attempts}
+            value={attempts.find(
               (opt: TaskResult) => opt.taskId === taskResult.taskId
             )}
             getOptionLabel={(t: TaskResult) =>
@@ -105,36 +113,36 @@ const RightPanel: FC< RightPanelProps> = ({ workflowId, selectedTask, dag, onTas
       <Tabs value={tabIndex} contextual onChange={(e: never, v: string) => setTabIndex(v)}>
         {[
           <Tab label="Summary" value="summary" key="summary" />,
+          <Tab label="Configuration" value="definition" key="definition" />,
           <Tab
             label="Input"
-            disabled={!taskResult.status}
+            disabled={!taskResult}
             value="input"
             key="input"
           />,
           <Tab
             label="Output"
-            disabled={!taskResult.status}
+            disabled={!taskResult}
             value="output"
             key="output"
           />,
           <Tab
             label="Logs"
-            disabled={!taskResult.status}
+            disabled={!taskResult}
             value="logs"
             key="logs"
           />,
           <Tab
             label="JSON"
-            disabled={!taskResult.status}
+            disabled={!taskResult}
             value="json"
             key="json"
           />,
-          <Tab label="Definition" value="definition" key="definition" />,
           ...(taskConfig.type === "SIMPLE"
             ? [
               <Tab
                 label="Poll Data"
-                disabled={!taskResult.status}
+                disabled={!taskResult?.status}
                 value="pollData"
                 key="pollData"
               />,
@@ -150,50 +158,32 @@ const RightPanel: FC< RightPanelProps> = ({ workflowId, selectedTask, dag, onTas
           />
         </TabPanel>
         <TabPanel className={classes.tabPanel} value="input">
-          
-          {/*taskResult.externalInputPayloadStoragePath ? (
-            <Banner className={classes.banner}>
-              This task has externalized input. Please reference{" "}
-              <code>externalInputPayloadStoragePath</code> for the storage
-              location.
-            </Banner>
-          ) : (
-            <ReactJson src={taskResult.inputData} label="Task Input" />
-          )*/}
+          <TaskInput task={undefined} />
         </TabPanel>
         <TabPanel className={classes.tabPanel} value="output">
-          {/*taskResult.externalOutputPayloadStoragePath ? (
-            <Banner className={classes.banner}>
-              This task has externalized output. Please reference{" "}
-              <code>externalOutputPayloadStoragePath</code> for the storage
-              location.
-            </Banner>
-          ) : (
-            <ReactJson src={taskResult.outputData} label="Task Output" />
-          )*/}
+          <TaskOutput task={undefined} />
         </TabPanel>
         <TabPanel className={classes.tabPanel} value="pollData">
-          <TaskPollData task={taskResult} />
+          <TaskPollData task={undefined} />
         </TabPanel>
         <TabPanel className={classes.tabPanel} value="logs">
-          <TaskLogs task={taskResult} />
+          <TaskLogs task={undefined} />
         </TabPanel>
         <TabPanel className={classes.tabPanel} value="json">
           <ReactJson
-            src={taskResult}
+            src={undefined}
             label="Unabridged Task Execution Result"
           />
         </TabPanel>
         <TabPanel className={classes.tabPanel} value="definition">
-          {/*
             <ReactJson
-              src={taskResult.}
-              label="Task Definition at Runtime"
+              src={undefined}
+              label="Task Configuration"
             />
-            */}
         </TabPanel>
       </>
     </TabContext>
+    </div>
   );
 }
 

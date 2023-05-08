@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
-import { TextField, InputAdornment, IconButton } from "@material-ui/core";
-import ClearIcon from "@material-ui/icons/Clear";
+import { TextField, InputAdornment, IconButton } from "@mui/material";
+import ClearIcon from "@mui/icons-material/Clear";
 
 export default function (props) {
   const { label, clearable, onBlur, onChange, InputProps, ...rest } = props;
@@ -24,6 +24,7 @@ export default function (props) {
     <TextField
       label={label}
       inputRef={inputRef}
+      InputLabelProps={{ shrink: true }}
       InputProps={
         InputProps || {
           endAdornment: clearable && (

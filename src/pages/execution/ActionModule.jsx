@@ -1,14 +1,14 @@
 import { useMemo } from "react";
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@mui/styles";
 import { isFailedTask } from "../../utils/helpers";
 import { DropdownButton } from "../../components";
-import { ListItemIcon, ListItemText } from "@material-ui/core";
-import StopIcon from "@material-ui/icons/Stop";
-import PauseIcon from "@material-ui/icons/Pause";
-import ReplayIcon from "@material-ui/icons/Replay";
-import ResumeIcon from "@material-ui/icons/PlayArrow";
-import RedoIcon from "@material-ui/icons/Redo";
-import FlareIcon from "@material-ui/icons/Flare";
+import { ListItemIcon, ListItemText } from "@mui/material";
+import StopIcon from "@mui/icons-material/Stop";
+import PauseIcon from "@mui/icons-material/Pause";
+import ReplayIcon from "@mui/icons-material/Replay";
+import ResumeIcon from "@mui/icons-material/PlayArrow";
+import RedoIcon from "@mui/icons-material/Redo";
+import FlareIcon from "@mui/icons-material/Flare";
 
 import {
   useRestartAction,
@@ -47,13 +47,14 @@ export default function ActionModule({ execution, triggerReload }) {
 
   const options = [];
 
-  const hasRetryableSubworkflow = useMemo(() =>
-    ["FAILED", "TIMED_OUT", "TERMINATED"].includes(execution.status) &&
-    execution.tasks.find(
-      (task) =>
-        task.taskType === "SUB_WORKFLOW" && isFailedTask(task.status)
-    ), [execution.tasks]);
-
+  const hasRetryableSubworkflow = useMemo(
+    () =>
+      ["FAILED", "TIMED_OUT", "TERMINATED"].includes(execution.status) &&
+      execution.tasks.find(
+        (task) => task.taskType === "SUB_WORKFLOW" && isFailedTask(task.status)
+      ),
+    [execution.tasks]
+  );
 
   // RESTART buttons
   if (

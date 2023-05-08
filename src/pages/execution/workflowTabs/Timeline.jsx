@@ -1,17 +1,12 @@
 import React, { useMemo } from "react";
 import Timeline from "react-vis-timeline-2";
-import { timestampRenderer, durationRenderer } from "../../utils/helpers";
+import { timestampRenderer, durationRenderer } from "../../../utils/helpers";
 import _ from "lodash";
 import "./timeline.scss";
-import ZoomOutMapIcon from "@material-ui/icons/ZoomOutMap";
-import { IconButton, Tooltip } from "@material-ui/core";
+import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
+import { IconButton, Tooltip } from "@mui/material";
 
-export default function TimelineComponent({
-  dag,
-  tasks,
-  onClick,
-  selectedTask,
-}) {
+export default function TimelineComponent({ dag, tasks, onClick }) {
   const timelineRef = React.useRef();
   /*
   const selectedId = useMemo(() => {
@@ -104,7 +99,7 @@ export default function TimelineComponent({
       <div style={{ marginLeft: 15 }}>
         Ctrl-scroll to zoom.{" "}
         <Tooltip title="Zoom to Fit">
-          <IconButton onClick={onFit}>
+          <IconButton onClick={onFit} size="large">
             <ZoomOutMapIcon />
           </IconButton>
         </Tooltip>

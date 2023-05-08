@@ -1,4 +1,10 @@
-export { colorOverrides as colors } from "./colorOverrides";
+import * as baseColors from "./colors";
+
+export const colors = {
+  brand: "#1976D2",
+  brandSecondary: "#D21976",
+  ...baseColors,
+};
 
 export const fontSizes = {
   fontSize0: "10px",

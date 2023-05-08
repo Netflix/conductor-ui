@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch, InputLabel } from "@material-ui/core";
+import { Switch, InputLabel } from "@mui/material";
 import { useField } from "formik";
 
 export default function ({ label, ...props }) {

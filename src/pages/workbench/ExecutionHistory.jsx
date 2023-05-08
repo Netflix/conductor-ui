@@ -4,14 +4,14 @@ import {
   ListItemText,
   Toolbar,
   IconButton,
-} from "@material-ui/core";
+} from "@mui/material";
 import { StatusBadge, Text, NavLink } from "../../components";
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@mui/styles";
 import { colors } from "../../theme/variables";
 import _ from "lodash";
 import { useInvalidateWorkflows, useWorkflowsByIds } from "../../data/workflow";
 import { formatRelative } from "date-fns";
-import RefreshIcon from "@material-ui/icons/Refresh";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 const useStyles = makeStyles({
   sidebar: {
@@ -57,7 +57,7 @@ export default function ExecutionHistory({ run }) {
         <Text level={0} className={classes.title}>
           Execution History
         </Text>
-        <IconButton onClick={handleRefresh}>
+        <IconButton onClick={handleRefresh} size="large">
           <RefreshIcon />
         </IconButton>
       </Toolbar>

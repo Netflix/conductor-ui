@@ -1,3 +1,3 @@
-import { FC } from 'react'
+import { FC } from "react";
 declare const LinearProgress: FC<{}>;
-export default LinearProgress
+export default LinearProgress;

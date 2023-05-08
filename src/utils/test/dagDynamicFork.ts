@@ -7,7 +7,9 @@ export function dagDynamicForkDefOnly() {
   const workflow = new WorkflowExecution("test_workflow", "COMPLETED");
   workflow.pushDynamicFork("dynamic_fork", 0);
 
-  return WorkflowDAG.fromWorkflowDef(workflow.toJSON().execution.workflowDefinition);
+  return WorkflowDAG.fromWorkflowDef(
+    workflow.toJSON().execution.workflowDefinition
+  );
 }
 
 export function dagDynamicForkUnexecuted() {
@@ -41,14 +43,17 @@ export function dagDynamicForkFailure(fanout: number) {
 }
 
 export function dagDynamicForkRetries(fanout: number) {
-
   const workflow = new WorkflowExecution("test_workflow", "COMPLETED");
   workflow.pushDynamicFork("dynamic_fork", fanout);
 
   // Append extra retry to one of the forked tasks
   const taskToRetry = workflow.tasks[fanout];
   taskToRetry.status = "FAILED";
-  workflow.tasks.splice(fanout + 1, 0, { ...taskToRetry, taskId: uuidv4(), status: "COMPLETED" });
+  workflow.tasks.splice(fanout + 1, 0, {
+    ...taskToRetry,
+    taskId: uuidv4(),
+    status: "COMPLETED",
+  });
 
   return WorkflowDAG.fromExecutionAndTasks(workflow.toJSON());
 }

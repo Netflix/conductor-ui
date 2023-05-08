@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Tabs, Tab, Paper } from "../../components";
-import Timeline from "./Timeline";
-import TaskList from "./TaskList";
+import Timeline from "./workflowTabs/Timeline";
+import TaskList from "./workflowTabs/TaskList";
 import WorkflowGraph from "../../components/diagram/WorkflowGraph";
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles({
   taskWrapper: {
@@ -37,7 +37,7 @@ export default function TaskDetails({
             selectedTask={selectedTask}
             executionMode={true}
             dag={dag}
-            onClick={setSelectedTask}
+            onSelect={setSelectedTask}
           />
         )}
         {tabIndex === 1 && (

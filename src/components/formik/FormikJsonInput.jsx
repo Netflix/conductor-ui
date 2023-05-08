@@ -1,8 +1,8 @@
 import { useRef, useEffect } from "react";
 import { useField } from "formik";
 import Editor from "@monaco-editor/react";
-import { makeStyles } from "@material-ui/styles";
-import { FormHelperText, InputLabel } from "@material-ui/core";
+import { makeStyles } from "@mui/styles";
+import { FormHelperText, InputLabel } from "@mui/material";
 import clsx from "clsx";
 
 const useStyles = makeStyles({

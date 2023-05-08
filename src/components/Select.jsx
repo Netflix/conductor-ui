@@ -1,7 +1,7 @@
 import React from "react";
-import Select from "@material-ui/core/Select";
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
+import Select from "@mui/material/Select";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
 import _ from "lodash";
 
 export default function ({ label, fullWidth, nullable = true, ...props }) {

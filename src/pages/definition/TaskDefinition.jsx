@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useState } from "react";
-import { Toolbar } from "@material-ui/core";
-import { useRouteMatch } from "react-router-dom";
-import { makeStyles } from "@material-ui/styles";
+import { Toolbar } from "@mui/material";
+import { useParams } from "react-router-dom";
+import { makeStyles } from "@mui/styles";
 import { Helmet } from "react-helmet";
 import _ from "lodash";
 import { LinearProgress, Pill, Text, Button } from "../../components";
@@ -33,7 +33,8 @@ const useStyles = makeStyles({
 
 export default function TaskDefinition() {
   const classes = useStyles();
-  const match = useRouteMatch();
+
+  const params = useParams();
   const navigate = usePushHistory();
 
   const [isModified, setIsModified] = useState(false);
@@ -42,7 +43,7 @@ export default function TaskDefinition() {
   const [saveDialog, setSaveDialog] = useState(null);
 
   const editorRef = useRef();
-  const taskName = _.get(match, "params.name");
+  const taskName = params.name;
 
   const {
     data: taskDef,

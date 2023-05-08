@@ -8,9 +8,9 @@ import {
   Menu,
   Tooltip,
   Popover,
-} from "@material-ui/core";
-import ViewColumnIcon from "@material-ui/icons/ViewColumn";
-import SearchIcon from "@material-ui/icons/Search";
+} from "@mui/material";
+import ViewColumnIcon from "@mui/icons-material/ViewColumn";
+import SearchIcon from "@mui/icons-material/Search";
 import { Heading, Select, Input } from "./";
 import { timestampRenderer, timestampMsRenderer } from "../utils/helpers";
 import { useLocalStorage } from "../utils/localstorage";
@@ -223,6 +223,7 @@ function Filter({ columns, filterObj, setFilterObj }) {
           onClick={handleClick}
           label="Columns"
           color={_.get(filterObj, "substring") !== "" ? "primary" : "default"}
+          size="large"
         >
           <SearchIcon />
         </IconButton>
@@ -309,7 +310,7 @@ function ColumnsSelector({ columns, selected, setSelected, defaultColumns }) {
   return (
     <>
       <Tooltip title="Show Columns">
-        <IconButton onClick={handleClick} label="Columns">
+        <IconButton onClick={handleClick} label="Columns" size="large">
           <ViewColumnIcon />
         </IconButton>
       </Tooltip>

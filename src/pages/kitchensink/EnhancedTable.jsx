@@ -1,7 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import clsx from "clsx";
-import { lighten, makeStyles } from "@material-ui/core/styles";
+import { lighten } from "@mui/material/styles";
+import makeStyles from "@mui/styles/makeStyles";
 import {
   Table,
   TableBody,
@@ -15,7 +16,7 @@ import {
   Checkbox,
   FormControlLabel,
   Switch,
-} from "@material-ui/core";
+} from "@mui/material";
 import { Paper, Text, Heading } from "../../components";
 
 function createData(name, calories, fat, carbs, protein) {
@@ -144,7 +145,7 @@ const useToolbarStyles = makeStyles((theme) => ({
     paddingRight: theme.spacing(1),
   },
   highlight:
-    theme.palette.type === "light"
+    theme.palette.mode === "light"
       ? {
           color: theme.palette.secondary.main,
           backgroundColor: lighten(theme.palette.secondary.light, 0.85),

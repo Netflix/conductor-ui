@@ -1,20 +1,9 @@
 import React from "react";
-import { Paper, NavLink, KeyValueTable } from "../../components";
-import { makeStyles } from "@material-ui/styles";
-import { useAppContext } from "../../export";
+import { Paper, NavLink, KeyValueTable } from "../../../components";
+import { makeStyles } from "@mui/styles";
+import { useAppContext } from "../../../export";
 
-const useStyles = makeStyles({
-  paper: {
-    margin: 30,
-  },
-  wrapper: {
-    overflowY: "auto",
-  },
-});
-
-export default function ExecutionSummary({ execution }) {
-  const classes = useStyles();
-
+export default function Summary({ execution }) {
   const { customExecutionSummaryRows } = useAppContext();
 
   // To accommodate unexecuted tasks, read type & name out of workflowTask
@@ -80,11 +69,5 @@ export default function ExecutionSummary({ execution }) {
     }))
   );
 
-  return (
-    <div className={classes.wrapper}>
-      <Paper className={classes.paper}>
-        <KeyValueTable data={data} />
-      </Paper>
-    </div>
-  );
+  return <KeyValueTable data={data} />;
 }

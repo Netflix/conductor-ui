@@ -11,8 +11,8 @@ import {
   Toolbar,
   LinearProgress,
   CircularProgress,
-} from "@material-ui/core";
-import DeleteIcon from "@material-ui/icons/Delete";
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   PrimaryButton,
   SecondaryButton,
@@ -23,24 +23,24 @@ import {
   Paper,
   Tab,
   Tabs,
-  NavLink,
   Heading,
   Text,
   Input,
   Select,
   Button,
 } from "../../components";
-import ZoomInIcon from "@material-ui/icons/ZoomIn";
+import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import * as Yup from "yup";
 import EnhancedTable from "./EnhancedTable";
 import DataTableDemo from "./DataTableDemo";
 
 import sharedStyles from "../styles";
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@mui/styles";
 import clsx from "clsx";
 import FormikInput from "../../components/formik/FormikInput";
 import FormikJsonInput from "../../components/formik/FormikJsonInput";
 import Dropdown from "./Dropdown";
+import { ContextMenu } from "mui-nested-menu";
 
 const useStyles = makeStyles(sharedStyles);
 
@@ -52,12 +52,7 @@ export default function KitchenSink() {
         <Grid item xs={12}>
           <p>This is a Hawkins-like theme based on vanilla Material-UI.</p>
         </Grid>
-        <Grid item xs={12}>
-          <FormikSection />
-        </Grid>
-        <Grid item xs={12}>
-          <NavLink path="/kitchen/gantt">Gantt</NavLink>
-        </Grid>
+
         <Grid item xs={12}>
           <HeadingSection />
         </Grid>
@@ -72,6 +67,9 @@ export default function KitchenSink() {
         </Grid>
         <Grid item xs={12}>
           <Progress />
+        </Grid>
+        <Grid item xs={12}>
+          <ContextMenuSection />
         </Grid>
         <Grid item xs={12}>
           <Checkboxes />
@@ -91,10 +89,78 @@ export default function KitchenSink() {
         <Grid item xs={12}>
           <DataTableDemo />
         </Grid>
+        <Grid item xs={12}>
+          <FormikSection />
+        </Grid>
       </Grid>
     </div>
   );
 }
+
+const ContextMenuSection = () => {
+  return (
+    <Paper padded>
+      <Heading level={3}>Context Menu</Heading>
+      <ContextMenu menuItemsData={menuItemsData}>
+        <div
+          style={{ height: 400, width: 400, border: "solid black 1px" }}
+        ></div>
+      </ContextMenu>
+    </Paper>
+  );
+};
+
+const menuItemsData = [
+  {
+    label: "New",
+    callback: (event, item) => console.log("New clicked", event, item),
+  },
+  {
+    label: "Save",
+    callback: (event, item) => console.log("Save clicked", event, item),
+  },
+  {
+    label: "Save As",
+    items: [
+      {
+        label: "Option 1",
+        callback: (event, item) =>
+          console.log("Save As > Option 1 clicked", event, item),
+      },
+      {
+        label: "Option 2",
+        callback: (event, item) =>
+          console.log("Save As > Option 2 clicked", event, item),
+      },
+    ],
+  },
+  {
+    label: "Export",
+
+    items: [
+      {
+        label: "File Type 1",
+        items: [
+          {
+            label: "Option 1",
+            callback: (event, item) =>
+              console.log("Export > FT1 > O1 clicked", event, item),
+          },
+          {
+            label: "Option 2",
+            callback: (event, item) =>
+              console.log("Export > FT1 > O2 clicked", event, item),
+          },
+        ],
+      },
+      {
+        label: "File Type 2",
+        callback: (event, item) =>
+          console.log("Export > FT2 clicked", event, item),
+      },
+    ],
+  },
+];
 
 const FormikSection = () => {
   const [formState, setFormState] = useState();
@@ -143,7 +209,7 @@ const ToolbarSection = () => {
           <MenuItem value={30}>Thirty</MenuItem>
         </Select>{" "}
         <Button>Primary</Button>
-        <IconButton>
+        <IconButton size="large">
           <ZoomInIcon />
         </IconButton>
       </Toolbar>
@@ -302,7 +368,7 @@ const Buttons = () => (
         </DropdownButton>
       </Grid>
       <Grid item>
-        <IconButton>
+        <IconButton size="large">
           <DeleteIcon />
         </IconButton>
       </Grid>

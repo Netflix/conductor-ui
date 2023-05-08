@@ -4,7 +4,6 @@ import useAppContext from "../hooks/useAppContext";
 import { useFetch, useFetchParallel } from "./common";
 import qs from "qs";
 import _ from "lodash";
-
 const STALE_TIME_WORKFLOW_DEFS = 600000; // 10 mins
 const STALE_TIME_SEARCH = 60000; // 1 min
 
@@ -37,8 +36,6 @@ export function useWorkflowSearch(searchObj) {
   );
 }
 
-
-
 export function useWorkflowsByIds(workflowIds, reactQueryOptions) {
   return useFetchParallel(
     workflowIds.map((workflowId) => ["workflow", workflowId]),
@@ -69,6 +66,7 @@ export function useWorkflowDef(
 ) {
   let path;
   const key = ["workflowDef", workflowName];
+  const { stack } = useAppContext(); // temp
   if (workflowName) {
     path = `/metadata/workflow/${workflowName}`;
     if (version) {
@@ -77,6 +75,7 @@ export function useWorkflowDef(
     }
   }
   return useFetch(key, path, reactQueryOptions, defaultWorkflow);
+  //return useQuery([stack, ...key], () => Promise.resolve(require('./workflowdef.json')));
 }
 
 export function useWorkflowDefs() {
@@ -93,6 +92,16 @@ export function useWorkflowNamesAndVersions() {
       staleTime: STALE_TIME_WORKFLOW_DEFS,
     }
   );
+  /*
+  return useFetch(
+    ["workflowNamesAndVersions"],
+    undefined,
+    {
+      staleTime: STALE_TIME_WORKFLOW_DEFS,
+    },
+    require("./nameandversions.json")
+  );
+  */
 }
 
 export function usePaginatedWorkflowDefs(from = 0, to = 15, filter = "") {

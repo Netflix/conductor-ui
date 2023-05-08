@@ -1,14 +1,21 @@
 import React from "react";
-import { useLogs } from "../../data/misc";
-import { DataTable, Text, LinearProgress } from "../../components";
+import { useLogs } from "../../../data/misc";
+import { DataTable, Text, LinearProgress } from "../../../components";
+import { TaskSelection } from "../TileFactory";
 
-export default function TaskLogs({ task }) {
-  const { taskId } = task;
-  const { data: log, isFetching } = useLogs({ taskId });
+export default function TaskLogs({
+  taskSelection,
+}: {
+  taskSelection?: TaskSelection;
+}) {
+  const { data: log, isFetching }: { data: any; isFetching: boolean } = useLogs(
+    { taskId: taskSelection?.id }
+  );
 
   if (isFetching) {
     return <LinearProgress />;
   }
+
   return log && log.length > 0 ? (
     <DataTable
       data={log}

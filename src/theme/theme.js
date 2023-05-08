@@ -1,4 +1,4 @@
-import { unstable_createMuiStrictModeTheme as createMuiTheme } from "@material-ui/core/styles";
+import { createTheme } from "@mui/material/styles";
 import {
   borders,
   colors,
@@ -30,56 +30,18 @@ const spacingFn = (factor) => {
   return unit;
 };
 
-const colorFn = (color) => colors[color];
-
 const baseThemeOptions = {
   palette: {
-    type: "light",
+    mode: "light",
     primary: {
       main: colors.brand,
-      light: colors.bgBrandLight,
-      dark: colors.bgBrandDark,
-      contrastText: colors.white,
     },
     secondary: {
-      main: colors.white,
-      light: colors.bgBrandLight,
-      dark: colors.bgBrandDark,
-      contrastText: colors.black,
+      main: colors.blackLight,
     },
     text: {
-      primary: colors.black,
-      secondary: colors.blackXLight,
-      disabled: colors.blackXXLight,
-      hint: colors.blackXXLight,
+      main: colors.black,
     },
-    grey: {
-      50: colors.gray14,
-      100: colors.gray13,
-      200: colors.gray12,
-      300: colors.gray11,
-      400: colors.gray10,
-      500: colors.gray09,
-      600: colors.gray07,
-      700: colors.gray06,
-      800: colors.gray04,
-      900: colors.gray02,
-      A100: colors.gray12,
-      A200: colors.gray08,
-      A400: colors.gray03,
-      A700: colors.gray06,
-    },
-    error: {
-      main: colors.failure,
-      light: colors.failureLight,
-      dark: colors.failureDark,
-      contrastText: colors.white,
-    },
-    background: {
-      paper: colors.white,
-      default: colors.gray14,
-    },
-    divider: colors.blackXXLight,
   },
   typography: {
     fontFamily: fontFamily.fontFamilySans,
@@ -136,530 +98,571 @@ const baseThemeOptions = {
       fontSize: fontSizes.fontSize2,
       fontWeight: fontWeights.fontWeight1,
     },
-  },
-  breakpoints: {
-    // this looks wrong, but it's not
-    // material's breakpoints are a range, so the below basically says
-    // xs is from 0 to breakpoints.large
-    values: {
-      xs: 0,
-      sm: toNumber(breakpoints.xsmall),
-      md: toNumber(breakpoints.small),
-      lg: toNumber(breakpoints.medium),
-      xl: toNumber(breakpoints.large),
+    shape: {
+      borderRadius: toNumber(borders.radiusSmall),
     },
-  },
-  shape: {
-    borderRadius: toNumber(borders.radiusSmall),
-  },
-  color: colorFn,
-  spacing: spacingFn,
-  props: {
-    MuiButtonBase: {
-      disableRipple: true,
-    },
-    MuiFormControl: {
-      variant: "outlined",
-    },
-    MuiMenu: {
-      transitionDuration: 0,
-      elevation: 3,
-    },
-    MuiTextField: {
-      variant: "outlined",
-      InputProps: {
-        labelWidth: 0,
-      },
-    },
-    MuiInputLabel: {
-      shrink: true,
-      disableAnimation: true,
-    },
-    MuiOutlinedInput: {
-      notched: false,
-    },
-    MuiPaper: {
-      elevation: 3,
-    },
-    MuiPopover: {
-      elevation: 3,
+    background: {
+      default: "#f5f5f5", //colors.gray14,
     },
   },
 };
+const baseTheme = createTheme(baseThemeOptions);
 
-const baseTheme = createMuiTheme(baseThemeOptions);
-
-// Keep overrides in separate object so we can reference attributes of baseTheme.
-const overrides = {
-  overrides: {
+const additionalOptions = {
+  components: {
     MuiSvgIcon: {
-      root: {
-        fontSize: fontSizes.fontSize6,
-      },
-      fontSizeSmall: {
-        fontSize: fontSizes.fontSize1,
+      styleOverrides: {
+        root: {
+          fontSize: fontSizes.fontSize6,
+        },
+        fontSizeSmall: {
+          fontSize: fontSizes.fontSize1,
+        },
       },
     },
     MuiAvatar: {
-      root: {
-        fontSize: "2.4rem",
+      styleOverrides: {
+        root: {
+          fontSize: "2.4rem",
+        },
       },
     },
     MuiButton: {
-      root: {
-        textDecoration: "none !important",
-        textTransform: "none",
-        paddingTop: baseTheme.spacing("space1"),
-        paddingBottom: baseTheme.spacing("space1"),
-        paddingLeft: baseTheme.spacing("space2"),
-        paddingRight: baseTheme.spacing("space2"),
-        border: "1px solid transparent",
-        transition: "none",
-        "&$focusVisible": {
-          boxShadow: "none",
-          position: "relative",
-          "&:after": {
-            content: '""',
-            display: "block",
-            position: "absolute",
-            width: "calc(100% + 6px)",
-            height: "calc(100% + 6px)",
-            borderRadius: borders.radiusSmall,
-            border: borders.blueRegular2px,
-            top: -5,
-            left: -5,
+      styleOverrides: {
+        root: {
+          textDecoration: "none !important",
+          textTransform: "none",
+          paddingTop: spacings.space1,
+          paddingBottom: spacings.space1,
+          paddingLeft: spacings.space2,
+          paddingRight: spacings.space2,
+          border: "1px solid transparent",
+          transition: "none",
+          "&$focusVisible": {
+            boxShadow: "none",
+            position: "relative",
+            "&:after": {
+              content: '""',
+              display: "block",
+              position: "absolute",
+              width: "calc(100% + 6px)",
+              height: "calc(100% + 6px)",
+              borderRadius: borders.radiusSmall,
+              border: borders.blueRegular2px,
+              top: -5,
+              left: -5,
+            },
           },
         },
-      },
-      text: {
-        paddingTop: baseTheme.spacing("space1"),
-        paddingBottom: baseTheme.spacing("space1"),
-        paddingLeft: baseTheme.spacing("space2"),
-        paddingRight: baseTheme.spacing("space2"),
-        "&:hover": {
-          backgroundColor: baseTheme.palette.grey.A100,
+        text: {
+          paddingTop: spacings.space1,
+          paddingBottom: spacings.space1,
+          paddingLeft: spacings.space2,
+          paddingRight: spacings.space2,
+          "&:hover": {
+            //backgroundColor: baseTheme.palette.grey.A100,
+          },
         },
-      },
-      textSizeSmall: {
-        fontSize: "0.8125rem",
-      },
-      outlined: {
-        paddingTop: baseTheme.spacing("space1"),
-        paddingBottom: baseTheme.spacing("space1"),
-        paddingLeft: baseTheme.spacing("space2"),
-        paddingRight: baseTheme.spacing("space2"),
-      },
-      outlinedPrimary: {
-        border: borders.blackRegular1px,
-      },
-      outlinedSecondary: {
-        border: borders.blackLight1px,
-        color: baseTheme.palette.secondary.contrastText,
-        "&:hover": {
-          border: borders.blackLight1px + " !important",
-          backgroundColor: baseTheme.palette.grey.A100,
+        textSizeSmall: {
+          fontSize: "0.8125rem",
         },
-      },
-      contained: {
-        "&:disabled": {
-          backgroundColor: colors.bgBrandLight,
-          color: baseTheme.palette.common.white,
+        outlined: {
+          paddingTop: spacings.space1,
+          paddingBottom: spacings.space1,
+          paddingLeft: spacings.space2,
+          paddingRight: spacings.space2,
         },
-        boxShadow: "none !important",
-        "&:active": {
+        outlinedSecondary: {
+          border: borders.blackLight1px,
+        },
+        contained: {
+          "&:disabled": {
+            backgroundColor: colors.bgBrandLight,
+            //color: baseTheme.palette.common.white,
+          },
           boxShadow: "none !important",
+          "&:active": {
+            boxShadow: "none !important",
+          },
         },
-      },
-      containedPrimary: {
-        color: `${colors.white} !important`,
+        containedPrimary: {
+          color: `${colors.white} !important`,
+        },
       },
     },
     MuiCheckbox: {
-      root: {
-        fontSize: fontSizes.fontSize4,
-        padding: baseTheme.spacing("space1"),
-      },
-      colorSecondary: {
-        color: colors.blackLight,
-        "&$checked": {
-          color: baseTheme.palette.primary.main,
+      styleOverrides: {
+        root: {
+          fontSize: fontSizes.fontSize4,
+          padding: spacings.space1,
         },
-        "&$disabled": {
-          color: colors.blackXLight,
+        colorSecondary: {
+          color: colors.blackLight,
+          "&$checked": {
+            //color: baseTheme.palette.primary.main,
+          },
+          "&$disabled": {
+            color: colors.blackXLight,
+          },
         },
       },
     },
     MuiChip: {
-      root: {
-        borderRadius: borders.radiusSmall,
-        height: 24,
-        fontSize: fontSizes.fontSize2,
-        fontWeight: fontWeights.fontWeight1,
-      },
-      label: {
-        paddingLeft: baseTheme.spacing("space1"),
-        paddingRight: baseTheme.spacing("space1"),
-      },
-      sizeSmall: {
-        fontSize: fontSizes.fontSize0,
-        height: 20,
-      },
-      deleteIcon: {
-        height: "100%",
-        padding: 3,
-        margin: 0,
-        backgroundColor: "rgba(5, 5, 5, 0.1)",
-        borderRadius: `0 ${borders.radiusSmall} ${borders.radiusSmall} 0`,
-        width: 24,
-        boxSizing: "border-box",
-        textAlign: "center",
-        fill: baseTheme.palette.common.white,
-        borderLeftWidth: 1,
-        borderLeftStyle: "solid",
-        borderLeftColor: "rgba(5, 5, 5, 0.1)",
-      },
-      deleteIconColorPrimary: {
-        color: colors.white,
-      },
-      colorSecondary: {
-        color: colors.white,
-        backgroundColor: colors.lime07,
+      styleOverrides: {
+        root: {
+          borderRadius: borders.radiusSmall,
+          height: 24,
+          fontSize: fontSizes.fontSize2,
+          fontWeight: fontWeights.fontWeight1,
+        },
+        label: {
+          paddingLeft: spacings.space1,
+          paddingRight: spacings.space1,
+        },
+        sizeSmall: {
+          fontSize: fontSizes.fontSize0,
+          height: 20,
+        },
+        deleteIcon: {
+          height: "100%",
+          padding: 3,
+          margin: 0,
+          backgroundColor: "rgba(5, 5, 5, 0.1)",
+          borderRadius: `0 ${borders.radiusSmall} ${borders.radiusSmall} 0`,
+          width: 24,
+          boxSizing: "border-box",
+          textAlign: "center",
+          //fill: baseTheme.palette.common.white,
+          borderLeftWidth: 1,
+          borderLeftStyle: "solid",
+          borderLeftColor: "rgba(5, 5, 5, 0.1)",
+        },
+        deleteIconColorPrimary: {
+          color: colors.white,
+        },
+        colorSecondary: {
+          color: colors.white,
+          backgroundColor: colors.lime07,
+        },
       },
     },
     MuiRadio: {
-      root: {
-        padding: baseTheme.spacing("space1"),
+      styleOverrides: {
+        root: {
+          padding: spacings.space1,
+        },
       },
     },
     MuiInputBase: {
-      root: {
-        fontSize: fontSizes.fontSize2,
-      },
-      input: {
-        "&[type=number]::-webkit-inner-spin-button ": {
-          appearance: "none",
-          margin: 0,
+      styleOverrides: {
+        root: {
+          fontSize: fontSizes.fontSize2,
+        },
+        input: {
+          "&[type=number]::-webkit-inner-spin-button ": {
+            appearance: "none",
+            margin: 0,
+          },
         },
       },
     },
 
-    MuiOutlinedInput: {
-      notchedOutline: {
-        borderColor: colors.blackXXLight,
-        top: 0,
-        "& legend": {
-          // force-disable notched legends
-          display: "none",
-        },
-      },
-      root: {
-        "&:hover $notchedOutline": {
-          borderColor: colors.blackXXLight,
-        },
-        /*
-        "&.$Mui-disabled": {
-          backgroundColor: colors.grayXXLight,
-          borderColor: colors.blackXXLight,
-          color: colors.blackLight,
-        },
-        "&.$Mui-disabled .MuiOutlinedInput-notchedOutline": {
-          borderColor: "inherit",
-        },
-        */
-        backgroundColor: baseTheme.palette.background.paper,
-      },
-      input: {
-        padding: `${baseTheme.spacing("space2")}px ${baseTheme.spacing(
-          "space2"
-        )}px`,
+    MuiButtonBase: {
+      defaultProps: {
+        disableRipple: true,
       },
     },
     MuiFormControl: {
-      root: {
-        display: "block",
+      defaultProps: {
+        variant: "outlined",
       },
-    },
-    MuiFormControlLabel: {
-      label: {
-        fontSize: fontSizes.fontSize3,
-        lineHeight: lineHeights.lineHeight1,
-      },
-    },
-    MuiInputLabel: {
-      root: {
-        display: "none",
-        pointerEvents: "none",
-        color: baseTheme.palette.text.primary,
-        /*
-        "&.$Mui-disabled": {
-          color: colors.blackXLight,
-        },
-        */
-      },
-      outlined: {
-        "&$shrink": {
+      styleOverrides: {
+        root: {
           display: "block",
-          transform: "none",
-          position: "relative",
-          fontWeight: fontWeights.fontWeight1,
-          fontSize: fontSizes.fontSize2,
-          paddingLeft: 0,
-          paddingBottom: 8,
-        },
-        "&$focused": {
-          // focused attr under MuiInputLabel does not work
-          color: baseTheme.palette.text.primary,
         },
       },
     },
+    MuiMenu: {
+      defaultProps: {
+        transitionDuration: 0,
+        elevation: 3,
+      },
+    },
+    MuiTextField: {
+      defaultProps: {
+        variant: "outlined",
+        InputLabelProps: {
+          shrink: true,
+        },
+      },
+    },
+
+    MuiInputLabel: {
+      defaultProps: {
+        shrink: true,
+        disableAnimation: true,
+      },
+      styleOverrides: {
+        outlined: {
+          position: "relative",
+          marginBottom: 5,
+          fontWeight: 600,
+          fontSize: "13px",
+          transform: "none",
+          color: baseTheme.palette.text.primary,
+
+          "&.Mui-focused": {
+            color: baseTheme.palette.text.primary,
+          },
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      defaultProps: {
+        notched: false,
+      },
+      styleOverrides: {
+        root: {
+          top: 0,
+          backgroundColor: colors.white,
+          "& legend": {
+            // force-disable notched legends
+            display: "none",
+          },
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: "rgba(0, 0, 0, 0.23)",
+          },
+          "&.Mui-focused:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: `${colors.brand}`,
+          },
+        },
+        notchedOutline: {
+          top: 0,
+        },
+        input: {
+          padding: `${spacings.space2} ${spacings.space2}`,
+        },
+      },
+    },
+    MuiPaper: {
+      defaultProps: {
+        elevation: 3,
+      },
+    },
+    MuiPopover: {
+      defaultProps: {
+        elevation: 3,
+      },
+    },
+
+    MuiFormControlLabel: {
+      styleOverrides: {
+        label: {
+          fontSize: fontSizes.fontSize3,
+          lineHeight: lineHeights.lineHeight1,
+        },
+      },
+    },
+
     MuiFormHelperText: {
-      contained: {
-        margin: 0,
-        marginTop: baseTheme.spacing("space1"),
+      styleOverrides: {
+        contained: {
+          margin: 0,
+          marginTop: spacings.space1,
+        },
       },
     },
     MuiSelect: {
-      icon: {
-        fontSize: fontSizes.fontSize5,
-        marginTop: 3,
-        color: baseTheme.palette.text.primary,
+      styleOverrides: {
+        icon: {
+          fontSize: fontSizes.fontSize5,
+          marginTop: 3,
+          color: baseTheme.palette.text.primary,
+        },
+        selectMenu: {},
       },
-      selectMenu: {},
     },
     MuiPickersClockNumber: {
-      clockNumber: {
-        top: 6,
+      styleOverrides: {
+        clockNumber: {
+          top: 6,
+        },
       },
     },
     MuiMenuItem: {
-      root: {
-        color: baseTheme.palette.text.primary,
-        fontSize: fontSizes.fontSize1,
-        "&:hover": {
-          backgroundColor: baseTheme.palette.grey[100],
-        },
-        "&:focus": {
-          backgroundColor: baseTheme.palette.grey[100],
-        },
-        "&$selected": {
-          backgroundColor: baseTheme.palette.grey[200],
+      styleOverrides: {
+        root: {
+          color: baseTheme.palette.text.primary,
+          fontSize: fontSizes.fontSize1,
           "&:hover": {
-            backgroundColor: baseTheme.palette.grey[200],
+            backgroundColor: baseTheme.palette.grey[100],
           },
           "&:focus": {
+            //backgroundColor: baseTheme.palette.grey[100],
+          },
+          "&.Mui-selected": {
             backgroundColor: baseTheme.palette.grey[200],
+            "&:hover": {
+              backgroundColor: baseTheme.palette.grey[200],
+            },
+            "&:focus": {
+              backgroundColor: baseTheme.palette.grey[200],
+            },
+          },
+          "&.Mui-focusVisible": {
+            backgroundColor: `${colors.white}`,
+          },
+          "&:hover.Mui-focusVisible": {
+            backgroundColor: baseTheme.palette.grey[100],
+          },
+          "& .MuiTypography-root": {
+            fontSize: "inherit",
+          },
+          "&.MuiButtonBase-root": {
+            paddingLeft: 16,
+            paddingRight: 16,
+          },
+          "&.MuiButtonBase-root p": {
+            paddingLeft: 0,
+            paddingRight: 0,
           },
         },
-      },
-      dense: {
-        paddingTop: 0,
-        paddingBottom: 0,
+        dense: {
+          paddingTop: 0,
+          paddingBottom: 0,
+        },
       },
     },
     MuiSnackbarContent: {
-      root: {
-        backgroundColor: baseTheme.palette.primary.main,
-        paddingTop: 0,
-        paddingBottom: 0,
-        marginRight: baseTheme.spacing("space3"),
-        marginLeft: baseTheme.spacing("space3"),
-        borderRadius: baseTheme.shape.borderRadius,
-        boxShadow: "none",
-      },
-      action: {
-        "& button": {
-          color: baseTheme.palette.common.white,
+      styleOverrides: {
+        root: {
+          backgroundColor: baseTheme.palette.primary.main,
+          paddingTop: 0,
+          paddingBottom: 0,
+          marginRight: baseTheme.spacing("space3"),
+          marginLeft: baseTheme.spacing("space3"),
+          borderRadius: baseTheme.shape.borderRadius,
+          boxShadow: "none",
+        },
+        action: {
+          "& button": {
+            color: baseTheme.palette.common.white,
+          },
         },
       },
     },
     MuiSwitch: {
-      root: {
-        padding: 0,
-        height: 20,
-        width: 40,
-        "&:hover": {
-          "& > $track": {
-            backgroundColor: colors.gray05,
-          },
-          "& > $checked + $track": {
-            backgroundColor: colors.brand05,
-          },
-        },
-      },
-      thumb: {
-        borderRadius: 8,
-        width: 16,
-        height: 16,
-        boxShadow:
-          "0px 1px 2px 0px rgba(0, 0, 0, 0.4), 0px 0px 1px 0px rgba(0, 0, 0, 0.4)",
-      },
-      track: {
-        backgroundColor: colors.gray07,
-        borderRadius: 10,
-        opacity: 1,
-      },
-      switchBase: {
-        padding: 2,
-        "&$checked": {
-          transform: "translateX(100%)",
-          "& + $track": {
-            opacity: 1,
+      styleOverrides: {
+        root: {
+          padding: 0,
+          height: 20,
+          width: 40,
+          "&:hover": {
+            "& > $track": {
+              backgroundColor: colors.gray05,
+            },
+            "& > $checked + $track": {
+              backgroundColor: colors.brand05,
+            },
           },
         },
-      },
-      colorPrimary: {
-        "&$checked": {
-          color: baseTheme.palette.common.white,
+        thumb: {
+          borderRadius: 8,
+          width: 16,
+          height: 16,
+          boxShadow:
+            "0px 1px 2px 0px rgba(0, 0, 0, 0.4), 0px 0px 1px 0px rgba(0, 0, 0, 0.4)",
         },
-        "&$checked + $track": {
-          backgroundColor: baseTheme.palette.primary.main,
+        track: {
+          backgroundColor: colors.gray07,
+          borderRadius: 10,
+          opacity: 1,
+        },
+        switchBase: {
+          padding: 2,
+          "&$checked": {
+            transform: "translateX(100%)",
+            "& + $track": {
+              opacity: 1,
+            },
+          },
+        },
+        colorPrimary: {
+          "&$checked": {
+            color: baseTheme.palette.common.white,
+          },
+          "&$checked + $track": {
+            backgroundColor: baseTheme.palette.primary.main,
+          },
         },
       },
     },
     MuiTab: {
-      root: {
-        textTransform: "none",
-        "&$selected": {
-          color: "black",
+      styleOverrides: {
+        root: {
+          textTransform: "none !important",
         },
       },
     },
     MuiTabs: {
-      indicator: {
-        height: 4,
-      },
-      root: {
-        minHeight: 0,
+      styleOverrides: {
+        indicator: {
+          height: 4,
+        },
+        root: {
+          minHeight: 0,
+        },
       },
     },
     MuiListItemText: {
-      secondary: {
-        fontSize: fontSizes.fontSize2,
-      },
-      primary: {
-        fontSize: fontSizes.fontSize2,
+      styleOverrides: {
+        secondary: {
+          fontSize: fontSizes.fontSize2,
+        },
+        primary: {
+          fontSize: fontSizes.fontSize2,
+        },
       },
     },
     MuiListSubheader: {
-      root: {
-        fontSize: fontSizes.fontSize2,
-        lineHeight: lineHeights.lineHeight1,
-        paddingTop: baseTheme.spacing("space0"),
-        paddingBottom: baseTheme.spacing("space0"),
+      styleOverrides: {
+        root: {
+          fontSize: fontSizes.fontSize2,
+          lineHeight: lineHeights.lineHeight1,
+          paddingTop: baseTheme.spacing("space0"),
+          paddingBottom: baseTheme.spacing("space0"),
+        },
       },
     },
     MuiTableCell: {
-      root: {
-        fontSize: fontSizes.fontSize2,
-      },
-      head: {
-        //border: 'none',
-        fontWeight: fontWeights.fontWeight1,
-        color: colors.gray05,
+      styleOverrides: {
+        root: {
+          fontSize: fontSizes.fontSize2,
+        },
+        head: {
+          //border: 'none',
+          fontWeight: fontWeights.fontWeight1,
+          color: colors.gray05,
+        },
       },
     },
     MuiTableRow: {
-      root: {
-        "&.Mui-selected:hover": {
-          backgroundColor: colors.gray12,
-        },
-        "&.Mui-selected": {
-          backgroundColor: `${colors.gray12} !important`,
+      styleOverrides: {
+        root: {
+          "&.Mui-selected:hover": {
+            backgroundColor: colors.gray12,
+          },
+          "&.Mui-selected": {
+            backgroundColor: `${colors.gray12} !important`,
+          },
         },
       },
     },
     MuiDialogTitle: {
-      root: {
-        backgroundColor: baseTheme.palette.grey[50],
-        padding: `${baseTheme.spacing("space5")}px ${baseTheme.spacing(
-          "space4"
-        )}px`,
-        borderBottom: `1px solid ${colors.blackXXLight}`,
+      styleOverrides: {
+        root: {
+          backgroundColor: baseTheme.palette.grey[50],
+          padding: `${baseTheme.spacing("space5")} ${baseTheme.spacing(
+            "space4"
+          )}`,
+          borderBottom: `1px solid ${colors.blackXXLight}`,
+        },
       },
     },
     MuiDialogContent: {
-      root: {
-        padding: baseTheme.spacing("space5"),
+      styleOverrides: {
+        root: {
+          padding: baseTheme.spacing("space5"),
+        },
       },
     },
     MuiDialogActions: {
-      root: {
-        backgroundColor: baseTheme.palette.grey[50],
-        padding: `${baseTheme.spacing("space3")}px ${baseTheme.spacing(
-          "space5"
-        )}px`,
-        borderTop: `1px solid ${colors.blackXXLight}`,
-        margin: 0,
+      styleOverrides: {
+        root: {
+          backgroundColor: baseTheme.palette.grey[50],
+          padding: `${baseTheme.spacing("space3")} ${baseTheme.spacing(
+            "space5"
+          )}`,
+          borderTop: `1px solid ${colors.blackXXLight}`,
+          margin: 0,
 
-        "button + button": {
-          marginLeft: baseTheme.spacing("space1"),
+          "button + button": {
+            marginLeft: spacings.space1,
+          },
         },
       },
     },
     MuiToolbar: {
-      root: {
-        gap: 8,
+      styleOverrides: {
+        root: {
+          gap: 8,
+        },
+        regular: {
+          minHeight: 80,
+        },
       },
     },
     MuiAppBar: {
-      colorPrimary: {
-        backgroundColor: colors.white,
-        color: colors.gray00,
-      },
-      root: {
-        zIndex: 999,
-        paddingLeft: 20,
-        paddingRight: 20,
-        boxShadow: "0 4px 8px 0 rgb(0 0 0 / 10%), 0 0 2px 0 rgb(0 0 0 / 10%)",
-        height: 80,
-        "& .MuiButton-label": {
-          color: colors.black,
-        },
-        "& .MuiLink-underlineHover:hover": {
-          textDecoration: "none !important",
+      styleOverrides: {
+        root: {
+          backgroundColor: colors.white,
+          color: colors.gray00,
+          zIndex: 999,
+          paddingLeft: 20,
+          paddingRight: 20,
+          boxShadow: "0 4px 8px 0 rgb(0 0 0 / 10%), 0 0 2px 0 rgb(0 0 0 / 10%)",
+          "& .MuiButton-root": {
+            //color: colors.black,
+          },
+          "& .MuiLink-underlineHover:hover": {
+            textDecoration: "none !important",
+          },
         },
       },
     },
     MuiAutocomplete: {
-      input: {
-        padding: "12px 16px !important",
-      },
-      paper: {
-        fontSize: fontSizes.fontSize2,
-      },
-      popupIndicator: {
-        fontSize: fontSizes.fontSize5,
-        color: baseTheme.palette.text.primary,
-      },
-      clearIndicator: {
-        fontSize: fontSizes.fontSize5,
-      },
-      inputRoot: {
-        padding: "0px !important",
-      },
-      listbox: {
-        backgroundColor: baseTheme.palette.common.white,
-      },
-      tag: {
-        "&:first-child": {
-          marginLeft: 8,
+      styleOverrides: {
+        input: {
+          padding: "12px 16px !important",
+        },
+        paper: {
+          fontSize: fontSizes.fontSize2,
+        },
+        popupIndicator: {
+          fontSize: fontSizes.fontSize5,
+          color: baseTheme.palette.text.primary,
+        },
+        clearIndicator: {
+          fontSize: fontSizes.fontSize5,
+        },
+        inputRoot: {
+          padding: "0px !important",
+        },
+        listbox: {
+          backgroundColor: baseTheme.palette.common.white,
+        },
+        tag: {
+          "&:first-child": {
+            marginLeft: 8,
+          },
         },
       },
     },
     MuiTablePagination: {
-      select: {
-        paddingRight: "32px !important",
-      },
-      selectRoot: {
-        top: 1,
+      styleOverrides: {
+        select: {
+          paddingRight: "32px !important",
+        },
+        selectRoot: {
+          top: 1,
+        },
       },
     },
   },
 };
 
-const finalTheme = createMuiTheme({
+const finalTheme = createTheme({
   ...baseTheme,
-  ...overrides,
+  ...additionalOptions,
 });
-
 export default finalTheme;

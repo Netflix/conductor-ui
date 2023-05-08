@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import _ from "lodash";
-import { FormControl, Grid, InputLabel } from "@material-ui/core";
+import { FormControl, Grid, InputLabel } from "@mui/material";
 import {
   Paper,
   Heading,
@@ -18,7 +18,7 @@ import DateRangePicker from "../../components/DateRangePicker";
 import { DEFAULT_ROWS_PER_PAGE } from "../../components/DataTable";
 import { useWorkflowSearch } from "../../data/workflow";
 
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@mui/styles";
 import clsx from "clsx";
 import executionsStyles from "./executionsStyles";
 import sharedStyles from "../styles";

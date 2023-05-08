@@ -1,13 +1,11 @@
-import React from "react";
-
-import { Route, Switch } from "react-router-dom";
-import { makeStyles } from "@material-ui/styles";
-import { Button, AppBar, Toolbar } from "@material-ui/core";
+import { Route, Routes } from "react-router-dom";
+import { makeStyles } from "@mui/styles";
+import { AppBar, Toolbar } from "@mui/material";
 import AppLogo from "./components/AppLogo";
-import NavLink from "./components/NavLink";
 
 import WorkflowSearch from "./pages/executions/WorkflowSearch";
 import TaskSearch from "./pages/executions/TaskSearch";
+import AppBarButton from "./components/AppBarButton";
 
 import Execution from "./pages/execution/Execution";
 import WorkflowDefinitions from "./pages/definitions/Workflow";
@@ -21,28 +19,23 @@ import KitchenSink from "./pages/kitchensink/KitchenSink";
 import DiagramTest from "./pages/kitchensink/DiagramTest";
 import Examples from "./pages/kitchensink/Examples";
 import Gantt from "./pages/kitchensink/Gantt";
-
 import Workbench from "./pages/workbench/Workbench";
+import FlexLayoutTest from "./pages/kitchensink/FlexLayoutTest";
+import RcDockTest from "./pages/kitchensink/RCDockTest";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    backgroundColor: "#efefef", // TODO: Use theme var
-    display: "flex",
-  },
-  body: {
-    width: "100vw",
-    height: "100vh",
-    paddingTop: theme.overrides.MuiAppBar.root.height,
-  },
-  toolbarRight: {
-    marginLeft: "auto",
-    display: "flex",
-    flexDirection: "row",
-  },
-  toolbarRegular: {
-    minHeight: 80,
-  },
-}));
+const useStyles = makeStyles((theme) => {
+  return {
+    body: {
+      flex: 1,
+      overflow: "hidden",
+    },
+    toolbarRight: {
+      marginLeft: "auto",
+      display: "flex",
+      flexDirection: "row",
+    },
+  };
+});
 
 export default function App({
   appBarModules,
@@ -54,27 +47,15 @@ export default function App({
 
   return (
     // Provide context for backward compatibility with class components
-    <div className={classes.root}>
-      <AppBar position="fixed">
-        <Toolbar
-          classes={{
-            regular: classes.toolbarRegular,
-          }}
-        >
+    <>
+      <AppBar position="relative">
+        <Toolbar>
           {customAppLogo || <AppLogo />}
 
-          <Button component={NavLink} path="/">
-            Executions
-          </Button>
-          <Button component={NavLink} path="/workflowDefs">
-            Definitions
-          </Button>
-          <Button component={NavLink} path="/taskQueue">
-            Task Queues
-          </Button>
-          <Button component={NavLink} path="/workbench">
-            Workbench
-          </Button>
+          <AppBarButton path="/">Executions</AppBarButton>
+          <AppBarButton path="/workflowDefs">Definitions</AppBarButton>
+          <AppBarButton path="/taskQueue">Task Queues</AppBarButton>
+          <AppBarButton path="/workbench">Workbench</AppBarButton>
 
           {appBarButtons}
 
@@ -82,56 +63,37 @@ export default function App({
         </Toolbar>
       </AppBar>
       <div className={classes.body}>
-        <Switch>
-          <Route exact path="/">
-            <WorkflowSearch />
-          </Route>
-          <Route exact path="/search/tasks">
-            <TaskSearch />
-          </Route>
-          <Route path="/execution/:id/:taskId?">
-            <Execution />
-          </Route>
-          <Route exact path="/workflowDefs">
-            <WorkflowDefinitions />
-          </Route>
-          <Route exact path="/workflowDef/:name?/:version?">
-            <WorkflowDefinition />
-          </Route>
-          <Route exact path="/taskDefs">
-            <TaskDefinitions />
-          </Route>
-          <Route exact path="/taskDef/:name?">
-            <TaskDefinition />
-          </Route>
-          <Route exact path="/eventHandlerDef">
-            <EventHandlerDefinitions />
-          </Route>
-          <Route exact path="/eventHandlerDef/:name">
-            <EventHandlerDefinition />
-          </Route>
-          <Route exact path="/taskQueue/:name?">
-            <TaskQueue />
-          </Route>
-          <Route exact path="/workbench">
-            <Workbench />
-          </Route>
-          <Route exact path="/kitchen">
-            <KitchenSink />
-          </Route>
-          <Route exact path="/kitchen/diagram">
-            <DiagramTest />
-          </Route>
-          <Route exact path="/kitchen/examples">
-            <Examples />
-          </Route>
-          <Route exact path="/kitchen/gantt">
-            <Gantt />
-          </Route>
+        <Routes>
+          <Route path="/" element={<WorkflowSearch />} />
+          <Route path="search/tasks" element={<TaskSearch />} />
+          <Route path="execution/:id/:taskId?" element={<Execution />} />
+          <Route path="/workflowDefs" element={<WorkflowDefinitions />} />
+          <Route
+            path="/workflowDef/:name?/:version?"
+            element={<WorkflowDefinition />}
+          />
+          <Route path="/taskDefs" element={<TaskDefinitions />} />
+          <Route path="/taskDef/:name?" element={<TaskDefinition />} />
+          <Route
+            path="/eventHandlerDef"
+            element={<EventHandlerDefinitions />}
+          />
+          <Route
+            path="/eventHandlerDef/:name"
+            element={<EventHandlerDefinition />}
+          />
+          <Route path="/taskQueue/:name?" element={<TaskQueue />} />
+          <Route path="/workbench" element={<Workbench />} />
+          <Route path="/kitchen" element={<KitchenSink />} />
+          <Route path="/kitchen/diagram" element={<DiagramTest />} />
+          <Route path="/kitchen/examples" element={<Examples />} />
+          <Route path="/kitchen/gantt" element={<Gantt />} />
+          <Route path="/kitchen/flexLayout" element={<FlexLayoutTest />} />
+          <Route path="/kitchen/rcdock" element={<RcDockTest />} />
 
           {customRoutes}
-        </Switch>
+        </Routes>
       </div>
-    </div>
+    </>
   );
 }

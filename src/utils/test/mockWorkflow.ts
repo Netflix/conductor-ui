@@ -1,5 +1,24 @@
 /* Utils to build workflow executions for the purpose of UI Component testing */
-import { Execution, BaseTaskResult, DynamicForkTaskConfig, TaskResult, WorkflowDef, ExecutionStatus, SimpleTaskConfig, DynamicForkTaskResult, JoinTaskConfig, ForkTaskConfig, TaskStatus, TaskConfigType, TaskConfig, DoWhileTaskConfig, SwitchTaskConfig, GenericTaskConfig } from "../../components/diagram/WorkflowDAG";
+import {
+  Execution,
+  DynamicForkTaskConfig,
+  WorkflowDef,
+  ExecutionStatus,
+  SimpleTaskConfig,
+  JoinTaskConfig,
+  ForkTaskConfig,
+  TaskStatus,
+  TaskConfigType,
+  TaskConfig,
+  DoWhileTaskConfig,
+  SwitchTaskConfig,
+  GenericTaskConfig,
+} from "../../types/workflowDef";
+import {
+  BaseTaskResult,
+  TaskResult,
+  DynamicForkTaskResult,
+} from "../../types/execution";
 import { v4 as uuidv4 } from "uuid";
 import { ExecutionAndTasks } from "../../data/execution";
 
@@ -18,8 +37,8 @@ export class WorkflowExecution implements Execution {
     this.workflowName = workflowName;
     this.status = status;
     this.workflowDefinition = {
-      tasks: []
-    }
+      tasks: [],
+    };
   }
 
   toJSON(): ExecutionAndTasks {
@@ -30,10 +49,10 @@ export class WorkflowExecution implements Execution {
         status: this.status,
         workflowDefinition: this.workflowDefinition,
         parentWorkflowId: this.parentWorkflowId,
-        reasonForIncompletion: this.reasonForIncompletion
+        reasonForIncompletion: this.reasonForIncompletion,
       },
-      tasks: this.tasks
-    }
+      tasks: this.tasks,
+    };
   }
 
   pushSimple(ref: string, status: TaskStatus = "COMPLETED", tries = 1) {
@@ -43,59 +62,68 @@ export class WorkflowExecution implements Execution {
         taskType: "SIMPLE",
         referenceTaskName: ref,
         taskDefName: ref,
-        status: status
+        status: status,
       } as BaseTaskResult);
     }
 
     this.workflowDefinition.tasks.push({
       taskReferenceName: ref,
-      name: ref+"_name",
-      type: "SIMPLE"
+      name: ref + "_name",
+      type: "SIMPLE",
     } as SimpleTaskConfig);
   }
 
-  pushTask(ref: string, type: TaskConfigType, additionalFields: any, status: TaskStatus = "COMPLETED") {
+  pushTask(
+    ref: string,
+    type: TaskConfigType,
+    additionalFields: any,
+    status: TaskStatus = "COMPLETED"
+  ) {
     this.tasks.push({
       taskId: uuidv4(),
-      taskType: (type === "FORK_JOIN" || type === "FORK_JOIN_DYNAMIC") ? "FORK" : type,
+      taskType:
+        type === "FORK_JOIN" || type === "FORK_JOIN_DYNAMIC" ? "FORK" : type,
       referenceTaskName: ref,
       taskDefName: ref + "_name",
       status: status,
     });
 
-
     this.workflowDefinition.tasks.push({
       taskReferenceName: ref,
       name: ref + "_name",
       type: type,
-      ...additionalFields
+      ...additionalFields,
     } as TaskConfig);
-
   }
 
-  pushDynamicFork(ref: string, count: number, idxToFail?: number, status: TaskStatus="COMPLETED") {
+  pushDynamicFork(
+    ref: string,
+    count: number,
+    idxToFail?: number,
+    status: TaskStatus = "COMPLETED"
+  ) {
     const dfResult: DynamicForkTaskResult = {
       taskId: uuidv4(),
       taskType: "FORK",
       referenceTaskName: ref,
       taskDefName: ref,
       status,
-      forkedTaskRefs: new Set()
-    }
+      forkedTaskRefs: new Set(),
+    };
     this.tasks.push(dfResult);
 
     const dfTaskConfig: DynamicForkTaskConfig = {
       taskReferenceName: ref,
       name: ref + "_name",
       type: "FORK_JOIN_DYNAMIC",
-      dynamicForkTasksParam: "dynamicTasks"
+      dynamicForkTasksParam: "dynamicTasks",
     };
     this.workflowDefinition.tasks.push(dfTaskConfig);
 
     const joinTaskConfig: JoinTaskConfig = {
-      name: ref +"_join_name",
+      name: ref + "_join_name",
       taskReferenceName: ref + "_join",
-      type: "JOIN"
+      type: "JOIN",
     };
     this.workflowDefinition.tasks.push(joinTaskConfig);
 
@@ -106,7 +134,7 @@ export class WorkflowExecution implements Execution {
         referenceTaskName: ref + "_child_" + i,
         taskDefName: ref + "_child",
         status: i === idxToFail ? "FAILED" : status,
-        parentTaskReferenceName: ref
+        parentTaskReferenceName: ref,
       });
     }
 
@@ -115,8 +143,8 @@ export class WorkflowExecution implements Execution {
       taskType: "JOIN",
       referenceTaskName: ref + "_join",
       taskDefName: ref + "_join",
-      status: !idxToFail ?status : "FAILED"
-    })
+      status: !idxToFail ? status : "FAILED",
+    });
   }
 
   pushDoWhile(ref: string, chainLength: number, count: number) {
@@ -124,22 +152,21 @@ export class WorkflowExecution implements Execution {
       taskId: uuidv4(),
       taskType: "DO_WHILE",
       referenceTaskName: ref,
-      taskDefName: ref+'_name',
-      status: "COMPLETED"
+      taskDefName: ref + "_name",
+      status: "COMPLETED",
     } as BaseTaskResult);
-
 
     for (let i = 0; i < count; i++) {
       for (let j = 0; j < chainLength; j++) {
-        const childRef = `${ref}_child${j}__${i}`
+        const childRef = `${ref}_child${j}__${i}`;
         this.tasks.push({
           taskId: uuidv4(),
           taskType: "SIMPLE",
           referenceTaskName: childRef,
           taskDefName: `${ref}_child${j}_name`,
           status: "COMPLETED",
-          iteration: i
-        })
+          iteration: i,
+        });
       }
     }
 
@@ -149,41 +176,44 @@ export class WorkflowExecution implements Execution {
       loopOver.push({
         taskReferenceName: `${ref}_child${j}`,
         type: "SIMPLE",
-        name: `${ref}_child${j}_name`
-      })
+        name: `${ref}_child${j}_name`,
+      });
     }
 
     const doWhileTaskConfig: DoWhileTaskConfig = {
       taskReferenceName: ref,
       name: ref + "_name",
       loopOver: loopOver as SimpleTaskConfig[],
-      type: "DO_WHILE"
+      type: "DO_WHILE",
     };
 
     this.workflowDefinition.tasks.push(doWhileTaskConfig);
   }
 
-  pushSwitch(ref: string, cases: number, chainLength: number, caseTaken?: number) {
-
-    const defaultCase: SimpleTaskConfig[] = [];   
-    for(let j=0;j<chainLength;j++){
+  pushSwitch(
+    ref: string,
+    cases: number,
+    chainLength: number,
+    caseTaken?: number
+  ) {
+    const defaultCase: SimpleTaskConfig[] = [];
+    for (let j = 0; j < chainLength; j++) {
       defaultCase.push({
         type: "SIMPLE",
         taskReferenceName: `default_${j}`,
-        name: `default_${j}_name`
+        name: `default_${j}_name`,
       });
-
     }
-    
-    const decisionCases: {[key: string]: GenericTaskConfig[]} = {};
-    for(let i=0;i<cases;i++){
-      const chain: SimpleTaskConfig[] =[];
-      for(let j=0;j<chainLength;j++){
+
+    const decisionCases: { [key: string]: GenericTaskConfig[] } = {};
+    for (let i = 0; i < cases; i++) {
+      const chain: SimpleTaskConfig[] = [];
+      for (let j = 0; j < chainLength; j++) {
         chain.push({
           type: "SIMPLE",
           taskReferenceName: `case${i}_${j}`,
-          name: `case${i}_${j}_name`
-        })
+          name: `case${i}_${j}_name`,
+        });
       }
 
       decisionCases[`case_${i}`] = chain;
@@ -196,7 +226,7 @@ export class WorkflowExecution implements Execution {
       name: ref + "_name",
       defaultCase,
       decisionCases,
-      type: "SWITCH"
+      type: "SWITCH",
     };
 
     this.workflowDefinition.tasks.push(switchTaskConfig);
@@ -206,36 +236,30 @@ export class WorkflowExecution implements Execution {
       taskId: uuidv4(),
       taskType: "SWITCH",
       referenceTaskName: ref,
-      taskDefName: ref+'_name',
-      status: "COMPLETED"
-    })
+      taskDefName: ref + "_name",
+      status: "COMPLETED",
+    });
 
-
-    if(caseTaken !== undefined){
-      for(let j=0;j<chainLength;j++){
+    if (caseTaken !== undefined) {
+      for (let j = 0; j < chainLength; j++) {
         this.tasks.push({
           taskId: uuidv4(),
           taskType: "SIMPLE",
           referenceTaskName: `case${caseTaken}_${j}`,
           taskDefName: `case${caseTaken}_${j}_name`,
-          status: "COMPLETED"
-        })
+          status: "COMPLETED",
+        });
       }
-    }
-    else {
-      for(let j=0;j<chainLength;j++){
+    } else {
+      for (let j = 0; j < chainLength; j++) {
         this.tasks.push({
           taskId: uuidv4(),
           taskType: "SIMPLE",
           referenceTaskName: `default_${j}`,
           taskDefName: `default_${j}_name`,
-          status: "COMPLETED"
-        })
+          status: "COMPLETED",
+        });
       }
     }
-
   }
-
-
 }
-

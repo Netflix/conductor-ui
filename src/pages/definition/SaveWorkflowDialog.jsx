@@ -5,11 +5,11 @@ import {
   FormControlLabel,
   Checkbox,
   Snackbar,
-} from "@material-ui/core";
-import Alert from "@material-ui/lab/Alert";
+} from "@mui/material";
+import Alert from "@mui/material/Alert";
 import { Text, Button, LinearProgress, Pill } from "../../components";
 import { DiffEditor } from "@monaco-editor/react";
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@mui/styles";
 import {
   useSaveWorkflow,
   useWorkflowNamesAndVersions,

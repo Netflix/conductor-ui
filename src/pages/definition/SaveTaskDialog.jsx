@@ -1,9 +1,9 @@
 import { useRef, useState, useMemo, useEffect } from "react";
-import { Dialog, Toolbar, Snackbar } from "@material-ui/core";
-import Alert from "@material-ui/lab/Alert";
+import { Dialog, Toolbar, Snackbar } from "@mui/material";
+import Alert from "@mui/material/Alert";
 import { Text, Button, LinearProgress, Pill } from "../../components";
 import { DiffEditor } from "@monaco-editor/react";
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@mui/styles";
 import { useSaveTask, useTaskNames } from "../../data/task";
 import _ from "lodash";
 

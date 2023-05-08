@@ -42,4 +42,3 @@ export { default as FormikJsonInput } from "./formik/FormikJsonInput";
 export { default as FormikInput } from "./formik/FormikInput";
 export { default as FormikCronEditor } from "./formik/FormikCronEditor";
 export { default as FormikSwitch } from "./formik/FormikSwitch";
-

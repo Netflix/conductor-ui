@@ -1,6 +1,6 @@
 import React from "react";
 import { Tab, Tabs, NavLink, LinearProgress, Heading } from "../../components";
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@mui/styles";
 import sharedStyles from "../styles";
 
 const useStyles = makeStyles(sharedStyles);

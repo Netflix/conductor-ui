@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  FormControl,
-  InputLabel,
-  ButtonGroup,
-  Button,
-} from "@material-ui/core";
+import { FormControl, InputLabel, ButtonGroup, Button } from "@mui/material";
 
 export default function ({ options, label, style, classes, ...props }) {
   return (

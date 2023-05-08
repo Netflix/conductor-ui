@@ -31,7 +31,7 @@ export const NEW_WORKFLOW_TEMPLATE = {
   timeoutSeconds: 0,
 };
 
-const WORKFLOW_SCHEMA = {
+export const WORKFLOW_SCHEMA = {
   $schema: "http://json-schema.org/draft-07/schema",
   $id: "http://example.com/example.json",
   type: "object",
@@ -278,25 +278,3 @@ const WORKFLOW_SCHEMA = {
   },
   additionalProperties: true,
 };
-
-export const JSON_FILE_NAME = "file:///workflow.json";
-
-export function configureMonaco(monaco) {
-  monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
-  // noinspection JSUnresolvedVariable
-  monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
-    target: monaco.languages.typescript.ScriptTarget.ES6,
-    allowNonTsExtensions: true,
-  });
-  let modelUri = monaco.Uri.parse(JSON_FILE_NAME);
-  monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
-    validate: true,
-    schemas: [
-      {
-        uri: "http://conductor.tmp/schemas/workflow.json", // id of the first schema
-        fileMatch: [modelUri.toString()], // associate with our model
-        schema: WORKFLOW_SCHEMA,
-      },
-    ],
-  });
-}

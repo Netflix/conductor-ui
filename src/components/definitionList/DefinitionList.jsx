@@ -1,6 +1,6 @@
-import withStyles from "@material-ui/core/styles/withStyles";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
+import withStyles from "@mui/styles/withStyles";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
 import * as React from "react";
 
 const DefinitionList = ({ children, classes }) => (

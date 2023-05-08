@@ -1,4 +1,4 @@
-import { Button as MuiButton } from "@material-ui/core";
+import { Button as MuiButton } from "@mui/material";
 
 export default function Button({ variant = "primary", ...props }) {
   if (variant === "secondary") {

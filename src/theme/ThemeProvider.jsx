@@ -1,11 +1,13 @@
-import { MuiThemeProvider } from "@material-ui/core/styles";
+import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 
 import theme from "./theme";
 
 export default ({ children, ...rest }) => {
   return (
-    <MuiThemeProvider theme={theme} {...rest}>
-      {children}
-    </MuiThemeProvider>
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme} {...rest}>
+        {children}
+      </ThemeProvider>
+    </StyledEngineProvider>
   );
 };

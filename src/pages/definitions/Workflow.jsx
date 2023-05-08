@@ -1,13 +1,13 @@
 import { NavLink, DataTable, Button } from "../../components";
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@mui/styles";
 import _ from "lodash";
 import { useQueryState } from "react-router-use-location-state";
 import { usePaginatedWorkflowDefs } from "../../data/workflow";
 import Header from "./Header";
 import sharedStyles from "../styles";
 import { Helmet } from "react-helmet";
-import AddIcon from "@material-ui/icons/Add";
-import { CircularProgress } from "@material-ui/core";
+import AddIcon from "@mui/icons-material/Add";
+import { CircularProgress } from "@mui/material";
 
 const useStyles = makeStyles({
   ...sharedStyles,

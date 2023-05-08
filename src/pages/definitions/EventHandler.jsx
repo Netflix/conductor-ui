@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink, DataTable } from "../../components";
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@mui/styles";
 import Header from "./Header";
 import sharedStyles from "../styles";
 import { Helmet } from "react-helmet";

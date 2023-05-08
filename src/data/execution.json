@@ -1,0 +1,53 @@
+{
+  "ownerApp": "peterl@netflix.com",
+  "createTime": 1682367467686,
+  "updateTime": 1682367468901,
+  "status": "COMPLETED",
+  "endTime": 1682367468901,
+  "workflowId": "cbe1cce9-2eab-4f9e-b4b7-2e0ab9ef964b",
+  "tasks": [],
+  "input": {},
+  "output": {},
+  "taskToDomain": {},
+  "failedReferenceTaskNames": [],
+  "workflowDefinition": {
+    "createTime": 1682014308128,
+    "updateTime": 1682367453600,
+    "accessPolicy": {},
+    "name": "peterl_test_wf",
+    "description": "peterl_test_wf",
+    "version": 2,
+    "tasks": [
+      {
+        "name": "inline_0",
+        "taskReferenceName": "inline_0",
+        "inputParameters": {
+          "val": "${workflow.input.foo}",
+          "evaluatorType": "javascript",
+          "expression": "function scriptFun(){if ($.val){ return $.val + 1; } else { return 0; }} scriptFun()"
+        },
+        "type": "INLINE",
+        "startDelay": 0,
+        "optional": false,
+        "asyncComplete": false
+      }
+    ],
+    "inputParameters": [],
+    "outputParameters": {},
+    "schemaVersion": 2,
+    "restartable": true,
+    "workflowStatusListenerEnabled": false,
+    "ownerEmail": "peterl@netflix.com",
+    "timeoutPolicy": "ALERT_ONLY",
+    "timeoutSeconds": 0,
+    "variables": {},
+    "inputTemplate": {}
+  },
+  "priority": 0,
+  "lastRetriedTime": 0,
+  "failedTaskNames": [],
+  "workflowEngine": "3.0",
+  "startTime": 1682367467686,
+  "workflowName": "peterl_test_wf",
+  "workflowVersion": 2
+}

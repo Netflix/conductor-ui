@@ -1,5 +1,5 @@
 // Backgrounds / Black
-exports.black = "#050505";
+exports.black = "rgba(0, 0, 0, 0.87)";
 
 // Transparents / Black / 00-Black-Light (70%)
 exports.blackLight = "rgba(5,5,5,0.7)";

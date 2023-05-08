@@ -1,7 +1,7 @@
 import React from "react";
-import { Paper } from "../../components";
-import ReactJson from "../../components/ReactJson";
-import { makeStyles } from "@material-ui/styles";
+import { Paper } from "../../../components";
+import ReactJson from "../../../components/ReactJson";
+import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles({
   paper: {

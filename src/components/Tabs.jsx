@@ -1,6 +1,6 @@
 import React from "react";
-import { Tabs as RawTabs, Tab as RawTab } from "@material-ui/core";
-import { makeStyles } from "@material-ui/styles";
+import { Tabs as RawTabs, Tab as RawTab } from "@mui/material";
+import { makeStyles } from "@mui/styles";
 import { colors } from "../theme/variables";
 import theme from "../theme/theme";
 
@@ -24,7 +24,7 @@ const useContextualTabStyles = makeStyles({
   },
   selected: {
     backgroundColor: "white",
-    color: colors.black,
+    color: `${colors.black} !important`,
     "&:hover": {
       backgroundColor: "white",
       color: colors.black,
@@ -44,10 +44,11 @@ const useContextualTabsStyles = makeStyles({
   },
 });
 
-export default function Tabs({ contextual=false, children, ...props }) {
+export default function Tabs({ contextual = false, children, ...props }) {
   const classes = useContextualTabsStyles();
   return (
     <RawTabs
+      variant="scrollable"
       classes={contextual ? classes : null}
       indicatorColor="primary"
       {...props}
@@ -61,7 +62,7 @@ export default function Tabs({ contextual=false, children, ...props }) {
   );
 }
 
-export function Tab({ contextual=false, ...props }) {
+export function Tab({ contextual = false, ...props }) {
   const classes = useContextualTabStyles();
   return <RawTab classes={contextual ? classes : null} {...props} />;
 }

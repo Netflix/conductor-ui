@@ -1,12 +1,7 @@
 import React from "react";
-import Button from "@material-ui/core/Button";
-import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
-import {
-  ClickAwayListener,
-  Popper,
-  MenuItem,
-  MenuList,
-} from "@material-ui/core";
+import Button from "@mui/material/Button";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import { ClickAwayListener, Popper, MenuItem, MenuList } from "@mui/material";
 import { Paper } from "./";
 
 export default function DropdownButton({ children, options }) {

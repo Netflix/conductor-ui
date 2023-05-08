@@ -1,6 +1,6 @@
 import React from "react";
-import { makeStyles } from "@material-ui/styles";
-import { List, ListItem, ListItemText, Tooltip } from "@material-ui/core";
+import { makeStyles } from "@mui/styles";
+import { List, ListItem, ListItemText, Tooltip } from "@mui/material";
 import _ from "lodash";
 import {
   timestampRenderer,

@@ -1,11 +1,11 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
-import { makeStyles } from "@material-ui/styles";
-import { InputLabel, IconButton, Tooltip } from "@material-ui/core";
+import { makeStyles } from "@mui/styles";
+import { InputLabel, IconButton, Tooltip } from "@mui/material";
 import clsx from "clsx";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import ExpandLessIcon from "@material-ui/icons/ExpandLess";
-import FileCopyIcon from "@material-ui/icons/FileCopy";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import FileCopyIcon from "@mui/icons-material/FileCopy";
 
 const useStyles = makeStyles({
   monaco: {},
@@ -44,6 +44,16 @@ export default function ReactJson({
   const classes = useStyles();
   const editorRef = useRef(null);
 
+  /*
+  useEffect(() => {
+    if (editorRef.current) {
+      console.log('setting src', src)
+      const editor = editorRef.current;
+      editor.getModel().setValue(JSON.stringify(src, null, 2));
+    }
+  }, [src]);
+  */
+
   function handleEditorMount(editor) {
     editorRef.current = editor;
   }
@@ -73,28 +83,27 @@ export default function ReactJson({
         </InputLabel>
 
         <Tooltip title="Collapse All">
-          <IconButton onClick={handleCollapse}>
+          <IconButton onClick={handleCollapse} size="large">
             <ExpandLessIcon />
           </IconButton>
         </Tooltip>
         <Tooltip title="Expand All">
-          <IconButton onClick={handleExpandAll}>
+          <IconButton onClick={handleExpandAll} size="large">
             <ExpandMoreIcon />
           </IconButton>
         </Tooltip>
         <Tooltip title="Copy All">
-          <IconButton onClick={handleCopyAll}>
+          <IconButton onClick={handleCopyAll} size="large">
             <FileCopyIcon />
           </IconButton>
         </Tooltip>
       </div>
       <div className={classes.editorWrapper}>
         <Editor
+          value={JSON.stringify(src, null, 2)}
           className={classes.monaco}
-          height="100%"
           defaultLanguage="json"
           onMount={handleEditorMount}
-          defaultValue={JSON.stringify(src, null, 2)}
           options={{
             readOnly: true,
             tabSize: 2,

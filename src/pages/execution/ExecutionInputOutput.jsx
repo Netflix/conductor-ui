@@ -1,6 +1,6 @@
 import React from "react";
 import { Paper, ReactJson } from "../../components";
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles({
   wrapper: {

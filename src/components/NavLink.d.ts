@@ -1,3 +1,4 @@
-import { FC, PropsWithChildren, PropsWithRef} from 'react'
+import { FC, PropsWithChildren, PropsWithRef } from "react";
 declare const NavLink: FC<PropsWithChildren | PropsWithRef>;
-export default NavLink
+export default NavLink;
+export const usePushHistory: Function;

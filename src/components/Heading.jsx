@@ -1,5 +1,5 @@
 import React from "react";
-import Typography from "@material-ui/core/Typography";
+import Typography from "@mui/material/Typography";
 
 const levelMap = ["h6", "h5", "h4", "h3", "h2", "h1"];
 

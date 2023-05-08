@@ -1,7 +1,7 @@
 import React from "react";
-import { Link as RouterLink, useHistory } from "react-router-dom";
-import { Link } from "@material-ui/core";
-import LaunchIcon from "@material-ui/icons/Launch";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { Link } from "@mui/material";
+import LaunchIcon from "@mui/icons-material/Launch";
 import Url from "url-parse";
 import useAppContext from "../hooks/useAppContext";
 // 1. Strip `navigate` from props to prevent error
@@ -34,7 +34,7 @@ export default React.forwardRef((props, ref) => {
 });
 
 export function usePushHistory() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { stack, defaultStack } = useAppContext();
 
   return (path) => {
@@ -43,6 +43,6 @@ export function usePushHistory() {
       url.query.stack = stack;
     }
 
-    history.push(url.toString());
+    navigate(url.toString());
   };
 }

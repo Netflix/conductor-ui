@@ -1,7 +1,7 @@
 import React from "react";
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@mui/styles";
 import clsx from "clsx";
-import Paper from "@material-ui/core/Paper";
+import Paper from "@mui/material/Paper";
 
 const useStyles = makeStyles({
   padded: {

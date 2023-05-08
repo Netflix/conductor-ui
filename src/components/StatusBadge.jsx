@@ -1,5 +1,5 @@
 import React from "react";
-import { Chip } from "@material-ui/core";
+import { Chip } from "@mui/material";
 
 const colorMap = {
   success: "#41b957",
