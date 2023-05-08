@@ -153,12 +153,14 @@ export default function Execution() {
             setSelectedTask,
           }}
         >
-          <ExecutionHeader executionAndTasks={executionAndTasks} />
-          <DockLayout
-            style={{ width: "100%", height: "100%" }}
-            defaultLayout={defaultLayout}
-            groups={groups}
-          />
+          <div style={{ height: '100%', width: '100%', display: 'flex', flexDirection:'column'}}>
+            <ExecutionHeader executionAndTasks={executionAndTasks} />
+            <DockLayout
+              style={{ width: "100%", height: "100%" }}
+              defaultLayout={defaultLayout}
+              groups={groups}
+            />
+          </div>
         </TileFactoryContext.Provider>
       )}
     </>
