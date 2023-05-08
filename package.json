@@ -2,8 +2,6 @@
   "name": "conductor-ui",
   "version": "4.0.0",
   "dependencies": {
-    "@blueprintjs/core": "^4.18.0",
-    "@blueprintjs/icons": "^4.15.0",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@monaco-editor/react": "^4.3.1",
