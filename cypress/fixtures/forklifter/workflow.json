@@ -1,0 +1,82 @@
+{
+  "ownerApp": "",
+  "createTime": 1683572423819,
+  "status": "COMPLETED",
+  "endTime": 1683572428378,
+  "workflowId": "e9ff66f8-a5df-487b-b39a-99533f37b5e7",
+  "tasks": [],
+  "input": {},
+  "output": {},
+  "correlationId": "",
+  "taskToDomain": {},
+  "failedReferenceTaskNames": [],
+  "workflowDefinition": {
+    "createTime": 1649367795383,
+    "accessPolicy": {},
+    "name": "forklifter_index_cleanup",
+    "description": "Index cleanup",
+    "version": 1,
+    "tasks": [
+      {
+        "name": "forklift_workflow_split",
+        "taskReferenceName": "workflow_splitter",
+        "inputParameters": {
+          "chunkSize": "${workflow.input.chunkSize}",
+          "workflows": "${workflow.input.workflows}",
+          "workflowIndexName": "${workflow.input.workflowIndex}",
+          "taskIndexName": "${workflow.input.taskIndex}"
+        },
+        "type": "SIMPLE",
+        "startDelay": 0,
+        "optional": false,
+        "asyncComplete": false
+      },
+      {
+        "name": "dynamic_fork",
+        "taskReferenceName": "dynamic_fork_workflows_chunks",
+        "inputParameters": {
+          "dynamicTasks": "${workflow_splitter.output.dynamicTasks}",
+          "dynamicTasksInput": "${workflow_splitter.output.dynamicTasksInput}"
+        },
+        "type": "FORK_JOIN_DYNAMIC",
+        "dynamicForkTasksParam": "dynamicTasks",
+        "dynamicForkTasksInputParamName": "dynamicTasksInput",
+        "startDelay": 0,
+        "optional": false,
+        "asyncComplete": false
+      },
+      {
+        "name": "dynamic_join",
+        "taskReferenceName": "dynamic_fork_workflows_chunks_join",
+        "inputParameters": {},
+        "type": "JOIN",
+        "startDelay": 0,
+        "optional": false,
+        "asyncComplete": false
+      }
+    ],
+    "inputParameters": [
+      "chunkSize",
+      "workflowIndex",
+      "taskIndex",
+      "workflows"
+    ],
+    "outputParameters": {},
+    "schemaVersion": 2,
+    "restartable": true,
+    "workflowStatusListenerEnabled": false,
+    "ownerEmail": "test@example.com",
+    "timeoutPolicy": "TIME_OUT_WF",
+    "timeoutSeconds": 10800,
+    "variables": {},
+    "inputTemplate": {}
+  },
+  "priority": 0,
+  "variables": {},
+  "lastRetriedTime": 0,
+  "failedTaskNames": [],
+  "workflowEngine": "4.0",
+  "startTime": 1683572423819,
+  "workflowName": "forklifter_index_cleanup",
+  "workflowVersion": 1
+}

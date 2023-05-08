@@ -1,13 +1,9 @@
 /* Utils to build workflow executions for the purpose of UI Component testing */
 import {
-  Execution,
   DynamicForkTaskConfig,
   WorkflowDef,
-  ExecutionStatus,
   SimpleTaskConfig,
   JoinTaskConfig,
-  ForkTaskConfig,
-  TaskStatus,
   TaskConfigType,
   TaskConfig,
   DoWhileTaskConfig,
@@ -18,9 +14,12 @@ import {
   BaseTaskResult,
   TaskResult,
   DynamicForkTaskResult,
+  Execution,
+  ExecutionStatus,
+  ExecutionAndTasks,
+  TaskStatus,
 } from "../../types/execution";
 import { v4 as uuidv4 } from "uuid";
-import { ExecutionAndTasks } from "../../data/execution";
 
 export class WorkflowExecution implements Execution {
   workflowId: string;
@@ -63,6 +62,7 @@ export class WorkflowExecution implements Execution {
         referenceTaskName: ref,
         taskDefName: ref,
         status: status,
+        workflowInstanceId: this.workflowId,
       } as BaseTaskResult);
     }
 
@@ -86,6 +86,7 @@ export class WorkflowExecution implements Execution {
       referenceTaskName: ref,
       taskDefName: ref + "_name",
       status: status,
+      workflowInstanceId: this.workflowId
     });
 
     this.workflowDefinition.tasks.push({
@@ -108,7 +109,7 @@ export class WorkflowExecution implements Execution {
       referenceTaskName: ref,
       taskDefName: ref,
       status,
-      forkedTaskRefs: new Set(),
+      workflowInstanceId: this.workflowId
     };
     this.tasks.push(dfResult);
 
@@ -135,6 +136,7 @@ export class WorkflowExecution implements Execution {
         taskDefName: ref + "_child",
         status: i === idxToFail ? "FAILED" : status,
         parentTaskReferenceName: ref,
+        workflowInstanceId: this.workflowId,
       });
     }
 
@@ -144,6 +146,7 @@ export class WorkflowExecution implements Execution {
       referenceTaskName: ref + "_join",
       taskDefName: ref + "_join",
       status: !idxToFail ? status : "FAILED",
+      workflowInstanceId: this.workflowId
     });
   }
 
@@ -166,6 +169,7 @@ export class WorkflowExecution implements Execution {
           taskDefName: `${ref}_child${j}_name`,
           status: "COMPLETED",
           iteration: i,
+          workflowInstanceId: this.workflowId
         });
       }
     }
@@ -184,6 +188,7 @@ export class WorkflowExecution implements Execution {
       taskReferenceName: ref,
       name: ref + "_name",
       loopOver: loopOver as SimpleTaskConfig[],
+      loopCondition: "false",
       type: "DO_WHILE",
     };
 
@@ -238,6 +243,7 @@ export class WorkflowExecution implements Execution {
       referenceTaskName: ref,
       taskDefName: ref + "_name",
       status: "COMPLETED",
+      workflowInstanceId: this.workflowId
     });
 
     if (caseTaken !== undefined) {
@@ -248,6 +254,7 @@ export class WorkflowExecution implements Execution {
           referenceTaskName: `case${caseTaken}_${j}`,
           taskDefName: `case${caseTaken}_${j}_name`,
           status: "COMPLETED",
+          workflowInstanceId: this.workflowId
         });
       }
     } else {
@@ -258,6 +265,7 @@ export class WorkflowExecution implements Execution {
           referenceTaskName: `default_${j}`,
           taskDefName: `default_${j}_name`,
           status: "COMPLETED",
+          workflowInstanceId: this.workflowId
         });
       }
     }

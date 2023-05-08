@@ -83,7 +83,7 @@ export default class WorkflowDAG {
 
     // Pass 2 - Retrofit Dynamic Forks with forkedTaskRefs
     for (const taskResult of tasks) {
-      if (taskResult.parentTaskReferenceName) {
+      if (taskResult.parentTaskReferenceName && !(taskResult.taskType === "JOIN")) {
         const parentResult = cls.getTaskResultByRef(
           taskResult.parentTaskReferenceName
         ) as DynamicForkTaskResult;
