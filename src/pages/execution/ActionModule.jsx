@@ -53,7 +53,7 @@ export default function ActionModule({ execution, triggerReload }) {
       execution.tasks.find(
         (task) => task.taskType === "SUB_WORKFLOW" && isFailedTask(task.status)
       ),
-    [execution.tasks]
+    [execution]
   );
 
   // RESTART buttons

@@ -1,5 +1,5 @@
-import { useState } from "react";
-
+import { useMemo } from "react";
+import rison from "rison";
 import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { useExecutionAndTasks, useWorkflowDag } from "../../data/execution";
@@ -10,6 +10,8 @@ import TileFactory, { TileFactoryContext } from "./TileFactory";
 import "flexlayout-react/style/light.css";
 import DockLayout, { LayoutData, TabGroup } from "rc-dock";
 import ExecutionHeader from "./ExecutionHeader";
+import { useQueryState } from "react-router-use-location-state";
+import LinearProgress from "../../components/LinearProgress";
 
 const groups: { [key: string]: TabGroup } = {
   workflow: { animated: false },
@@ -111,40 +113,32 @@ const defaultLayout: LayoutData = {
 
 export default function Execution() {
   const params = useParams<{ id: string }>();
-  const [selectedTask, setSelectedTask] = useState<TaskCoordinate | undefined>(
-    undefined
-  );
 
-  //const [selectedTaskRison, setSelectedTaskRison] = useQueryState("task", "");
+  const [selectedTaskRison, setSelectedTaskRison] = useQueryState("task", "");
 
   if (!params.id) {
     throw new Error("Missing Execution ID");
   }
   const executionAndTasks = useExecutionAndTasks(params.id);
   const dag = useWorkflowDag(executionAndTasks);
-
-  /*
-    const selectedTask: TaskCoordinate | undefined = useMemo(
-      () => selectedTaskRison ? rison.decode(selectedTaskRison) : undefined,
-      [selectedTaskRison]
-    );
+  const { execution, tasks, loading } = executionAndTasks;
   
-    const setSelectedTask = (taskPointer: TaskCoordinate) => {
-      setSelectedTaskRison(rison.encode(taskPointer));
-    };
-    */
+  const selectedTask: TaskCoordinate | undefined = useMemo(
+    () => selectedTaskRison ? rison.decode(selectedTaskRison) : undefined,
+    [selectedTaskRison]
+  );
 
-  const refresh = () => {
-    //    refetchExecutions();
-    //refetchTasks();
+  const setSelectedTask = (taskPointer: TaskCoordinate) => {
+    setSelectedTaskRison(rison.encode(taskPointer));
   };
-
+  
   return (
     <>
       <Helmet>
         <title>Conductor UI - Execution - {params.id}</title>
       </Helmet>
-      {dag && executionAndTasks && (
+      {loading && <LinearProgress /> }
+      {dag && execution && tasks && (
         <TileFactoryContext.Provider
           value={{
             executionAndTasks,
@@ -154,7 +148,7 @@ export default function Execution() {
           }}
         >
           <div style={{ height: '100%', width: '100%', display: 'flex', flexDirection:'column'}}>
-            <ExecutionHeader executionAndTasks={executionAndTasks} />
+            <ExecutionHeader execution={execution} />
             <DockLayout
               style={{ width: "100%", height: "100%" }}
               defaultLayout={defaultLayout}

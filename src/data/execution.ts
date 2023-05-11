@@ -3,10 +3,8 @@ import WorkflowDAG from "../components/diagram/WorkflowDAG";
 import { WorkflowDef } from "../types/workflowDef";
 import { Execution, ExecutionAndTasks } from "../types/execution";
 import { useFetch } from "./common";
-import { TaskConfig } from "../types/workflowDef";
-import { TaskResult } from "../types/execution";
 import useAppContext from "../hooks/useAppContext";
-import { useQueries } from "react-query";
+import { useQueries, useQueryClient } from "react-query";
 
 export function useWorkflow(workflowId: string) {
   return useFetch<Execution>(
@@ -48,84 +46,53 @@ export function useWorkflowInput(workflowId: string) {
   );
 }
 
+export function useInvalidateExecution(workflowId: string) {
+  const client = useQueryClient();
+  const { stack } = useAppContext();
+
+  return () => client.invalidateQueries([stack, "workflow", workflowId]);
+}
+
 // TODO: Should be done in backend for true interoperability.
 export function useExecutionAndTasks(
   workflowId: string
-): ExecutionAndTasks | undefined {
+): ExecutionAndTasks {
   const { fetchWithContext, ready, stack } = useAppContext();
   const results = useQueries([
     {
       queryKey: [stack, "workflow", workflowId],
       queryFn: () => fetchWithContext(`/v2/execution/${workflowId}`),
+      enabled: ready
     },
     {
       queryKey: [stack, "workflow", workflowId, "tasks"],
-      queryFn: async () => {
-        const tasks: TaskResult[] = await fetchWithContext(
-          `/v2/execution/${workflowId}/tasks`
-        );
-
-        // Populate refMap
-        const refMap = new Map<string, TaskResult[]>();
-        for (const task of tasks) {
-          if (!refMap.has(task.referenceTaskName)) {
-            refMap.set(task.referenceTaskName, []);
-          }
-          (refMap.get(task.referenceTaskName) as TaskResult[]).push(task);
-        }
-
-        const dynamicForkTaskResults = tasks.filter(
-          (task) => task.taskType === "FORK"
-        );
-
-        const dfInputs: ForkTaskInput[] = await Promise.all(
-          dynamicForkTaskResults.map((taskResult) =>
-            fetchWithContext(
-              `/v2/execution/${workflowId}/task/${taskResult.referenceTaskName}/input?taskId=${taskResult.taskId}`
-            )
-          )
-        );
-        const dfForkedTasks = dfInputs.map((input) => input.forkedTasks);
-
-        for (let i = 0; i < dfForkedTasks.length; i++) {
-          const dfRef = dynamicForkTaskResults[i].referenceTaskName;
-          for (const childRef of dfForkedTasks[i]) {
-            const results = refMap.get(childRef) as TaskResult[];
-            for (const result of results) {
-              result.parentTaskReferenceName = dfRef; // Mutating here should affect tasks also due to reused references.
-            }
-          }
-        }
-
-        return tasks;
-      },
+      queryFn: () => fetchWithContext(`/v2/execution/${workflowId}/tasks`),
+      enabled: ready
     },
   ]);
 
-  const executionData = results[0].data;
-  const tasksData = results[1].data;
-
   const retval = useMemo(
     () =>
-      executionData && tasksData
+      results[0].data && results[1].data
         ? {
-            execution: executionData,
-            tasks: tasksData,
-          }
-        : undefined,
-    [executionData, tasksData]
+          execution: results[0].data,
+          tasks: results[1].data,
+          loading: results[0].isLoading || results[1].isLoading || results[0].isFetching || results[1].isFetching
+        }
+        : {
+          execution: undefined,
+          tasks: undefined,
+          loading: results[0].isLoading || results[1].isLoading || results[0].isFetching || results[1].isFetching
+        },
+    [results]
   );
 
   return retval;
 }
 
-type ForkTaskInput = {
-  forkedTasks: string[];
-  forkedTaskDefs: TaskConfig[];
-};
 export function useWorkflowDag(executionAndTasks?: ExecutionAndTasks) {
   return useMemo(() => {
-    return executionAndTasks
+    return executionAndTasks?.execution && executionAndTasks?.tasks
       ? WorkflowDAG.fromExecutionAndTasks(executionAndTasks)
       : undefined;
   }, [executionAndTasks]);

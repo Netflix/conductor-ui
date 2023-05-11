@@ -8,7 +8,7 @@ import useAppContext from "../hooks/useAppContext";
 // 2. Preserve stack param
 
 export default React.forwardRef((props, ref) => {
-  const { navigate, path, newTab, ...rest } = props;
+  const { navigate, path, newTab, children, ...rest } = props;
   const { stack, defaultStack } = useAppContext();
 
   const url = new Url(path, {}, true);
@@ -19,13 +19,13 @@ export default React.forwardRef((props, ref) => {
   if (!newTab) {
     return (
       <Link ref={ref} component={RouterLink} to={url.toString()} {...rest}>
-        {rest.children}
+        {children}
       </Link>
     );
   } else {
     return (
-      <Link ref={ref} target="_blank" href={url.toString()}>
-        {rest.children}
+      <Link ref={ref} target="_blank" href={url.toString()} className={rest.className}>
+        {children}
         &nbsp;
         <LaunchIcon fontSize="small" style={{ verticalAlign: "middle" }} />
       </Link>

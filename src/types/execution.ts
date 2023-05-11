@@ -41,8 +41,9 @@ export interface DynamicForkTaskResult extends BaseTaskResult {
 export type ExtendedTaskResult = TaskResult | TerminalTaskResult;
 
 export type ExecutionAndTasks = {
-  execution: Execution;
-  tasks: TaskResult[];
+  execution?: Execution;
+  tasks?: TaskResult[];
+  loading: boolean;
 };
 
 export type Execution = {
