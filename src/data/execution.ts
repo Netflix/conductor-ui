@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import WorkflowDAG from "../components/diagram/WorkflowDAG";
 import { WorkflowDef } from "../types/workflowDef";
 import { Execution, ExecutionAndTasks } from "../types/execution";
@@ -54,40 +54,50 @@ export function useInvalidateExecution(workflowId: string) {
 }
 
 // TODO: Should be done in backend for true interoperability.
-export function useExecutionAndTasks(
-  workflowId: string
-): ExecutionAndTasks {
+export function useExecutionAndTasks(workflowId: string): ExecutionAndTasks {
   const { fetchWithContext, ready, stack } = useAppContext();
+  const [state, setState] = useState({
+    execution: undefined,
+    tasks: undefined,
+    loading: true,
+  });
+
   const results = useQueries([
     {
       queryKey: [stack, "workflow", workflowId],
       queryFn: () => fetchWithContext(`/v2/execution/${workflowId}`),
-      enabled: ready
+      enabled: ready,
     },
     {
       queryKey: [stack, "workflow", workflowId, "tasks"],
       queryFn: () => fetchWithContext(`/v2/execution/${workflowId}/tasks`),
-      enabled: ready
+      enabled: ready,
     },
   ]);
 
-  const retval = useMemo(
-    () =>
-      results[0].data && results[1].data
-        ? {
-          execution: results[0].data,
-          tasks: results[1].data,
-          loading: results[0].isLoading || results[1].isLoading || results[0].isFetching || results[1].isFetching
-        }
-        : {
-          execution: undefined,
-          tasks: undefined,
-          loading: results[0].isLoading || results[1].isLoading || results[0].isFetching || results[1].isFetching
-        },
-    [results]
-  );
+  useEffect(() => {
+    if (results[0].isSuccess && results[1].isSuccess) {
+      setState({
+        execution: results[0].data,
+        tasks: results[1].data,
+        loading:
+          results[0].isLoading ||
+          results[1].isLoading ||
+          results[0].isFetching ||
+          results[1].isFetching,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [results[0].isSuccess, results[1].isSuccess]);
 
-  return retval;
+  return {
+    ...state,
+    loading:
+      results[0].isLoading ||
+      results[1].isLoading ||
+      results[0].isFetching ||
+      results[1].isFetching,
+  };
 }
 
 export function useWorkflowDag(executionAndTasks?: ExecutionAndTasks) {
@@ -95,7 +105,8 @@ export function useWorkflowDag(executionAndTasks?: ExecutionAndTasks) {
     return executionAndTasks?.execution && executionAndTasks?.tasks
       ? WorkflowDAG.fromExecutionAndTasks(executionAndTasks)
       : undefined;
-  }, [executionAndTasks]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [executionAndTasks?.execution, executionAndTasks?.tasks]);
 }
 
 export function useWorkflowDagFromDef(workflowDefinition?: WorkflowDef) {
@@ -117,6 +128,7 @@ export function useWorkflowTask(
   }
   return useFetch(["workflow", workflowId!, "task", taskReferenceName!], path, {
     enabled: !!workflowId && !!taskReferenceName,
+    keepPreviousData: false,
   });
 }
 

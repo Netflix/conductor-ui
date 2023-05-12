@@ -88,7 +88,13 @@ export default function JsonPanel() {
     refetch: refetchNamesAndVersions,
   }: { data?: NamesAndVersions; refetch: Function } =
     useWorkflowNamesAndVersions();
-  const { workflowName, workflowVersion, workflowDef, selectedTask, refetchWorkflow } = context!;
+  const {
+    workflowName,
+    workflowVersion,
+    workflowDef,
+    selectedTask,
+    refetchWorkflow,
+  } = context!;
 
   const versions = useMemo(
     () => _.get(namesAndVersions, workflowName!, []),

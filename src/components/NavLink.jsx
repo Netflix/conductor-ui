@@ -24,7 +24,12 @@ export default React.forwardRef((props, ref) => {
     );
   } else {
     return (
-      <Link ref={ref} target="_blank" href={url.toString()} className={rest.className}>
+      <Link
+        ref={ref}
+        target="_blank"
+        href={url.toString()}
+        className={rest.className}
+      >
         {children}
         &nbsp;
         <LaunchIcon fontSize="small" style={{ verticalAlign: "middle" }} />

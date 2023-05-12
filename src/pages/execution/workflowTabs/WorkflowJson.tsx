@@ -1,11 +1,7 @@
 import { ReactJson } from "../../../components";
 import { Execution } from "../../../types/execution";
 
-export default function WorkflowJson({
-  execution,
-}: {
-  execution: Execution;
-}) {
+export default function WorkflowJson({ execution }: { execution: Execution }) {
   return (
     <ReactJson
       src={execution}

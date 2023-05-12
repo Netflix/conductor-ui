@@ -86,7 +86,7 @@ export class WorkflowExecution implements Execution {
       referenceTaskName: ref,
       taskDefName: ref + "_name",
       status: status,
-      workflowInstanceId: this.workflowId
+      workflowInstanceId: this.workflowId,
     });
 
     this.workflowDefinition.tasks.push({
@@ -109,7 +109,7 @@ export class WorkflowExecution implements Execution {
       referenceTaskName: ref,
       taskDefName: ref,
       status,
-      workflowInstanceId: this.workflowId
+      workflowInstanceId: this.workflowId,
     };
     this.tasks.push(dfResult);
 
@@ -146,7 +146,7 @@ export class WorkflowExecution implements Execution {
       referenceTaskName: ref + "_join",
       taskDefName: ref + "_join",
       status: !idxToFail ? status : "FAILED",
-      workflowInstanceId: this.workflowId
+      workflowInstanceId: this.workflowId,
     });
   }
 
@@ -169,7 +169,7 @@ export class WorkflowExecution implements Execution {
           taskDefName: `${ref}_child${j}_name`,
           status: "COMPLETED",
           iteration: i,
-          workflowInstanceId: this.workflowId
+          workflowInstanceId: this.workflowId,
         });
       }
     }
@@ -243,7 +243,7 @@ export class WorkflowExecution implements Execution {
       referenceTaskName: ref,
       taskDefName: ref + "_name",
       status: "COMPLETED",
-      workflowInstanceId: this.workflowId
+      workflowInstanceId: this.workflowId,
     });
 
     if (caseTaken !== undefined) {
@@ -254,7 +254,7 @@ export class WorkflowExecution implements Execution {
           referenceTaskName: `case${caseTaken}_${j}`,
           taskDefName: `case${caseTaken}_${j}_name`,
           status: "COMPLETED",
-          workflowInstanceId: this.workflowId
+          workflowInstanceId: this.workflowId,
         });
       }
     } else {
@@ -265,7 +265,7 @@ export class WorkflowExecution implements Execution {
           referenceTaskName: `default_${j}`,
           taskDefName: `default_${j}_name`,
           status: "COMPLETED",
-          workflowInstanceId: this.workflowId
+          workflowInstanceId: this.workflowId,
         });
       }
     }

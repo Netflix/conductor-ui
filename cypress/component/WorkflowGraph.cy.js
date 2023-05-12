@@ -13,15 +13,12 @@ describe("Dag is undefined", () => {
 
 describe("forklifter", () => {
   it("Renders a canvas with a forklifter dag", () => {
-
     const dag = WorkflowDAG.fromExecutionAndTasks({
       execution: forklifterWf,
-      tasks: forklifterTasks
-    })
-    
-    cy.mount(
-      <WorkflowGraph dag={dag} executionMode={true} />
-    );
+      tasks: forklifterTasks,
+    });
+
+    cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
     cy.get("#dynamic_tasks_DF_TASK_PLACEHOLDER")
       .should("contain", "3 of 3 tasks succeeded")
       .click();

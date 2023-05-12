@@ -2,6 +2,8 @@ import { makeStyles } from "@mui/styles";
 import { useWorkflowTaskOutput } from "../../../data/execution";
 import { Banner, ReactJson } from "../../../components";
 import { TaskSelection } from "../TileFactory";
+import NoTaskSelected from "../../../components/NoTaskSelected";
+import JsonSkeleton from "../../../components/JsonSkeleton";
 
 const useStyles = makeStyles({
   banner: {
@@ -14,13 +16,16 @@ export default function TaskOutput({
 }: {
   taskSelection?: TaskSelection;
 }) {
-  const { data }: { data: any } = useWorkflowTaskOutput(
-    taskSelection?.workflowId,
-    taskSelection?.ref,
-    taskSelection?.id
-  );
+  const { data, isLoading }: { data: any; isLoading: boolean } =
+    useWorkflowTaskOutput(
+      taskSelection?.workflowId,
+      taskSelection?.ref,
+      taskSelection?.id
+    );
   const classes = useStyles();
-  if (!data) return <div>No task selected.</div>;
+  if (!taskSelection) return <NoTaskSelected />;
+  if (isLoading) return <JsonSkeleton />;
+
   return (
     <>
       {data?.externalOutputPayloadStoragePath && (

@@ -55,12 +55,14 @@ export default function TileFactory({ component }: { component: string }) {
     return {
       id: taskResult?.taskId,
       ref: taskResult?.referenceTaskName,
-      workflowId: executionAndTasks.execution.workflowId,
+      workflowId: executionAndTasks.execution!.workflowId,
       taskConfig: taskConfig,
     };
   }, [dag, selectedTask, executionAndTasks]);
 
-  if (!dag || !executionAndTasks) {
+  const { execution, tasks } = executionAndTasks;
+
+  if (!dag || !execution || !tasks) {
     return null;
   }
 
@@ -75,21 +77,12 @@ export default function TileFactory({ component }: { component: string }) {
         />
       );
     case "WorkflowJson":
-      return (
-        <WorkflowJson
-          execution={executionAndTasks.execution}
-        />
-      );
+      return <WorkflowJson execution={execution} />;
 
     case "WorkflowSummary":
-      return <Summary execution={executionAndTasks.execution} />;
+      return <Summary execution={execution} />;
     case "TaskList":
-      return (
-        <TaskList
-          tasks={executionAndTasks.tasks}
-          workflowId={executionAndTasks.execution.workflowId}
-        />
-      );
+      return <TaskList tasks={tasks} workflowId={execution.workflowId} />;
     case "Timeline":
       return (
         <TimelineComponent
@@ -99,19 +92,11 @@ export default function TileFactory({ component }: { component: string }) {
         />
       );
     case "WorkflowInput":
-      return (
-        <WorkflowInput workflowId={executionAndTasks.execution.workflowId} />
-      );
+      return <WorkflowInput workflowId={execution.workflowId} />;
     case "WorkflowOutput":
-      return (
-        <WorkflowOutput workflowId={executionAndTasks.execution.workflowId} />
-      );
+      return <WorkflowOutput workflowId={execution.workflowId} />;
     case "WorkflowVariables":
-      return (
-        <WorkflowVariables
-          workflowId={executionAndTasks.execution.workflowId}
-        />
-      );
+      return <WorkflowVariables workflowId={execution.workflowId} />;
 
     case "TaskSummary":
       return <TaskSummary taskSelection={taskSelection} />;

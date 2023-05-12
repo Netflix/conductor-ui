@@ -70,7 +70,7 @@ export function usePollData(taskName?: string) {
   const pollDataPath = `/tasks/queue/polldata?taskType=${taskName}`;
 
   return useQuery([stack, pollDataPath], () => fetchWithContext(pollDataPath), {
-    enabled: ready && !_.isEmpty(taskName),
+    enabled: ready && !!taskName,
   });
 }
 
@@ -79,17 +79,19 @@ export function useQueueSize(taskName: string | undefined, domain: string) {
 
   const path = new Path("/tasks/queue/size");
   if (taskName) {
-    path.search.append("taskType", taskName);
+    path.search.append("taskType", taskName!);
   }
 
   if (!_.isUndefined(domain)) {
     path.search.append("domain", domain);
   }
 
-  return useQuery([stack, "queueSize", taskName, domain], () =>
-    fetchWithContext(path.toString(), {
-      enabled: ready && !_.isEmpty(taskName),
-    })
+  return useQuery(
+    [stack, "queueSize", taskName, domain],
+    () => fetchWithContext(path.toString()),
+    {
+      enabled: ready && !!taskName,
+    }
   );
 }
 
@@ -117,7 +119,7 @@ export function useQueueSizes(taskName: string | undefined, domains: string[]) {
                 size: result,
               };
             },
-            enabled: ready && !_.isEmpty(taskName),
+            enabled: ready && !!taskName,
           };
         })
       : []

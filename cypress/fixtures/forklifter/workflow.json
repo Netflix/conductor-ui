@@ -55,12 +55,7 @@
         "asyncComplete": false
       }
     ],
-    "inputParameters": [
-      "chunkSize",
-      "workflowIndex",
-      "taskIndex",
-      "workflows"
-    ],
+    "inputParameters": ["chunkSize", "workflowIndex", "taskIndex", "workflows"],
     "outputParameters": {},
     "schemaVersion": 2,
     "restartable": true,

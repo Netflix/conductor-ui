@@ -122,22 +122,22 @@ export default function Execution() {
   const executionAndTasks = useExecutionAndTasks(params.id);
   const dag = useWorkflowDag(executionAndTasks);
   const { execution, tasks, loading } = executionAndTasks;
-  
+
   const selectedTask: TaskCoordinate | undefined = useMemo(
-    () => selectedTaskRison ? rison.decode(selectedTaskRison) : undefined,
+    () => (selectedTaskRison ? rison.decode(selectedTaskRison) : undefined),
     [selectedTaskRison]
   );
 
   const setSelectedTask = (taskPointer: TaskCoordinate) => {
     setSelectedTaskRison(rison.encode(taskPointer));
   };
-  
+
   return (
     <>
       <Helmet>
         <title>Conductor UI - Execution - {params.id}</title>
       </Helmet>
-      {loading && <LinearProgress /> }
+      {loading && <LinearProgress />}
       {dag && execution && tasks && (
         <TileFactoryContext.Provider
           value={{
@@ -147,7 +147,14 @@ export default function Execution() {
             setSelectedTask,
           }}
         >
-          <div style={{ height: '100%', width: '100%', display: 'flex', flexDirection:'column'}}>
+          <div
+            style={{
+              height: "100%",
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             <ExecutionHeader execution={execution} />
             <DockLayout
               style={{ width: "100%", height: "100%" }}

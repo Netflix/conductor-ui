@@ -1,4 +1,5 @@
 import { ReactJson } from "../../../components";
+import NoTaskSelected from "../../../components/NoTaskSelected";
 import { TaskSelection } from "../TileFactory";
 
 export default function TaskConfiguration({
@@ -7,7 +8,7 @@ export default function TaskConfiguration({
   taskSelection?: TaskSelection;
 }) {
   if (!taskSelection) {
-    return null;
+    return <NoTaskSelected />;
   }
 
   return (

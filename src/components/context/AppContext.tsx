@@ -9,7 +9,7 @@ export type AppContextType = {
   customTaskSummaryRows: Array<any>;
   CustomWorkflowActions?: Function;
   fetchWithContext: (path: string, fetchParams?: any) => Promise<any>;
-}
+};
 export default createContext<AppContextType>({
   ready: false,
   stack: "",

@@ -32,10 +32,10 @@ export default function TaskList({
   */
   return (
     <ReactJson
-    src={tasks}
-    label="Executed tasks (Table WIP)"
-    path="tasks.json"
-  />
+      src={tasks}
+      label="Executed tasks (Table WIP)"
+      path="tasks.json"
+    />
     /*
     <DataTable
       style={{ minHeight: 400 }}

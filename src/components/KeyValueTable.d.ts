@@ -4,5 +4,8 @@ export type KeyValueTableEntry = {
   value: any;
   type?: string;
 };
-declare const KeyValueTable: FC<{ data: KeyValueTableEntry[] }>;
+declare const KeyValueTable: FC<{
+  data: KeyValueTableEntry[];
+  loading: boolean;
+}>;
 export default KeyValueTable;

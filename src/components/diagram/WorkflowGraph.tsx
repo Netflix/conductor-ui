@@ -35,7 +35,7 @@ interface WorkflowGraphProps
   > {
   dag: WorkflowDAG;
   executionMode: boolean;
-  onTaskSelect?: (task: TaskCoordinate) => void;
+  onTaskSelect?: (task: TaskCoordinate | null) => void;
   onContextMenu?: (
     task: TaskCoordinate,
     type: ExtendedTaskConfigType,
@@ -317,6 +317,12 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
     svg.attr("visibility", "visible");
   };
 
+  handleBackgroundClick = () => {
+    if (this.props.onTaskSelect) {
+      this.props.onTaskSelect(null);
+    }
+  };
+
   handleClick = (
     e: PointerEvent,
     handler?: (
@@ -348,6 +354,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
         handler({ ref: taskRef }, node.type, e);
       }
     }
+    e.stopPropagation();
   };
 
   render() {
@@ -369,7 +376,11 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
           </IconButton>
           <span>Shortcut: Ctrl + scroll to zoom</span>
         </Toolbar>
-        <svg ref={this.svgRef} className="graphSvg">
+        <svg
+          ref={this.svgRef}
+          className="graphSvg"
+          onClick={this.handleBackgroundClick}
+        >
           <defs>
             <filter id="brightness">
               <feComponentTransfer>

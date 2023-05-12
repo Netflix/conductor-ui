@@ -10,7 +10,7 @@ export const TASK_CONFIG_TYPES = [
   "HTTP",
   "TERMINATE",
   "INLINE",
-  "JQ_TRANSFORM"
+  "JQ_TRANSFORM",
 ] as const;
 export const DEPRECATED_TASK_CONFIG_TYPES = [
   "EXCLUSIVE_JOIN",

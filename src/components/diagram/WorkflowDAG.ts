@@ -68,12 +68,12 @@ export default class WorkflowDAG {
 
   public static fromExecutionAndTasks(executionAndTasks: ExecutionAndTasks) {
     const { execution, tasks } = executionAndTasks;
-    const cls = new WorkflowDAG(execution.workflowDefinition);
+    const cls = new WorkflowDAG(execution!.workflowDefinition);
     let isTerminated = false;
     cls.execution = execution;
 
     // Load all task results into Ref and Id keyed maps
-    for (let task of tasks) {
+    for (let task of tasks!) {
       if (task.taskType === "TERMINATE") {
         isTerminated = true;
       }
@@ -82,8 +82,11 @@ export default class WorkflowDAG {
     }
 
     // Pass 2 - Retrofit Dynamic Forks with forkedTaskRefs
-    for (const taskResult of tasks) {
-      if (taskResult.parentTaskReferenceName && !(taskResult.taskType === "JOIN")) {
+    for (const taskResult of tasks!) {
+      if (
+        taskResult.parentTaskReferenceName &&
+        !(taskResult.taskType === "JOIN")
+      ) {
         const parentResult = cls.getTaskResultByRef(
           taskResult.parentTaskReferenceName
         ) as DynamicForkTaskResult;
@@ -102,7 +105,7 @@ export default class WorkflowDAG {
       status: "COMPLETED",
     });
 
-    if (execution.status === "COMPLETED" && !isTerminated) {
+    if (execution!.status === "COMPLETED" && !isTerminated) {
       cls.addTaskResult({
         referenceTaskName: "__final",
         taskType: "TERMINAL",

@@ -70,7 +70,7 @@ export default function Workflow() {
             selectedTask,
             setSelectedTask,
             setWorkflowDef,
-            refetchWorkflow
+            refetchWorkflow,
           }}
         >
           <DockLayout

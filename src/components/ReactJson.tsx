@@ -41,7 +41,7 @@ type ReactJsonProps = {
   src: any;
   lineNumbers?: boolean;
   path?: string;
-}
+};
 
 export default function ReactJson({
   className,

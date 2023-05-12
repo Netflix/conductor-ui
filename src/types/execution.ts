@@ -9,7 +9,7 @@ export type TaskStatus =
   | "CANCELED"
   | "SCHEDULED";
 
-export type BaseTaskResultType = TaskConfigType| "SIMPLE";
+export type BaseTaskResultType = TaskConfigType | "SIMPLE";
 
 export type ForkTaskResultType = "FORK" | "FORK_JOIN" | "FORK_JOIN_DYNAMIC"; //FORK is legacy.
 export type TaskResultType = BaseTaskResultType | ForkTaskResultType;

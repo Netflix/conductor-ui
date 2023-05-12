@@ -5,19 +5,23 @@ import _ from "lodash";
 import { timestampRenderer } from "../../../utils/helpers";
 import { useWorkflowTask } from "../../../data/execution";
 import { TaskSelection } from "../TileFactory";
+import NoTaskSelected from "../../../components/NoTaskSelected";
 
 export default function TaskPollData({
   taskSelection,
 }: {
   taskSelection?: TaskSelection;
 }) {
-  const { data: taskResult }: { data: any } = useWorkflowTask(
+  const {
+    data: taskResult,
+    isLoading: isLoadingTaskResult,
+  }: { data: any; isLoading: boolean } = useWorkflowTask(
     taskSelection?.workflowId,
     taskSelection?.ref,
     taskSelection?.id
   );
 
-  const { data: pollData, isLoading } = usePollData(
+  const { data: pollData, isLoading: isLoadingPollData } = usePollData(
     taskSelection?.taskConfig.name
   );
   const { data: queueSize, isLoading: isLoadingQueueSize } = useQueueSize(
@@ -25,18 +29,14 @@ export default function TaskPollData({
     taskResult?.domain
   );
 
-  if (!taskSelection || !taskResult) {
-    return null;
+  if (!taskSelection) {
+    return <NoTaskSelected />;
   }
 
   const { taskConfig } = taskSelection;
 
-  if (isLoading || isLoadingQueueSize) {
-    return <LinearProgress />;
-  }
-
-  const pollDataRow = pollData.find((row: any) => {
-    if (taskResult.domain) {
+  const pollDataRow = pollData?.find((row: any) => {
+    if (taskResult?.domain) {
       return row.domain === taskResult.domain;
     } else {
       return _.isUndefined(row.domain);
@@ -47,7 +47,7 @@ export default function TaskPollData({
     { label: "Task Name", value: taskConfig.name },
     {
       label: "Domain",
-      value: _.defaultTo(taskResult.domain, "(No Domain Set)"),
+      value: _.defaultTo(taskResult?.domain, "(No Domain Set)"),
     },
   ];
 
@@ -68,5 +68,10 @@ export default function TaskPollData({
     });
   }
 
-  return <KeyValueTable data={data} />;
+  return (
+    <KeyValueTable
+      data={data}
+      loading={isLoadingPollData || isLoadingQueueSize || isLoadingTaskResult}
+    />
+  );
 }

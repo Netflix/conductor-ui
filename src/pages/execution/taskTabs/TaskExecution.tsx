@@ -1,4 +1,5 @@
 import { ReactJson } from "../../../components";
+import NoTaskSelected from "../../../components/NoTaskSelected";
 import { useWorkflowTask } from "../../../data/execution";
 import { TaskSelection } from "../TileFactory";
 
@@ -14,7 +15,7 @@ export default function TaskExecution({
   );
 
   if (!taskResult) {
-    return null;
+    return <NoTaskSelected />;
   }
 
   return <ReactJson src={taskResult} label="Task Execution Result" />;

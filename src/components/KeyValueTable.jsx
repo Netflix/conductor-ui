@@ -1,6 +1,6 @@
 import React from "react";
 import { makeStyles } from "@mui/styles";
-import { List, ListItem, ListItemText, Tooltip } from "@mui/material";
+import { List, ListItem, ListItemText, Skeleton, Tooltip } from "@mui/material";
 import _ from "lodash";
 import {
   timestampRenderer,
@@ -20,11 +20,48 @@ const useStyles = makeStyles((theme) => ({
   labelText: {
     fontWeight: "bold !important",
   },
+  skeleton: {
+    marginRight: 20,
+  },
 }));
 
-export default function KeyValueTable({ data }) {
+const SKELETON_ROWS = 10;
+
+export default function KeyValueTable({ data, loading }) {
   const classes = useStyles();
   const { customTypeRenderers } = useAppContext();
+
+  if (loading) {
+    return (
+      <List>
+        {_.range(SKELETON_ROWS).map((index) => (
+          <ListItem key={index} divider alignItems="flex-start">
+            <ListItemText
+              className={classes.label}
+              primary={
+                <Skeleton
+                  variant="text"
+                  className={classes.skeleton}
+                  width={150}
+                />
+              }
+            />
+            <ListItemText
+              className={classes.value}
+              primary={
+                <Skeleton
+                  variant="text"
+                  className={classes.skeleton}
+                  width={300}
+                />
+              }
+            />
+          </ListItem>
+        ))}
+      </List>
+    );
+  }
+
   return (
     <List>
       {data.map((item, index) => {

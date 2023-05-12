@@ -1,4 +1,3 @@
-import React from "react";
 import _ from "lodash";
 import { NavLink, KeyValueTable } from "../../../components";
 import { useTime } from "../../../hooks/useTime";
@@ -6,6 +5,7 @@ import { useAppContext } from "../../../export";
 import { useWorkflowTask } from "../../../data/execution";
 import { KeyValueTableEntry } from "../../../components/KeyValueTable";
 import { TaskSelection } from "../TileFactory";
+import NoTaskSelected from "../../../components/NoTaskSelected";
 
 export default function TaskSummary({
   taskSelection,
@@ -14,14 +14,15 @@ export default function TaskSummary({
 }) {
   const now = useTime();
   const { customTaskSummaryRows } = useAppContext();
-  const { data: taskResult }: { data: any } = useWorkflowTask(
-    taskSelection?.workflowId,
-    taskSelection?.ref,
-    taskSelection?.id
-  );
+  const { data: taskResult, isLoading }: { data: any; isLoading: boolean } =
+    useWorkflowTask(
+      taskSelection?.workflowId,
+      taskSelection?.ref,
+      taskSelection?.id
+    );
 
   if (!taskSelection) {
-    return <p>No task selected</p>;
+    return <NoTaskSelected />;
   }
 
   const { taskConfig } = taskSelection;
@@ -161,5 +162,5 @@ export default function TaskSummary({
     }
   }
 
-  return <KeyValueTable data={data} />;
+  return <KeyValueTable data={data} loading={isLoading} />;
 }
