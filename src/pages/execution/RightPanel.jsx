@@ -172,7 +172,7 @@ export default function RightPanel({ selectedTask, dag, onTaskChange }) {
           </TabPanel>
           <TabPanel className={classes.tabPanel} value="definition">
             <ReactJson
-              src={taskResult.workflowTask}
+              src={taskResult.workflowTask || ""}
               label="Task Definition at Runtime"
             />
           </TabPanel>

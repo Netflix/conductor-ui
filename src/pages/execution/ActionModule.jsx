@@ -128,7 +128,7 @@ export default function ActionModule({ execution, triggerReload }) {
     ["FAILED", "TIMED_OUT", "TERMINATED"].includes(execution.status) &&
     execution.tasks.find(
       (task) =>
-        task.workflowTask.type === "SUB_WORKFLOW" && isFailedTask(task.status)
+        task.workflowTask?.type === "SUB_WORKFLOW" && isFailedTask(task.status)
     )
   ) {
     options.push({

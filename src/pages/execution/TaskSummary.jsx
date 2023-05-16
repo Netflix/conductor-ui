@@ -7,18 +7,22 @@ import { useAppContext } from "../../export";
 export default function TaskSummary({ taskResult }) {
   const now = useTime();
   const { customTaskSummaryRows } = useAppContext();
+  const taskType = taskResult.workflowTask?.type || taskResult.taskType;
 
   // To accommodate unexecuted tasks, read type & name & ref out of workflow
   const data = [
-    { label: "Task Type", value: taskResult.workflowTask.type },
+    { label: "Task Type", value: taskType },
     { label: "Status", value: taskResult.status || "Not executed" },
-    { label: "Task Name", value: taskResult.workflowTask.name },
+    {
+      label: "Task Name",
+      value: taskResult.workflowTask?.name || taskResult.taskDefName,
+    },
     {
       label: "Task Reference",
       value:
         taskResult.referenceTaskName ||
-        taskResult.workflowTask.aliasForRef ||
-        taskResult.workflowTask.taskReferenceName,
+        taskResult.workflowTask?.aliasForRef ||
+        taskResult.workflowTask?.taskReferenceName,
     },
   ];
 
@@ -86,7 +90,7 @@ export default function TaskSummary({ taskResult }) {
       type: "workerId",
     });
   }
-  if (taskResult.taskType === "DECISION") {
+  if (taskType === "DECISION") {
     data.push({
       label: "Evaluated Case",
       value:
@@ -94,7 +98,7 @@ export default function TaskSummary({ taskResult }) {
         taskResult.outputData.caseOutput[0],
     });
   }
-  if (taskResult.workflowTask.type === "SUB_WORKFLOW") {
+  if (taskType === "SUB_WORKFLOW") {
     const subWorkflowName =
       taskResult.inputData?.subWorkflowName ||
       taskResult.workflowTask?.subWorkflowParam?.name;

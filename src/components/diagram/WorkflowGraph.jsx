@@ -74,7 +74,7 @@ class WorkflowGraph extends React.Component {
     const selectedRef =
       taskResult &&
       (taskResult.referenceTaskName ||
-        taskResult.workflowTask.taskReferenceName);
+        taskResult.workflowTask?.taskReferenceName);
 
     let resolvedRef;
     if (!selectedRef) {

@@ -28,7 +28,9 @@ export default function TimelineComponent({
     for (const task of tasks) {
       groupMap.set(task.referenceTaskName, {
         id: task.referenceTaskName,
-        content: `${task.referenceTaskName} (${task.workflowTask.name})`,
+        content: `${task.referenceTaskName} (${
+          task.workflowTask?.name || task.taskDefName
+        })`,
       });
     }
 

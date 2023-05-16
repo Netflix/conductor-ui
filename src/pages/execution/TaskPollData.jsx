@@ -5,9 +5,10 @@ import _ from "lodash";
 import { timestampRenderer } from "../../utils/helpers";
 
 export default function TaskPollData({ task }) {
-  const { data: pollData, isLoading } = usePollData(task.workflowTask.name);
+  const taskName = task.workflowTask?.name || task.taskDefName;
+  const { data: pollData, isLoading } = usePollData(taskName);
   const { data: queueSize, isLoadingQueueSize } = useQueueSize(
-    task.workflowTask.name,
+    taskName,
     task.domain
   );
 
@@ -24,7 +25,7 @@ export default function TaskPollData({ task }) {
   });
 
   const data = [
-    { label: "Task Name", value: task.workflowTask.name },
+    { label: "Task Name", value: taskName },
     { label: "Domain", value: _.defaultTo(task.domain, "(No Domain Set)") },
   ];
 
