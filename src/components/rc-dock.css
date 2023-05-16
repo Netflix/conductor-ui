@@ -49,11 +49,11 @@ body > .dragging-layer > div:last-child {
   font-size: 14px;
   line-height: 1.5;
   box-sizing: border-box;
-  overflow: hidden;
   position: relative;
   white-space: nowrap;
   outline: none;
   zoom: 1;
+  z-index: 1;
 }
 .dock-ink-bar {
   position: absolute;
@@ -164,7 +164,7 @@ body > .dragging-layer > div:last-child {
 .dock-tab-close-btn {
   position: absolute;
   cursor: pointer;
-  font-family: "Fredoka", sans-serif;
+  font-family: sans-serif;
   color: #ddd;
   right: -3px;
   font-size: 12px;
@@ -263,7 +263,8 @@ body > .dragging-layer > div:last-child {
 }
 .dock-extra-content {
   display: flex;
-  height: 30px;
+  align-items: center; 
+  margin-right: 5px;
 }
 .dock-dropdown {
   box-sizing: border-box;
@@ -553,7 +554,7 @@ body.dock-dragging iframe {
   z-index: 300;
   width: 32px;
   height: 32px;
-  font-family: "Fredoka", sans-serif;
+  font-family: sans-serif;
   color: #ddd;
   background: #fff;
   border: 1px solid transparent;
@@ -641,25 +642,26 @@ body.dock-dragging iframe {
 }
 .dock-panel-max-btn,
 .dock-panel-min-btn {
-  height: 15px;
-  width: 15px;
-  font-family: "Fredoka", sans-serif;
-  margin: 2px 2px 2px 0;
-  padding: 6px 4px 4px 2px;
+  height: 20px;
+  width: 20px;
   cursor: pointer;
   transition: all 0.25s ease-in-out;
   outline: none;
   user-select: none;
+  position: relative;
 }
-.dock-panel-max-btn:before,
-.dock-panel-min-btn:before {
+
+.dock-panel-max-btn:before {
+  top: 2px;
+  left: 1px;
   position: absolute;
   content: " ";
-  border: 2px solid #ddd;
+  border-top: 3px solid #ddd;
   border-radius: 1px;
-  width: 9px;
-  height: 9px;
+  width: 16px;
+  height: 16px;
 }
+
 .dock-panel-max-btn:hover,
 .dock-panel-min-btn:hover,
 .dock-panel-max-btn:focus,
@@ -669,24 +671,42 @@ body.dock-dragging iframe {
 .dock-panel-max-btn:hover:before,
 .dock-panel-min-btn:hover:before,
 .dock-panel-max-btn:focus:before,
-.dock-panel-min-btn:focus:before {
+.dock-panel-min-btn:focus:before,
+.dock-panel-min-btn:hover:after,
+.dock-panel-min-btn:focus:after {
   border-color: #a2a2a2;
 }
-.dock-panel-max-btn:hover,
-.dock-panel-min-btn:hover {
-  transform: scale(1.1);
-}
+
 .dock-panel-min-btn:before {
   position: absolute;
+  top: 0px;
+  left: 4px;
   border-radius: 1px;
-  width: 9px;
-  height: 9px;
-  border: none;
-  content: "-";
+  width: 14px;
+  height: 12px;
+  border: 2px solid #ddd;
+  border-top: 4px solid #ddd;
+  content: "";
   color: #666;
   font-size: 20px;
   line-height: 4px;
 }
+.dock-panel-min-btn:after {
+  position: absolute;
+  top: 6px;
+  left: 0px;
+  border-radius: 1px;
+  width: 14px;
+  height: 12px;
+  background-color:#fafafd;
+  border: 2px solid #ddd;
+  border-top: 4px solid #ddd;
+  content: "";
+  color: #666;
+  font-size: 20px;
+  line-height: 4px;
+}
+
 .dock-panel-min-btn:hover:before,
 .dock-panel-min-btn:focus:before {
   color: #999;
@@ -771,4 +791,5 @@ body.dock-dragging iframe {
 }
 .dock-panel.dock-style-card .dock-extra-content {
   height: 35px;
+
 }

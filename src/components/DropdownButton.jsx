@@ -1,10 +1,9 @@
 import React from "react";
-import Button from "@mui/material/Button";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import { ClickAwayListener, Popper, MenuItem, MenuList } from "@mui/material";
+import { Button, IconButton, ClickAwayListener, Popper, MenuItem, MenuList } from "@mui/material";
 import { Paper } from "./";
 
-export default function DropdownButton({ children, options }) {
+export default function DropdownButton({ children, icon, size, options }) {
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
 
@@ -22,6 +21,16 @@ export default function DropdownButton({ children, options }) {
 
   return (
     <React.Fragment>
+      { icon ? 
+      <IconButton
+        size={size}
+        onClick={handleToggle}
+        ref={anchorRef}
+        disableRipple
+      >
+        {icon}
+      </IconButton>
+      :
       <Button
         color="primary"
         variant="contained"
@@ -30,6 +39,7 @@ export default function DropdownButton({ children, options }) {
       >
         {children} <ArrowDropDownIcon />
       </Button>
+      }
 
       <Popper
         open={open}

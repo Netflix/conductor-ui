@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import DockLayout from "rc-dock";
-import ReactJson from "../../components/ReactJson";
-import "rc-dock/dist/rc-dock.css";
+import ReactJson from "../../components/rc-dock.css";
 
 export default function RCDockTest() {
   const contentJson = Array.from(Array(100).keys()).map((v) => ({ key: v }));

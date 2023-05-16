@@ -11,7 +11,6 @@ import {
   Toolbar,
   LinearProgress,
   CircularProgress,
-  Tooltip,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
@@ -383,9 +382,32 @@ const Buttons = () => (
         </DropdownButton>
       </Grid>
       <Grid item>
-        <IconButton size="large">
-          <DeleteIcon />
+        <IconButton size="small">
+          <DeleteIcon fontSize="inherit"/>
         </IconButton>
+        <IconButton size="medium">
+          <DeleteIcon fontSize="inherit"/>
+        </IconButton>
+        <IconButton size="large">
+          <DeleteIcon fontSize="inherit"/>
+        </IconButton>
+        <DropdownButton
+          icon={<DeleteIcon />}
+          options={[
+            {
+              label: "Create a merge commit",
+              handler: () => alert("you clicked 1"),
+            },
+            {
+              label: "Squash and merge",
+              handler: () => alert("you clicked 2"),
+            },
+            {
+              label: "Rebase and merge",
+              handler: () => alert("you clicked 3"),
+            },
+          ]}
+        />
       </Grid>
       <Grid item xs={12}>
         <ButtonGroup

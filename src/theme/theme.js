@@ -93,16 +93,6 @@ const baseTheme = createTheme(baseThemeOptions);
 
 const additionalOptions = {
   components: {
-    MuiSvgIcon: {
-      styleOverrides: {
-        root: {
-          fontSize: fontSizes.fontSize6,
-        },
-        fontSizeSmall: {
-          fontSize: fontSizes.fontSize1,
-        },
-      },
-    },
     MuiAvatar: {
       styleOverrides: {
         root: {

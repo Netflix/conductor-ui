@@ -41,41 +41,124 @@ export const TileFactoryContext = React.createContext<
   ITileFactoryContext | undefined
 >(undefined);
 
-export default function TileFactory({ component }: { component: string }) {
-  const context = useContext(TileFactoryContext);
-  const { selectedTask, setSelectedTask, dag, executionAndTasks } = context!;
 
-  const taskSelection: TaskSelection | undefined = useMemo(() => {
-    if (!dag || !selectedTask || !executionAndTasks) {
-      return undefined;
-    }
-    const taskResult = dag.getTaskResultByCoord(selectedTask);
-    const taskConfig = dag.getTaskConfigByCoord(selectedTask);
-
-    return {
-      id: taskResult?.taskId,
-      ref: taskResult?.referenceTaskName,
-      workflowId: executionAndTasks.execution!.workflowId,
-      taskConfig: taskConfig,
-    };
-  }, [dag, selectedTask, executionAndTasks]);
-
-  const { execution, tasks } = executionAndTasks;
-
-  if (!dag || !execution || !tasks) {
-    return null;
-  }
-
+export default function tabLoader(component){
   switch (component) {
     case "WorkflowGraph":
-      return (
-        <WorkflowGraph
+      return {
+        id: "WorkflowGraph",
+        title: "Graph",
+        content: <WorkflowGraph
           selectedTask={selectedTask}
           executionMode={true}
           dag={dag}
           onTaskSelect={setSelectedTask}
         />
-      );
+      }
+    case "WorkflowSummary":
+
+      return {
+        id: "WorkflowSummary",
+        title: "Summary",
+        content: <TileFactory component="WorkflowSummary" />,
+        group: "workflow",
+      }
+    case "WorkflowJson":
+      return {
+        id: "WorkflowJson",
+        title: "JSON",
+        content: <TileFactory component="WorkflowJson" />,
+        group: "workflow",
+      }
+    case "TaskList":
+      return  {
+        id: "TaskList",
+        title: "Tasks",
+        content: <TileFactory component="TaskList" />,
+        group: "workflow",
+      }
+    case "Timeline":
+      return   {
+        id: "Timeline",
+        title: "Timeline",
+        content: <TileFactory component="Timeline" />,
+        group: "workflow",
+      }
+    case WorkflowInput: 
+      return {
+        id: "WorkflowInput",
+        title: "Input",
+        content: <TileFactory component="WorkflowInput" />,
+        group: "workflow",
+      }
+    
+    case WorkflowOutput:
+      return {
+        id: "WorkflowOutput",
+        title: "Output",
+        content: <TileFactory component="WorkflowOutput" />,
+        group: "workflow",
+      }
+    case WorkflowVariables:
+      return {
+        id: "WorkflowVariables",
+        title: "Variables",
+        content: <TileFactory component="WorkflowVariables" />,
+        group: "workflow",
+      }
+    case TaskSummary:
+      return {
+        title: "Summary",
+        id: "TaskSummary",
+        content: <TileFactory component="TaskSummary" />,
+        group: "task",
+      }
+    case TaskInput:
+      return {
+        title: "Input",
+        id: "TaskInput",
+        content: <TileFactory component="TaskInput" />,
+        group: "task",
+
+      }
+    case TaskOutput: 
+      return {
+        title: "Output",
+        id: "TaskOutput",
+        content: <TileFactory component="TaskOutput" />,
+        group: "task",
+      }
+    case TaskPollData:
+      return {
+        title: "Poll Data",
+        id: "TaskPollData",
+        content: <TileFactory component="TaskPollData" />,
+        group: "task",
+      }
+    case TaskLogs:
+      return  {
+        title: "Logs",
+        id: "TaskLogs",
+        content: <TileFactory component="TaskLogs" />,
+        group: "task",
+      }
+   
+    case TaskConfig:
+      {
+        title: "Config",
+        id: "TaskConfig",
+        content: <TileFactory component="TaskConfig" />,
+        group: "task",
+      }
+    case TaskExecution:
+      {
+        title: "Results",
+        id: "TaskExecution",
+        content: <TileFactory component="TaskExecution" />,
+        group: "task",
+      },
+    }
+      /*
     case "WorkflowJson":
       return <WorkflowJson execution={execution} />;
 
@@ -114,5 +197,34 @@ export default function TileFactory({ component }: { component: string }) {
       return <TaskExecution taskSelection={taskSelection} />;
     default:
       return null;
+      */
   }
+}
+
+function ExecutionLoader({ Component }: { Component: any }) {
+  const context = useContext(TileFactoryContext);
+  const { selectedTask, setSelectedTask, dag, executionAndTasks } = context!;
+
+  const taskSelection: TaskSelection | undefined = useMemo(() => {
+    if (!dag || !selectedTask || !executionAndTasks) {
+      return undefined;
+    }
+    const taskResult = dag.getTaskResultByCoord(selectedTask);
+    const taskConfig = dag.getTaskConfigByCoord(selectedTask);
+
+    return {
+      id: taskResult?.taskId,
+      ref: taskResult?.referenceTaskName,
+      workflowId: executionAndTasks.execution!.workflowId,
+      taskConfig: taskConfig,
+    };
+  }, [dag, selectedTask, executionAndTasks]);
+
+  const { execution, tasks } = executionAndTasks;
+
+  if (!dag || !execution || !tasks) {
+    return null;
+  }
+  return <Component taskSelection={taskSelection} />
+
 }
