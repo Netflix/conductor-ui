@@ -1,8 +1,6 @@
 import WorkflowDAG from "../../components/diagram/WorkflowDAG";
 import { DoWhileTaskConfig, SwitchTaskConfig } from "../../types/workflowDef";
-import { TaskResult } from "../../types/execution";
 import { WorkflowExecution } from "./mockWorkflow";
-import { v4 as uuidv4 } from "uuid";
 
 export function dagSwitchDefOnly() {
   const workflow = new WorkflowExecution("test_workflow", "COMPLETED");
@@ -59,10 +57,32 @@ export function dagSwitchDoWhileSuccess(caseTaken?: number) {
   loopTask.loopOver = [switchTask];
 
   // Update refs to reflect switch is inside do_while
-  workflow.tasks[1].referenceTaskName = "switch_task__0";
+  workflow.tasks[1].referenceTaskName = "switch_task";
   workflow.tasks[2].referenceTaskName = "default_0__0";
   workflow.tasks[3].referenceTaskName = "default_1__0";
+
   console.log(workflow.toJSON());
+
+  return WorkflowDAG.fromExecutionAndTasks(workflow.toJSON());
+}
+
+export function dagSwitchDefaultCaseNoTaskTaken() {
+  const workflow = new WorkflowExecution("test_workflow", "COMPLETED");
+  workflow.pushSwitch("switch_task", 1, 1, undefined);
+
+  // Remove the default task
+  (workflow.workflowDefinition.tasks[0] as SwitchTaskConfig).defaultCase = [];
+  workflow.tasks.pop();
+
+  return WorkflowDAG.fromExecutionAndTasks(workflow.toJSON());
+}
+
+export function dagSwitchDefaultCaseNoTaskNotTaken() {
+  const workflow = new WorkflowExecution("test_workflow", "COMPLETED");
+  workflow.pushSwitch("switch_task", 1, 1, 0);
+
+  // Remove the default task
+  (workflow.workflowDefinition.tasks[0] as SwitchTaskConfig).defaultCase = [];
 
   return WorkflowDAG.fromExecutionAndTasks(workflow.toJSON());
 }

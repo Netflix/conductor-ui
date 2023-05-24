@@ -2,6 +2,7 @@ import WorkflowDAG from "../../components/diagram/WorkflowDAG";
 import { TaskResult } from "../../types/execution";
 import { WorkflowExecution } from "./mockWorkflow";
 import { v4 as uuidv4 } from "uuid";
+import _ from "lodash";
 
 export function dagDoWhileDefOnly() {
   const workflow = new WorkflowExecution("test_workflow", "COMPLETED");
@@ -32,19 +33,16 @@ export function dagDoWhileFailure(iterations = 5) {
   const workflow = new WorkflowExecution("test_workflow", "FAILED");
   workflow.pushDoWhile("loop_task", 2, iterations);
 
-  const refsToFail = [
-    "loop_task",
-    "loop_task-END",
-    `loop_task_child1__${iterations - 1}`,
-  ];
-  for (const refToFail of refsToFail) {
-    const taskToFail = workflow.tasks.find(
-      (task) => task.referenceTaskName === refToFail
-    );
-    if (taskToFail) {
-      taskToFail.status = "FAILED";
-    }
-  }
+  // Fail loop
+  workflow.tasks.find(
+    (task) => task.referenceTaskName === "loop_task"
+  )!.status = "FAILED";
+
+  // Fail last loop task
+  const child1 = workflow.tasks.filter(
+    (task) => task.referenceTaskName === "loop_task_child1"
+  );
+  _.last(child1)!.status = "FAILED";
 
   return WorkflowDAG.fromExecutionAndTasks(workflow.toJSON());
 }
@@ -55,15 +53,20 @@ export function dagDoWhileRetries(iterations = 5) {
 
   // Duplicate last task
   const taskToRetry = workflow.tasks.find(
-    (task) => task.referenceTaskName === `loop_task_child1__${iterations - 1}`
+    (task) =>
+      task.referenceTaskName === `loop_task_child1` &&
+      task.iteration === iterations - 1
   ) as TaskResult;
 
   workflow.tasks.push({
     ...taskToRetry,
     taskId: uuidv4(),
+    retried: true,
+    retryCount: 1,
   });
 
   taskToRetry.status = "FAILED";
+  taskToRetry.retried = true;
 
   return WorkflowDAG.fromExecutionAndTasks(workflow.toJSON());
 }

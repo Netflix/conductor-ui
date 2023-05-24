@@ -383,13 +383,13 @@ const Buttons = () => (
       </Grid>
       <Grid item>
         <IconButton size="small">
-          <DeleteIcon fontSize="inherit"/>
+          <DeleteIcon fontSize="inherit" />
         </IconButton>
         <IconButton size="medium">
-          <DeleteIcon fontSize="inherit"/>
+          <DeleteIcon fontSize="inherit" />
         </IconButton>
         <IconButton size="large">
-          <DeleteIcon fontSize="inherit"/>
+          <DeleteIcon fontSize="inherit" />
         </IconButton>
         <DropdownButton
           icon={<DeleteIcon />}

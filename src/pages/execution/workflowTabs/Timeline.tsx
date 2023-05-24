@@ -5,9 +5,20 @@ import _ from "lodash";
 import "./timeline.scss";
 import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
 import { IconButton, Tooltip } from "@mui/material";
+import WorkflowDAG from "../../../components/diagram/WorkflowDAG";
+import { TaskResult } from "../../../types/execution";
+import { TaskCoordinate } from "../../../types/workflowDef";
 
-export default function TimelineComponent({ dag, tasks, onClick }) {
-  const timelineRef = React.useRef();
+export default function TimelineComponent({
+  dag,
+  tasks,
+  onClick,
+}: {
+  dag: WorkflowDAG;
+  tasks: TaskResult[];
+  onClick: (task: TaskCoordinate | null) => void;
+}) {
+  const timelineRef = React.useRef<any>(null);
   /*
   const selectedId = useMemo(() => {
     if(selectedTask){
@@ -16,7 +27,7 @@ export default function TimelineComponent({ dag, tasks, onClick }) {
     }
   }, [dag, selectedTask]);
   */
-  const selectedId = null;
+  const selectedId = undefined;
 
   const { items, groups } = useMemo(() => {
     const groupMap = new Map();
@@ -30,10 +41,6 @@ export default function TimelineComponent({ dag, tasks, onClick }) {
     const items = tasks
       .filter((t) => t.startTime > 0 || t.endTime > 0)
       .map((task) => {
-        const dfParent = dag.graph
-          .predecessors(task.referenceTaskName)
-          .map((t) => dag.graph.node(t))
-          .find((t) => t.type === "FORK_JOIN_DYNAMIC");
         const startTime =
           task.startTime > 0
             ? new Date(task.startTime)
@@ -57,7 +64,8 @@ export default function TimelineComponent({ dag, tasks, onClick }) {
           className: `status_${task.status}`,
         };
 
-        if (dfParent || task.type === "FORK_JOIN_DYNAMIC") {
+        /* TODO: disable grouping
+        if (task.taskType === "FORK_JOIN_DYNAMIC") {
           //retval.subgroup=task.referenceTaskName
           const gp = groupMap.get(dfParent.ref);
           if (!gp.nestedGroups) {
@@ -66,7 +74,7 @@ export default function TimelineComponent({ dag, tasks, onClick }) {
           groupMap.get(task.referenceTaskName).treeLevel = 2;
           gp.nestedGroups.push(task.referenceTaskName);
         }
-
+        */
         return retval;
       });
 
@@ -77,25 +85,22 @@ export default function TimelineComponent({ dag, tasks, onClick }) {
   }, [tasks, dag]);
 
   const onFit = () => {
-    timelineRef.current.timeline.fit();
+    timelineRef.current?.timeline?.fit();
   };
 
-  const handleClick = (e) => {
+  const handleClick = (e: any) => {
     const { group, item, what } = e;
     if (group && what !== "background") {
-      if (_.size(dag.graph.node(group).taskResults) > 1) {
-        onClick({
-          ref: group,
-          taskId: item,
-        });
-      } else {
-        onClick({ ref: group });
-      }
+      onClick({
+        id: item,
+      });
+    } else {
+      onClick(null);
     }
   };
 
   return (
-    <div>
+    <div style={{ overflow: "auto", height: "100%" }}>
       <div style={{ marginLeft: 15 }}>
         Ctrl-scroll to zoom.{" "}
         <Tooltip title="Zoom to Fit">

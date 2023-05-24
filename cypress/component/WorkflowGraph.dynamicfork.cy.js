@@ -63,7 +63,11 @@ describe("Dynamic Fork", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={false} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={false}
+          onTaskSelect={onClickSpy}
+        />
       );
 
       cy.get("#dynamic_fork > .label-container").click();
@@ -76,7 +80,11 @@ describe("Dynamic Fork", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={false} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={false}
+          onTaskSelect={onClickSpy}
+        />
       );
 
       cy.get("#dynamic_fork_join > .label-container").click();
@@ -174,7 +182,11 @@ describe("Dynamic Fork", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={true}
+          onTaskSelect={onClickSpy}
+        />
       );
 
       cy.get(
@@ -244,7 +256,11 @@ describe("Dynamic Fork", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={true}
+          onTaskSelect={onClickSpy}
+        />
       );
 
       cy.get(
@@ -259,7 +275,11 @@ describe("Dynamic Fork", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={true}
+          onTaskSelect={onClickSpy}
+        />
       );
 
       cy.get("#dynamic_fork > .label-container").click();
@@ -272,7 +292,11 @@ describe("Dynamic Fork", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={true}
+          onTaskSelect={onClickSpy}
+        />
       );
 
       cy.get("#dynamic_fork_join > .label-container").click();
@@ -428,7 +452,11 @@ describe("Dynamic Fork", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={true}
+          onTaskSelect={onClickSpy}
+        />
       );
 
       cy.get("#dynamic_fork_child_0 > .label-container").click();
@@ -514,7 +542,11 @@ describe("Dynamic Fork", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={true}
+          onTaskSelect={onClickSpy}
+        />
       );
 
       cy.get("#dynamic_fork_child_1 > .label-container").click();

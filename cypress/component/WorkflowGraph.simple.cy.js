@@ -47,7 +47,11 @@ describe("Simple Task", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={true}
+          onTaskSelect={onClickSpy}
+        />
       );
 
       cy.get("#simple_task > .label-container").click();
@@ -56,16 +60,19 @@ describe("Simple Task", () => {
       });
     });
 
-    it("ignores clicks as appropriate", () => {
+    it("Captures background click", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={true}
+          onTaskSelect={onClickSpy}
+        />
       );
 
-      cy.get("#__start > .label-container").click();
       cy.get(".graphSvg").click();
-      cy.get("@onClickSpy").should("not.have.been.called");
+      cy.get("@onClickSpy").should("have.been.calledWith", null);
     });
 
     it("displays selection", () => {
@@ -117,25 +124,17 @@ describe("Simple Task", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={true}
+          onTaskSelect={onClickSpy}
+        />
       );
 
       cy.get("#simple_task > .label-container").click();
       cy.get("@onClickSpy").should("have.been.calledWith", {
         ref: "simple_task",
       });
-    });
-
-    it("ignores clicks as appropriate", () => {
-      const onClickSpy = cy.spy().as("onClickSpy");
-
-      cy.mount(
-        <WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />
-      );
-
-      cy.get("#__start > .label-container").click();
-      cy.get(".graphSvg").click();
-      cy.get("@onClickSpy").should("not.have.been.called");
     });
   });
 
@@ -167,7 +166,11 @@ describe("Simple Task", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={false} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={false}
+          onTaskSelect={onClickSpy}
+        />
       );
 
       cy.get("#simple_task > .label-container").click();

@@ -1,7 +1,6 @@
 import "mocha";
 
-import WorkflowDAG from "./WorkflowDAG";
-import { NodeData } from "../../types/workflowDef";
+import { NodeData } from "./WorkflowDAG";
 import { TaskResult } from "../../types/execution";
 import assert from "assert";
 import {
@@ -33,22 +32,14 @@ import {
 } from "../../utils/test/dagDoWhile";
 import {
   dagSwitchDefOnly,
+  dagSwitchDefaultCaseNoTaskNotTaken,
+  dagSwitchDefaultCaseNoTaskTaken,
   dagSwitchDoWhileDefOnly,
   dagSwitchSuccess,
 } from "../../utils/test/dagSwitch";
-import { WorkflowExecution } from "../../utils/test/mockWorkflow";
 
 const FANOUT_HIGH = 5,
   FANOUT_LOW = 2;
-
-describe("Initialization", () => {
-  describe("Reinitalizing is idempotent", () => {
-    const workflow1 = new WorkflowExecution("test_workflow1", "COMPLETED");
-    const workflow2 = new WorkflowExecution("test_workflow2", "COMPLETED");
-
-    const dag = WorkflowDAG.fromExecutionAndTasks(workflow1.toJSON());
-  });
-});
 
 describe("Simple Task", () => {
   describe("Success", () => {
@@ -790,10 +781,8 @@ describe("Do-While", () => {
 
     it("Placeholder Node has containsTaskRefs ", () => {
       assert.deepEqual(placeholder_node.containsTaskRefs, [
-        "loop_task_child0__0",
-        "loop_task_child1__0",
-        "loop_task_child0__1",
-        "loop_task_child1__1",
+        "loop_task_child0",
+        "loop_task_child1",
       ]);
     });
 
@@ -803,6 +792,7 @@ describe("Do-While", () => {
         success: 4,
         inProgress: 0,
         canceled: 0,
+        failed: 0,
       });
     });
 
@@ -844,6 +834,7 @@ describe("Do-While", () => {
         success: 3,
         inProgress: 0,
         canceled: 0,
+        failed: 1,
       });
     });
 
@@ -864,24 +855,26 @@ describe("Do-While", () => {
 
     it("Placeholder Node has correct tally. Retry does not contribute to tally.", () => {
       assert.deepEqual(placeholder_node.tally, {
-        total: 4,
+        total: 5,
         success: 4,
         inProgress: 0,
         canceled: 0,
+        failed: 1,
       });
     });
 
     it("Retry history can be retrieved", () => {
-      const retried = dag.getTaskResultsByRef(`loop_task_child1__1`);
-      assert.equal(retried?.length, 2);
-      assert.equal(retried?.[0].status, "FAILED");
-      assert.equal(retried?.[1].status, "COMPLETED");
+      const retried = dag.getTaskResultsByRef(`loop_task_child1`);
+      assert.equal(retried?.length, 3);
+      assert.equal(retried?.[0].status, "COMPLETED");
+      assert.equal(retried?.[1].status, "FAILED");
+      assert.equal(retried?.[2].status, "COMPLETED");
     });
   });
 });
 
 describe("Switch", () => {
-  describe("Success - Default", () => {
+  describe("Success - Default Case", () => {
     const dag = dagSwitchSuccess();
 
     it("SWITCH follows __start", () => {
@@ -912,29 +905,23 @@ describe("Switch", () => {
 
     it("Edges labeled with cases", () => {
       assert.equal(
-        dag.graph.edge("switch_task", "default_0")?.caseValue,
+        dag.graph.edge("switch_task", "default_0").caseValue,
         "default"
       );
       assert.equal(
-        dag.graph.edge("switch_task", "case0_0")?.caseValue,
+        dag.graph.edge("switch_task", "case0_0").caseValue,
         "case_0"
       );
       assert.equal(
-        dag.graph.edge("switch_task", "case1_0")?.caseValue,
+        dag.graph.edge("switch_task", "case1_0").caseValue,
         "case_1"
       );
     });
 
     it("Only default edge is marked executed", () => {
-      assert.equal(dag.graph.edge("switch_task", "default_0")?.executed, true);
-      assert.equal(
-        dag.graph.edge("switch_task", "case0_0")?.executed,
-        undefined
-      );
-      assert.equal(
-        dag.graph.edge("switch_task", "caes1_0")?.executed,
-        undefined
-      );
+      assert.equal(dag.graph.edge("switch_task", "default_0").executed, true);
+      assert.equal(dag.graph.edge("switch_task", "case0_0").executed, false);
+      assert.equal(dag.graph.edge("switch_task", "case1_0").executed, false);
     });
 
     it("Only default tasks marked COMPLETED", () => {
@@ -954,15 +941,54 @@ describe("Switch", () => {
     const dag = dagSwitchSuccess(0);
 
     it("Only case 0 edge is marked executed", () => {
+      assert.equal(dag.graph.edge("switch_task", "default_0").executed, false);
+      assert.equal(dag.graph.edge("switch_task", "case0_0").executed, true);
+      assert.equal(dag.graph.edge("switch_task", "case1_0").executed, false);
+    });
+  });
+
+  describe("SWITCH - Empty default case taken", () => {
+    const dag = dagSwitchDefaultCaseNoTaskTaken();
+
+    it("Should have edge from SWITCH to case0_0 and __final", () => {
+      const final_predecessors = dag.graph.successors("switch_task");
+      assert.deepEqual(final_predecessors, ["case0_0", "__final"]);
+    });
+
+    it("Default edge is labeled", () => {
       assert.equal(
-        dag.graph.edge("switch_task", "default_0")?.executed,
-        undefined
+        dag.graph.edge("switch_task", "__final").caseValue,
+        "default"
       );
-      assert.equal(dag.graph.edge("switch_task", "case0_0")?.executed, true);
+    });
+
+    it("Case 0 edge is labeled", () => {
       assert.equal(
-        dag.graph.edge("switch_task", "caes1_0")?.executed,
-        undefined
+        dag.graph.edge("switch_task", "case0_0").caseValue,
+        "case_0"
       );
+    });
+
+    it("Should mark default edge as executed", () => {
+      assert.equal(dag.graph.edge("switch_task", "__final").executed, true);
+    });
+
+    it("Should mark case edge as unexecuted", () => {
+      assert.equal(dag.graph.edge("switch_task", "case0_0").executed, false);
+    });
+  });
+
+  describe("SWITCH - Empty default case not taken", () => {
+    const dag = dagSwitchDefaultCaseNoTaskNotTaken();
+
+    it("Should mark default edge as unexecuted", () => {
+      assert.equal(dag.graph.edge("switch_task", "__final").executed, false);
+    });
+    it("Should mark case edge as executed", () => {
+      assert.equal(dag.graph.edge("switch_task", "case0_0").executed, true);
+    });
+    it("Should mark case 0 to final edge as executed", () => {
+      assert.equal(dag.graph.edge("case0_0", "__final").executed, true);
     });
   });
 

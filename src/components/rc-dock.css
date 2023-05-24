@@ -263,7 +263,7 @@ body > .dragging-layer > div:last-child {
 }
 .dock-extra-content {
   display: flex;
-  align-items: center; 
+  align-items: center;
   margin-right: 5px;
 }
 .dock-dropdown {
@@ -698,7 +698,7 @@ body.dock-dragging iframe {
   border-radius: 1px;
   width: 14px;
   height: 12px;
-  background-color:#fafafd;
+  background-color: #fafafd;
   border: 2px solid #ddd;
   border-top: 4px solid #ddd;
   content: "";
@@ -791,5 +791,11 @@ body.dock-dragging iframe {
 }
 .dock-panel.dock-style-card .dock-extra-content {
   height: 35px;
-
+}
+.dock-style-siblingSelectorPanel {
+  min-height: 90px !important;
+  max-height: 90px !important;
+}
+.dock-style-siblingSelectorPanel .dock-bar {
+  display: none;
 }

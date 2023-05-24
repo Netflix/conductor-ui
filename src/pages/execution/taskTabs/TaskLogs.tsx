@@ -1,9 +1,9 @@
 import React from "react";
 import { useLogs } from "../../../data/misc";
-import { DataTable, Text, LinearProgress } from "../../../components";
-import { TaskSelection } from "../TileFactory";
+import { DataTable, Text } from "../../../components";
+import { TaskSelection } from "../tabLoader";
 import JsonSkeleton from "../../../components/JsonSkeleton";
-import NoTaskSelected from "../../../components/NoTaskSelected";
+import Blank from "../../../components/NoTaskSelected";
 
 export default function TaskLogs({
   taskSelection,
@@ -11,11 +11,10 @@ export default function TaskLogs({
   taskSelection?: TaskSelection;
 }) {
   const { data: log, isFetching }: { data: any; isFetching: boolean } = useLogs(
-    { taskId: taskSelection?.id }
+    { taskId: taskSelection?.taskResult?.taskId }
   );
-  if (!taskSelection) {
-    return <NoTaskSelected />;
-  }
+  if (!taskSelection) return <Blank />;
+  if (!taskSelection.taskResult) return <Blank text="Task not executed" />;
 
   if (isFetching) {
     return <JsonSkeleton />;

@@ -5,15 +5,13 @@ import {
   SimpleTaskConfig,
   JoinTaskConfig,
   TaskConfigType,
-  TaskConfig,
   DoWhileTaskConfig,
   SwitchTaskConfig,
   GenericTaskConfig,
 } from "../../types/workflowDef";
 import {
-  BaseTaskResult,
   TaskResult,
-  DynamicForkTaskResult,
+  ForkTaskResult,
   Execution,
   ExecutionStatus,
   ExecutionAndTasks,
@@ -63,14 +61,14 @@ export class WorkflowExecution implements Execution {
         taskDefName: ref,
         status: status,
         workflowInstanceId: this.workflowId,
-      } as BaseTaskResult);
+      });
     }
 
     this.workflowDefinition.tasks.push({
       taskReferenceName: ref,
       name: ref + "_name",
       type: "SIMPLE",
-    } as SimpleTaskConfig);
+    });
   }
 
   pushTask(
@@ -94,7 +92,7 @@ export class WorkflowExecution implements Execution {
       name: ref + "_name",
       type: type,
       ...additionalFields,
-    } as TaskConfig);
+    });
   }
 
   pushDynamicFork(
@@ -103,7 +101,7 @@ export class WorkflowExecution implements Execution {
     idxToFail?: number,
     status: TaskStatus = "COMPLETED"
   ) {
-    const dfResult: DynamicForkTaskResult = {
+    const dfResult: ForkTaskResult = {
       taskId: uuidv4(),
       taskType: "FORK",
       referenceTaskName: ref,
@@ -137,6 +135,7 @@ export class WorkflowExecution implements Execution {
         status: i === idxToFail ? "FAILED" : status,
         parentTaskReferenceName: ref,
         workflowInstanceId: this.workflowId,
+        retryCount: 0,
       });
     }
 
@@ -157,11 +156,12 @@ export class WorkflowExecution implements Execution {
       referenceTaskName: ref,
       taskDefName: ref + "_name",
       status: "COMPLETED",
-    } as BaseTaskResult);
+      workflowInstanceId: this.workflowId,
+    });
 
     for (let i = 0; i < count; i++) {
       for (let j = 0; j < chainLength; j++) {
-        const childRef = `${ref}_child${j}__${i}`;
+        const childRef = `${ref}_child${j}`;
         this.tasks.push({
           taskId: uuidv4(),
           taskType: "SIMPLE",
@@ -170,12 +170,14 @@ export class WorkflowExecution implements Execution {
           status: "COMPLETED",
           iteration: i,
           workflowInstanceId: this.workflowId,
+          retryCount: 0,
+          retried: false,
         });
       }
     }
 
     // Build loopOver
-    const loopOver = [];
+    const loopOver: SimpleTaskConfig[] = [];
     for (let j = 0; j < chainLength; j++) {
       loopOver.push({
         taskReferenceName: `${ref}_child${j}`,
@@ -187,7 +189,7 @@ export class WorkflowExecution implements Execution {
     const doWhileTaskConfig: DoWhileTaskConfig = {
       taskReferenceName: ref,
       name: ref + "_name",
-      loopOver: loopOver as SimpleTaskConfig[],
+      loopOver: loopOver,
       loopCondition: "false",
       type: "DO_WHILE",
     };
@@ -255,6 +257,7 @@ export class WorkflowExecution implements Execution {
           taskDefName: `case${caseTaken}_${j}_name`,
           status: "COMPLETED",
           workflowInstanceId: this.workflowId,
+          parentTaskReferenceName: j === 0 ? ref : undefined,
         });
       }
     } else {
@@ -266,6 +269,7 @@ export class WorkflowExecution implements Execution {
           taskDefName: `default_${j}_name`,
           status: "COMPLETED",
           workflowInstanceId: this.workflowId,
+          parentTaskReferenceName: j === 0 ? ref : undefined,
         });
       }
     }

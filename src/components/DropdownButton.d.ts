@@ -3,7 +3,7 @@ import { FC } from "react";
 type DropdownOptions = {
   label: string;
   handler: (event: MouseEvent, index: number) => void;
-}
+};
 
 interface DropdownProps {
   icon?: JSX.Element;

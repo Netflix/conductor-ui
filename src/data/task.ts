@@ -74,7 +74,10 @@ export function usePollData(taskName?: string) {
   });
 }
 
-export function useQueueSize(taskName: string | undefined, domain: string) {
+export function useQueueSize(
+  taskName: string | undefined,
+  domain: string | undefined
+) {
   const { fetchWithContext, ready, stack } = useAppContext();
 
   const path = new Path("/tasks/queue/size");

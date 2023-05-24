@@ -26,7 +26,6 @@ import { TaskResult } from "../../types/execution";
 
 const BAR_MARGIN = 50;
 const BOTTOM_MARGIN = 30;
-const GRAPH_MIN_HEIGHT = 600;
 
 interface WorkflowGraphProps
   extends Omit<
@@ -41,7 +40,7 @@ interface WorkflowGraphProps
     type: ExtendedTaskConfigType,
     e: PointerEvent
   ) => void;
-  selectedTask?: TaskCoordinate;
+  selectedTask: TaskCoordinate | null;
 }
 type Tally = {
   success: number;
@@ -92,6 +91,9 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
   zoom?: d3.ZoomBehavior<Element, any>;
   graph: dagre.graphlib.Graph<GraphNodeProperties>;
   barNodes: string[];
+  k = 1;
+  tx = 0;
+  ty = 0;
 
   constructor(props: WorkflowGraphProps) {
     super(props);
@@ -130,17 +132,33 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
     this.zoom = d3
       .zoom()
       .filter((event: any) => {
-        if (event.type === "wheel") {
-          return event.ctrlKey;
-        } else if (event.type === "dblclick") {
-          return false; // ignore dblclick
-        } else {
-          return !event.ctrlKey && !event.button;
-        }
+        return event.type !== "dblclick";
       })
       .on("zoom", (event: any) => {
+        var t = event.transform;
+
+        // If control is not pressed and a wheel was turned, set the scale to last known scale, and modify transform.x by some amount:
+        if (
+          !event.sourceEvent?.ctrlKey &&
+          event.sourceEvent?.type === "wheel"
+        ) {
+          t.y = this.ty -= event.sourceEvent.deltaY / this.k;
+          t.x = this.tx -= event.sourceEvent.deltaX / this.k;
+          t.k = this.k;
+        }
+        // otherwise, proceed as normal, but track current k and tx:
+        else {
+          this.k = t.k;
+          this.tx = t.x;
+          this.ty = t.y;
+        }
+
+        // Apply the transform:
         if (this.inner) {
-          this.inner.attr("transform", event.transform);
+          this.inner.attr(
+            "transform",
+            "translate(" + [t.x, t.y] + ")scale(" + [t.k, t.k] + ")"
+          );
         }
       });
 
@@ -155,18 +173,13 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
 
   highlightSelectedNode = () => {
     const { selectedTask } = this.props;
-    let selectedRef: string | undefined;
 
-    const taskResult =
-      selectedTask && this.props.dag.getTaskResultByCoord(selectedTask);
-
-    if (taskResult) {
-      selectedRef = taskResult?.referenceTaskName;
-    }
+    const selectedRef = this.props.dag.getNodeRefByCoord(selectedTask);
+    // Collapsed nodes
 
     const { inner } = this;
     if (inner) {
-      inner.selectAll("g.node").classed("selected", false);
+      inner.selectAll("g.node").classed("selected", false); // clear all selected
 
       if (selectedRef) {
         inner.select(`g[id='${selectedRef}']`).classed("selected", true);
@@ -182,11 +195,13 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
     const newZoom =
       dir === "in" ? currTransform.k * 1.25 : currTransform.k / 1.25;
     this.zoom?.transform(svg, d3.zoomIdentity.scale(newZoom));
+    /*
     const postZoomedHeight = inner.node().getBoundingClientRect().height;
     svg.attr(
       "height",
       Math.max(postZoomedHeight + BOTTOM_MARGIN, GRAPH_MIN_HEIGHT)
     );
+    */
   };
 
   zoomHome = () => {
@@ -200,11 +215,13 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
       d3.zoomIdentity.translate(containerWidth / 2 - graphWidth / 2, 0)
     );
 
+    /*
     const postZoomedHeight = inner.node().getBoundingClientRect().height;
     svg.attr(
       "height",
-      Math.max(postZoomedHeight + BOTTOM_MARGIN, GRAPH_MIN_HEIGHT)
+      Math.max(postZoomedHeight + BOTTOM_MARGIN, GRAPH_MIN_HEIGHT)    
     );
+    */
   };
 
   zoomToFit = () => {
@@ -219,11 +236,13 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
     this.zoom?.transform(svg, d3.zoomIdentity.scale(scale));
 
     // Adjust svg height to fit post-zoomed
+    /*
     const postZoomedHeight = inner.nodes()[0].getBoundingClientRect().height;
     svg.attr(
       "height",
       Math.max(postZoomedHeight + BOTTOM_MARGIN, GRAPH_MIN_HEIGHT)
     );
+    */
   };
 
   drawGraph = () => {
@@ -516,7 +535,6 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
         retval.height = 40;
         break;
       case "DF_CHILDREN_PLACEHOLDER":
-      case "LOOP_CHILDREN_PLACEHOLDER":
         retval.shape = "stack";
         if (!dagNode.status) {
           retval.label = "Dynamically spawned tasks";
@@ -535,6 +553,28 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
             retval.placeholderRef = containsTaskRefs?.[0];
           }
         }
+        retval.shape = "stack";
+        break;
+      case "LOOP_CHILDREN_PLACEHOLDER":
+        retval.shape = "stack";
+
+        const { tally, containsTaskRefs } = dagNode;
+        if (!tally || tally.total === 0) {
+          retval.label = "No tasks in loop";
+        } else {
+          retval.label = `${tally.total} tasks in loop`;
+          if (tally?.failed) {
+            retval.label += `\n${tally.failed} failed`;
+          }
+          if (tally?.inProgress) {
+            retval.label += `\n${tally.inProgress} pending`;
+          }
+          if (tally?.canceled) {
+            retval.label += `\n${tally.canceled} canceled`;
+          }
+          retval.placeholderRef = containsTaskRefs?.[0];
+        }
+
         retval.shape = "stack";
         break;
       case "DO_WHILE":

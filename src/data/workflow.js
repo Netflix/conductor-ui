@@ -66,7 +66,7 @@ export function useWorkflowDef(
 ) {
   let path;
   const key = ["workflowDef", workflowName];
-  const { stack } = useAppContext(); // temp
+
   if (workflowName) {
     path = `/metadata/workflow/${workflowName}`;
     if (version) {
@@ -75,7 +75,6 @@ export function useWorkflowDef(
     }
   }
   return useFetch(key, path, reactQueryOptions, defaultWorkflow);
-  //return useQuery([stack, ...key], () => Promise.resolve(require('./workflowdef.json')));
 }
 
 export function useWorkflowDefs() {

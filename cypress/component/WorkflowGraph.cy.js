@@ -12,17 +12,20 @@ describe("Dag is undefined", () => {
 });
 
 describe("forklifter", () => {
-  it("Renders a canvas with a forklifter dag", () => {
-    const dag = WorkflowDAG.fromExecutionAndTasks({
-      execution: forklifterWf,
-      tasks: forklifterTasks,
-    });
+  const dag = WorkflowDAG.fromExecutionAndTasks({
+    execution: forklifterWf,
+    tasks: forklifterTasks,
+  });
 
+  it("Shows one spawned task individually.", () => {
     cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
-    cy.get("#dynamic_tasks_DF_TASK_PLACEHOLDER")
-      .should("contain", "3 of 3 tasks succeeded")
-      .click();
 
-    cy.get("@onClickSpy").should("be.calledWith", { ref: "first_task" });
+    it("Child displayed explicitly", () => {
+      cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
+      cy.get("#forklift_and_ks_publish_workflow_0").should(
+        "have.class",
+        "status_COMPLETED"
+      );
+    });
   });
 });

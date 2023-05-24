@@ -1,10 +1,8 @@
 import { NestedMenuItem } from "mui-nested-menu";
 import WorkflowGraph from "../../../components/diagram/WorkflowGraph";
-import WorkflowDAG from "../../../components/diagram/WorkflowDAG";
 import {
   TASK_CONFIG_TYPES,
   ExtendedTaskConfigType,
-  GenericTaskConfig,
   TaskConfigType,
   TaskCoordinate,
   TaskConfig,
@@ -26,7 +24,7 @@ export default function WorkflowBuilder() {
     type: ExtendedTaskConfigType;
   } | null>(null);
 
-  const handleTaskSelect = (coord: TaskCoordinate) => {
+  const handleTaskSelect = (coord: TaskCoordinate | null) => {
     if (context?.setSelectedTask) {
       context.setSelectedTask(coord);
     }

@@ -41,7 +41,7 @@ describe("Do While", () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
       cy.get("#loop_task_LOOP_CHILDREN_PLACEHOLDER").should(
         "contain.text",
-        "10 of 10 tasks succeeded"
+        "10 tasks in loop"
       );
     });
 
@@ -76,12 +76,16 @@ describe("Do While", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={true}
+          onTaskSelect={onClickSpy}
+        />
       );
 
       cy.get("#loop_task_LOOP_CHILDREN_PLACEHOLDER > .label-container").click();
       cy.get("@onClickSpy").should("have.been.calledWith", {
-        ref: "loop_task_child0__0",
+        ref: "loop_task_child0",
       });
     });
 
@@ -89,7 +93,11 @@ describe("Do While", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={true}
+          onTaskSelect={onClickSpy}
+        />
       );
 
       cy.get("#loop_task > .label-container").click();
@@ -102,7 +110,11 @@ describe("Do While", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={true}
+          onTaskSelect={onClickSpy}
+        />
       );
 
       cy.get("#loop_task-END > .label-container").click();
@@ -151,7 +163,11 @@ describe("Do While", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={true}
+          onTaskSelect={onClickSpy}
+        />
       );
 
       cy.get("#loop_task > .label-container").click();
@@ -164,7 +180,11 @@ describe("Do While", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={true}
+          onTaskSelect={onClickSpy}
+        />
       );
 
       cy.get("#loop_task-END > .label-container").click();
@@ -177,7 +197,11 @@ describe("Do While", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={true}
+          onTaskSelect={onClickSpy}
+        />
       );
 
       cy.get("#loop_task-END > .label-container").click();
@@ -250,7 +274,7 @@ describe("Do While", () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
       cy.get("#loop_task_LOOP_CHILDREN_PLACEHOLDER").should(
         "contain.text",
-        "9 of 10 tasks succeeded"
+        "1 failed"
       );
     });
 
@@ -258,12 +282,16 @@ describe("Do While", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={true}
+          onTaskSelect={onClickSpy}
+        />
       );
 
       cy.get("#loop_task_LOOP_CHILDREN_PLACEHOLDER > .label-container").click();
       cy.get("@onClickSpy").should("have.been.calledWith", {
-        ref: "loop_task_child0__0",
+        ref: "loop_task_child0",
       });
     });
 
@@ -299,7 +327,7 @@ describe("Do While", () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
       cy.get("#loop_task_LOOP_CHILDREN_PLACEHOLDER").should(
         "contain.text",
-        "10 of 10 tasks succeeded"
+        "11 tasks in loop1 failed"
       );
     });
   });

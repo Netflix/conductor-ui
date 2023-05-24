@@ -20,9 +20,9 @@ export type IDefEditorContext = {
   workflowName: string;
   workflowVersion: string;
   workflowDef: WorkflowDef;
-  selectedTask?: TaskCoordinate;
+  selectedTask: TaskCoordinate | null;
   setWorkflowDef: (workflowDef: WorkflowDef) => void;
-  setSelectedTask: (coord: TaskCoordinate) => void;
+  setSelectedTask: (coord: TaskCoordinate | null) => void;
   refetchWorkflow: () => void;
 };
 
@@ -38,9 +38,7 @@ export default function Workflow() {
   const [workflowDef, setWorkflowDef] = useState<WorkflowDef | undefined>(
     undefined
   );
-  const [selectedTask, setSelectedTask] = useState<TaskCoordinate | undefined>(
-    undefined
-  );
+  const [selectedTask, setSelectedTask] = useState<TaskCoordinate | null>(null);
 
   const {
     data: remoteWorkflowDef,

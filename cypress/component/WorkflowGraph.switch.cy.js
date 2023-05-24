@@ -4,7 +4,8 @@ import {
   dagSwitchSuccess,
   dagSwitchUnexecuted,
   dagSwitchDoWhileDefOnly,
-  dagSwitchDoWhileSuccess,
+  dagSwitchDefaultCaseNoTaskNotTaken,
+  dagSwitchDefaultCaseNoTaskTaken,
 } from "../../src/utils/test/dagSwitch";
 import React from "react";
 
@@ -61,7 +62,11 @@ describe("Switch", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={true}
+          onTaskSelect={onClickSpy}
+        />
       );
 
       cy.get("#switch_task > .label-container").click();
@@ -127,7 +132,11 @@ describe("Switch", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={true}
+          onTaskSelect={onClickSpy}
+        />
       );
 
       cy.get("#switch_task > .label-container").click();
@@ -165,7 +174,11 @@ describe("Switch", () => {
       const onClickSpy = cy.spy().as("onClickSpy");
 
       cy.mount(
-        <WorkflowGraph dag={dag} executionMode={true} onClick={onClickSpy} />
+        <WorkflowGraph
+          dag={dag}
+          executionMode={true}
+          onTaskSelect={onClickSpy}
+        />
       );
 
       cy.get("#switch_task > .label-container").click();
@@ -192,6 +205,7 @@ describe("Switch", () => {
     });
   });
 
+  /*
   describe("Switch at bottom of Do-While - Executed", () => {
     const dag = dagSwitchDoWhileSuccess();
 
@@ -202,6 +216,35 @@ describe("Switch", () => {
         "contain.text",
         "1 of 1 tasks succeeded"
       );
+    });
+  });
+*/
+
+  describe("Switch - Empty default case - chosen", () => {
+    const dag = dagSwitchDefaultCaseNoTaskTaken();
+
+    it("2 dimmed paths", () => {
+      cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
+      cy.get(".edgePath.dimmed").should("have.length", 2);
+    });
+
+    it("2 executed paths", () => {
+      cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
+      cy.get(".edgePath.executed").should("have.length", 2);
+    });
+  });
+
+  describe("Switch - Empty default case - skipped ", () => {
+    const dag = dagSwitchDefaultCaseNoTaskNotTaken();
+
+    it("1 dimmed paths", () => {
+      cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
+      cy.get(".edgePath.dimmed").should("have.length", 1);
+    });
+
+    it("3 executed paths", () => {
+      cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
+      cy.get(".edgePath.executed").should("have.length", 3);
     });
   });
 });

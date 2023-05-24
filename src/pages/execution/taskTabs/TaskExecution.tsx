@@ -1,22 +1,17 @@
 import { ReactJson } from "../../../components";
-import NoTaskSelected from "../../../components/NoTaskSelected";
-import { useWorkflowTask } from "../../../data/execution";
-import { TaskSelection } from "../TileFactory";
+import Blank from "../../../components/NoTaskSelected";
+import { TaskSelection } from "../tabLoader";
 
 export default function TaskExecution({
   taskSelection,
 }: {
   taskSelection?: TaskSelection;
 }) {
-  const { data: taskResult }: { data: any } = useWorkflowTask(
-    taskSelection?.workflowId,
-    taskSelection?.ref,
-    taskSelection?.id
-  );
-
-  if (!taskResult) {
-    return <NoTaskSelected />;
+  if (!taskSelection) {
+    return <Blank />;
   }
 
-  return <ReactJson src={taskResult} label="Task Execution Result" />;
+  return (
+    <ReactJson src={taskSelection.taskResult} label="Task Execution JSON" />
+  );
 }

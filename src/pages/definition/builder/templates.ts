@@ -101,6 +101,7 @@ export const templates: {
       taskReferenceName: ref,
       type: "SUB_WORKFLOW",
       name: ref,
+      subWorkflowParam: {},
     };
     return [retval];
   },

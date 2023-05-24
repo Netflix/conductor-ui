@@ -9,41 +9,72 @@ export type TaskStatus =
   | "CANCELED"
   | "SCHEDULED";
 
-export type BaseTaskResultType = TaskConfigType | "SIMPLE";
-
-export type ForkTaskResultType = "FORK" | "FORK_JOIN" | "FORK_JOIN_DYNAMIC"; //FORK is legacy.
-export type TaskResultType = BaseTaskResultType | ForkTaskResultType;
-
-export type BaseTaskResult = {
+type BaseTaskResultType = Omit<
+  TaskConfigType,
+  ForkTaskResultType | SwitchTaskResultType | DoWhileTaskResultType
+>;
+type BaseTaskResult = {
   taskId: string;
-  taskType: TaskResultType;
   referenceTaskName: string;
   taskDefName: string;
   status: TaskStatus;
   workflowInstanceId: string;
+  scheduledTime?: number;
 
   parentTaskReferenceName?: string;
   retryCount?: number;
   iteration?: number;
+  retried?: boolean;
+  domain?: string;
+  startTime: number;
+  endTime: number;
+  aliasForRef: string;
+  reasonForIncompletion: string;
+  workerId: string;
+  subWorkflowId: string;
 };
-export type TaskResult = BaseTaskResult | DynamicForkTaskResult;
+
+export type ForkTaskResultType = "FORK" | "FORK_JOIN" | "FORK_JOIN_DYNAMIC"; //FORK is legacy.
+export interface ForkTaskResult extends BaseTaskResult {
+  taskType: ForkTaskResultType;
+  forkedTaskRefs?: Set<string>; // Internal use only
+}
+
+export type SwitchTaskResultType = "SWITCH" | "DECISION"; //DECISION is legacy.
+export interface SwitchTaskResult extends BaseTaskResult {
+  taskType: SwitchTaskResultType;
+  executedCaseRef?: string; // Internal use only
+}
+
+export type DoWhileTaskResultType = "DO_WHILE";
+export interface DoWhileTaskResult extends BaseTaskResult {
+  taskType: DoWhileTaskResultType;
+  loopTaskIds?: string[];
+}
+
+export type TaskResultType =
+  | BaseTaskResultType
+  | ForkTaskResultType
+  | SwitchTaskResultType
+  | DoWhileTaskResultType;
+export type TaskResult =
+  | (BaseTaskResult & { taskType: BaseTaskResultType })
+  | ForkTaskResult
+  | SwitchTaskResult
+  | DoWhileTaskResult;
 
 type TerminalTaskResult = {
   referenceTaskName: string;
   taskType: "TERMINAL";
   status: TaskStatus;
+  parentTaskReferenceName?: string;
 };
 
-export interface DynamicForkTaskResult extends BaseTaskResult {
-  taskType: ForkTaskResultType;
-  forkedTaskRefs?: Set<string>; // Internal use only
-}
 export type ExtendedTaskResult = TaskResult | TerminalTaskResult;
 
 export type ExecutionAndTasks = {
-  execution?: Execution;
+  execution: Execution;
   tasks?: TaskResult[];
-  loading: boolean;
 };
 
 export type Execution = {

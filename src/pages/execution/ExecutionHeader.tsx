@@ -11,13 +11,17 @@ import AppContext from "../../components/context/AppContext";
 
 const useStyles = makeStyles({
   header: {
-    padding: "20px 20px 15px 20px",
+    display: "flex",
+    flexDirection: "column",
     backgroundColor: "#fafafa",
+  },
+  headerRow: {
+    padding: "20px 20px 15px 20px",
     display: "flex",
     flexDirection: "row",
     gap: 10,
     alignItems: "center",
-    zIndex: 1,
+    zIndex: 100,
   },
   headerSubtitle: {
     marginBottom: 20,
@@ -41,42 +45,47 @@ export default function ExecutionHeader({
 
   return (
     <div className={classes.header}>
-      <div className={classes.fl}>
-        <Heading level={1} gutterBottom>
-          {execution.workflowName} <StatusBadge status={execution.status} />{" "}
-          <EngineBadge engine={execution.workflowEngine} />
-        </Heading>
-        <Text level={0} className={classes.headerSubtitle}>
-          {execution.workflowId}
-        </Text>
+      <div className={classes.headerRow}>
+        <div className={classes.fl}>
+          <Heading level={1} gutterBottom>
+            {execution.workflowName} <StatusBadge status={execution.status} />{" "}
+            <EngineBadge engine={execution.workflowEngine} />
+          </Heading>
+          <Text level={0} className={classes.headerSubtitle}>
+            {execution.workflowId}
+          </Text>
+        </div>
 
-        {execution.reasonForIncompletion && (
-          <Alert severity="error">{execution.reasonForIncompletion}</Alert>
+        <NavLink
+          newTab
+          path={`/execution/${execution.parentWorkflowId}`}
+          className={classes.fr}
+        >
+          Parent Workflow
+        </NavLink>
+
+        <NavLink
+          newTab
+          path={`/workflowDef/${execution.workflowName}`}
+          className={classes.fr}
+        >
+          Definition
+        </NavLink>
+
+        <Button variant="secondary" onClick={invalidate} className={classes.fr}>
+          Refresh
+        </Button>
+
+        <ActionModule execution={execution} triggerReload={invalidate} />
+        {CustomWorkflowActions && (
+          <CustomWorkflowActions execution={execution} />
         )}
       </div>
-
-      <NavLink
-        newTab
-        path={`/execution/${execution.parentWorkflowId}`}
-        className={classes.fr}
-      >
-        Parent Workflow
-      </NavLink>
-
-      <NavLink
-        newTab
-        path={`/workflowDef/${execution.workflowName}`}
-        className={classes.fr}
-      >
-        Definition
-      </NavLink>
-
-      <Button variant="secondary" onClick={invalidate} className={classes.fr}>
-        Refresh
-      </Button>
-
-      <ActionModule execution={execution} triggerReload={invalidate} />
-      {CustomWorkflowActions && <CustomWorkflowActions execution={execution} />}
+      {execution.reasonForIncompletion && (
+        <Alert severity="error" style={{ margin: "0 20px 20px 20px" }}>
+          {execution.reasonForIncompletion}
+        </Alert>
+      )}
     </div>
   );
 }

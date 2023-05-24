@@ -22,12 +22,13 @@ import {
 } from "../../types/workflowDef";
 import {
   ExtendedTaskResult,
-  DynamicForkTaskResult,
+  ForkTaskResult,
   TaskResult,
-  BaseTaskResult,
   ExecutionAndTasks,
   TaskStatus,
   Execution,
+  SwitchTaskResult,
+  DoWhileTaskResult,
 } from "../../types/execution";
 const DYNAMIC_FORK_COLLAPSE_LIMIT = 3;
 
@@ -78,23 +79,51 @@ export default class WorkflowDAG {
         isTerminated = true;
       }
 
-      cls.addTaskResult(task);
+      cls.addTaskResult({ ...task });
     }
 
-    // Pass 2 - Retrofit Dynamic Forks with forkedTaskRefs
+    // Pass 2 - Retrofit Dynamic Forks with forkedTaskRefs and SWITCH with executedCaseRef
     for (const taskResult of tasks!) {
-      if (
-        taskResult.parentTaskReferenceName &&
-        !(taskResult.taskType === "JOIN")
-      ) {
+      if (taskResult.parentTaskReferenceName) {
         const parentResult = cls.getTaskResultByRef(
           taskResult.parentTaskReferenceName
-        ) as DynamicForkTaskResult;
+        );
 
-        if (!parentResult.forkedTaskRefs) {
-          parentResult.forkedTaskRefs = new Set(); // Need to use a set due to potential dups from retries.
+        if (!parentResult)
+          throw new Error(
+            "Invalid state - parentTaskReferenceName not found: " +
+              taskResult.parentTaskReferenceName
+          );
+
+        if (
+          parentResult.taskType === "FORK_JOIN_DYNAMIC" ||
+          parentResult.taskType === "FORK" ||
+          parentResult.taskType === "FORK_JOIN"
+        ) {
+          if (taskResult.taskType !== "JOIN") {
+            const forkResult = parentResult as ForkTaskResult;
+            if (!forkResult.forkedTaskRefs) {
+              forkResult.forkedTaskRefs = new Set(); // Need to use a set due to potential dups from retries.
+            }
+            forkResult.forkedTaskRefs!.add(taskResult.referenceTaskName);
+          }
+        } else if (
+          parentResult.taskType === "SWITCH" ||
+          parentResult.taskType === "DECISION"
+        ) {
+          const switchResult = parentResult as SwitchTaskResult;
+          if (switchResult.executedCaseRef) {
+            //console.log("executedCaseRef already set. Assume this is a task further down the chain in a case array:", taskResult.referenceTaskName)
+          } else {
+            switchResult.executedCaseRef = taskResult.referenceTaskName;
+          }
+        } else if (parentResult.taskType === "DO_WHILE") {
+          const doWhileResult = parentResult as DoWhileTaskResult;
+          if (!doWhileResult.loopTaskIds) {
+            doWhileResult.loopTaskIds = [];
+          }
+          doWhileResult.loopTaskIds.push(taskResult.taskId);
         }
-        parentResult.forkedTaskRefs.add(taskResult.referenceTaskName);
       }
     }
 
@@ -187,7 +216,7 @@ export default class WorkflowDAG {
     }
   ) {
     const effectiveRef = taskConfig.aliasForRef || taskConfig.taskReferenceName;
-    const lastTaskResult = _.last(this.taskResultsByRef.get(effectiveRef));
+    const taskResult = _.last(this.taskResultsByRef.get(effectiveRef)); //undefined if unexecuted
 
     let vertex: NodeData = {
       parentArray: parentArray,
@@ -196,7 +225,7 @@ export default class WorkflowDAG {
     };
 
     if (!overrides) {
-      vertex.status = lastTaskResult?.status;
+      vertex.status = taskResult?.status;
     } else {
       vertex.status = overrides.status;
       vertex.tally = overrides.tally;
@@ -209,31 +238,50 @@ export default class WorkflowDAG {
       const antecedentExecuted = !!this.graph.node(
         antecedentConfig.taskReferenceName
       ).status;
-      const edgeParams = {} as DagEdgeProperties;
-
-      // Special case - When the antecedent of an executed node is a SWITCH or DECISION, the edge may not necessarily be highlighted.
-      // E.g. the default edge not taken.
-      //
-      // No need for special case for DO_WHILE_END any more because executed loops are always collapsed.
+      let edgeParams: DagEdgeProperties;
 
       if (
-        antecedentConfig.type === "SWITCH" ||
-        antecedentConfig.type === "DECISION"
+        antecedentExecuted &&
+        (antecedentConfig.type === "SWITCH" ||
+          antecedentConfig.type === "DECISION")
       ) {
-        edgeParams.caseValue = getCaseValue(
+        if (
+          antecedentConfig.taskReferenceName ===
+          "switch_hydrusDeviceActivationC3"
+        ) {
+          console.log(antecedentExecuted);
+        }
+
+        // Special case - When the antecedent of an executed node is a SWITCH or DECISION,
+        // the edge may not necessarily be highlighted.
+        //
+        // No need for special case for DO_WHILE_END any more because executed loops are always collapsed.
+
+        const caseValue = getCaseValue(
           taskConfig.taskReferenceName,
           antecedentConfig
         );
 
-        if (lastTaskResult) {
-          const branchTaken = isBranchTaken(
-            lastTaskResult as TaskResult,
-            antecedentConfig
-          );
-          edgeParams.executed = branchTaken;
+        if (taskResult) {
+          edgeParams = {
+            caseValue,
+            executed: this.isBranchTaken(
+              caseValue,
+              taskResult as TaskResult,
+              antecedentConfig
+            ),
+          };
+        } else {
+          edgeParams = {
+            executed: false,
+            caseValue,
+          };
         }
       } else {
-        edgeParams.executed = antecedentExecuted && !!vertex.status;
+        // General case - edge highlighted if task is executed.
+        edgeParams = {
+          executed: antecedentExecuted && !!vertex.status,
+        };
       }
 
       this.graph.setEdge(
@@ -294,7 +342,7 @@ export default class WorkflowDAG {
 
     // Only add placeholder if there are 0 spawned tasks for this DF
     const dfTaskResult = this.getTaskResultByRef(dfTask.taskReferenceName) as
-      | DynamicForkTaskResult
+      | ForkTaskResult
       | undefined;
     const forkedTaskRefs = dfTaskResult?.forkedTaskRefs;
 
@@ -328,79 +376,71 @@ export default class WorkflowDAG {
   }
 
   processDoWhileTask(
-    doWhileTask: DoWhileTaskConfig,
+    doWhileTaskConfig: DoWhileTaskConfig,
     antecedents: GenericTaskConfig[],
     parentArray: GenericTaskConfig[]
   ) {
-    const hasDoWhileExecuted = !!this.getTaskConfigExecutionStatus(doWhileTask);
+    const doWhileTaskResult = this.getTaskResultByRef(
+      doWhileTaskConfig.taskReferenceName
+    );
 
-    this.addVertex(doWhileTask, antecedents, parentArray);
+    this.addVertex(doWhileTaskConfig, antecedents, parentArray);
 
     // aliasForRef indicates when the bottom bar is clicked one we should highlight the ref
     let endDoWhileTaskConfig: EndDoWhileTaskConfig = {
       type: "DO_WHILE_END",
-      name: doWhileTask.name,
-      taskReferenceName: doWhileTask.taskReferenceName + "-END",
-      aliasForRef: doWhileTask.taskReferenceName,
+      name: doWhileTaskConfig.name,
+      taskReferenceName: doWhileTaskConfig.taskReferenceName + "-END",
+      aliasForRef: doWhileTaskConfig.taskReferenceName,
     };
 
-    const loopOverRefPrefixes = doWhileTask.loopOver.map(
+    const loopOverRefs = doWhileTaskConfig.loopOver.map(
       (t) => t.taskReferenceName
     );
-    if (hasDoWhileExecuted) {
-      // map already dedupes for retries.
-      const loopOverRefs = Array.from(this.taskResultsByRef.keys()).filter(
-        (key) => {
-          for (let prefix of loopOverRefPrefixes) {
-            if (key.startsWith(prefix + "__")) return true;
-          }
-          return false;
-        }
-      );
 
+    if (doWhileTaskResult) {
       const loopTaskResults = [];
       for (let ref of loopOverRefs) {
         const refList = this.taskResultsByRef.get(ref) || [];
         loopTaskResults.push(...refList);
       }
 
-      // Collpase into stack
+      // Collpase into stack, stack inherits DO_WHILE status
       const {
         taskConfig: placeholderTaskConfig,
-        status,
         tally,
         containsTaskRefs,
       } = this.getDoWhilePlaceholder(
-        doWhileTask.taskReferenceName,
+        doWhileTaskConfig.taskReferenceName,
         loopOverRefs
       );
 
-      this.addVertex(placeholderTaskConfig, [doWhileTask], parentArray, {
-        status,
+      this.addVertex(placeholderTaskConfig, [doWhileTaskConfig], parentArray, {
+        status: doWhileTaskResult.status,
         tally,
         containsTaskRefs,
       });
 
-      // Add bar marking End of Loop - inherit stack status
+      // Add bar marking End of Loop - inherit DO_WHILE status
       this.addVertex(
         endDoWhileTaskConfig,
         [placeholderTaskConfig],
         parentArray,
         {
-          status,
+          status: doWhileTaskResult.status,
         }
       );
     } else {
       // Definition view (or not executed)
 
-      this.processTaskList(doWhileTask.loopOver, [doWhileTask]);
+      this.processTaskList(doWhileTaskConfig.loopOver, [doWhileTaskConfig]);
 
-      const lastLoopTask = _.last(doWhileTask.loopOver);
+      const lastLoopTask = _.last(doWhileTaskConfig.loopOver);
 
       // Invalid case - loopTask cannot be empty. But allow
       // as intermediate state duing point-and-click workflow building.
       if (!lastLoopTask) {
-        this.addVertex(endDoWhileTaskConfig, [doWhileTask], parentArray);
+        this.addVertex(endDoWhileTaskConfig, [doWhileTaskConfig], parentArray);
       }
       // Special case - Connect the end of each case to the loop end
       // This only occurs in DefOnly view. Executed loops are always collapsed.
@@ -513,18 +553,27 @@ export default class WorkflowDAG {
     }
   }
 
-  getDFSiblingsByCoord(taskCoordinate?: TaskCoordinate) {
-    if (!taskCoordinate) return undefined;
-
-    const taskResult = this.getTaskResultByCoord(
-      taskCoordinate
-    ) as BaseTaskResult;
+  getDFSiblingsByCoord(taskCoordinate: TaskCoordinate) {
+    const taskResult = this.getTaskResultByCoord(taskCoordinate);
     if (!taskResult?.parentTaskReferenceName) {
       return undefined;
     }
     const parentResult = this.getTaskResultByRef(
       taskResult.parentTaskReferenceName
-    ) as DynamicForkTaskResult;
+    ) as ForkTaskResult;
+
+    // Parent not a FORK
+    if (
+      parentResult.taskType !== "FORK" &&
+      parentResult.taskType !== "FORK_JOIN_DYNAMIC"
+    ) {
+      return undefined;
+    }
+
+    // Ignore JOINs
+    if (taskResult.taskType === "JOIN") {
+      return undefined;
+    }
 
     if (!parentResult.forkedTaskRefs) {
       throw new Error("parent DF missing forkedTaskRefs");
@@ -541,7 +590,7 @@ export default class WorkflowDAG {
     if (result.taskType === "TERMINAL")
       throw new Error("TERMINAL task should not be retrieved.");
 
-    return result;
+    return result as TaskResult;
   }
 
   getTaskResultsByRef(ref: string) {
@@ -550,15 +599,74 @@ export default class WorkflowDAG {
 
   getTaskResultByRef(ref: string) {
     const retval = _.last(this.taskResultsByRef.get(ref));
-    if (retval?.taskType === "TERMINAL")
-      throw new Error("TERMINAL task cannot be retrieved.");
+    if (retval?.taskType === "TERMINAL") return undefined;
 
-    return retval;
+    return retval as TaskResult;
   }
 
-  getTaskResultAttemptsByCoord(taskCoordinate?: TaskCoordinate) {
+  getLoopTaskSiblingsByCoord(taskCoordinate: TaskCoordinate) {
+    const taskResult = this.getTaskResultByCoord(taskCoordinate);
+    if (!taskResult?.parentTaskReferenceName) return undefined;
+
+    const parentResult = this.getTaskResultByRef(
+      taskResult.parentTaskReferenceName
+    );
+    if (parentResult?.taskType !== "DO_WHILE") return undefined;
+
+    const parentDoWhileResult = parentResult as DoWhileTaskResult;
+    if (!parentDoWhileResult.loopTaskIds) return undefined;
+
+    const tasks = parentDoWhileResult.loopTaskIds.map((id) =>
+      this.taskResultById.get(id)
+    );
+
+    return tasks;
+  }
+
+  getNodeRefByCoord(taskCoordinate: TaskCoordinate | null) {
     if (!taskCoordinate) return undefined;
 
+    if (taskCoordinate.ref && this.graph.hasNode(taskCoordinate.ref)) {
+      return taskCoordinate.ref;
+    } else {
+      // Resolve Ref for ID
+      const taskResult = this.getTaskResultByCoord(taskCoordinate);
+
+      if (!taskResult) return undefined;
+
+      // If node exists for ref (not collapsed), return its ref
+      if (this.graph.hasNode(taskResult.referenceTaskName)) {
+        return taskResult.referenceTaskName;
+      } else if (taskResult.parentTaskReferenceName) {
+        // Look for collapsed node
+        const parentResult = this.getTaskResultByRef(
+          taskResult.parentTaskReferenceName
+        );
+
+        const successors = this.graph.successors(
+          taskResult.parentTaskReferenceName
+        );
+
+        if (
+          parentResult?.taskType === "FORK_JOIN_DYNAMIC" ||
+          parentResult?.taskType === "FORK"
+        ) {
+          const placeholderRef = successors?.find((successor: string) =>
+            successor.includes("_DF_CHILDREN_PLACEHOLDER")
+          );
+          return placeholderRef;
+        } else if (parentResult?.taskType === "DO_WHILE") {
+          const placeholderRef = successors?.find((successor: string) =>
+            successor.includes("_LOOP_CHILDREN_PLACEHOLDER")
+          );
+          return placeholderRef;
+        }
+        // return undefined
+      }
+    }
+  }
+
+  getTaskResultsByCoord(taskCoordinate: TaskCoordinate) {
     if (taskCoordinate.id) {
       const taskResult = this.getTaskResultById(taskCoordinate.id);
       if (taskResult) {
@@ -574,8 +682,7 @@ export default class WorkflowDAG {
 
   getTaskResultByCoord(taskCoordinate: TaskCoordinate) {
     if (taskCoordinate.id) {
-      const retval = this.getTaskResultById(taskCoordinate.id);
-      return retval;
+      return this.getTaskResultById(taskCoordinate.id);
     } else if (taskCoordinate.ref) {
       const retval = this.getTaskResultByRef(taskCoordinate.ref);
 
@@ -593,10 +700,14 @@ export default class WorkflowDAG {
       // Node not found by ref. (e.g. DF child). Return minimal TaskConfig
       const taskResult = this.getTaskResultByRef(ref);
       if (taskResult) {
-        return {
-          taskReferenceName: ref,
-          name: taskResult.taskDefName,
-        } as IncompleteDFChildTaskConfig;
+        if (taskResult.taskType === "TERMINAL") {
+          throw new Error("Cannot retrieve TERMINAL task by ref");
+        } else {
+          return {
+            taskReferenceName: ref,
+            name: (taskResult as TaskResult).taskDefName,
+          } as IncompleteDFChildTaskConfig;
+        }
       } else {
         throw new Error("No taskConfig found for ref.");
       }
@@ -623,7 +734,8 @@ export default class WorkflowDAG {
     let tally: Tally | undefined = undefined,
       status: TaskStatus | undefined = undefined;
 
-    if (this.getTaskResultByRef(dfRef)) {
+    const dfResult = this.getTaskResultByRef(dfRef);
+    if (dfResult) {
       tally = Array.from(forkedTaskRefs)
         .map((ref) => {
           const childResult = this.getTaskResultByRef(ref);
@@ -655,11 +767,13 @@ export default class WorkflowDAG {
             inProgress: 0,
             canceled: 0,
             total: 0,
+            failed: 0,
           }
         );
-      if (tally.success === tally.total) {
+
+      if (tally.total > 1 && tally.success === tally.total) {
         status = "COMPLETED";
-      } else if (tally.inProgress) {
+      } else if (tally.inProgress > 0) {
         status = "IN_PROGRESS";
       } else {
         status = "FAILED";
@@ -687,30 +801,35 @@ export default class WorkflowDAG {
     loopTaskRefs: string[] = []
   ): {
     taskConfig: PlaceholderTaskConfig;
-    status: TaskStatus;
     tally: Tally;
     containsTaskRefs: string[];
   } {
     const tally = Array.from(loopTaskRefs)
       .map((ref) => {
-        const childResult = this.getTaskResultByRef(ref);
-        if (!childResult) {
+        const childResults = this.getTaskResultsByRef(ref);
+        if (_.isEmpty(childResults)) {
           throw new Error("Invalid ref encountered.");
         }
-        return childResult.status;
+        return childResults;
       })
+      .flat()
       .reduce(
-        (prev: Tally, curr) => {
+        (prev: Tally, curr: ExtendedTaskResult) => {
           const retval: Tally = { ...prev };
 
           retval.total = prev.total + 1;
 
-          if (curr === "COMPLETED") {
+          if (curr.status === "COMPLETED") {
             retval.success = prev.success + 1;
-          } else if (curr === "IN_PROGRESS" || curr === "SCHEDULED") {
+          } else if (
+            curr.status === "IN_PROGRESS" ||
+            curr.status === "SCHEDULED"
+          ) {
             retval.inProgress = prev.inProgress + 1;
-          } else if (curr === "CANCELED") {
+          } else if (curr.status === "CANCELED") {
             retval.canceled = prev.canceled + 1;
+          } else {
+            retval.failed = prev.failed + 1;
           }
           return {
             ...prev,
@@ -721,20 +840,12 @@ export default class WorkflowDAG {
           success: 0,
           inProgress: 0,
           canceled: 0,
+          failed: 0,
           total: 0,
         }
       );
 
     const placeholderRef = doWhileRef + "_LOOP_CHILDREN_PLACEHOLDER";
-
-    let status: TaskStatus;
-    if (tally.success === tally.total) {
-      status = "COMPLETED";
-    } else if (tally.inProgress) {
-      status = "IN_PROGRESS";
-    } else {
-      status = "FAILED";
-    }
 
     const placeholderConfig: PlaceholderTaskConfig = {
       name: placeholderRef,
@@ -744,7 +855,6 @@ export default class WorkflowDAG {
 
     return {
       taskConfig: placeholderConfig,
-      status,
       tally,
       containsTaskRefs: loopTaskRefs,
     };
@@ -891,8 +1001,39 @@ export default class WorkflowDAG {
     }
     return null;
   }
-}
 
+  isBranchTaken(
+    caseValue: string,
+    branchTaskResult: ExtendedTaskResult,
+    switchTaskConfig: SwitchTaskConfig
+  ) {
+    let retval;
+    if (caseValue === "default") {
+      if (
+        switchTaskConfig.defaultCase?.[0]?.taskReferenceName ===
+        branchTaskResult.referenceTaskName
+      ) {
+        retval = true;
+      } else {
+        const switchTaskResult = this.getTaskResultByRef(
+          switchTaskConfig.taskReferenceName
+        ) as SwitchTaskResult;
+        retval = !switchTaskResult?.executedCaseRef;
+        // executedCaseRef being set implies some other case was selected and thus the default case could not have been active.
+      }
+    } else {
+      if (branchTaskResult.taskType === "TERMINAL") {
+        throw new Error("Terminal task not expected here");
+      }
+
+      retval =
+        (branchTaskResult as TaskResult).parentTaskReferenceName ===
+        switchTaskConfig.taskReferenceName;
+    }
+
+    return retval;
+  }
+}
 function getCaseValue(ref: string, decisionTask: SwitchTaskConfig) {
   if (decisionTask.defaultCase?.[0]?.taskReferenceName === ref) {
     return "default";
@@ -907,45 +1048,23 @@ function getCaseValue(ref: string, decisionTask: SwitchTaskConfig) {
   }
 
   if (_.isEmpty(decisionTask.defaultCase)) {
-    // defaultCases is empty. Not valid for execution but allowed for editing.
     return "default";
   }
 
   throw new Error("Invalid state. Could not find caseValue");
 }
 
-// Try to infer caseValue
-function isBranchTaken(
-  branchTaskResult: TaskResult,
-  decisionTaskConfig: SwitchTaskConfig
-) {
-  const branchRef = branchTaskResult.referenceTaskName;
-
-  if (
-    decisionTaskConfig.defaultCase?.[0]?.taskReferenceName ===
-    branchTaskResult.referenceTaskName
-  ) {
-    return true;
-  }
-
-  for (const value of Object.values(decisionTaskConfig.decisionCases)) {
-    if (branchRef === value[0]?.taskReferenceName) {
-      return true;
-    }
-  }
-  return false;
-}
-
 function makeTaskConfigFromTaskResult(task: TaskResult): TaskConfig {
   let type: TaskConfigType;
   if (task.taskType === "FORK") {
+    // Legacy FORK task
     if (task.parentTaskReferenceName) {
       type = "FORK_JOIN_DYNAMIC";
     } else {
       type = "FORK_JOIN";
     }
   } else {
-    type = task.taskType;
+    type = task.taskType as TaskConfigType;
   }
   return {
     name: task.taskDefName,

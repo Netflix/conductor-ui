@@ -4,40 +4,31 @@ import { usePollData, useQueueSize } from "../../../data/task";
 import _ from "lodash";
 import { timestampRenderer } from "../../../utils/helpers";
 import { useWorkflowTask } from "../../../data/execution";
-import { TaskSelection } from "../TileFactory";
-import NoTaskSelected from "../../../components/NoTaskSelected";
+import { TaskSelection } from "../tabLoader";
+import Blank from "../../../components/NoTaskSelected";
 
 export default function TaskPollData({
   taskSelection,
 }: {
   taskSelection?: TaskSelection;
 }) {
-  const {
-    data: taskResult,
-    isLoading: isLoadingTaskResult,
-  }: { data: any; isLoading: boolean } = useWorkflowTask(
-    taskSelection?.workflowId,
-    taskSelection?.ref,
-    taskSelection?.id
-  );
-
   const { data: pollData, isLoading: isLoadingPollData } = usePollData(
     taskSelection?.taskConfig.name
   );
   const { data: queueSize, isLoading: isLoadingQueueSize } = useQueueSize(
     taskSelection?.taskConfig.name,
-    taskResult?.domain
+    taskSelection?.taskResult?.domain
   );
 
   if (!taskSelection) {
-    return <NoTaskSelected />;
+    return <Blank />;
   }
 
   const { taskConfig } = taskSelection;
 
   const pollDataRow = pollData?.find((row: any) => {
-    if (taskResult?.domain) {
-      return row.domain === taskResult.domain;
+    if (taskSelection?.taskResult?.domain) {
+      return row.domain === taskSelection?.taskResult.domain;
     } else {
       return _.isUndefined(row.domain);
     }
@@ -47,7 +38,7 @@ export default function TaskPollData({
     { label: "Task Name", value: taskConfig.name },
     {
       label: "Domain",
-      value: _.defaultTo(taskResult?.domain, "(No Domain Set)"),
+      value: _.defaultTo(taskSelection?.taskResult?.domain, "(No Domain Set)"),
     },
   ];
 
@@ -58,7 +49,7 @@ export default function TaskPollData({
     });
     data.push({
       label: "Last Poll Time",
-      value: timestampRenderer(pollDataRow.lastPollTime),
+      value: timestampRenderer(pollDataRow.lastPollTime) || "",
     });
   }
   if (queueSize !== undefined) {
@@ -71,7 +62,7 @@ export default function TaskPollData({
   return (
     <KeyValueTable
       data={data}
-      loading={isLoadingPollData || isLoadingQueueSize || isLoadingTaskResult}
+      loading={isLoadingPollData || isLoadingQueueSize}
     />
   );
 }

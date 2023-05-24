@@ -20,7 +20,6 @@ import DiagramTest from "./pages/kitchensink/DiagramTest";
 import Examples from "./pages/kitchensink/Examples";
 import Gantt from "./pages/kitchensink/Gantt";
 import Workbench from "./pages/workbench/Workbench";
-import FlexLayoutTest from "./pages/kitchensink/FlexLayoutTest";
 import RcDockTest from "./pages/kitchensink/RCDockTest";
 
 const useStyles = makeStyles((theme) => {
@@ -88,7 +87,6 @@ export default function App({
           <Route path="/kitchen/diagram" element={<DiagramTest />} />
           <Route path="/kitchen/examples" element={<Examples />} />
           <Route path="/kitchen/gantt" element={<Gantt />} />
-          <Route path="/kitchen/flexLayout" element={<FlexLayoutTest />} />
           <Route path="/kitchen/rcdock" element={<RcDockTest />} />
 
           {customRoutes}

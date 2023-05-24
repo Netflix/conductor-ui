@@ -34,6 +34,7 @@ export type Tally = {
   success: number;
   inProgress: number;
   canceled: number;
+  failed: number;
   total: number;
 };
 
@@ -46,7 +47,7 @@ export type TaskCoordinateRef = { id?: string; ref: string };
 export type TaskCoordinate = TaskCoordinateId | TaskCoordinateRef;
 
 export type DagEdgeProperties = {
-  caseValue?: string;
+  caseValue?: string; // Only present for SWITCH
   executed: boolean;
 };
 type BaseTaskConfig = {

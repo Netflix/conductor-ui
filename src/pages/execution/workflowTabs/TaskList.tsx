@@ -5,7 +5,7 @@ export default function TaskList({
   tasks,
   workflowId,
 }: {
-  tasks: TaskResult[];
+  tasks?: TaskResult[];
   workflowId: string;
 }) {
   /*

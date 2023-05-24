@@ -1,6 +1,6 @@
 import { colors } from "../theme/variables";
 
-export default function NoTaskSelected() {
+export default function Blank({ text = "No task selected." }) {
   return (
     <div
       style={{
@@ -13,7 +13,7 @@ export default function NoTaskSelected() {
         color: colors.gray07,
       }}
     >
-      No task selected.
+      {text}
     </div>
   );
 }

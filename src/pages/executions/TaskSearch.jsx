@@ -11,7 +11,11 @@ import {
   WorkflowNameInput,
 } from "../../components";
 
-import { TASK_STATUSES, SEARCH_TASK_TYPES_SET } from "../../utils/constants";
+import {
+  TASK_STATUSES,
+  SEARCH_TASK_TYPES_SET,
+  TASK_TYPES,
+} from "../../utils/constants";
 import { useQueryState } from "react-router-use-location-state";
 import SearchTabs from "./SearchTabs";
 import TaskResultsTable from "./TaskResultsTable";
@@ -31,7 +35,7 @@ const useStyles = makeStyles({
 
 const DEFAULT_SORT = "startTime:DESC";
 const MS_IN_DAY = 86400000;
-const taskTypeOptions = Array.from(SEARCH_TASK_TYPES_SET.values());
+const taskTypeOptions = Array.from(TASK_TYPES);
 
 export default function WorkflowPanel() {
   const classes = useStyles();

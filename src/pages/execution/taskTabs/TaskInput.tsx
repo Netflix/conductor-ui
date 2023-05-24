@@ -1,8 +1,8 @@
 import { makeStyles } from "@mui/styles";
 import { useWorkflowTaskInput } from "../../../data/execution";
 import { Banner, ReactJson } from "../../../components";
-import { TaskSelection } from "../TileFactory";
-import NoTaskSelected from "../../../components/NoTaskSelected";
+import { TaskSelection } from "../tabLoader";
+import Blank from "../../../components/NoTaskSelected";
 import JsonSkeleton from "../../../components/JsonSkeleton";
 
 const useStyles = makeStyles({
@@ -19,11 +19,12 @@ export default function TaskInput({
   const { data, isLoading }: { data: any; isLoading: boolean } =
     useWorkflowTaskInput(
       taskSelection?.workflowId,
-      taskSelection?.ref,
-      taskSelection?.id
+      taskSelection?.taskResult?.referenceTaskName,
+      taskSelection?.taskResult?.taskId
     );
   const classes = useStyles();
-  if (!taskSelection) return <NoTaskSelected />;
+  if (!taskSelection) return <Blank />;
+  if (!taskSelection.taskResult) return <Blank text="Task not executed" />;
   if (isLoading) return <JsonSkeleton />;
 
   return (

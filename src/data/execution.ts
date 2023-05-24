@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import WorkflowDAG from "../components/diagram/WorkflowDAG";
 import { WorkflowDef } from "../types/workflowDef";
-import { Execution, ExecutionAndTasks } from "../types/execution";
+import { Execution, ExecutionAndTasks, TaskResult } from "../types/execution";
 import { useFetch } from "./common";
 import useAppContext from "../hooks/useAppContext";
 import { useQueries, useQueryClient } from "react-query";
@@ -54,13 +54,12 @@ export function useInvalidateExecution(workflowId: string) {
 }
 
 // TODO: Should be done in backend for true interoperability.
-export function useExecutionAndTasks(workflowId: string): ExecutionAndTasks {
+export function useExecutionAndTasks(workflowId: string): {
+  executionAndTasks: ExecutionAndTasks | undefined;
+  loading: boolean;
+} {
   const { fetchWithContext, ready, stack } = useAppContext();
-  const [state, setState] = useState({
-    execution: undefined,
-    tasks: undefined,
-    loading: true,
-  });
+  const [state, setState] = useState<ExecutionAndTasks | undefined>(undefined);
 
   const results = useQueries([
     {
@@ -77,21 +76,21 @@ export function useExecutionAndTasks(workflowId: string): ExecutionAndTasks {
 
   useEffect(() => {
     if (results[0].isSuccess && results[1].isSuccess) {
+      // TODO: In place sort
+      results[1].data.sort(
+        (a: TaskResult, b: TaskResult) => a.scheduledTime! - b.scheduledTime!
+      );
+
       setState({
         execution: results[0].data,
         tasks: results[1].data,
-        loading:
-          results[0].isLoading ||
-          results[1].isLoading ||
-          results[0].isFetching ||
-          results[1].isFetching,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [results[0].isSuccess, results[1].isSuccess]);
 
   return {
-    ...state,
+    executionAndTasks: state,
     loading:
       results[0].isLoading ||
       results[1].isLoading ||
@@ -126,7 +125,10 @@ export function useWorkflowTask(
   if (taskId) {
     path += `?taskId=${taskId}`;
   }
-  return useFetch(["workflow", workflowId!, "task", taskReferenceName!], path, {
+  const key = ["workflow", workflowId!, "task", taskReferenceName!];
+  if (taskId) key.push(taskId);
+
+  return useFetch(key, path, {
     enabled: !!workflowId && !!taskReferenceName,
     keepPreviousData: false,
   });

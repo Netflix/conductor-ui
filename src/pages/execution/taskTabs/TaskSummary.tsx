@@ -4,8 +4,8 @@ import { useTime } from "../../../hooks/useTime";
 import { useAppContext } from "../../../export";
 import { useWorkflowTask } from "../../../data/execution";
 import { KeyValueTableEntry } from "../../../components/KeyValueTable";
-import { TaskSelection } from "../TileFactory";
-import NoTaskSelected from "../../../components/NoTaskSelected";
+import { TaskSelection } from "../tabLoader";
+import Blank from "../../../components/NoTaskSelected";
 
 export default function TaskSummary({
   taskSelection,
@@ -14,18 +14,11 @@ export default function TaskSummary({
 }) {
   const now = useTime();
   const { customTaskSummaryRows } = useAppContext();
-  const { data: taskResult, isLoading }: { data: any; isLoading: boolean } =
-    useWorkflowTask(
-      taskSelection?.workflowId,
-      taskSelection?.ref,
-      taskSelection?.id
-    );
 
   if (!taskSelection) {
-    return <NoTaskSelected />;
+    return <Blank />;
   }
-
-  const { taskConfig } = taskSelection;
+  const { taskConfig, taskResult } = taskSelection;
   // To accommodate unexecuted tasks, read type & name & ref out of workflow
   const data: KeyValueTableEntry[] = [
     { label: "Task Type", value: taskConfig.type },
@@ -88,7 +81,7 @@ export default function TaskSummary({
       type: "duration",
     });
   }
-  if (!_.isNil(taskResult?.retrycount)) {
+  if (!_.isNil(taskResult?.retryCount)) {
     data.push({ label: "Retry Count", value: taskResult.retryCount });
   }
   if (taskResult?.reasonForIncompletion) {
@@ -104,6 +97,7 @@ export default function TaskSummary({
       type: "workerId",
     });
   }
+  /*
   if (taskResult?.taskType === "DECISION") {
     data.push({
       label: "Evaluated Case",
@@ -112,10 +106,9 @@ export default function TaskSummary({
         taskResult.outputData.caseOutput[0],
     });
   }
+  */
   if (taskConfig?.type === "SUB_WORKFLOW") {
-    const subWorkflowName =
-      taskResult.inputData?.subWorkflowName ||
-      taskConfig?.subWorkflowParam?.name;
+    const subWorkflowName = taskConfig?.subWorkflowParam?.name;
     data.push({
       label: "Subworkflow Definition",
       value: (
@@ -162,5 +155,9 @@ export default function TaskSummary({
     }
   }
 
-  return <KeyValueTable data={data} loading={isLoading} />;
+  return (
+    <div style={{ overflowY: "auto", height: "100%" }}>
+      <KeyValueTable data={data} loading={false} />
+    </div>
+  );
 }
