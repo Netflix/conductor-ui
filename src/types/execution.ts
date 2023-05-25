@@ -74,7 +74,7 @@ export type ExtendedTaskResult = TaskResult | TerminalTaskResult;
 
 export type ExecutionAndTasks = {
   execution: Execution;
-  tasks?: TaskResult[];
+  tasks: TaskResult[];
 };
 
 export type Execution = {

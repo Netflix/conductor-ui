@@ -792,10 +792,15 @@ body.dock-dragging iframe {
 .dock-panel.dock-style-card .dock-extra-content {
   height: 35px;
 }
-.dock-style-siblingSelectorPanel {
-  min-height: 90px !important;
-  max-height: 90px !important;
+.dock-panel.dock-style-task {
+  z-index: 1;
 }
-.dock-style-siblingSelectorPanel .dock-bar {
-  display: none;
+.dock-panel.dock-style-workflow {
+  z-index: 2;
+}
+.dock-panel.dock-style-workflow .dock{
+  overflow: visible;
+}
+#TaskList.dock-tabpane {
+  overflow: visible;
 }

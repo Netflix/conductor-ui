@@ -7,7 +7,11 @@ export function timestampRenderer(date) {
   const parsed = new Date(date);
   if (parsed.getTime() === 0) return null; // 0 epoch (UTC 1970-1-1)
 
-  return format(parsed, "yyyy-MM-dd HH:mm:ss");
+  try {
+    return format(parsed, "yyyy-MM-dd HH:mm:ss");
+  }catch(e){
+    return "";
+  }
 }
 export function timestampMsRenderer(date) {
   if (_.isNil(date)) return null;

@@ -4,6 +4,7 @@
   "dependencies": {
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
+    "@inovua/reactdatagrid-community": "^5.9.3",
     "@monaco-editor/react": "^4.3.1",
     "@mui/icons-material": "^5.11.16",
     "@mui/lab": "^5.0.0-alpha.126",

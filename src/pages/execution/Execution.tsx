@@ -29,6 +29,7 @@ const defaultLayout: any = {
     mode: "horizontal",
     children: [
       {
+        size: 2,
         tabs: [
           {
             id: "WorkflowGraph",
@@ -57,6 +58,7 @@ const defaultLayout: any = {
         ],
       },
       {
+        size: 1,
         tabs: [
           {
             id: "TaskSummary",
@@ -114,7 +116,9 @@ export default function Execution() {
   };
 
   const handleSaveLayout = () => {
-    setLayout(dockRef.current!.saveLayout() as any);
+    const newLayout = dockRef.current!.saveLayout() as any
+    console.log(newLayout);
+    setLayout(newLayout);
   };
 
   const handleRestoreLayout = () => {
@@ -231,7 +235,7 @@ function LoadError({ error }: { error: any }) {
     retval = String(error.status);
   }
 
-  title = error.statusText || error.message;
+  title = error.statusText || error.message || error.status;
   return (
     <Alert style={{ margin: 20 }} severity="error">
       <AlertTitle>{title}</AlertTitle>
