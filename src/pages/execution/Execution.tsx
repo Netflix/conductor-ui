@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { useExecutionAndTasks, useWorkflowDag } from "../../data/execution";
 import { TaskCoordinate } from "../../types/workflowDef";
-
+import { Alert, AlertTitle } from "@mui/material";
 import { TileFactoryContext } from "./tabLoader";
 
 import "../../components/rc-dock.css";
@@ -22,6 +22,7 @@ import { DropdownButton } from "../../components";
 import { MoreHoriz } from "@mui/icons-material";
 import tabLoader from "./tabLoader";
 import useLocalStorageState from "use-local-storage-state";
+import _ from "lodash";
 
 const defaultLayout: any = {
   dockbox: {
@@ -98,7 +99,7 @@ export default function Execution() {
   if (!params.id) {
     throw new Error("Missing Execution ID");
   }
-  const { executionAndTasks, loading } = useExecutionAndTasks(params.id);
+  const { executionAndTasks, loading, error } = useExecutionAndTasks(params.id);
   const dag = useWorkflowDag(executionAndTasks);
 
   const selectedTask: TaskCoordinate | null = useMemo(
@@ -178,6 +179,7 @@ export default function Execution() {
         <title>Conductor UI - Execution - {params.id}</title>
       </Helmet>
       {loading && <LinearProgress />}
+      {error && <LoadError error={error} />}
       {dag && executionAndTasks && (
         <TileFactoryContext.Provider
           value={{
@@ -208,5 +210,32 @@ export default function Execution() {
         </TileFactoryContext.Provider>
       )}
     </>
+  );
+}
+
+function LoadError({ error }: { error: any }) {
+  let retval, title;
+  if (_.isString(error.body)) {
+    let parsed;
+    try {
+      parsed = JSON.parse(error.body);
+      if (parsed.message) {
+        retval = parsed.message;
+      } else {
+        retval = error.body;
+      }
+    } catch (e) {
+      retval = error.body;
+    }
+  } else {
+    retval = String(error.status);
+  }
+
+  title = error.statusText || error.message;
+  return (
+    <Alert style={{ margin: 20 }} severity="error">
+      <AlertTitle>{title}</AlertTitle>
+      {retval}
+    </Alert>
   );
 }

@@ -57,6 +57,7 @@ export function useInvalidateExecution(workflowId: string) {
 export function useExecutionAndTasks(workflowId: string): {
   executionAndTasks: ExecutionAndTasks | undefined;
   loading: boolean;
+  error: any;
 } {
   const { fetchWithContext, ready, stack } = useAppContext();
   const [state, setState] = useState<ExecutionAndTasks | undefined>(undefined);
@@ -90,6 +91,7 @@ export function useExecutionAndTasks(workflowId: string): {
   }, [results[0].isSuccess, results[1].isSuccess]);
 
   return {
+    error: results[0].error,
     executionAndTasks: state,
     loading:
       results[0].isLoading ||
