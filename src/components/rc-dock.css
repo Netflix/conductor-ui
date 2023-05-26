@@ -798,7 +798,7 @@ body.dock-dragging iframe {
 .dock-panel.dock-style-workflow {
   z-index: 2;
 }
-.dock-panel.dock-style-workflow .dock{
+.dock-panel.dock-style-workflow .dock {
   overflow: visible;
 }
 #TaskList.dock-tabpane {

@@ -9,7 +9,7 @@ export function timestampRenderer(date) {
 
   try {
     return format(parsed, "yyyy-MM-dd HH:mm:ss");
-  }catch(e){
+  } catch (e) {
     return "";
   }
 }

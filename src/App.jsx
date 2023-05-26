@@ -21,9 +21,11 @@ import Examples from "./pages/kitchensink/Examples";
 import Gantt from "./pages/kitchensink/Gantt";
 import Workbench from "./pages/workbench/Workbench";
 import RcDockTest from "./pages/kitchensink/RCDockTest";
-import "@inovua/reactdatagrid-community/base.css"
-import './components/table.css';
 
+// For RDG
+import "@inovua/reactdatagrid-community/base.css";
+import "./components/table.css";
+window.moment = require("moment");
 
 const useStyles = makeStyles((theme) => {
   return {

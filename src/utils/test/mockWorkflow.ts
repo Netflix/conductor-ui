@@ -19,6 +19,22 @@ import {
 } from "../../types/execution";
 import { v4 as uuidv4 } from "uuid";
 
+const emptyTask = {
+  taskId: null,
+  taskType: null,
+  referenceTaskName: null,
+  taskDefName: null,
+  status: "COMPLETED",
+  workflowInstanceId: null,
+  startTime: 0,
+  endTime: 0,
+  aliasForRef: "",
+  reasonForIncompletion: "",
+  workerId: "",
+  subWorkflowId: "",
+  retried: false,
+};
+
 export class WorkflowExecution implements Execution {
   workflowId: string;
   workflowName: string;
@@ -55,6 +71,7 @@ export class WorkflowExecution implements Execution {
   pushSimple(ref: string, status: TaskStatus = "COMPLETED", tries = 1) {
     for (let i = 0; i < tries; i++) {
       this.tasks.push({
+        ...emptyTask,
         taskId: uuidv4(),
         taskType: "SIMPLE",
         referenceTaskName: ref,
@@ -78,6 +95,7 @@ export class WorkflowExecution implements Execution {
     status: TaskStatus = "COMPLETED"
   ) {
     this.tasks.push({
+      ...emptyTask,
       taskId: uuidv4(),
       taskType:
         type === "FORK_JOIN" || type === "FORK_JOIN_DYNAMIC" ? "FORK" : type,
@@ -102,6 +120,7 @@ export class WorkflowExecution implements Execution {
     status: TaskStatus = "COMPLETED"
   ) {
     const dfResult: ForkTaskResult = {
+      ...emptyTask,
       taskId: uuidv4(),
       taskType: "FORK",
       referenceTaskName: ref,
@@ -128,6 +147,7 @@ export class WorkflowExecution implements Execution {
 
     for (let i = 0; i < count; i++) {
       this.tasks.push({
+        ...emptyTask,
         taskId: uuidv4(),
         taskType: "SIMPLE",
         referenceTaskName: ref + "_child_" + i,
@@ -135,11 +155,11 @@ export class WorkflowExecution implements Execution {
         status: i === idxToFail ? "FAILED" : status,
         parentTaskReferenceName: ref,
         workflowInstanceId: this.workflowId,
-        retryCount: 0,
       });
     }
 
     this.tasks.push({
+      ...emptyTask,
       taskId: uuidv4(),
       taskType: "JOIN",
       referenceTaskName: ref + "_join",
@@ -151,6 +171,7 @@ export class WorkflowExecution implements Execution {
 
   pushDoWhile(ref: string, chainLength: number, count: number) {
     this.tasks.push({
+      ...emptyTask,
       taskId: uuidv4(),
       taskType: "DO_WHILE",
       referenceTaskName: ref,
@@ -163,6 +184,7 @@ export class WorkflowExecution implements Execution {
       for (let j = 0; j < chainLength; j++) {
         const childRef = `${ref}_child${j}`;
         this.tasks.push({
+          ...emptyTask,
           taskId: uuidv4(),
           taskType: "SIMPLE",
           referenceTaskName: childRef,
@@ -170,8 +192,6 @@ export class WorkflowExecution implements Execution {
           status: "COMPLETED",
           iteration: i,
           workflowInstanceId: this.workflowId,
-          retryCount: 0,
-          retried: false,
         });
       }
     }
@@ -240,6 +260,7 @@ export class WorkflowExecution implements Execution {
 
     // Push execution
     this.tasks.push({
+      ...emptyTask,
       taskId: uuidv4(),
       taskType: "SWITCH",
       referenceTaskName: ref,
@@ -251,6 +272,7 @@ export class WorkflowExecution implements Execution {
     if (caseTaken !== undefined) {
       for (let j = 0; j < chainLength; j++) {
         this.tasks.push({
+          ...emptyTask,
           taskId: uuidv4(),
           taskType: "SIMPLE",
           referenceTaskName: `case${caseTaken}_${j}`,
@@ -263,6 +285,7 @@ export class WorkflowExecution implements Execution {
     } else {
       for (let j = 0; j < chainLength; j++) {
         this.tasks.push({
+          ...emptyTask,
           taskId: uuidv4(),
           taskType: "SIMPLE",
           referenceTaskName: `default_${j}`,

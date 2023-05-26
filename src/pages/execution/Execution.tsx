@@ -116,7 +116,7 @@ export default function Execution() {
   };
 
   const handleSaveLayout = () => {
-    const newLayout = dockRef.current!.saveLayout() as any
+    const newLayout = dockRef.current!.saveLayout() as any;
     console.log(newLayout);
     setLayout(newLayout);
   };

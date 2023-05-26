@@ -112,6 +112,7 @@ export default function WorkflowBuilder() {
         onTaskSelect={handleTaskSelect}
         onContextMenu={handleContextMenu}
         executionMode={false}
+        selectedTask={null}
       />
       <Menu
         open={open}

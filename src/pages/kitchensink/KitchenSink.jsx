@@ -34,6 +34,7 @@ import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import * as Yup from "yup";
 import EnhancedTable from "./EnhancedTable";
 import DataTableDemo from "./DataTableDemo";
+import RCDTable from "./RDGTable";
 
 import sharedStyles from "../styles";
 import { makeStyles } from "@mui/styles";
@@ -92,6 +93,9 @@ export default function KitchenSink() {
         </Grid>
         <Grid item xs={12}>
           <FormikSection />
+        </Grid>
+        <Grid item xs={12}>
+          <RCDTable />
         </Grid>
       </Grid>
     </div>
