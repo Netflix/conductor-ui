@@ -41,10 +41,6 @@ export default function TaskSummary({
     data.push({ label: "Task Execution ID", value: taskResult.taskId });
   }
 
-  if (_.isFinite(taskResult?.retryCount)) {
-    data.push({ label: "Retry Count", value: taskResult.retryCount });
-  }
-
   if (taskResult?.scheduledTime) {
     data.push({
       label: "Scheduled Time",

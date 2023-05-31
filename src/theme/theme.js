@@ -222,6 +222,16 @@ const additionalOptions = {
         },
       },
     },
+    MuiIconButton: {
+      styleOverrides: {
+        sizeMedium: {
+          fontSize: 24,
+        },
+        sizeSmall: {
+          fontSize: 16,
+        },
+      },
+    },
     MuiInputBase: {
       styleOverrides: {
         root: {

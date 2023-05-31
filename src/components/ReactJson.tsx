@@ -27,6 +27,7 @@ const useStyles = makeStyles({
     flex: 1,
   },
   toolbar: {
+    gap: 5,
     paddingRight: 15,
     paddingLeft: 15,
     display: "flex",
@@ -81,18 +82,18 @@ export default function ReactJson({
         </InputLabel>
 
         <Tooltip title="Collapse All">
-          <IconButton onClick={handleCollapse} size="large">
-            <ExpandLessIcon />
+          <IconButton onClick={handleCollapse} size="small">
+            <ExpandLessIcon fontSize="inherit" />
           </IconButton>
         </Tooltip>
         <Tooltip title="Expand All">
-          <IconButton onClick={handleExpandAll} size="large">
-            <ExpandMoreIcon />
+          <IconButton onClick={handleExpandAll} size="small">
+            <ExpandMoreIcon fontSize="inherit" />
           </IconButton>
         </Tooltip>
         <Tooltip title="Copy All">
-          <IconButton onClick={handleCopyAll} size="large">
-            <FileCopyIcon />
+          <IconButton onClick={handleCopyAll} size="small">
+            <FileCopyIcon fontSize="inherit" />
           </IconButton>
         </Tooltip>
       </div>

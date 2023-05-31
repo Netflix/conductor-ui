@@ -29,7 +29,7 @@ const defaultLayout: any = {
     mode: "horizontal",
     children: [
       {
-        size: 2,
+        size: 3,
         tabs: [
           {
             id: "WorkflowGraph",
@@ -58,7 +58,7 @@ const defaultLayout: any = {
         ],
       },
       {
-        size: 1,
+        size: 2,
         tabs: [
           {
             id: "TaskSummary",

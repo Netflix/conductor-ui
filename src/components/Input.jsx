@@ -34,7 +34,7 @@ export default function (props) {
                 onClick={handleClear}
                 disabled={props.disabled}
               >
-                <ClearIcon />
+                <ClearIcon fontSize="inherit" />
               </IconButton>
             </InputAdornment>
           ),

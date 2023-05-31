@@ -234,14 +234,14 @@ export default function tabLoader(tabBase: TabBase): TabData {
       };
     case "TaskConfig":
       return {
-        title: "Task Config",
+        title: "Config",
         id: "TaskConfig",
         group: "task",
         content: <TaskSelectionWrapper TaskPanel={TaskConfiguration} />,
       };
     case "TaskExecution":
       return {
-        title: "Task Execution",
+        title: "Execution",
         id: "TaskExecution",
         group: "task",
         content: <TaskSelectionWrapper TaskPanel={TaskExecution} />,

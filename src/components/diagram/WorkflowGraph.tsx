@@ -381,17 +381,17 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
     return (
       <div style={style} className={`graphWrapper ${className || ""}`}>
         <Toolbar>
-          <IconButton onClick={() => this.zoomInOut("in")} size="small">
-            <ZoomInIcon />
+          <IconButton onClick={() => this.zoomInOut("in")}>
+            <ZoomInIcon fontSize="inherit" />
           </IconButton>
-          <IconButton onClick={() => this.zoomInOut("out")} size="small">
-            <ZoomOutIcon />
+          <IconButton onClick={() => this.zoomInOut("out")}>
+            <ZoomOutIcon fontSize="inherit" />
           </IconButton>
-          <IconButton onClick={this.zoomHome} size="small">
-            <HomeIcon />
+          <IconButton onClick={this.zoomHome}>
+            <HomeIcon fontSize="inherit" />
           </IconButton>
-          <IconButton onClick={this.zoomToFit} size="small">
-            <ZoomOutMapIcon />
+          <IconButton onClick={this.zoomToFit}>
+            <ZoomOutMapIcon fontSize="inherit" />
           </IconButton>
           <span>Shortcut: Ctrl + scroll to zoom</span>
         </Toolbar>

@@ -12,6 +12,6 @@ export default function TaskConfiguration({
   }
 
   return (
-    <ReactJson src={taskSelection.taskConfig} label="Task Configuration" />
+    <ReactJson src={taskSelection.taskConfig} label="Task Configuration JSON" />
   );
 }

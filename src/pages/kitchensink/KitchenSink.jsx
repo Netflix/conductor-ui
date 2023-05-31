@@ -386,12 +386,15 @@ const Buttons = () => (
         </DropdownButton>
       </Grid>
       <Grid item>
+        Small{" "}
         <IconButton size="small">
           <DeleteIcon fontSize="inherit" />
         </IconButton>
+        Medium{" "}
         <IconButton size="medium">
           <DeleteIcon fontSize="inherit" />
         </IconButton>
+        Large{" "}
         <IconButton size="large">
           <DeleteIcon fontSize="inherit" />
         </IconButton>

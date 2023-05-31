@@ -652,14 +652,15 @@ body.dock-dragging iframe {
 }
 
 .dock-panel-max-btn:before {
-  top: 2px;
+  top: 3px;
   left: 1px;
   position: absolute;
   content: " ";
-  border-top: 3px solid #ddd;
+  border: 2px solid #ddd;
+  border-top: 4px solid #ddd;
   border-radius: 1px;
   width: 16px;
-  height: 16px;
+  height: 14px;
 }
 
 .dock-panel-max-btn:hover,
