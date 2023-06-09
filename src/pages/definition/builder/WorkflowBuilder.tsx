@@ -7,12 +7,27 @@ import {
   TaskCoordinate,
   TaskConfig,
 } from "../../../types/workflowDef";
-import React, { useContext } from "react";
+import React, { useContext, useMemo } from "react";
 import { Menu, MenuItem } from "@mui/material";
 import { DefEditorContext } from "../WorkflowDefinition";
 import { useWorkflowDagFromDef } from "../../../data/execution";
 import update from "immutability-helper";
-
+import ReactFlow, { Background, Controls } from 'reactflow';
+import 'reactflow/dist/style.css';
+import WorkflowFlow from "../../../components/diagram/WorkflowFlow";
+const nodes = [
+  {
+    id: '1',
+    position: { x: 0, y: 0 },
+    data: { label: 'Hello' },
+    type: 'input',
+  },
+  {
+    id: '2',
+    position: { x: 100, y: 100 },
+    data: { label: 'World' },
+  },
+];
 export default function WorkflowBuilder() {
   const context = useContext(DefEditorContext);
   const dag = useWorkflowDagFromDef(context?.workflowDef)!;
@@ -105,9 +120,28 @@ export default function WorkflowBuilder() {
 
   const open = contextMenu !== null;
 
-  return (
-    <div>
-      <WorkflowGraph
+  const nodes = useMemo(() => {
+    if(dag){
+      return dag.graph.nodes().map((node) => {
+
+      });
+    }
+  }, [dag])
+
+  return (    
+      <WorkflowFlow
+        dag={dag}
+        onTaskSelect={handleTaskSelect}
+        onContextMenu={handleContextMenu}
+        executionMode={false}
+        selectedTask={null}
+      />
+  );
+}
+
+
+{/* 
+ <WorkflowGraph
         dag={dag}
         onTaskSelect={handleTaskSelect}
         onContextMenu={handleContextMenu}
@@ -178,7 +212,4 @@ export default function WorkflowBuilder() {
         )}
 
         <MenuItem onClick={handleDelete}>Delete</MenuItem>
-      </Menu>
-    </div>
-  );
-}
+      </Menu> */}
