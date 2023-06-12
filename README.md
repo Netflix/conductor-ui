@@ -24,6 +24,13 @@ Your hosting environment should make the Conductor Server API available on the s
 
 See `docker/serverAndUI` for an `nginx` based example.
 
+#### Different host path
+The static UI would work when rendered from any host.
+The default is '/'. You can customize this by setting the 'homepage' field in package.json
+Refer
+- https://docs.npmjs.com/cli/v9/configuring-npm/package-json#homepage
+- https://create-react-app.dev/docs/deployment/#building-for-relative-paths
+
 ### Customization Hooks
 
 For ease of maintanence, a number of touch points for customization have been removed to `/plugins`.
