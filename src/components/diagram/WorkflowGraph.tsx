@@ -10,7 +10,7 @@ import * as d3 from "d3";
 import _ from "lodash";
 import { withResizeDetector } from "react-resize-detector";
 import parseSvgPath from "parse-svg-path";
-import { IconButton, Toolbar } from "@mui/material";
+import { Alert, IconButton, Toolbar } from "@mui/material";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import ZoomOutIcon from "@mui/icons-material/ZoomOut";
 import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
@@ -394,6 +394,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
             <ZoomOutMapIcon fontSize="inherit" />
           </IconButton>
           <span>Shortcut: Ctrl + scroll to zoom</span>
+          {!this.props.executionMode && <Alert severity="info"><b>NEW!</b> Right-click on a task to start building.</Alert>}
         </Toolbar>
         <svg
           ref={this.svgRef}
