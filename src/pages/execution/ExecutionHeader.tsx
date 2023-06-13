@@ -56,15 +56,15 @@ export default function ExecutionHeader({
           </Text>
         </div>
 
-        {execution.parentWorkflowId && 
-        <NavLink
-          newTab
-          path={`/execution/${execution.parentWorkflowId}`}
-          className={classes.fr}
-        >
-          Parent Workflow
-        </NavLink>
-        }
+        {execution.parentWorkflowId && (
+          <NavLink
+            newTab
+            path={`/execution/${execution.parentWorkflowId}`}
+            className={classes.fr}
+          >
+            Parent Workflow
+          </NavLink>
+        )}
 
         <NavLink
           newTab

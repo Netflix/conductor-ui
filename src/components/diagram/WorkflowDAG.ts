@@ -846,6 +846,7 @@ export default class WorkflowDAG {
       );
 
     const placeholderRef = doWhileRef + "_LOOP_CHILDREN_PLACEHOLDER";
+    const doWhileTask = this.getTaskResultByRef(doWhileRef);
 
     const placeholderConfig: PlaceholderTaskConfig = {
       name: placeholderRef,
@@ -855,7 +856,7 @@ export default class WorkflowDAG {
 
     return {
       taskConfig: placeholderConfig,
-      tally,
+      tally: { ...tally, iterations: doWhileTask!.iteration },
       containsTaskRefs: loopTaskRefs,
     };
   }

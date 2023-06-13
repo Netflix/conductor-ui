@@ -36,6 +36,7 @@ export type Tally = {
   canceled: number;
   failed: number;
   total: number;
+  iterations?: number;
 };
 
 export type WorkflowDef = {

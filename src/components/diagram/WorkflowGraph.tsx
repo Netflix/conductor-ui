@@ -23,6 +23,7 @@ import {
   TaskCoordinate,
 } from "../../types/workflowDef";
 import { TaskResult } from "../../types/execution";
+import pluralize from "pluralize";
 
 const BAR_MARGIN = 50;
 const BOTTOM_MARGIN = 30;
@@ -564,10 +565,16 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
         retval.shape = "stack";
 
         const { tally, containsTaskRefs } = dagNode;
+        if (tally?.iterations) {
+          retval.label = `${tally.iterations} ${pluralize(
+            "iterations",
+            tally.iterations
+          )}\n`;
+        }
         if (!tally || tally.total === 0) {
-          retval.label = "No tasks in loop";
+          retval.label += "No tasks in loop";
         } else {
-          retval.label = `${tally.total} tasks in loop`;
+          retval.label += `${tally.total} tasks executed`;
           if (tally?.failed) {
             retval.label += `\n${tally.failed} failed`;
           }
