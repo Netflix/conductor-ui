@@ -2,10 +2,10 @@ import _ from "lodash";
 import { NavLink, KeyValueTable } from "../../../components";
 import { useTime } from "../../../hooks/useTime";
 import { useAppContext } from "../../../export";
-import { useWorkflowTask } from "../../../data/execution";
 import { KeyValueTableEntry } from "../../../components/KeyValueTable";
 import { TaskSelection } from "../tabLoader";
 import Blank from "../../../components/NoTaskSelected";
+import { SubworkflowTaskConfig } from "../../../types/workflowDef";
 
 export default function TaskSummary({
   taskSelection,
@@ -18,10 +18,16 @@ export default function TaskSummary({
   if (!taskSelection) {
     return <Blank />;
   }
-  const { taskConfig, taskResult } = taskSelection;
+  let { taskConfig, taskResult } = taskSelection;
+
+  // If subworkflow, backfill taskConfig from taskResult
+  if (taskResult?.taskType === "SUB_WORKFLOW") {
+    taskConfig = taskResult.workflowTask!;
+  }
+
   // To accommodate unexecuted tasks, read type & name & ref out of workflow
   const data: KeyValueTableEntry[] = [
-    { label: "Task Type", value: taskConfig.type },
+    { label: "Task Type", value: taskResult?.taskType || taskConfig.type },
     { label: "Status", value: taskResult?.status || "Not executed" },
     { label: "Task Name", value: taskConfig.name },
     {
@@ -103,8 +109,9 @@ export default function TaskSummary({
     });
   }
   */
-  if (taskConfig?.type === "SUB_WORKFLOW") {
-    const subWorkflowName = taskConfig?.subWorkflowParam?.name;
+  if (taskResult?.taskType === "SUB_WORKFLOW") {
+    const subWorkflowName = (taskConfig as SubworkflowTaskConfig)
+      .subWorkflowParam.name;
     data.push({
       label: "Subworkflow Definition",
       value: (

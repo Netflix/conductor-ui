@@ -394,7 +394,11 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
             <ZoomOutMapIcon fontSize="inherit" />
           </IconButton>
           <span>Shortcut: Ctrl + scroll to zoom</span>
-          {!this.props.executionMode && <Alert severity="info"><b>NEW!</b> Right-click on a task to start building.</Alert>}
+          {!this.props.executionMode && (
+            <Alert severity="info">
+              <b>NEW!</b> Right-click on a task to start building.
+            </Alert>
+          )}
         </Toolbar>
         <svg
           ref={this.svgRef}

@@ -1,4 +1,4 @@
-import { WorkflowDef } from "./workflowDef";
+import { TaskConfig, WorkflowDef } from "./workflowDef";
 import { TaskConfigType } from "./workflowDef";
 
 export type ExecutionStatus = "COMPLETED" | "FAILED" | "IN_PROGRESS";
@@ -19,19 +19,21 @@ type BaseTaskResult = {
   taskDefName: string;
   status: TaskStatus;
   workflowInstanceId: string;
-  scheduledTime?: number;
 
-  parentTaskReferenceName?: string;
-  retryCount?: number;
-  iteration?: number;
-  retried?: boolean;
-  domain?: string;
   startTime: number;
   endTime: number;
   aliasForRef: string;
   reasonForIncompletion: string;
   workerId: string;
   subWorkflowId: string;
+
+  scheduledTime?: number;
+  parentTaskReferenceName?: string;
+  retryCount?: number;
+  iteration?: number;
+  retried?: boolean;
+  domain?: string;
+  workflowTask?: TaskConfig;
 };
 
 export type ForkTaskResultType = "FORK" | "FORK_JOIN" | "FORK_JOIN_DYNAMIC"; //FORK is legacy.
