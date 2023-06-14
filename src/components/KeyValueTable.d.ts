@@ -6,6 +6,6 @@ export type KeyValueTableEntry = {
 };
 declare const KeyValueTable: FC<{
   data: KeyValueTableEntry[];
-  loading: boolean;
+  loading?: boolean;
 }>;
 export default KeyValueTable;

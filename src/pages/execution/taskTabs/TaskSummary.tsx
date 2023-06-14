@@ -131,23 +131,7 @@ export default function TaskSummary({
       });
     }
   }
-  /*
-  if (taskResult?.externalInputPayloadStoragePath) {
-    data.push({
-      label: "Externalized Input",
-      value: taskResult.externalInputPayloadStoragePath,
-      type: "externalTaskInput",
-    });
-  }
 
-  if (taskResult?.externalOutputPayloadStoragePath) {
-    data.push({
-      label: "Externalized Output",
-      value: taskResult.externalOutputPayloadStoragePath,
-      type: "externalTaskOutput",
-    });
-  }
-  */
   for (const row of customTaskSummaryRows) {
     const rendered = row.renderer(taskResult);
     if (rendered !== undefined) {

@@ -1,6 +1,6 @@
 import { makeStyles } from "@mui/styles";
 import { useWorkflowTaskOutput } from "../../../data/execution";
-import { Banner, ReactJson } from "../../../components";
+import { Banner, KeyValueTable, ReactJson } from "../../../components";
 import { TaskSelection } from "../tabLoader";
 import Blank from "../../../components/NoTaskSelected";
 import JsonSkeleton from "../../../components/JsonSkeleton";
@@ -30,11 +30,20 @@ export default function TaskOutput({
   return (
     <>
       {data?.externalOutputPayloadStoragePath && (
-        <Banner className={classes.banner}>
-          This task has externalized output. Please reference{" "}
-          <code>externalOutputPayloadStoragePath</code> for the storage
-          location.
-        </Banner>
+        <>
+          <Banner className={classes.banner}>
+            This task has externalized output.
+          </Banner>
+          <KeyValueTable
+            data={[
+              {
+                label: "Download Link",
+                value: data.externalOutputPayloadStoragePath,
+                type: "externalTaskOutput",
+              },
+            ]}
+          />
+        </>
       )}
 
       <ReactJson src={data} label="Task Output" path="taskOutput" />
