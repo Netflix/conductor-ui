@@ -20,16 +20,18 @@ export default function TaskSummary({
   }
   let { taskConfig, taskResult } = taskSelection;
 
-  // If subworkflow, backfill taskConfig from taskResult
-  if (taskResult?.taskType === "SUB_WORKFLOW") {
+  // If subworkflow, backfill taskConfig from taskResult.workflowTask
+  // Caveat - Not available for 3.0 workflows.
+  if (taskResult?.taskType === "SUB_WORKFLOW" && taskResult?.workflowTask) {
     taskConfig = taskResult.workflowTask!;
   }
+
 
   // To accommodate unexecuted tasks, read type & name & ref out of workflow
   const data: KeyValueTableEntry[] = [
     { label: "Task Type", value: taskResult?.taskType || taskConfig.type },
     { label: "Status", value: taskResult?.status || "Not executed" },
-    { label: "Task Name", value: taskConfig.name },
+    { label: "Task Name", value: taskResult?.taskDefName || taskConfig?.name },
     {
       label: "Task Reference",
       value:
@@ -99,28 +101,23 @@ export default function TaskSummary({
       type: "workerId",
     });
   }
-  /*
-  if (taskResult?.taskType === "DECISION") {
-    data.push({
-      label: "Evaluated Case",
-      value:
-        _.has(taskResult, "outputData.caseOutput[0]") &&
-        taskResult.outputData.caseOutput[0],
-    });
-  }
-  */
+
   if (taskResult?.taskType === "SUB_WORKFLOW") {
-    const subWorkflowName = (taskConfig as SubworkflowTaskConfig)
-      .subWorkflowParam.name;
-    data.push({
-      label: "Subworkflow Definition",
-      value: (
-        <NavLink newTab path={`/workflowDef/${subWorkflowName}`}>
-          {subWorkflowName}{" "}
-        </NavLink>
-      ),
-    });
-    if (_.has(taskResult, "subWorkflowId")) {
+    
+    // NOTE: Edge case - SUB_WORKFLOW spawned by DYNAMIC_FORK will not have an accessible taskConfig.
+      const subWorkflowName = (taskConfig as SubworkflowTaskConfig)?.subWorkflowParam?.name;
+    if(subWorkflowName){
+      data.push({
+        label: "Subworkflow Definition",
+        value: (
+          <NavLink newTab path={`/workflowDef/${subWorkflowName}`}>
+            {subWorkflowName}{" "}
+          </NavLink>
+        ),
+      });
+    }
+
+    if (taskResult?.subWorkflowId) {
       data.push({
         label: "Subworkflow ID",
         value: (
@@ -130,6 +127,7 @@ export default function TaskSummary({
         ),
       });
     }
+    
   }
 
   for (const row of customTaskSummaryRows) {
