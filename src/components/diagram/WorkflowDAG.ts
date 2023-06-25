@@ -245,13 +245,6 @@ export default class WorkflowDAG {
         (antecedentConfig.type === "SWITCH" ||
           antecedentConfig.type === "DECISION")
       ) {
-        if (
-          antecedentConfig.taskReferenceName ===
-          "switch_hydrusDeviceActivationC3"
-        ) {
-          console.log(antecedentExecuted);
-        }
-
         // Special case - When the antecedent of an executed node is a SWITCH or DECISION,
         // the edge may not necessarily be highlighted.
         //
@@ -808,7 +801,7 @@ export default class WorkflowDAG {
       .map((ref) => {
         const childResults = this.getTaskResultsByRef(ref);
         if (_.isEmpty(childResults)) {
-          throw new Error("Invalid ref encountered.");
+          console.log(`${ref} from loopOver has not been executed.`)
         }
         return childResults;
       })
