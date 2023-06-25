@@ -26,7 +26,6 @@ export default function TaskSummary({
     taskConfig = taskResult.workflowTask!;
   }
 
-
   // To accommodate unexecuted tasks, read type & name & ref out of workflow
   const data: KeyValueTableEntry[] = [
     { label: "Task Type", value: taskResult?.taskType || taskConfig.type },
@@ -103,10 +102,10 @@ export default function TaskSummary({
   }
 
   if (taskResult?.taskType === "SUB_WORKFLOW") {
-    
     // NOTE: Edge case - SUB_WORKFLOW spawned by DYNAMIC_FORK will not have an accessible taskConfig.
-      const subWorkflowName = (taskConfig as SubworkflowTaskConfig)?.subWorkflowParam?.name;
-    if(subWorkflowName){
+    const subWorkflowName = (taskConfig as SubworkflowTaskConfig)
+      ?.subWorkflowParam?.name;
+    if (subWorkflowName) {
       data.push({
         label: "Subworkflow Definition",
         value: (
@@ -127,7 +126,6 @@ export default function TaskSummary({
         ),
       });
     }
-    
   }
 
   for (const row of customTaskSummaryRows) {

@@ -801,7 +801,7 @@ export default class WorkflowDAG {
       .map((ref) => {
         const childResults = this.getTaskResultsByRef(ref);
         if (_.isEmpty(childResults)) {
-          console.log(`${ref} from loopOver has not been executed.`)
+          console.log(`${ref} from loopOver has not been executed.`);
         }
         return childResults;
       })

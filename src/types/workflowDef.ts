@@ -11,7 +11,7 @@ export const TASK_CONFIG_TYPES = [
   "TERMINATE",
   "INLINE",
   "JQ_TRANSFORM",
-  "WAIT"
+  "WAIT",
 ] as const;
 export const DEPRECATED_TASK_CONFIG_TYPES = [
   "EXCLUSIVE_JOIN",
