@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Paper, Heading, Select } from "../../components";
-import { MenuItem } from "@mui/material";
+import { MenuItem, Popper } from "@mui/material";
 import top100Films from "./sampleMovieData";
 import Dropdown from "../../components/Dropdown";
 
@@ -56,6 +56,22 @@ export default function () {
         value={dropdownValue}
         getOptionLabel={(option) => option.title}
         onChange={(e, v) => setDropdownValue(v)}
+      />
+
+      <Dropdown
+        style={{ marginBottom: 20, width: 300 }}
+        label="Autocomplete Open Up"
+        disableClearable
+        options={top100Films}
+        value={dropdownValue}
+        getOptionLabel={(option) => option.title}
+        onChange={(e, v) => setDropdownValue(v)}
+        componentsProps={{
+          popper: {
+            placement: 'top-start',
+            disablePortal: true
+          }
+        }}
       />
 
       <Dropdown

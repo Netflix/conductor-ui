@@ -117,6 +117,12 @@ export default function SiblingSelector({
               getOptionString(taskResult)
             }
             style={{ marginBottom: 20, width: 500 }}
+            componentsProps={{
+              popper: {
+                placement: 'top-start',
+                disablePortal: true
+              }
+            }}
           />
         </div>
       )}
@@ -127,7 +133,6 @@ export default function SiblingSelector({
             label="Retries"
             disableClearable
             onChange={(e: ChangeEvent<{}>, v: any) => {
-              console.log(v);
               onTaskChange({
                 id: v.taskId,
               });
@@ -140,6 +145,12 @@ export default function SiblingSelector({
               }] ${taskResult.taskId}`
             }
             style={{ marginBottom: 20, width: 500 }}
+            componentsProps={{
+              popper: {
+                placement: 'top-start',
+                disablePortal: true
+              }
+            }}
           />
         </div>
       )}
