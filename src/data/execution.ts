@@ -76,8 +76,12 @@ export function useExecutionAndTasks(workflowId: string): {
   ]);
 
   useEffect(() => {
-    if (results[0].isSuccess && results[1].isSuccess) {
-      // TODO: In place sort
+    if(results[0].isFetching || results[1].isFetching){
+      setState(undefined);
+    }
+    else if (results[0].isSuccess && results[1].isSuccess) {
+      console.log('Updating workflow and tasks');
+      // Note: In place sort
       results[1].data.sort(
         (a: TaskResult, b: TaskResult) => a.scheduledTime! - b.scheduledTime!
       );
@@ -88,7 +92,7 @@ export function useExecutionAndTasks(workflowId: string): {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [results[0].isSuccess, results[1].isSuccess]);
+  }, [results[0].isSuccess, results[1].isSuccess, results[0].isFetching, results[1].isFetching]);
 
   return {
     error: results[0].error,

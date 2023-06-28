@@ -563,30 +563,33 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
         break;
       case "LOOP_CHILDREN_PLACEHOLDER":
         retval.shape = "stack";
-
+        const labelArray=[];
         const { tally, containsTaskRefs } = dagNode;
         if (tally?.iterations) {
-          retval.label = `${tally.iterations} ${pluralize(
+          labelArray.push(`${tally.iterations} ${pluralize(
             "iterations",
             tally.iterations
-          )}\n`;
+          )}`);
         }
         if (!tally || tally.total === 0) {
-          retval.label += "No tasks in loop";
-        } else {
-          retval.label += `${tally.total} tasks executed`;
+          labelArray.push("No tasks in loop");
+        } 
+        else {
+          if(tally?.success) {
+            labelArray.push(`${tally.success} succeeded`);
+          }
           if (tally?.failed) {
-            retval.label += `\n${tally.failed} failed`;
+            labelArray.push(`${tally.failed} failed`);
           }
           if (tally?.inProgress) {
-            retval.label += `\n${tally.inProgress} pending`;
+            labelArray.push(`${tally.inProgress} in-progress`);
           }
           if (tally?.canceled) {
-            retval.label += `\n${tally.canceled} canceled`;
+            labelArray.push(`${tally.canceled} canceled`);
           }
           retval.placeholderRef = containsTaskRefs?.[0];
         }
-
+        retval.label = labelArray.join('\n');
         retval.shape = "stack";
         break;
       case "DO_WHILE":
