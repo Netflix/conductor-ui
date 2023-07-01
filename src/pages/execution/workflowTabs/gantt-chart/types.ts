@@ -1,0 +1,78 @@
+declare var d3: any;
+
+export interface StyleClass {
+    style?: React.CSSProperties;
+    className?: string;
+}
+
+export interface Styles {
+    span?: StyleClass;
+    waitSpan?: StyleClass;
+    spanLabelExternal?: StyleClass;
+    spanLabelInternal?: StyleClass;
+    band?: StyleClass;
+    bandLabel?: StyleClass;
+    canvas?: StyleClass;
+    root?: StyleClass;
+}
+
+export interface Datum {
+    w1?: Date;
+    t1: Date;
+    t2: Date;
+    id: string | number;
+    styles?: Pick<
+        Styles,
+        'span' | 'waitSpan' | 'spanLabelExternal' | 'spanLabelInternal'
+    >;
+}
+
+export interface Series {
+    id: string;
+    label: string;
+    labelSvgIcon?: JSX.Element;
+    data: Datum[];
+    parentTaskReferenceName: string,
+    referenceTaskName: string,
+    taskType: string,
+    status: string,
+    styles?: Pick<Styles, 'band' | 'bandLabel'>;
+}
+
+export interface Margins {
+    top?: number;
+    left?: number;
+    right?: number;
+    bottom?: number;
+}
+
+export interface GanttChartAPI {
+    min: Date;
+    max: Date;
+    isZoomed: boolean;
+    scopedMin?: Date;
+    scopedMax?: Date;
+    xScale: d3.ScaleTime<number, number, never>;
+    selectedLabel?: { id: string; label: string };
+    zoom: (dateA: Date, dateB: Date) => void;
+    resetZoom: () => void;
+    closeMenu: () => void;
+}
+
+export interface Band {
+    height?: number;
+    padding?: number;
+}
+
+export interface GanttProps {
+    max: Date;
+    min: Date;
+    style?: StyleClass['style'];
+    className?: StyleClass['className'];
+    band?: {
+        height?: number;
+        padding?: number;
+    };
+    margins?: Margins;
+    setAPI?: (arg0: GanttChartAPI) => void;
+}

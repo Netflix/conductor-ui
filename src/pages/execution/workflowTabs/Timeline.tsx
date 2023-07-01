@@ -8,6 +8,7 @@ import { IconButton, Tooltip } from "@mui/material";
 import WorkflowDAG from "../../../components/diagram/WorkflowDAG";
 import { TaskResult } from "../../../types/execution";
 import { TaskCoordinate } from "../../../types/workflowDef";
+import ConductorTimeline from "./gantt-chart/ConductorTimeline";
 
 export default function TimelineComponent({
   dag,
@@ -27,7 +28,7 @@ export default function TimelineComponent({
     }
   }, [dag, selectedTask]);
   */
-  const selectedId = undefined;
+  const selectedId = "";
 
   const { items, groups } = useMemo(() => {
     const groupMap = new Map();
@@ -110,7 +111,8 @@ export default function TimelineComponent({
         </Tooltip>
       </div>
       <div className="timeline-container">
-        <Timeline
+      <ConductorTimeline data={tasks} selectedTaskId={""} setSelectedTaskId={handleClick} />
+        {/* <Timeline
           ref={timelineRef}
           initialGroups={groups}
           initialItems={items}
@@ -122,7 +124,7 @@ export default function TimelineComponent({
             type: "range",
             stack: false,
           }}
-        />
+        /> */}
       </div>
       <br />
     </div>
