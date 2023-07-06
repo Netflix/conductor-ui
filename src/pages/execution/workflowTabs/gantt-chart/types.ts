@@ -1,5 +1,3 @@
-declare var d3: any;
-
 export interface StyleClass {
     style?: React.CSSProperties;
     className?: string;
@@ -18,9 +16,11 @@ export interface Styles {
 
 export interface Datum {
     w1?: Date;
+    iteration: number;
+    status:string
     t1: Date;
     t2: Date;
-    id: string | number;
+    id: string;
     styles?: Pick<
         Styles,
         'span' | 'waitSpan' | 'spanLabelExternal' | 'spanLabelInternal'

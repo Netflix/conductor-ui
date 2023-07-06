@@ -1,5 +1,5 @@
-import { colors, fontFamily, fontSizes } from '@hawkins/variables';
-import { makeStyles } from '@hawkins/styles';
+import { colors, fontFamily, fontSizes } from '../internal/utils';
+import { makeStyles } from '@mui/styles';
 
 export const useStyles = makeStyles({
     dottedLine: {

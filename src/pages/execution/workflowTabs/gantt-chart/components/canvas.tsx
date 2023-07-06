@@ -1,5 +1,5 @@
 import { canvasHeightAtom, canvasWidthAtom, marginLeftAtom } from '../atoms';
-import { colors } from '@hawkins/variables';
+import { colors } from '../internal/utils';
 import { useAtomValue } from 'jotai';
 import React from 'react';
 import type { Styles } from '../types';

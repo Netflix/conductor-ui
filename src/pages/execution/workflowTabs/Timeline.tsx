@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import Timeline from "react-vis-timeline-2";
 import { timestampRenderer, durationRenderer } from "../../../utils/helpers";
 import _ from "lodash";
@@ -28,7 +28,8 @@ export default function TimelineComponent({
     }
   }, [dag, selectedTask]);
   */
-  const selectedId = "";
+  // const selectedId = "";
+  const [selectedTaskId, setSelectedTaskId] = useState<string>("");
 
   const { items, groups } = useMemo(() => {
     const groupMap = new Map();
@@ -89,11 +90,11 @@ export default function TimelineComponent({
     timelineRef.current?.timeline?.fit();
   };
 
-  const handleClick = (e: any) => {
-    const { group, item, what } = e;
-    if (group && what !== "background") {
+  const handleClick = (id: any) => {
+    console.log('click', id)
+    if (id) {
       onClick({
-        id: item,
+        id: id,
       });
     } else {
       onClick(null);
@@ -111,7 +112,7 @@ export default function TimelineComponent({
         </Tooltip>
       </div>
       <div className="timeline-container">
-      <ConductorTimeline data={tasks} selectedTaskId={""} setSelectedTaskId={handleClick} />
+      <ConductorTimeline data={tasks} selectedTaskId={selectedTaskId} setSelectedTaskId={setSelectedTaskId} OnClick={handleClick} />
         {/* <Timeline
           ref={timelineRef}
           initialGroups={groups}

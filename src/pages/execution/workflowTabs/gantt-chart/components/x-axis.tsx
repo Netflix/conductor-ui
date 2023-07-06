@@ -6,7 +6,7 @@ import {
     xScaleAtom,
 } from '../atoms';
 import { defaultFormatter } from '../utils';
-import { getTextWidth } from '../internal/utils';
+import { getTextWidth, smartTimeFormat } from '../internal/utils';
 import { useAtomValue } from 'jotai';
 import { useGanttContext } from '../internal/gantt-context';
 import React, { useMemo } from 'react';
@@ -14,11 +14,11 @@ import dayjs from 'dayjs';
 
 export interface XAxisProps {
     dateFormat?: string;
-    labelFormatter?: (label: string | number) => string | number;
+    labelFormatter?: (label: string | number, axisTicks?:boolean) => string | number;
 }
 export function XAxis({
     labelFormatter = defaultFormatter,
-    dateFormat = 'hh:mm:ss',
+    dateFormat = 'hh:mm:ss:SSS',
 }: XAxisProps) {
     const { classes } = useGanttContext();
     const xScale = useAtomValue(xScaleAtom);
@@ -45,6 +45,9 @@ export function XAxis({
             : 1;
 
     const xTicks = xScale.ticks(ticksCount);
+    if (xTicks.length > 1){
+        dateFormat = smartTimeFormat(xTicks[1].getTime()-xTicks[0].getTime(), true);
+    }
     const ticks = useMemo(
         () =>
             xTicks.map((tick, i) => (

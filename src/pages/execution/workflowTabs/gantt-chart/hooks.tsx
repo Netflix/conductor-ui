@@ -7,7 +7,6 @@ import {
     rightDragAtom,
     scopedMinMaxAtom,
     xScaleAtom,
-    yAxisSelectedLabelAtom,
     yScaleAtom,
 } from './atoms';
 import { useAtom } from 'jotai';

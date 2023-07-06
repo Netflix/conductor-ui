@@ -8,8 +8,8 @@ import {
     xScaleAtom,
     yScaleAtom,
 } from '../atoms';
-import { colors } from '@hawkins/variables';
-import { getTextWidth } from '../internal/utils';
+import { colors } from '../internal/utils';
+import { getTextWidth, smartTimeFormat } from '../internal/utils';
 import {
     idAccessor,
     xt1Accessor,
@@ -29,6 +29,9 @@ import React, {
 import dayjs from 'dayjs';
 import type { Datum, Series } from '../types';
 import type { EventHandler } from 'react';
+import { Delete } from '@mui/icons-material';
+import CustomTooltip from './CustomTooltip';
+import Typography from '@mui/material/Typography';
 
 export interface BarsProps {
     /**
@@ -48,7 +51,7 @@ export interface BarsProps {
 export function Bars({
     onSpanClick,
     data,
-    labelFormatter,
+    labelFormatter = smartTimeFormat,
     barHeight,
     waitHeightDelta,
     alignmentRatioAlongYBandwidth,
@@ -135,7 +138,6 @@ export function Bars({
                     return [...series.data].reverse().map((datum) => {
                         const label =
                             labelFormatter?.(deltaX(datum)) || deltaX(datum);
-
                         const width = widthX(datum);
                         const textElementWidth = getTextWidth(
                             ctx,
@@ -150,7 +152,7 @@ export function Bars({
                         // TODO this may be accurately, does the text fall off of
                         // the center (or touch the wall of) of the span with padding?
                         const textIsGreaterThanWidth =
-                            centerOfText + width / 2 > width;
+                            (centerOfText + (width / 2 ))> width;
                         const textX = textIsGreaterThanWidth
                             ? width + 4
                             : width / 2 - centerOfText;
@@ -179,8 +181,8 @@ export function Bars({
                                 return false;
                             }
                             return textIsGreaterThanWidth
-                                ? x1Pos + width + textWidth + 4 <
-                                      rightNeighborXPos
+                                ? (rightNeighborXPos? (x1Pos + width + textWidth + 4 <
+                                      rightNeighborXPos):true)
                                 : true;
                         })();
 
@@ -203,29 +205,8 @@ export function Bars({
                             (bandwidth - barHeight - 4) *
                                 alignmentRatioAlongYBandwidth;
 
-                        function onHover(e, i:string, idx:number, mouseOver:boolean){
-                            console.log('1',datum, series);
-                            let el = document.getElementById(i);
-                            let tooltip = document.getElementById(`tooltip${idx}`);
-                            console.log(e)
-                            if (mouseOver){  
-                                el.setAttribute('fill', 'blue');
-                                console.log('pos',tooltip.getAttribute("x"), tooltip.getAttribute("y"));
-                                // tooltip.setAttribute("x", `${parseInt(e.clientX)+2000}`);
-                                tooltip.style.transform = `translate(${parseInt(e.clientX)-marginLeft-100}px, 0px)`
-                                tooltip.setAttribute("visibility", "visible");
-                            }else{
-                                el.setAttribute('fill', 'green');
-                                tooltip.setAttribute("visibility", "hidden");
-                            }
-                                        
-                        
-
-                        }
-
-                        return ( x2Pos < marginLeft? null:
-                            
-                            <animated.g  onMouseEnter={(e)=>onHover(e, key, idx, true)} onMouseLeave={(e)=>onHover(e, key, idx, false)}
+                        return ( 
+                            <animated.g  
                                 key={key}
                                 id={key}
                                 transform={`translate(0, ${yPos || 0})`}
@@ -262,12 +243,13 @@ export function Bars({
                                         />
                                     </g>
                                 )}
+
                                 <g
                                     transform={`translate(${x1Pos})`}
                                     onClick={onClick}
                                 >
-                                    
-                                    <rect
+
+                                    <rect 
                                         className={
                                             datum?.styles?.span?.className
                                         }
@@ -281,7 +263,7 @@ export function Bars({
                                         height={barHeight}
                                         width={width}
                                         rx="2"
-                                    />
+                                    />                                    
                                     
 
                                     {renderText && (
@@ -321,19 +303,11 @@ export function Bars({
                                             })`}
                                             onClick={onClick}
                                         >
-                                            {label}ms
+                                            {label}
                                         </text>
                                         
 
                                     )}
-                                    <g id={`tooltip${idx}`} visibility="hidden">
-                                        {/* <svg width='250px' height='250px' viewBox='0 -90 200 110'> */}
-                                    <rect x="0" y="-90" width={`${Math.max(getTextWidth(ctx, series.referenceTaskName),200)}px`} height="100px" viewBox='0 0 200 200' stroke="black" fill="#fffef2" rx="5" />
-                                    <text x="10" y="-60" width="50px" height="20px" fill="black"  font-size="13" style={{overflow: 'hidden'}} >{series.referenceTaskName}</text>
-                                    <text x="10" y="-30" width="20" height="20" fill="black"  font-size="13"  >{series.taskType}</text>
-                                    <text x="10" y="0" width="20" height="20" fill="black"  font-size="13"  >{series.status}</text>
-                                    {/* </svg> */}
-                                    </g>
                                 </g>
                             </animated.g>
                         );

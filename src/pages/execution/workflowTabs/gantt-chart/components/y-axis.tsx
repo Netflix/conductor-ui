@@ -45,26 +45,19 @@ export function YAxis({
     }, [])
     
     useEffect(() => {
-        if (setRows) {
-            const setA = new Set(inputRows.map(yAccessor).map(labelFormatter));
-            const setB = new Set(currRows.map(yAccessor));
-            if (!isSuperset(setA, setB)) {
-                const newRows = inputRows.map((row) => ({
-                    ...row,
-                    label: labelFormatter(yAccessor(row)) as string,
-                }));
-                // TODO: this is a hack to get the rows to render in the correct order (as the correct order is reversed atm) 06/01/2023
-                setRows([...newRows]);
-            }
-        }
-    }, [currRows, inputRows, labelFormatter, setRows]);
+        const newRows = inputRows.map((row) => ({
+            ...row,
+            label: labelFormatter(yAccessor(row)) as string,
+        }));
+        setRows([...newRows])
+    }, [inputRows]);
 
     useEffect(()=>{
         if (selectedTaskId && !loading && canScroll){
-            document.getElementById(selectedTaskId)!.scrollIntoView({behavior:'smooth'});
+            document.getElementById(selectedTaskId).scrollIntoView({behavior:'smooth'});
             setCanScroll(false);
         }
-    }, [selectedTaskId, loading])
+    }, [selectedTaskId, loading, canScroll])
 
     const currRowsMap = currRows.reduce((agg, row) => {
         agg.set(idAccessor(row), yAccessor(row));
@@ -80,7 +73,7 @@ export function YAxis({
             {yScale.domain().map((band) => {
                 const row = getRow(band);
                 return (
-                    <svg>
+                    <svg key={band}>
                     <svg x='0' y='0' height='100%' width='240px' >
                     <g key={band} >
                         {row?.labelSvgIcon && (
@@ -121,7 +114,7 @@ export function YAxis({
                                 }}
                             >
                                 
-                               {collapsibleRows.has(band)?(taskExpanded.get(band)? '\u25BC':'\u25BA'):null} {currRowsMap.get(band)}
+                               {collapsibleRows.has(band) && (taskExpanded.get(band)? '\u25BC':'\u25BA')} {currRowsMap.get(band)}
                             </text>
                             
                         </g>
@@ -139,17 +132,4 @@ export function YAxis({
             
         </g>
     );
-}
-
-function isSuperset(setA: Set<unknown>, setB: Set<unknown>): boolean {
-    if (setA.size !== setB.size) {
-        return false;
-    }
-    
-    for (const item of setA.values()) {
-        if (!setB.has(item)) {
-            return false;
-        }
-    }
-    return true;
 }

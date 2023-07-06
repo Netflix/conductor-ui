@@ -1,6 +1,5 @@
 import { atom, useAtomValue } from 'jotai';
-import { fontFamily, fontSizes } from './utils';
-import { getTextWidth } from './internal/utils';
+import { getTextWidth, fontFamily, fontSizes } from './internal/utils';
 import { idAccessor, yAccessor } from './utils';
 import { scaleBand, scaleOrdinal, scaleTime, schemeGreens } from 'd3';
 import { useAtomSetterOnChange } from './internal/hooks';
@@ -10,7 +9,7 @@ import type { Band, Margins, Series } from './types';
 
 // MARK - html elements
 
-export const canvasAtom = atom<HTMLCanvasElement>(null as unknown as HTMLCanvasElement);
+export const canvasAtom = atom<HTMLCanvasElement>(null as HTMLCanvasElement);
 canvasAtom.onMount = (setAtom) => {
     const canvas = document.createElement('canvas');
     setAtom(canvas);

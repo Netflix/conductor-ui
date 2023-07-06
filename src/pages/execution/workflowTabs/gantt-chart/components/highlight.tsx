@@ -6,7 +6,7 @@ import {
     marginLeftAtom,
     rightDragAtom,
 } from '../atoms';
-import { colors } from '@hawkins/variables';
+import { colors } from '../internal/utils';
 import { useAtomValue } from 'jotai';
 import { useGanttContext } from '../internal/gantt-context';
 import { useUpdateAtom } from 'jotai/utils';
@@ -55,8 +55,6 @@ export function Highlight({ children }: PropsWithChildren<unknown>) {
         setHighlightActions(<HighlightActions>{children}</HighlightActions>);
     }, [HighlightActions, children, setHighlightActions]);
 
-    // console.log('l',leftDrag, marginLeft);
-    // console.log('r',rightDrag, canvasWidth);
     return leftDrag !== rightDrag ? (
         <g
             style={{

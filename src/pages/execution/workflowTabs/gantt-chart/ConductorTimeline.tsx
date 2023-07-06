@@ -1,6 +1,6 @@
 
-import {useEffect, useState } from 'react';
-import Button from '@mui/material/Button';
+import {useEffect, useMemo, useState } from 'react';
+import { Button } from '@mui/material';
 import {
     Bars,
     Canvas,
@@ -10,186 +10,236 @@ import {
     Series,
     XAxis,
     YAxis,
-  } from '.';
+  } from './';
 import {HighlightActions} from './HighlightActions';
-import { fontFamily, fontSize } from '@mui/system';
+import { fontFamily, fontSizes } from './internal/utils';
 
-// const now = new Date();
-// const hourLater = new Date(now.getTime() + 60 * 1000);
 const font = `${fontSizes.fontSize4} ${fontFamily.fontFamilySans}`;
-const collapseTaskTypes = ["FORK_JOIN_DYNAMIC", "DO_WHILE", "FORK"];
+const [DO_WHILE, FORK_JOIN_DYNAMIC, FORK] = ["DO_WHILE", "FORK_JOIN_DYNAMIC","FORK"];
+const collapseTaskTypes = [DO_WHILE, FORK, FORK_JOIN_DYNAMIC];
+const [COMPLETED, FAILED, IN_PROGRESS] = ["COMPLETED", "FAILED", "IN_PROGRESS"]
 
 type ConductorTimelineProps = {
   data: any, 
   selectedTaskId: string
   setSelectedTaskId: (id:string)=>void
+  OnClick: (id: string) => void;
 };
 
-
-export default function ConductorTimeline({data, selectedTaskId, setSelectedTaskId }:ConductorTimelineProps){
-  const [collapseTasks, setCollapseTasks] = useState(new Set<string>()); //id of tasks which can disappear REMOVE subtasks
-  const [subTaskIdMap, setSubTaskIdMap] = useState(new Map<string, string[]>());//id to list of ids of tasks which can disappear
-  const [taskTypeMap, setTaskTypeMap] = useState(new Map<string, string>());//id -> task type
-  const [collapseLengths, setCollapseLengths] = useState(new Map<string, Date>());
-  const [refTaskNameToID, setRefTaskNameToID] = useState(new Map<string, string>()); //refer... to id
-  const [indexMap, setIndexMap] = useState(new Map<string, number>());
-  const [taskExpanded, setTaskExpanded]  = useState(new Map<string, boolean>()); //id -> whether task is expanded
-  
-  const [initialData, setInitialData] = useState<Series[]>(data.map(({taskId, startTime, endTime, parentTaskReferenceName, referenceTaskName, taskType, status}: any) => ({
+export default function ConductorTimeline({data, selectedTaskId, setSelectedTaskId, OnClick }:ConductorTimelineProps){
+  /** ID of tasks which have children: DO_WHILE, FORK, FORK_JOIN_DYNAMIC */
+  const collapsibleTasks = useMemo<Set<string>>(() => new Set(data.filter(task => collapseTaskTypes.includes(task.taskType)).map(task=> task.taskId)), [data]);
+  /** Map from id to boolean of whether a task is expanded */ 
+  const taskExpanded  = useMemo<Map<string, boolean>>(()=> new Map<string,boolean>(Array.from(collapsibleTasks).map(id => [id,false])), [data]); 
+  /** Full expansion of timeline data. Simplified to contain information relevant to timeline  */
+  const initialData = useMemo<Series[]>(()=>{
+    let series:Series[] = [];
+    let seenTaskNameToIndexMap:Map<string, number> = new Map<string,number>();
+    data?.forEach(({taskId, startTime, endTime, parentTaskReferenceName, referenceTaskName, taskType, status, iteration}: any, index:number) => {
+      let span = {
+        id: taskId, //span id
+        status: status,
+        t1: new Date(startTime),
+        t2: new Date(endTime),
+        iteration,
+        styles: {
+          span: taskId === selectedTaskId ? {
+            style: {
+              fill: 'blue'
+            }}: status === FAILED? {
+              style: {
+                fill: 'red'
+              }}:{}
+          }
+       }
+      if (!seenTaskNameToIndexMap.has(referenceTaskName)){
+      series.push({
     id: taskId,
     label: `${referenceTaskName}`,
     parentTaskReferenceName,
     referenceTaskName,
     taskType,
     status,
-    data: [{
-        id: taskId,
-        t1: new Date(startTime),
-        t2: new Date(endTime),
-        styles: {
-          span: taskId === selectedTaskId ? {
-            style: {
-              fill: 'blue'
-            }}: {}
+    data: [span]
+    })
+    seenTaskNameToIndexMap.set(referenceTaskName, index);
+      }else{
+        let retryTask:Series = series[seenTaskNameToIndexMap.get(referenceTaskName)];
+        retryTask.data.push(span);
+        // TODO: ensure the state/status is available in data array
+      }
+  })
+  return series;
+}, [data]);
+  /** Map from task ID to index in fully expanded data */
+  const idToIndexMap = useMemo(()=> new Map<string, number>(initialData.map((task,idx) => [task.id, idx])), [initialData])
+  /** Map from task name to task ID */
+  const taskNameToIdMap = useMemo(() => new Map<string, string>(initialData.map(task=> [task.referenceTaskName, task.id])), [initialData]);
+  /** Map from task reference name to task type */
+  const taskTypeMap = useMemo(() => new Map<string, string>(initialData.map(task => [task.referenceTaskName, task.taskType])), [initialData]);
+  /** Data for the fully collapsed view of the workflow */
+  const collapsedData = useMemo<Series[]>(()=> { 
+    let data:Series[] = [];
+    initialData.forEach((task, idx) => {
+      const {referenceTaskName:refTaskName, parentTaskReferenceName:parentTaskRefName, taskType} = task
+      if (!parentTaskRefName || !collapseTaskTypes.includes(taskTypeMap.get(parentTaskRefName))){
+        data.push(task);
+        if (taskType === DO_WHILE){
+          let i = idx+1;
+          let subTaskData:Series[] = [];
+          while (i<initialData.length && initialData[i].parentTaskReferenceName === refTaskName){
+            let subTaskIndex = subTaskData.findIndex((tsk)=> tsk.referenceTaskName === initialData[i].referenceTaskName)
+            if (subTaskIndex === -1){
+              subTaskData.push(initialData[i]);
+            }else{
+              subTaskData[subTaskIndex] = {...subTaskData[subTaskIndex], data: [...subTaskData[subTaskIndex].data, initialData[i].data[0]]};
+            }
+            i++;
           }
-       }]
-    })));
-  const [collapsedData, setCollapsedData] = useState<Series[]>();
-
-  
-  useEffect(()=>{
-    initialData.map((task, index) => {
-      const {id, data, parentTaskReferenceName, taskType, referenceTaskName} = task;
-      let parentRefName = parentTaskReferenceName;
-      let parentID = refTaskNameToID.get(parentRefName)!;
-      setIndexMap(indexMap.set(id,index));
-      setTaskExpanded(taskExpanded.set(id, true));
-      setTaskTypeMap(taskTypeMap.set(id, taskType));
-      setRefTaskNameToID(refTaskNameToID.set(referenceTaskName, id));
-      if(parentRefName && collapseTaskTypes.includes(taskTypeMap.get(parentID)!)){
-        setCollapseTasks(collapseTasks.add(parentID));
-        if (!subTaskIdMap.has(parentID)){
-          setSubTaskIdMap(subTaskIdMap.set(parentID, []));
+          data.push(...subTaskData);
         }
-        let childTasksArr = subTaskIdMap.get(parentID)
-        childTasksArr!.push(id);
-        setSubTaskIdMap(subTaskIdMap.set(parentID, childTasksArr!));
-  
+      }
+    })
+    return data;
+  }, [data]);
+  /** ID of Tasks which exist in fully collapsed view (may or may not have subtasks) */
+  const parentTaskIds = useMemo<string[]>(()=> initialData.filter((task) => {
+    const {parentTaskReferenceName:parentTaskRefName} = task
+    if (!parentTaskRefName || !collapseTaskTypes.includes(taskTypeMap.get(parentTaskRefName))){
+      return true;
+    }
+    return false;
+  }).map(task=>task.id)
+  , [collapsedData]);
+  /** Map of Task IDs to their content when collapsed */
+  const collapsedTaskMap = useMemo<Map<string, Series[]>>(()=> {
+    let subTaskMap = new Map<string, Series[]>();
+    parentTaskIds.forEach(taskId => {
+      let taskIdx = idToIndexMap.get(taskId)
+      let task = initialData[taskIdx];
+      subTaskMap.set(taskId, [task]);
+      let i = taskIdx+1;
+      let subTaskArr = subTaskMap.get(taskId);
+      while (i<initialData.length && initialData[i].parentTaskReferenceName === task.referenceTaskName){        
+        if (task.taskType === DO_WHILE){
+          let idx = subTaskArr.findIndex((subTask)=>subTask.referenceTaskName === initialData[i].referenceTaskName);
+          if (idx === -1){
+            subTaskArr.push(initialData[i]);
+          }else{
+            subTaskArr[idx] = {...subTaskArr[idx], data: [...subTaskArr[idx].data, initialData[i].data[0]]};
+          }
+        }else if (task.taskType === FORK_JOIN_DYNAMIC || task.taskType === FORK){
+          let newTime:Date = task.data[0].t2;
+          let oldTime:Date = subTaskArr[0].data[0].t2;
+          if (oldTime < newTime){
+            subTaskArr[0] = {...subTaskArr[0], data: [{...subTaskArr[0].data[0], t2: newTime}]}
+          }
+        }
+        i++;
       } 
-      let oldTime = collapseLengths.get(parentRefName) || new Date(0);
-      let newTime = data[0].t2;
-      if (parentRefName && oldTime<newTime){
-        setCollapseLengths(collapseLengths.set(parentRefName, newTime));
-      }
-      
-    });    
+      subTaskMap.set(taskId, subTaskArr);
+    })
+    return subTaskMap;
+  }, [collapsedData])
+  /** Map of Task IDs to their content when expanded */
+  const expandedTaskMap = useMemo<Map<string, Series[]>>(()=> {
+    let subTaskMap = new Map<string, Series[]>();
+    parentTaskIds.forEach(taskId => {
+      let taskIdx = idToIndexMap.get(taskId)
+      let task = initialData[taskIdx];
+      subTaskMap.set(taskId, [task]);
+      let i = taskIdx+1;
+      let subTaskArr = subTaskMap.get(taskId);
+      while (i<initialData.length && initialData[i].parentTaskReferenceName === task.referenceTaskName){
+        subTaskArr.push(initialData[i]); 
+        i++;
+      }    
+      subTaskMap.set(taskId, subTaskArr);
+    })
+    return subTaskMap;
+  }, [data])
 
-    setCollapsedData(initialData.filter(({parentTaskReferenceName})=>{
-      let parentRefName = parentTaskReferenceName;
-      if (!parentRefName){
-        return true;
-      }
-      let parentID = refTaskNameToID.get(parentRefName)!;
-      return !collapseTaskTypes.includes(taskTypeMap.get(parentID)!);
-      // kids removed
-    }).map((task) =>{ 
-      // parents
-      let parentID = task.id;
-      if (!collapseTaskTypes.includes(taskTypeMap.get(parentID)!)){return task;}
-  
-      let oldTime = task.data[0].t2
-      let newTime = collapseLengths.get(task.referenceTaskName);
-      if (newTime && newTime>oldTime){
-        return {...task, data: [{...task.data[0], t2:newTime}]}
-      }
-      return task;
-      
-    }))
-  }, [])
+  const [series, setSeries] = useState<Series[]>(collapsedData);  
+  const [expanded, setExpanded] = useState<boolean>(false);
+  const [max, setMax] = useState(series[series.length-1].data[0].t2);
+  const [min, setMin] = useState(series[0].data[0].t1);
   
   useEffect(()=>{
     setSeries(series.map(task =>{
-      let styled = task.data[0].styles!.span;
-      if (task.id === selectedTaskId){
-        task.data[0].styles = {span: {style: {fill: 'blue'}}};
-      }else if (styled){
-        task.data[0].styles = {span: {}};
-      }
+      task.data.forEach(span => {
+        let styled = span.styles.span;
+        if (span.id === selectedTaskId){
+          span.styles = {span: {style: {fill: 'blue'}}};
+        }else if (styled){
+          span.styles = {
+            span: span.status === FAILED? {
+                style: {
+                  fill: 'red'
+                }}:{}
+            };
+        }
+      })
       return task
-      
     })) 
   }, [selectedTaskId])
-  
+
+
   function toggleAll(){
     if (expanded){
-      taskExpanded.forEach((value,key)=>value?setTaskExpanded(taskExpanded.set(key,false)):null);
-      setSeries(collapsedData!);
+      let newData = [];
+      taskExpanded.forEach((value,key)=>value && taskExpanded.set(key,false));
+      parentTaskIds.forEach(taskId => collapsedTaskMap.get(taskId).forEach(span => newData.push(span)));
+      setSeries(newData);
     }else{
-      taskExpanded.forEach((value,key)=>!value?setTaskExpanded(taskExpanded.set(key,true)):null);
+      taskExpanded.forEach((value,key)=>!value && taskExpanded.set(key,true));
       setSeries(initialData);
     }
     setExpanded(!expanded);
+    
   }
-
 
   function toggleExpansion(parentTaskID:string){
     let taskIsExpanded = taskExpanded.get(parentTaskID);
-    if (taskIsExpanded){ 
-      const newData = series.filter((task)=>{
-        const {parentTaskReferenceName} = task;
-        if (!parentTaskReferenceName){return true;}
-        return refTaskNameToID.get(parentTaskReferenceName) !== parentTaskID;
-
-      }).map((task)=>{
-        const {id,referenceTaskName, data} = task;
-        if (id === parentTaskID){
-          let newTime = collapseLengths.get(referenceTaskName);
-          if (newTime && newTime>data[0].t2){
-            return {...task, data: [{...task.data[0], t2:newTime}]} 
-          }
-        }
-        return task;
-      })
-      setSeries(newData);
+    let parentTask =initialData[idToIndexMap.get(parentTaskID)];
+    if (taskIsExpanded){
+      let newData:Series[] = series.filter(tsk => tsk.parentTaskReferenceName !== parentTask.referenceTaskName)
+      let currTaskIndex = newData.findIndex(tsk => tsk.id === parentTaskID)
+      setSeries([...newData.slice(0, currTaskIndex),
+        ...collapsedTaskMap.get(parentTaskID),
+        ...newData.slice(currTaskIndex+1)
+      ])
     }else{
-      const subTasks:Series[] = subTaskIdMap.get(parentTaskID)!.map(id => initialData.at(indexMap.get(id)!)!);
-      let index = indexMap.get(parentTaskID)!
-      const newData:Series[] = [...series.slice(0, index),
-                      initialData.at(indexMap.get(parentTaskID)!)!,
-                      ...subTasks,
-                       ...series.slice(index+1)];
-      setSeries(newData);
-    }
-    setTaskExpanded(taskExpanded.set(parentTaskID, !taskIsExpanded));
+      let currTaskIndex = series.findIndex(tsk => tsk.id === parentTaskID)
+      setSeries([...series.slice(0, currTaskIndex),
+        ...expandedTaskMap.get(parentTaskID),
+        ...series.slice(currTaskIndex+1)
+      ])
+    }    
+    taskExpanded.set(parentTaskID, !taskIsExpanded);
   }
-  const [series, setSeries] = useState<Series[]>(initialData);
-  const [expanded, setExpanded] = useState<boolean>(true);
-  const [max, setMax] = useState(initialData.slice(-1)[0].data[0].t2);
-  const [min, setMin] = useState(initialData[0].data[0].t1);
-  const preciseFormat = "hh:mm:ss:SSS";
-    return <>
+
+
+return (
+(<>
     <Button onClick={() =>{setMax(new Date(max.getTime() - (max.getTime()-min.getTime())/5));setMin(new Date(min.getTime() + (max.getTime()-min.getTime())/5))}}>zoom in</Button>
     <Button onClick={() =>{setMax(new Date(max.getTime() + (max.getTime()-min.getTime())/5));setMin(new Date(min.getTime() - (max.getTime()-min.getTime())/5))}}>zoom out</Button>
     <Button onClick={()=>{toggleAll()}}>{expanded? 'Collapse All':'Expand All'}</Button> 
+    <Button onClick={() =>{setMax(series[series.length-1].data[0].t2);setMin(series[0].data[0].t1)}}>zoom to fit</Button>
       <GanttChart min={min} max={max}>
-
           <Canvas />
-    
           <Bars
           barHeight={22}
           waitHeightDelta={2}
           alignmentRatioAlongYBandwidth={0.3}
-          onSpanClick={(_, series) => {
-            setSelectedTaskId(selectedTaskId==series.id?"":series.id);  
+          onSpanClick={(datum) => {
+            setSelectedTaskId(selectedTaskId===datum.id?null:datum.id);
+            OnClick(datum.id);
           }}
           data={series}
           font={font}
         />
-
-          <YAxis toggleRow={toggleExpansion} collapsibleRows={collapseTasks} rows={series} taskExpanded={taskExpanded} selectedTaskId={selectedTaskId} /> 
-
-          <XAxis dateFormat={max.getTime()-min.getTime()<10*1000? preciseFormat:undefined} /> 
-
+          <YAxis toggleRow={toggleExpansion} collapsibleRows={collapsibleTasks} rows={series} taskExpanded={taskExpanded} selectedTaskId={selectedTaskId} /> 
+          <XAxis />
           <Cursor />
 
           <Highlight>
@@ -198,5 +248,7 @@ export default function ConductorTimeline({data, selectedTaskId, setSelectedTask
 
     </GanttChart>
 
-    </>
+    </>)
+    )
+    
 }
