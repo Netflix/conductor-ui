@@ -2,11 +2,13 @@ import { defaultFormatter, idAccessor, yAccessor } from '../utils';
 import {
     rowsAtom,
     yScaleAtom,
+    canvasWidthAtom
 } from '../atoms';
 import { useAtom, useAtomValue } from 'jotai';
 import React, { useEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 import type { Series } from '../types';
+import { colors } from '../internal/utils';
 
 export interface YAxisProps {
     rows: Pick<Series, 'id' | 'label' | 'labelSvgIcon' | 'styles'>[];
@@ -18,6 +20,8 @@ export interface YAxisProps {
     toggleRow: (arg0:string)=>void;
     taskExpanded: Map<string, boolean>;
     selectedTaskId:string;
+    barHeight?: number;
+    alignmentRatioAlongYBandwidth?:number
 }
 export function YAxis({
     collapsibleRows,
@@ -28,6 +32,8 @@ export function YAxis({
     labelFormatter = defaultFormatter,
     taskExpanded,
     selectedTaskId,
+    barHeight = 22,
+    alignmentRatioAlongYBandwidth=0.3,
     // TODO connect this with the y-axis labels
     // font: inputFont = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
     children,
@@ -39,7 +45,7 @@ export function YAxis({
     const yAxisWidth = 250;
     const marginLeft = yAxisWidth + yAxisLabelPadding;
     const yScale = useAtomValue(yScaleAtom);
-
+    const canvasWidth = useAtomValue(canvasWidthAtom);
     useEffect(()=>{
         setLoading(false);
     }, [])
@@ -65,15 +71,17 @@ export function YAxis({
     }, new Map<string, string>());
 
     const getRow = (band: string) => inputRows.find(({ id }) => id === band);
-    
+    const bandwidth = yScale.bandwidth();
     return (
-        <g>
-            <svg x='0' y='0' height='100%' width='270px'  style={{backgroundColor:'green'}}>
-            <rect x='0' y='0' height='100%' width='270px' fill='white'></rect>
-            {yScale.domain().map((band) => {
+        <g transform={`translate(0, 10)`}>{/* 10 to prevent axis overlap with x-axis*/}
+            <svg x='0' y='0' height='100%' width='270px'  style={{backgroundColor:'green'}}> 
+            <rect x='0' y='0' height='100%' width='270px' fill='white' />
+            {yScale.domain().map((band, idx) => {
                 const row = getRow(band);
+                let yPos = (yScale(band) + (bandwidth - barHeight - 4)* alignmentRatioAlongYBandwidth)||0
                 return (
-                    <svg key={band}>
+                    <svg key={band} x='0' y='0' transform='translate(0,0)'>
+                        {!idx && <line x1={0} y1={yPos} x2={canvasWidth} y2={yPos} stroke={colors.grayLight6} />}
                     <svg x='0' y='0' height='100%' width='240px' >
                     <g key={band} >
                         {row?.labelSvgIcon && (
@@ -99,8 +107,7 @@ export function YAxis({
                                             : 'inherit',
                                 }}
                                 transform={`translate(${
-                                    -marginLeft+20},
-                                0)`}
+                                    -marginLeft+20})`}
                                 textAnchor="start"
                                 dominantBaseline="middle"
                                 fontWeight="bold"
@@ -117,6 +124,7 @@ export function YAxis({
                                {collapsibleRows.has(band) && (taskExpanded.get(band)? '\u25BC':'\u25BA')} {currRowsMap.get(band)}
                             </text>
                             
+                            
                         </g>
                     </g>                    
                     </svg>
@@ -124,8 +132,11 @@ export function YAxis({
                     <circle
                             style={{cursor: 'pointer'}}
                             onClick={()=>(navigator.clipboard.writeText(currRowsMap.get(band)))} cx={`${marginLeft-15}`} cy={`${yScale(band) + yScale.bandwidth() / 2}`} r="5" fill='darkGrey' />
+                    
                     </svg>
+                    <line x1={0} y1={yPos+barHeight+(17/2)} x2={canvasWidth} y2={yPos+barHeight+(17/2)} stroke={colors.grayLight6} />
                     </svg>
+                    
                 );
             })}
             </svg> 

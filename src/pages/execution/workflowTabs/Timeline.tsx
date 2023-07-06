@@ -91,7 +91,6 @@ export default function TimelineComponent({
   };
 
   const handleClick = (id: any) => {
-    console.log('click', id)
     if (id) {
       onClick({
         id: id,
@@ -103,14 +102,14 @@ export default function TimelineComponent({
 
   return (
     <div style={{ overflow: "auto", height: "100%" }}>
-      <div style={{ marginLeft: 15 }}>
+      {/* <div style={{ marginLeft: 15 }}>
         Ctrl-scroll to zoom.{" "}
         <Tooltip title="Zoom to Fit">
           <IconButton onClick={onFit} size="large">
             <ZoomOutMapIcon />
           </IconButton>
         </Tooltip>
-      </div>
+      </div> */}
       <div className="timeline-container">
       <ConductorTimeline data={tasks} selectedTaskId={selectedTaskId} setSelectedTaskId={setSelectedTaskId} OnClick={handleClick} />
         {/* <Timeline

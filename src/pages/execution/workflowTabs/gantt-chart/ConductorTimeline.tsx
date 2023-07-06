@@ -13,12 +13,13 @@ import {
   } from './';
 import {HighlightActions} from './HighlightActions';
 import { fontFamily, fontSizes } from './internal/utils';
+import {Datum} from './types'
 
 const font = `${fontSizes.fontSize4} ${fontFamily.fontFamilySans}`;
 const [DO_WHILE, FORK_JOIN_DYNAMIC, FORK] = ["DO_WHILE", "FORK_JOIN_DYNAMIC","FORK"];
 const collapseTaskTypes = [DO_WHILE, FORK, FORK_JOIN_DYNAMIC];
-const [COMPLETED, FAILED, IN_PROGRESS] = ["COMPLETED", "FAILED", "IN_PROGRESS"]
-
+const [COMPLETED, FAILED, IN_PROGRESS, SCHEDULED] = ["COMPLETED", "FAILED", "IN_PROGRESS", "SCHEDULED"]
+const terminatedStatus = [COMPLETED, FAILED]
 type ConductorTimelineProps = {
   data: any, 
   selectedTaskId: string
@@ -36,7 +37,10 @@ export default function ConductorTimeline({data, selectedTaskId, setSelectedTask
     let series:Series[] = [];
     let seenTaskNameToIndexMap:Map<string, number> = new Map<string,number>();
     data?.forEach(({taskId, startTime, endTime, parentTaskReferenceName, referenceTaskName, taskType, status, iteration}: any, index:number) => {
-      let span = {
+      if (!terminatedStatus.includes(status)){
+        return;
+      }
+      let span:Datum = {
         id: taskId, //span id
         status: status,
         t1: new Date(startTime),
@@ -218,19 +222,19 @@ export default function ConductorTimeline({data, selectedTaskId, setSelectedTask
     taskExpanded.set(parentTaskID, !taskIsExpanded);
   }
 
-
+const [barHeight, alignmentRatioAlongYBandwidth] = [22, 0.3];
 return (
 (<>
     <Button onClick={() =>{setMax(new Date(max.getTime() - (max.getTime()-min.getTime())/5));setMin(new Date(min.getTime() + (max.getTime()-min.getTime())/5))}}>zoom in</Button>
     <Button onClick={() =>{setMax(new Date(max.getTime() + (max.getTime()-min.getTime())/5));setMin(new Date(min.getTime() - (max.getTime()-min.getTime())/5))}}>zoom out</Button>
     <Button onClick={()=>{toggleAll()}}>{expanded? 'Collapse All':'Expand All'}</Button> 
     <Button onClick={() =>{setMax(series[series.length-1].data[0].t2);setMin(series[0].data[0].t1)}}>zoom to fit</Button>
-      <GanttChart min={min} max={max}>
+      <GanttChart min={min} max={max} style={{border: '3px solid transparent'}}>
           <Canvas />
           <Bars
-          barHeight={22}
+          barHeight={barHeight}
           waitHeightDelta={2}
-          alignmentRatioAlongYBandwidth={0.3}
+          alignmentRatioAlongYBandwidth={alignmentRatioAlongYBandwidth}
           onSpanClick={(datum) => {
             setSelectedTaskId(selectedTaskId===datum.id?null:datum.id);
             OnClick(datum.id);
@@ -238,7 +242,13 @@ return (
           data={series}
           font={font}
         />
-          <YAxis toggleRow={toggleExpansion} collapsibleRows={collapsibleTasks} rows={series} taskExpanded={taskExpanded} selectedTaskId={selectedTaskId} /> 
+          <YAxis 
+          toggleRow={toggleExpansion} 
+          collapsibleRows={collapsibleTasks} 
+          rows={series} 
+          taskExpanded={taskExpanded} 
+          selectedTaskId={selectedTaskId} 
+          /> 
           <XAxis />
           <Cursor />
 

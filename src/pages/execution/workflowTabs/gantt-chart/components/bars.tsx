@@ -161,7 +161,6 @@ export function Bars({
                         const colorFill = colorScale(
                             yAccessor(series)
                         ) as string;
-
                         const textFill = textIsGreaterThanWidth
                             ? colors.grayLight4
                             : getContrastYIQ(colorFill);
@@ -175,7 +174,7 @@ export function Bars({
                             // outside of left / right bounds so don't render
                             return null;
                         }
-
+                        
                         const renderText = (() => {
                             if (hideLabel) {
                                 return false;
@@ -204,7 +203,7 @@ export function Bars({
                             scaledY(series) +
                             (bandwidth - barHeight - 4) *
                                 alignmentRatioAlongYBandwidth;
-
+                        const lineHeight = 0;
                         return ( 
                             <animated.g  
                                 key={key}
@@ -306,9 +305,13 @@ export function Bars({
                                             {label}
                                         </text>
                                         
-
+                                        
                                     )}
+                                      
+
                                 </g>
+                                {!idx && <line x1={0} y1={0} x2={canvasWidth} y2={0} stroke={colors.grayLight6} />}
+                                <line x1={0} y1={barHeight+(17/2)} x2={canvasWidth} y2={barHeight+(17/2)} stroke={colors.grayLight6} />
                             </animated.g>
                         );
                     });
@@ -339,7 +342,7 @@ export function Bars({
         ]
     );
 
-    return <g transform={`translate(${marginLeft})`}>{bars}</g>;
+    return <g transform={`translate(${marginLeft}, 10)`}>{bars}</g>; //10 to Prevent bars overlap with x-axis
 }
 
 function getContrastYIQ(hexcolor: string) {
