@@ -74,7 +74,7 @@ export function YAxis({
     const bandwidth = yScale.bandwidth();
     return (
         <g transform={`translate(0, 10)`}>{/* 10 to prevent axis overlap with x-axis*/}
-            <svg x='0' y='0' height='100%' width='270px'  style={{backgroundColor:'green'}}> 
+            <svg x='0' y='0' height='100%' width='270px'> 
             <rect x='0' y='0' height='100%' width='270px' fill='white' />
             {yScale.domain().map((band, idx) => {
                 const row = getRow(band);

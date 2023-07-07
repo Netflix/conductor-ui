@@ -66,7 +66,7 @@ export const smartTimeFormat = (time:string|number, axisTicks:boolean=false)=>{
             }else if(minutes){
             return 'hh:mm:ss'
             }
-            return 'mm:ss:SSS'
+            return 'hh:mm:ss:SSS'
             
         }
         return label || `0ms`;

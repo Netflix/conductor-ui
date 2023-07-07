@@ -12,14 +12,13 @@ import {
     YAxis,
   } from './';
 import {HighlightActions} from './HighlightActions';
-import { fontFamily, fontSizes } from './internal/utils';
+import { fontFamily, fontSizes, colors } from './internal/utils';
 import {Datum} from './types'
 
 const font = `${fontSizes.fontSize4} ${fontFamily.fontFamilySans}`;
 const [DO_WHILE, FORK_JOIN_DYNAMIC, FORK] = ["DO_WHILE", "FORK_JOIN_DYNAMIC","FORK"];
 const collapseTaskTypes = [DO_WHILE, FORK, FORK_JOIN_DYNAMIC];
-const [COMPLETED, FAILED, IN_PROGRESS, SCHEDULED] = ["COMPLETED", "FAILED", "IN_PROGRESS", "SCHEDULED"]
-const terminatedStatus = [COMPLETED, FAILED]
+const [COMPLETED, FAILED, IN_PROGRESS, SCHEDULED, TIMED_OUT] = ["COMPLETED", "FAILED", "IN_PROGRESS", "SCHEDULED", "TIMED_OUT"]
 type ConductorTimelineProps = {
   data: any, 
   selectedTaskId: string
@@ -28,6 +27,16 @@ type ConductorTimelineProps = {
 };
 
 export default function ConductorTimeline({data, selectedTaskId, setSelectedTaskId, OnClick }:ConductorTimelineProps){
+  /** Function to return the style object of a span - based on the span status and selection state. */
+  const spanStyle = (taskId:string, status:string)=>{
+    return taskId === selectedTaskId ? {
+      style: {
+        fill: colors.blue4
+      }}: [FAILED, TIMED_OUT].includes(status)? {
+        style: {
+          fill: 'red'
+        }}:{}
+  }
   /** ID of tasks which have children: DO_WHILE, FORK, FORK_JOIN_DYNAMIC */
   const collapsibleTasks = useMemo<Set<string>>(() => new Set(data?.filter(task => collapseTaskTypes.includes(task.taskType)).map(task=> task.taskId)), [data]);
   /** Map from id to boolean of whether a task is expanded */ 
@@ -36,24 +45,19 @@ export default function ConductorTimeline({data, selectedTaskId, setSelectedTask
   const initialData = useMemo<Series[]>(()=>{
     let series:Series[] = [];
     let seenTaskNameToIndexMap:Map<string, number> = new Map<string,number>();
-    data?.forEach(({taskId, startTime, endTime, parentTaskReferenceName, referenceTaskName, taskType, status, iteration}: any, index:number) => {
-      if (!terminatedStatus.includes(status)){
-        return;
-      }
+    data?.forEach(({taskId, scheduledTime, startTime, endTime, parentTaskReferenceName, referenceTaskName, taskType, status, iteration}: any, index:number) => {
+      let endTimeDate:Date = endTime? new Date(endTime):new Date()
+      let startTimeDate:Date = startTime? new Date(startTime): new Date()
       let span:Datum = {
         id: taskId, //span id
         status: status,
-        t1: new Date(startTime),
-        t2: new Date(endTime),
+        t1: startTimeDate,
+        t2: endTimeDate,
+        w1: new Date(scheduledTime),
         iteration,
         styles: {
-          span: taskId === selectedTaskId ? {
-            style: {
-              fill: 'blue'
-            }}: status === FAILED? {
-              style: {
-                fill: 'red'
-              }}:{}
+          span: spanStyle(taskId, status),
+          waitSpan: spanStyle(taskId, status)
           }
        }
       if (!seenTaskNameToIndexMap.has(referenceTaskName)){
@@ -163,24 +167,29 @@ export default function ConductorTimeline({data, selectedTaskId, setSelectedTask
     return subTaskMap;
   }, [data])
 
+  const seriesMax:() => Date = ()=>{
+    let task:Series = series[series.length-1];
+    let idx:number = task.data.length-1;
+    return task.data[idx].t2;
+  }
+  const seriesMin:() => Date = ()=>{
+    let task:Series = series[0];
+    return task.data[0].w1 || task.data[0].t1;
+  }
+
+  
+
   const [series, setSeries] = useState<Series[]>(collapsedData);  
   const [expanded, setExpanded] = useState<boolean>(false);
-  const [max, setMax] = useState(series && series.length? series[series.length-1].data[0].t2:null);
-  const [min, setMin] = useState(series && series.length? series[0].data[0].t1:null);
+  const [max, setMax] = useState(series && series.length? seriesMax():null);
+  const [min, setMin] = useState(series && series.length? seriesMin():null);
   
   useEffect(()=>{
     setSeries(series.map(task =>{
       task.data.forEach(span => {
-        let styled = span.styles.span;
-        if (span.id === selectedTaskId){
-          span.styles = {span: {style: {fill: 'blue'}}};
-        }else if (styled){
-          span.styles = {
-            span: span.status === FAILED? {
-                style: {
-                  fill: 'red'
-                }}:{}
-            };
+        span.styles = {
+          span: spanStyle(span.id, span.status),
+          waitSpan: spanStyle(span.id, span.status)
         }
       })
       return task
@@ -228,7 +237,7 @@ return (
     <Button onClick={() =>{if (max && min){setMax(new Date(max.getTime() - (max.getTime()-min.getTime())/5));setMin(new Date(min.getTime() + (max.getTime()-min.getTime())/5))}}}>zoom in</Button>
     <Button onClick={() =>{if (max && min){setMax(new Date(max.getTime() + (max.getTime()-min.getTime())/5));setMin(new Date(min.getTime() - (max.getTime()-min.getTime())/5))}}}>zoom out</Button>
     <Button onClick={()=>{toggleAll()}}>{expanded? 'Collapse All':'Expand All'}</Button> 
-    <Button onClick={() =>{if (max && min){setMax(series[series.length-1].data[0].t2);setMin(series[0].data[0].t1)}}}>zoom to fit</Button>
+    <Button onClick={() =>{if (max && min){setMax(seriesMax());setMin(seriesMin())}}}>zoom to fit</Button>
       <GanttChart min={min} max={max} style={{border: '3px solid transparent'}}>
           <Canvas />
           <Bars
@@ -239,6 +248,7 @@ return (
             setSelectedTaskId(selectedTaskId===datum.id?null:datum.id);
             OnClick(datum.id);
           }}
+          selectedTaskId={selectedTaskId}
           data={series}
           font={font}
         />

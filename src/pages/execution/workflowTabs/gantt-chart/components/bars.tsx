@@ -46,6 +46,7 @@ export interface BarsProps {
     hideLabel?: boolean;
     hideWait?: boolean;
     font?: string;
+    selectedTaskId?:string
 }
 
 export function Bars({
@@ -57,6 +58,7 @@ export function Bars({
     alignmentRatioAlongYBandwidth,
     hideWait = false,
     hideLabel = false,
+    selectedTaskId,
     font: inputFont = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
 }: BarsProps) {
     useBarIdsOnChange()(data.map(yAccessor));

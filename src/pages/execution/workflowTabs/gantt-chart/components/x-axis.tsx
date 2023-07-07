@@ -45,6 +45,9 @@ export function XAxis({
             : 1;
 
     const xTicks = xScale.ticks(ticksCount);
+    const [minTick, maxTick] = xScale.domain();
+    if (!xTicks.includes(minTick)){xTicks.push(minTick)}
+    if (!xTicks.includes(maxTick)){xTicks.push(maxTick)}
     if (xTicks.length > 1){
         dateFormat = smartTimeFormat(xTicks[1].getTime()-xTicks[0].getTime(), true);
     }
