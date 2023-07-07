@@ -29,7 +29,7 @@ type ConductorTimelineProps = {
 
 export default function ConductorTimeline({data, selectedTaskId, setSelectedTaskId, OnClick }:ConductorTimelineProps){
   /** ID of tasks which have children: DO_WHILE, FORK, FORK_JOIN_DYNAMIC */
-  const collapsibleTasks = useMemo<Set<string>>(() => new Set(data.filter(task => collapseTaskTypes.includes(task.taskType)).map(task=> task.taskId)), [data]);
+  const collapsibleTasks = useMemo<Set<string>>(() => new Set(data?.filter(task => collapseTaskTypes.includes(task.taskType)).map(task=> task.taskId)), [data]);
   /** Map from id to boolean of whether a task is expanded */ 
   const taskExpanded  = useMemo<Map<string, boolean>>(()=> new Map<string,boolean>(Array.from(collapsibleTasks).map(id => [id,false])), [data]); 
   /** Full expansion of timeline data. Simplified to contain information relevant to timeline  */
@@ -165,8 +165,8 @@ export default function ConductorTimeline({data, selectedTaskId, setSelectedTask
 
   const [series, setSeries] = useState<Series[]>(collapsedData);  
   const [expanded, setExpanded] = useState<boolean>(false);
-  const [max, setMax] = useState(series[series.length-1].data[0].t2);
-  const [min, setMin] = useState(series[0].data[0].t1);
+  const [max, setMax] = useState(series && series.length? series[series.length-1].data[0].t2:null);
+  const [min, setMin] = useState(series && series.length? series[0].data[0].t1:null);
   
   useEffect(()=>{
     setSeries(series.map(task =>{
@@ -225,10 +225,10 @@ export default function ConductorTimeline({data, selectedTaskId, setSelectedTask
 const [barHeight, alignmentRatioAlongYBandwidth] = [22, 0.3];
 return (
 (<>
-    <Button onClick={() =>{setMax(new Date(max.getTime() - (max.getTime()-min.getTime())/5));setMin(new Date(min.getTime() + (max.getTime()-min.getTime())/5))}}>zoom in</Button>
-    <Button onClick={() =>{setMax(new Date(max.getTime() + (max.getTime()-min.getTime())/5));setMin(new Date(min.getTime() - (max.getTime()-min.getTime())/5))}}>zoom out</Button>
+    <Button onClick={() =>{if (max && min){setMax(new Date(max.getTime() - (max.getTime()-min.getTime())/5));setMin(new Date(min.getTime() + (max.getTime()-min.getTime())/5))}}}>zoom in</Button>
+    <Button onClick={() =>{if (max && min){setMax(new Date(max.getTime() + (max.getTime()-min.getTime())/5));setMin(new Date(min.getTime() - (max.getTime()-min.getTime())/5))}}}>zoom out</Button>
     <Button onClick={()=>{toggleAll()}}>{expanded? 'Collapse All':'Expand All'}</Button> 
-    <Button onClick={() =>{setMax(series[series.length-1].data[0].t2);setMin(series[0].data[0].t1)}}>zoom to fit</Button>
+    <Button onClick={() =>{if (max && min){setMax(series[series.length-1].data[0].t2);setMin(series[0].data[0].t1)}}}>zoom to fit</Button>
       <GanttChart min={min} max={max} style={{border: '3px solid transparent'}}>
           <Canvas />
           <Bars
