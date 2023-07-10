@@ -171,11 +171,11 @@ export function Bars({
                         const x1Pos = scaledX1(datum);
 
                         const x2Pos = w1Pos + x1Pos + width;
-
                         if (w1Pos > canvasWidth && x2Pos < 0) {
                             // outside of left / right bounds so don't render
                             return null;
                         }
+
                         
                         const renderText = (() => {
                             if (hideLabel) {
@@ -344,7 +344,10 @@ export function Bars({
         ]
     );
 
-    return <g transform={`translate(${marginLeft}, 10)`}>{bars}</g>; //10 to Prevent bars overlap with x-axis
+    return <g transform={`translate(${marginLeft}, 10)`}>
+        {bars}
+        <rect x={canvasWidth} y={0} height='100%' width='50px' fill='white' />
+        </g>; //10 to Prevent bars overlap with x-axis
 }
 
 function getContrastYIQ(hexcolor: string) {

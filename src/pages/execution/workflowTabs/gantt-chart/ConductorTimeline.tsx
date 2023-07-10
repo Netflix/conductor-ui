@@ -3,7 +3,6 @@ import {useEffect, useMemo, useState } from 'react';
 import { Button, ButtonGroup } from '@mui/material';
 import {
     Bars,
-    Canvas,
     Cursor,
     GanttChart,
     Highlight,
@@ -257,7 +256,6 @@ return (
       <Button onClick={zoomToFit}>Zoom To Fit</Button>
       </ButtonGroup>
       <GanttChart min={min} max={max} >
-          <Canvas />
           <Bars
           barHeight={BARHEIGHT}
           waitHeightDelta={2}
