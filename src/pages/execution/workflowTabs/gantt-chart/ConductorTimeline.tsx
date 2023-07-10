@@ -1,6 +1,6 @@
 
 import {useEffect, useMemo, useState } from 'react';
-import { Button } from '@mui/material';
+import { Button, ButtonGroup } from '@mui/material';
 import {
     Bars,
     Canvas,
@@ -10,6 +10,7 @@ import {
     Series,
     XAxis,
     YAxis,
+    useGanttChartAPI
   } from './';
 import {HighlightActions} from './HighlightActions';
 import { blue07, red } from '../../../../theme/colors';
@@ -28,6 +29,7 @@ type ConductorTimelineProps = {
 };
 
 export default function ConductorTimeline({data, selectedTaskId, setSelectedTaskId, onClick }:ConductorTimelineProps){
+  const {resetZoom } = useGanttChartAPI();
   /** Function to return the style object of a span - based on the span status and selection state. */
   function spanStyle(taskId:string, status:string){
     return taskId === selectedTaskId ? {
@@ -105,6 +107,18 @@ export default function ConductorTimeline({data, selectedTaskId, setSelectedTask
             i++;
           }
           data.push(...subTaskData);
+        }else if (taskType === FORK_JOIN_DYNAMIC || taskType === FORK){
+          let i = idx+1;
+          let maxTime = data.at(-1).data.at(-1).t2
+          while (i<initialData.length && initialData[i].parentTaskReferenceName === refTaskName){
+            if (initialData[i].data.at(-1).t2 >maxTime){
+              maxTime = initialData[i].data.at(-1).t2;
+            }
+            i++;
+          }
+          if (maxTime>data.at(-1).data.at(-1).t2){
+            data[data.length-1] = {...task, data: [{...task.data[0], t2:maxTime}]}
+          }
         }
       }
     })
@@ -137,7 +151,7 @@ export default function ConductorTimeline({data, selectedTaskId, setSelectedTask
             subTaskArr[idx] = {...subTaskArr[idx], data: [...subTaskArr[idx].data, initialData[i].data[0]]};
           }
         }else if (task.taskType === FORK_JOIN_DYNAMIC || task.taskType === FORK){
-          let newTime:Date = task.data[0].t2;
+          let newTime:Date = initialData[i].data[0].t2;
           let oldTime:Date = subTaskArr[0].data[0].t2;
           if (oldTime < newTime){
             subTaskArr[0] = {...subTaskArr[0], data: [{...subTaskArr[0].data[0], t2: newTime}]}
@@ -230,34 +244,19 @@ export default function ConductorTimeline({data, selectedTaskId, setSelectedTask
     setTaskExpanded(taskExpanded.set(parentTaskID, !taskIsExpanded));
   }
 
-  function zoomIn(){
-    if (max && min){
-      setMax(new Date(max.getTime() - (max.getTime()-min.getTime())/5));
-      setMin(new Date(min.getTime() + (max.getTime()-min.getTime())/5))
-    }
-  }
-
-  function zoomOut(){
-    if (max && min){
-      setMax(new Date(max.getTime() + (max.getTime()-min.getTime())/5));
-      setMin(new Date(min.getTime() - (max.getTime()-min.getTime())/5));
-  }
-  }
-
   function zoomToFit(){
     if (max && min){
-      setMax(seriesMax());
-      setMin(seriesMin())
+      resetZoom();
     }
   }
 
 return (
 (<>
-    <Button onClick={zoomIn}>zoom in</Button>
-    <Button onClick={zoomOut}>zoom out</Button>
-    <Button onClick={toggleAll}>{expanded? 'Collapse All':'Expand All'}</Button> 
-    <Button onClick={zoomToFit}>zoom to fit</Button>
-      <GanttChart min={min} max={max} style={{border: '3px solid transparent'}}>
+      <ButtonGroup orientation="horizontal">
+      <Button onClick={toggleAll}>{expanded? 'Collapse All':'Expand All'}</Button> 
+      <Button onClick={zoomToFit}>Zoom To Fit</Button>
+      </ButtonGroup>
+      <GanttChart min={min} max={max} >
           <Canvas />
           <Bars
           barHeight={BARHEIGHT}
