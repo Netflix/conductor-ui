@@ -60,11 +60,6 @@ export function GanttChart({
             <div ref={ref} className={className} style={style}>
                 <InteractionsDiv />
                 <DraggableSVG>
-                    <rect
-                        fill="rgb(250, 250, 250)"
-                        width="100%"
-                        height="100%"
-                    />
                     {children}
                 </DraggableSVG>
             </div>
