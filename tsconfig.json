@@ -16,7 +16,9 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "types": [],
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
   },
   "include": ["src"]
 }

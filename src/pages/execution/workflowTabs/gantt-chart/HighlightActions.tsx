@@ -11,9 +11,7 @@ export function HighlightActions() {
     const { zoom, highlightMax, highlightMin, resetZoom } = useGanttChartAPI();
 
     return (
-        <Paper elevation={1} 
-        // layout={{ padding: 0 }}
-        >
+        <Paper elevation={1}>
             <ButtonGroup orientation="vertical">
                 <IconButton 
                     aria-label="zoom in"

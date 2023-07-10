@@ -6,7 +6,7 @@ import {
     marginLeftAtom,
     rightDragAtom,
 } from '../atoms';
-import { colors } from '../internal/utils';
+import { grayDark } from '../../../../../theme/colors';
 import { useAtomValue } from 'jotai';
 import { useGanttContext } from '../internal/gantt-context';
 import { useUpdateAtom } from 'jotai/utils';
@@ -63,7 +63,7 @@ export function Highlight({ children }: PropsWithChildren<unknown>) {
         >
             <g transform={`translate(${marginLeft})`}>
                 <rect
-                    fill={colors.grayDark}
+                    fill={grayDark}
                     opacity={0.7}
                     width={Math.abs(leftDrag - marginLeft)}
                     height={canvasHeight}
@@ -78,7 +78,7 @@ export function Highlight({ children }: PropsWithChildren<unknown>) {
             </g>
             <g transform={`translate(${rightDrag})`}>
                 <rect
-                    fill={colors.grayDark}
+                    fill={grayDark}
                     opacity={0.7}
                     width={canvasWidth - rightDrag + marginLeft}
                     height={canvasHeight}

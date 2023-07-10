@@ -1,4 +1,5 @@
-import { colors, fontFamily, fontSizes } from '../internal/utils';
+import { fontFamily, fontSizes } from '../../../../../theme/variables';
+import { black } from '../../../../../theme/colors';
 import { makeStyles } from '@mui/styles';
 
 export const useStyles = makeStyles({
@@ -18,6 +19,6 @@ export const useStyles = makeStyles({
     },
     xAxisLabel: {
         font: `${fontSizes.fontSize3} ${fontFamily.fontFamilySans}`,
-        fill: colors.black,
+        fill: black,
     },
 });

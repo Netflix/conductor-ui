@@ -12,35 +12,36 @@ import {
     YAxis,
   } from './';
 import {HighlightActions} from './HighlightActions';
-import { fontFamily, fontSizes, colors } from './internal/utils';
-import {Datum} from './types'
+import { blue07, red } from '../../../../theme/colors';
+import { fontFamily, fontSizes } from '../../../../theme/variables';
+import { Datum } from './types'
 
-const font = `${fontSizes.fontSize4} ${fontFamily.fontFamilySans}`;
 const [DO_WHILE, FORK_JOIN_DYNAMIC, FORK] = ["DO_WHILE", "FORK_JOIN_DYNAMIC","FORK"];
 const collapseTaskTypes = [DO_WHILE, FORK, FORK_JOIN_DYNAMIC];
 const [COMPLETED, FAILED, IN_PROGRESS, SCHEDULED, TIMED_OUT] = ["COMPLETED", "FAILED", "IN_PROGRESS", "SCHEDULED", "TIMED_OUT"]
+const [BARHEIGHT, ALIGNMENTRATIOALONGYBANDWIDTH] = [22, 0.3];
 type ConductorTimelineProps = {
-  data: any, 
+  data: any[], 
   selectedTaskId: string
   setSelectedTaskId: (id:string)=>void
-  OnClick: (id: string) => void;
+  onClick: (id: string) => void;
 };
 
-export default function ConductorTimeline({data, selectedTaskId, setSelectedTaskId, OnClick }:ConductorTimelineProps){
+export default function ConductorTimeline({data, selectedTaskId, setSelectedTaskId, onClick }:ConductorTimelineProps){
   /** Function to return the style object of a span - based on the span status and selection state. */
-  const spanStyle = (taskId:string, status:string)=>{
+  function spanStyle(taskId:string, status:string){
     return taskId === selectedTaskId ? {
       style: {
-        fill: colors.blue4
+        fill: blue07
       }}: [FAILED, TIMED_OUT].includes(status)? {
         style: {
-          fill: 'red'
+          fill: red
         }}:{}
   }
   /** ID of tasks which have children: DO_WHILE, FORK, FORK_JOIN_DYNAMIC */
   const collapsibleTasks = useMemo<Set<string>>(() => new Set(data?.filter(task => collapseTaskTypes.includes(task.taskType)).map(task=> task.taskId)), [data]);
   /** Map from id to boolean of whether a task is expanded */ 
-  const taskExpanded  = useMemo<Map<string, boolean>>(()=> new Map<string,boolean>(Array.from(collapsibleTasks).map(id => [id,false])), [data]); 
+  const [taskExpanded, setTaskExpanded]  = useState<Map<string, boolean>>(new Map<string,boolean>(Array.from(collapsibleTasks).map(id => [id,false]))); 
   /** Full expansion of timeline data. Simplified to contain information relevant to timeline  */
   const initialData = useMemo<Series[]>(()=>{
     let series:Series[] = [];
@@ -74,7 +75,6 @@ export default function ConductorTimeline({data, selectedTaskId, setSelectedTask
       }else{
         let retryTask:Series = series[seenTaskNameToIndexMap.get(referenceTaskName)];
         retryTask.data.push(span);
-        // TODO: ensure the state/status is available in data array
       }
   })
   return series;
@@ -167,17 +167,16 @@ export default function ConductorTimeline({data, selectedTaskId, setSelectedTask
     return subTaskMap;
   }, [data])
 
-  const seriesMax:() => Date = ()=>{
+  function seriesMax(){
     let task:Series = series[series.length-1];
     let idx:number = task.data.length-1;
     return task.data[idx].t2;
   }
-  const seriesMin:() => Date = ()=>{
+
+  function seriesMin(){
     let task:Series = series[0];
     return task.data[0].w1 || task.data[0].t1;
   }
-
-  
 
   const [series, setSeries] = useState<Series[]>(collapsedData);  
   const [expanded, setExpanded] = useState<boolean>(false);
@@ -200,11 +199,11 @@ export default function ConductorTimeline({data, selectedTaskId, setSelectedTask
   function toggleAll(){
     if (expanded){
       let newData = [];
-      taskExpanded.forEach((value,key)=>value && taskExpanded.set(key,false));
+      taskExpanded.forEach((value,key)=>value && setTaskExpanded(taskExpanded.set(key,false)));
       parentTaskIds.forEach(taskId => collapsedTaskMap.get(taskId).forEach(span => newData.push(span)));
       setSeries(newData);
     }else{
-      taskExpanded.forEach((value,key)=>!value && taskExpanded.set(key,true));
+      taskExpanded.forEach((value,key)=>!value && setTaskExpanded(taskExpanded.set(key,true)));
       setSeries(initialData);
     }
     setExpanded(!expanded);
@@ -228,29 +227,49 @@ export default function ConductorTimeline({data, selectedTaskId, setSelectedTask
         ...series.slice(currTaskIndex+1)
       ])
     }    
-    taskExpanded.set(parentTaskID, !taskIsExpanded);
+    setTaskExpanded(taskExpanded.set(parentTaskID, !taskIsExpanded));
   }
 
-const [barHeight, alignmentRatioAlongYBandwidth] = [22, 0.3];
+  function zoomIn(){
+    if (max && min){
+      setMax(new Date(max.getTime() - (max.getTime()-min.getTime())/5));
+      setMin(new Date(min.getTime() + (max.getTime()-min.getTime())/5))
+    }
+  }
+
+  function zoomOut(){
+    if (max && min){
+      setMax(new Date(max.getTime() + (max.getTime()-min.getTime())/5));
+      setMin(new Date(min.getTime() - (max.getTime()-min.getTime())/5));
+  }
+  }
+
+  function zoomToFit(){
+    if (max && min){
+      setMax(seriesMax());
+      setMin(seriesMin())
+    }
+  }
+
 return (
 (<>
-    <Button onClick={() =>{if (max && min){setMax(new Date(max.getTime() - (max.getTime()-min.getTime())/5));setMin(new Date(min.getTime() + (max.getTime()-min.getTime())/5))}}}>zoom in</Button>
-    <Button onClick={() =>{if (max && min){setMax(new Date(max.getTime() + (max.getTime()-min.getTime())/5));setMin(new Date(min.getTime() - (max.getTime()-min.getTime())/5))}}}>zoom out</Button>
-    <Button onClick={()=>{toggleAll()}}>{expanded? 'Collapse All':'Expand All'}</Button> 
-    <Button onClick={() =>{if (max && min){setMax(seriesMax());setMin(seriesMin())}}}>zoom to fit</Button>
+    <Button onClick={zoomIn}>zoom in</Button>
+    <Button onClick={zoomOut}>zoom out</Button>
+    <Button onClick={toggleAll}>{expanded? 'Collapse All':'Expand All'}</Button> 
+    <Button onClick={zoomToFit}>zoom to fit</Button>
       <GanttChart min={min} max={max} style={{border: '3px solid transparent'}}>
           <Canvas />
           <Bars
-          barHeight={barHeight}
+          barHeight={BARHEIGHT}
           waitHeightDelta={2}
-          alignmentRatioAlongYBandwidth={alignmentRatioAlongYBandwidth}
+          alignmentRatioAlongYBandwidth={ALIGNMENTRATIOALONGYBANDWIDTH}
           onSpanClick={(datum) => {
             setSelectedTaskId(selectedTaskId===datum.id?null:datum.id);
-            OnClick(datum.id);
+            onClick(datum.id);
           }}
           selectedTaskId={selectedTaskId}
           data={series}
-          font={font}
+          font={`${fontSizes.fontSize4} ${fontFamily.fontFamilySans}`}
         />
           <YAxis 
           toggleRow={toggleExpansion} 

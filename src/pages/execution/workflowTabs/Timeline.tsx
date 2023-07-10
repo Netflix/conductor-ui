@@ -28,7 +28,6 @@ export default function TimelineComponent({
     }
   }, [dag, selectedTask]);
   */
-  // const selectedId = "";
   const [selectedTaskId, setSelectedTaskId] = useState<string>("");
 
   const { items, groups } = useMemo(() => {
@@ -102,29 +101,8 @@ export default function TimelineComponent({
 
   return (
     <div style={{ overflow: "auto", height: "100%" }}>
-      {/* <div style={{ marginLeft: 15 }}>
-        Ctrl-scroll to zoom.{" "}
-        <Tooltip title="Zoom to Fit">
-          <IconButton onClick={onFit} size="large">
-            <ZoomOutMapIcon />
-          </IconButton>
-        </Tooltip>
-      </div> */}
       <div className="timeline-container">
-      <ConductorTimeline data={tasks} selectedTaskId={selectedTaskId} setSelectedTaskId={setSelectedTaskId} OnClick={handleClick} />
-        {/* <Timeline
-          ref={timelineRef}
-          initialGroups={groups}
-          initialItems={items}
-          selection={selectedId}
-          clickHandler={handleClick}
-          options={{
-            orientation: "top",
-            zoomKey: "ctrlKey",
-            type: "range",
-            stack: false,
-          }}
-        /> */}
+      <ConductorTimeline data={tasks} selectedTaskId={selectedTaskId} setSelectedTaskId={setSelectedTaskId} onClick={handleClick} />
       </div>
       <br />
     </div>

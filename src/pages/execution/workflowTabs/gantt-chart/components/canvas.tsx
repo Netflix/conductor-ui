@@ -1,5 +1,5 @@
 import { canvasHeightAtom, canvasWidthAtom, marginLeftAtom } from '../atoms';
-import { colors } from '../internal/utils';
+import { white } from '../../../../../theme/colors';
 import { useAtomValue } from 'jotai';
 import React from 'react';
 import type { Styles } from '../types';
@@ -15,7 +15,7 @@ export function Canvas({ styles }: CanvasProps) {
     return (
         <g transform={`translate(${marginLeft})`}>
             <rect
-                fill={colors.white}
+                fill={white}
                 width={canvasWidth}
                 height={canvasHeight}
                 className={styles?.canvas?.className}

@@ -8,7 +8,7 @@ import {
     xScaleAtom,
     yScaleAtom,
 } from '../atoms';
-import { colors } from '../internal/utils';
+import { grayLight4, grayLight6, grayDark4, white } from '../../../../../theme/colors';
 import { getTextWidth, smartTimeFormat } from '../internal/utils';
 import {
     idAccessor,
@@ -164,7 +164,7 @@ export function Bars({
                             yAccessor(series)
                         ) as string;
                         const textFill = textIsGreaterThanWidth
-                            ? colors.grayLight4
+                            ? grayLight4
                             : getContrastYIQ(colorFill);
 
                         const w1Pos = scaledW1(datum);
@@ -312,8 +312,8 @@ export function Bars({
                                       
 
                                 </g>
-                                {!idx && <line x1={0} y1={0} x2={canvasWidth} y2={0} stroke={colors.grayLight6} />}
-                                <line x1={0} y1={barHeight+(17/2)} x2={canvasWidth} y2={barHeight+(17/2)} stroke={colors.grayLight6} />
+                                {!idx && <line x1={0} y1={0} x2={canvasWidth} y2={0} stroke={grayLight6} />}
+                                <line x1={0} y1={barHeight+(17/2)} x2={canvasWidth} y2={barHeight+(17/2)} stroke={grayLight6} />
                             </animated.g>
                         );
                     });
@@ -355,5 +355,5 @@ function getContrastYIQ(hexcolor: string) {
     const g = parseInt(hexcolor.substr(2, 2), 16);
     const b = parseInt(hexcolor.substr(4, 2), 16);
     const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-    return yiq >= 128 ? colors.grayDark4 : colors.white;
+    return yiq >= 128 ? grayDark4 : white;
 }

@@ -8,7 +8,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import React, { useEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 import type { Series } from '../types';
-import { colors } from '../internal/utils';
+import { grayLight6 } from '../../../../../theme/colors';
 
 export interface YAxisProps {
     rows: Pick<Series, 'id' | 'label' | 'labelSvgIcon' | 'styles'>[];
@@ -81,7 +81,7 @@ export function YAxis({
                 let yPos = (yScale(band) + (bandwidth - barHeight - 4)* alignmentRatioAlongYBandwidth)||0
                 return (
                     <svg key={band} x='0' y='0' transform='translate(0,0)'>
-                        {!idx && <line x1={0} y1={yPos} x2={canvasWidth} y2={yPos} stroke={colors.grayLight6} />}
+                        {!idx && <line x1={0} y1={yPos} x2={canvasWidth} y2={yPos} stroke={grayLight6} />}
                     <svg x='0' y='0' height='100%' width='240px' >
                     <g key={band} >
                         {row?.labelSvgIcon && (
@@ -134,7 +134,7 @@ export function YAxis({
                             onClick={()=>(navigator.clipboard.writeText(currRowsMap.get(band)))} cx={`${marginLeft-15}`} cy={`${yScale(band) + yScale.bandwidth() / 2}`} r="5" fill='darkGrey' />
                     
                     </svg>
-                    <line x1={0} y1={yPos+barHeight+(17/2)} x2={canvasWidth} y2={yPos+barHeight+(17/2)} stroke={colors.grayLight6} />
+                    <line x1={0} y1={yPos+barHeight+(17/2)} x2={canvasWidth} y2={yPos+barHeight+(17/2)} stroke={grayLight6} />
                     </svg>
                     
                 );

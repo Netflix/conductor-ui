@@ -1,8 +1,0 @@
-{
-    "extends": "../../../../../tsconfig.json",
-    "compilerOptions": {
-      "strictNullChecks": false,
-      "noImplicitAny": false,
-      "strict": false
-    }
-}

@@ -1,5 +1,6 @@
 import { atom, useAtomValue } from 'jotai';
-import { getTextWidth, fontFamily, fontSizes } from './internal/utils';
+import { getTextWidth } from './internal/utils';
+import { fontFamily, fontSizes } from '../../../../theme/variables';
 import { idAccessor, yAccessor } from './utils';
 import { scaleBand, scaleOrdinal, scaleTime, schemeGreens } from 'd3';
 import { useAtomSetterOnChange } from './internal/hooks';
@@ -44,26 +45,6 @@ export const barIdsAtom = atom<string[]>([]);
 
 export const graphWidthAtom = atom(0, null);
 
-export const yAxisWidthAtom = atom((get) => {
-    const canvas = get(canvasAtom);
-    if (!canvas) {
-        return 0;
-    }
-    const ctx = canvas.getContext('2d');
-    let maxWidth = 0;
-    for (const label of get(rowsAtom).map(yAccessor)) {
-        maxWidth = Math.max(
-            maxWidth,
-            getTextWidth(
-                ctx,
-                label,
-                `${fontSizes.fontSize3} ${fontFamily.fontFamilySans}`
-            )
-        );
-    }
-    return maxWidth;
-});
-
 export const totalBandHeightAtom = atom((get) => {
     const rows = get(rowsAtom);
     const { height } = get(bandAtom);
@@ -81,10 +62,6 @@ export const yAxisHeightAtom = atom(
 );
 
 export const marginLeftAtom = atom((get) => {
-    // const yAxisLabelPadding = 20;
-    // const { left } = get(marginsAtom);
-    // const yAxisWidth = get(yAxisWidthAtom);
-    // return left + yAxisWidth + yAxisLabelPadding;
     return 270;
 });
 

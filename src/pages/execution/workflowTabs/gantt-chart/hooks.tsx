@@ -25,8 +25,6 @@ export const useGanttChartAPI = () => {
     const rightDrag = useAtomValue(rightDragAtom);
     const marginLeft = useAtomValue(marginLeftAtom);
     const canvasWidth = useAtomValue(canvasWidthAtom);
-    //const [selectedLabel, setSelectedLabel] = useAtom(yAxisSelectedLabelAtom);
-
     const resetDrag = useResetDrag();
     const resetZoom = useCallback(() => {
         setScopedMinMax([min, max]);
