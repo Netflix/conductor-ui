@@ -268,7 +268,7 @@ return (
           }}
           selectedTaskId={selectedTaskId}
           data={series}
-          font={`${fontSizes.fontSize4} ${fontFamily.fontFamilySans}`}
+          font={`${fontSizes.fontSize3} ${fontFamily.fontFamilySans}`}
         />
           <YAxis 
           toggleRow={toggleExpansion} 
