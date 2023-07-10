@@ -50,6 +50,8 @@ export class WorkflowExecution implements Execution {
     this.workflowName = workflowName;
     this.status = status;
     this.workflowDefinition = {
+      name: workflowName,
+      version: 1,
       tasks: [],
     };
   }

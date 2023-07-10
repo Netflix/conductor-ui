@@ -42,6 +42,8 @@ export type Tally = {
 
 export type WorkflowDef = {
   tasks: TaskConfig[];
+  name: string;
+  version: number;
 };
 
 export type TaskCoordinateId = { id: string; ref?: string };
@@ -116,7 +118,7 @@ export interface InlineTaskConfig extends BaseTaskConfig {
 export interface JQTransformTaskConfig extends BaseTaskConfig {
   type: "JQ_TRANSFORM";
 }
-export interface WatiTaskConfig extends BaseTaskConfig {
+export interface WaitTaskConfig extends BaseTaskConfig {
   type: "WAIT";
 }
 export interface PlaceholderTaskConfig extends BaseTaskConfig {
@@ -149,5 +151,6 @@ export type TaskConfig =
   | TerminateTaskConfig
   | InlineTaskConfig
   | JQTransformTaskConfig
-  | WatiTaskConfig;
+  | WaitTaskConfig;
+
 export type GenericTaskConfig = TaskConfig | VirtualTaskConfig;

@@ -546,7 +546,7 @@ export default class WorkflowDAG {
     }
   }
 
-  getDFSiblingsByCoord(taskCoordinate: TaskCoordinate) {
+  getDFSiblingsByCoord(taskCoordinate: TaskCoordinate): TaskResult[] | undefined{
     const taskResult = this.getTaskResultByCoord(taskCoordinate);
     if (!taskResult?.parentTaskReferenceName) {
       return undefined;
@@ -571,9 +571,11 @@ export default class WorkflowDAG {
     if (!parentResult.forkedTaskRefs) {
       throw new Error("parent DF missing forkedTaskRefs");
     }
-    return Array.from(parentResult.forkedTaskRefs).map((ref) =>
-      this.getTaskResultByRef(ref)
-    );
+    return Array.from(parentResult.forkedTaskRefs).map((ref) => {
+      const taskResult = this.getTaskResultByRef(ref);
+      if(!taskResult) throw new Error("forkedTaskRef not found");
+      return taskResult;
+    });
   }
 
   getTaskResultById(id: string) {
