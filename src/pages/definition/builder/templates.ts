@@ -12,6 +12,7 @@ import {
   TaskConfig,
   TaskConfigType,
   TerminateTaskConfig,
+  WaitTaskConfig,
 } from "../../../types/workflowDef";
 
 export const templates: {
@@ -133,6 +134,15 @@ export const templates: {
       taskReferenceName: ref,
       type: "INLINE",
       name: ref,
+    };
+    return [retval];
+  },
+  WAIT: (ref) => {
+    const retval: WaitTaskConfig = {
+      inputParameters: {},
+      taskReferenceName: ref,
+      name: ref,
+      type: "WAIT"
     };
     return [retval];
   },

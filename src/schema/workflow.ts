@@ -1,4 +1,5 @@
 /* eslint-disable no-template-curly-in-string */
+import { HttpTaskConfig } from "../types/workflowDef";
 
 export const NEW_WORKFLOW_TEMPLATE = {
   name: "",
@@ -16,7 +17,7 @@ export const NEW_WORKFLOW_TEMPLATE = {
         },
       },
       type: "HTTP",
-    },
+    } as HttpTaskConfig
   ],
   inputParameters: [],
   outputParameters: {

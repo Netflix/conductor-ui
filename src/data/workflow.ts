@@ -1,13 +1,15 @@
 import { useMemo } from "react";
-import { useQuery, useMutation, useQueryClient, useQueries } from "react-query";
+import { useQuery, useMutation, useQueryClient, useQueries, Query } from "react-query";
 import useAppContext from "../hooks/useAppContext";
 import { useFetch, useFetchParallel } from "./common";
 import qs from "qs";
 import _ from "lodash";
+import { WorkflowDef } from "../types/workflowDef";
+import { NamesAndVersions } from "../types/namesAndVersions";
 const STALE_TIME_WORKFLOW_DEFS = 600000; // 10 mins
 const STALE_TIME_SEARCH = 60000; // 1 min
 
-export function useWorkflowSearch(searchObj) {
+export function useWorkflowSearch(searchObj: any) {
   const { fetchWithContext, ready, stack } = useAppContext();
 
   const pathRoot = "/workflow/search?";
@@ -36,7 +38,7 @@ export function useWorkflowSearch(searchObj) {
   );
 }
 
-export function useWorkflowsByIds(workflowIds, reactQueryOptions) {
+export function useWorkflowsByIds(workflowIds: string[], reactQueryOptions: any) {
   return useFetchParallel(
     workflowIds.map((workflowId) => ["workflow", workflowId]),
     reactQueryOptions
@@ -47,10 +49,10 @@ export function useInvalidateWorkflows() {
   const { stack } = useAppContext();
   const client = useQueryClient();
 
-  return function (workflowIds) {
+  return function (workflowIds: string[]) {
     console.log("invalidating workflow Ids", workflowIds);
     client.invalidateQueries({
-      predicate: (query) =>
+      predicate: (query: Query<any, any, any, any>) =>
         query.queryKey[0] === stack &&
         query.queryKey[1] === "workflow" &&
         workflowIds.includes(query.queryKey[2]),
@@ -59,13 +61,13 @@ export function useInvalidateWorkflows() {
 }
 
 export function useWorkflowDef(
-  workflowName,
-  version,
-  defaultWorkflow,
+  workflowName: string | undefined,
+  version: string | undefined,
+  defaultWorkflow: WorkflowDef | undefined,
   reactQueryOptions = {}
 ) {
-  let path;
-  const key = ["workflowDef", workflowName];
+  let path="";
+  const key = ["workflowDef", workflowName||""];
 
   if (workflowName) {
     path = `/metadata/workflow/${workflowName}`;
@@ -74,33 +76,23 @@ export function useWorkflowDef(
       key.push(version);
     }
   }
-  return useFetch(key, path, reactQueryOptions, defaultWorkflow);
+  return useFetch<WorkflowDef>(key, path, {...reactQueryOptions, enabled: !!workflowName}, defaultWorkflow);
 }
 
 export function useWorkflowDefs() {
-  return useFetch(["workflowDefs"], "/metadata/workflow", {
+  return useFetch<WorkflowDef[]>(["workflowDefs"], "/metadata/workflow", {
     staleTime: STALE_TIME_WORKFLOW_DEFS,
   });
 }
 
 export function useWorkflowNamesAndVersions() {
-  return useFetch(
+  return useFetch<NamesAndVersions>(
     ["workflowNamesAndVersions"],
     "/metadata/workflow/names-and-versions",
     {
       staleTime: STALE_TIME_WORKFLOW_DEFS,
     }
   );
-  /*
-  return useFetch(
-    ["workflowNamesAndVersions"],
-    undefined,
-    {
-      staleTime: STALE_TIME_WORKFLOW_DEFS,
-    },
-    require("./nameandversions.json")
-  );
-  */
 }
 
 export function usePaginatedWorkflowDefs(from = 0, to = 15, filter = "") {
@@ -167,12 +159,12 @@ export function useLatestWorkflowDefs() {
   };
 }
 
-export function useSaveWorkflow(callbacks) {
+export function useSaveWorkflow(callbacks: any) {
   const path = "/metadata/workflow";
   const { fetchWithContext } = useAppContext();
 
   return useMutation(
-    ({ body, isNew }) =>
+    ({ body, isNew }: { body: any, isNew: boolean}) =>
       fetchWithContext(path, {
         method: isNew ? "post" : "put",
         headers: {
@@ -198,12 +190,12 @@ export function useWorkflowNames() {
   }, [data]);
 }
 
-export function useStartWorkflow(callbacks) {
+export function useStartWorkflow(callbacks: any) {
   const path = "/workflow";
   const { fetchWithContext } = useAppContext();
 
   return useMutation(
-    ({ body }) =>
+    ({ body }: { body: any}) =>
       fetchWithContext(path, {
         method: "post",
         headers: {

@@ -1,12 +1,25 @@
 import React from "react";
-import { Input } from "./";
-import Autocomplete from "@mui/material/Autocomplete";
+import { Input } from ".";
+import Autocomplete, { AutocompleteProps } from "@mui/material/Autocomplete";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import CloseIcon from "@mui/icons-material/Close";
 import { InputAdornment, CircularProgress } from "@mui/material";
 
-export default function ({
+interface DropdownProps<T> extends Omit<AutocompleteProps<T, boolean | undefined, boolean | undefined, boolean | undefined>, "renderInput"> {
+  label?: string;
+  className?: string;
+  style?: any;
+  error?: any;
+  helperText?: string;
+  name?: any;
+  value?: any;
+  placeholder?: any;
+  loading?: boolean;
+  disabled?: boolean;
+}
+
+export default function Dropdown<T>({
   label,
   className,
   style,
@@ -18,7 +31,7 @@ export default function ({
   loading,
   disabled,
   ...props
-}) {
+}: DropdownProps<T>) {
   return (
     <FormControl style={style} className={className}>
       {label && <InputLabel error={!!error}>{label}</InputLabel>}

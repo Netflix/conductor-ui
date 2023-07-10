@@ -13,12 +13,15 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
     "jsx": "react-jsx",
     "types": [],
     "downlevelIteration": true,
     "strictNullChecks": false,
     "noImplicitAny": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
+    "declarationMap": true
   },
   "include": ["src"]
 }

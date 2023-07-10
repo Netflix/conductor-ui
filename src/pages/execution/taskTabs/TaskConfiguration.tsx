@@ -10,8 +10,13 @@ export default function TaskConfiguration({
   if (!taskSelection) {
     return <Blank />;
   }
+  let { taskConfig, taskResult } = taskSelection;
 
-  return (
-    <ReactJson src={taskSelection.taskConfig} label="Task Configuration JSON" />
-  );
+  // If subworkflow, backfill taskConfig from taskResult.workflowTask
+  // Caveat - Not available for 3.0 workflows.
+  if (taskResult?.taskType === "SUB_WORKFLOW" && taskResult?.workflowTask) {
+    taskConfig = taskResult.workflowTask!;
+  }
+
+  return <ReactJson src={taskConfig} label="Task Configuration JSON" />;
 }

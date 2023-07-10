@@ -7,7 +7,6 @@ import { TaskResult } from "../../../types/execution";
 
 import { ListItem, ListItemText } from "@mui/material";
 import _ from "lodash";
-import Blank from "../../../components/NoTaskSelected";
 
 const useStyles = makeStyles({
   banner: {
@@ -74,15 +73,15 @@ export default function SiblingSelector({
         <div className={classes.dfSelect}>
           <Dropdown
             label="Dynamic Fork"
-            onChange={(e: ChangeEvent<{}>, v: TaskResult) => {
+            onChange={(e: ChangeEvent<{}>, v: any) => {
               onTaskChange({ ref: v.referenceTaskName });
             }}
             options={dfSiblings}
             disableClearable
             value={selectedDFResult}
-            getOptionLabel={(taskResult: TaskResult) =>
-              `${dropdownIcon(taskResult.status)} ${
-                taskResult.referenceTaskName
+            getOptionLabel={taskResult =>
+              `${dropdownIcon((taskResult as TaskResult).status)} ${
+                (taskResult as TaskResult).referenceTaskName
               }`
             }
             style={{ marginBottom: 20, width: 500 }}
@@ -113,33 +112,44 @@ export default function SiblingSelector({
                 </ListItem>
               );
             }}
-            getOptionLabel={(taskResult: TaskResult) =>
-              getOptionString(taskResult)
+            getOptionLabel={(taskResult) =>
+              getOptionString(taskResult as TaskResult)
             }
             style={{ marginBottom: 20, width: 500 }}
+            componentsProps={{
+              popper: {
+                placement: 'top-start',
+                disablePortal: true
+              }
+            }}
           />
         </div>
       )}
 
-      {!loopSiblings && _.size(retries) > 1 && (
+      {!loopSiblings && retries && _.size(retries) > 1 && (
         <div className={classes.dfSelect}>
           <Dropdown
             label="Retries"
             disableClearable
             onChange={(e: ChangeEvent<{}>, v: any) => {
-              console.log(v);
               onTaskChange({
                 id: v.taskId,
               });
             }}
             options={retries}
             value={selectedResult}
-            getOptionLabel={(taskResult: TaskResult) =>
-              `${dropdownIcon(taskResult.status)} [Attempt ${
-                taskResult.retryCount! + 1
-              }] ${taskResult.taskId}`
+            getOptionLabel={taskResult =>
+              `${dropdownIcon((taskResult as TaskResult).status)} [Attempt ${
+                (taskResult as TaskResult).retryCount! + 1
+              }] ${(taskResult as TaskResult).taskId}`
             }
             style={{ marginBottom: 20, width: 500 }}
+            componentsProps={{
+              popper: {
+                placement: 'top-start',
+                disablePortal: true
+              }
+            }}
           />
         </div>
       )}

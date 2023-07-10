@@ -11,6 +11,7 @@ export const TASK_CONFIG_TYPES = [
   "TERMINATE",
   "INLINE",
   "JQ_TRANSFORM",
+  "WAIT",
 ] as const;
 export const DEPRECATED_TASK_CONFIG_TYPES = [
   "EXCLUSIVE_JOIN",
@@ -41,6 +42,8 @@ export type Tally = {
 
 export type WorkflowDef = {
   tasks: TaskConfig[];
+  name: string;
+  version: number;
 };
 
 export type TaskCoordinateId = { id: string; ref?: string };
@@ -115,7 +118,9 @@ export interface InlineTaskConfig extends BaseTaskConfig {
 export interface JQTransformTaskConfig extends BaseTaskConfig {
   type: "JQ_TRANSFORM";
 }
-
+export interface WaitTaskConfig extends BaseTaskConfig {
+  type: "WAIT";
+}
 export interface PlaceholderTaskConfig extends BaseTaskConfig {
   type: "DF_CHILDREN_PLACEHOLDER" | "LOOP_CHILDREN_PLACEHOLDER";
 }
@@ -145,5 +150,7 @@ export type TaskConfig =
   | SubworkflowTaskConfig
   | TerminateTaskConfig
   | InlineTaskConfig
-  | JQTransformTaskConfig;
+  | JQTransformTaskConfig
+  | WaitTaskConfig;
+
 export type GenericTaskConfig = TaskConfig | VirtualTaskConfig;
