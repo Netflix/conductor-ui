@@ -1,5 +1,4 @@
 import Paper from '@mui/material/Paper';
-// import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
@@ -18,8 +17,6 @@ export function HighlightActions() {
                     onClick={() => zoom(highlightMin, highlightMax)}>
                 <ZoomInIcon />
                 </IconButton>
-
-                    
                 <IconButton
                     aria-label="zoom out"
                     onClick={resetZoom}

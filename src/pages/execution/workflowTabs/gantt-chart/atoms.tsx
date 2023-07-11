@@ -66,7 +66,7 @@ export const marginLeftAtom = atom((get) => {
 });
 
 export const canvasHeightAtom = atom((get) => {
-    const canvasHeight = Math.max(500, get(yAxisHeightAtom));
+    const canvasHeight = Math.max(52, get(yAxisHeightAtom));
     return Number.isNaN(canvasHeight) ? 0 : canvasHeight;
 });
 

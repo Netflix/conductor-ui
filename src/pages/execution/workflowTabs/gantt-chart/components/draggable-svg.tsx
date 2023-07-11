@@ -111,7 +111,6 @@ export const DraggableSVG = ({ children }: PropsWithChildren<unknown>) => {
                 setDragging(false);
             }}
         >
-            <rect fill="rgb(250, 250, 250)" width="100%" height="100%" />
             {children}
         </svg>
     );
