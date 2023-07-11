@@ -25,24 +25,25 @@ export function Highlight({ children }: PropsWithChildren<unknown>) {
         children,
     }: PropsWithChildren<unknown>) {
         const { ref } = useGanttContext();
-
+        console.log(ref);
         const rightDrag = useAtomValue(rightDragAtom);
 
         const dragActionsStyles: CSSProperties = (() => {
             const marginTop = 8;
             const marginLeft = 10;
             return {
-                top:
+                top: 
                     ref.current?.getBoundingClientRect().y +
-                        window.scrollY +
-                        marginTop || 0,
-                left:
+                    // window.scrollY +
+                    document.getElementById('Time').scrollTop+
+                    marginTop || 0,
+                left: 
                     rightDrag +
                     ref.current?.getBoundingClientRect().x +
                     marginLeft,
             };
         })();
-
+        console.log('yo', document.getElementById('Time').scrollTop, window.scrollY);
         return (
             <div style={{ position: 'absolute', ...dragActionsStyles }}>
                 {children}
