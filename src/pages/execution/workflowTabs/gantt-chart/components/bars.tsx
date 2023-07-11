@@ -222,7 +222,8 @@ export function Bars({
                                 fill={colorFill}
                                 onClick={onClick}
                             >
-                                
+                                <g transform={`translate(0, ${!idx && 4})`}>
+
                                 {datum.w1 && w1Pos < x1Pos && !hideWait && (
                                     <g transform={`translate(${w1Pos}, 1)`}>
                                         <rect  
@@ -309,7 +310,7 @@ export function Bars({
                                         
                                         
                                     )}
-                                      
+                                    </g>
 
                                 </g>
                                 {!idx && <line x1={0} y1={0} x2={canvasWidth} y2={0} stroke={grayLight6} />}
