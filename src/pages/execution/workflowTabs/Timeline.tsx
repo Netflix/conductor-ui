@@ -101,7 +101,7 @@ export default function TimelineComponent({
 
   return (
     <div id='Timeline-Viewport' style={{ overflow: "auto", height: "100%" }}>
-      <div  className="timeline-container">
+      <div className="timeline-container">
       <ConductorTimeline data={tasks} selectedTaskId={selectedTaskId} setSelectedTaskId={setSelectedTaskId} onClick={handleClick} />
       </div>
       <br />
