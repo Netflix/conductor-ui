@@ -52,7 +52,7 @@ export interface GanttChartAPI {
     isZoomed: boolean;
     scopedMin?: Date;
     scopedMax?: Date;
-    xScale: d3.ScaleTime<number, number, never>;
+    xScale: d3.ScaleTime<number, number>;
     selectedLabel?: { id: string; label: string };
     zoom: (dateA: Date, dateB: Date) => void;
     resetZoom: () => void;

@@ -30,8 +30,6 @@ export function Highlight({ children }: PropsWithChildren<unknown>) {
         const dragActionsStyles: CSSProperties = (() => {
             const marginTop = 8;
             const marginLeft = 10;
-            const timelineButtonGroupHeight = 41
-            const zoomButtonGroupHeight = 87
             const deltaY = canvasHeight > 500
                     ? timelineViewport.scrollTop+ref.current?.getBoundingClientRect().y  
                     : timelineViewport.scrollTop+canvasHeight/2
