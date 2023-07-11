@@ -25,7 +25,6 @@ export function Highlight({ children }: PropsWithChildren<unknown>) {
         children,
     }: PropsWithChildren<unknown>) {
         const { ref } = useGanttContext();
-        console.log(ref);
         const rightDrag = useAtomValue(rightDragAtom);
 
         const dragActionsStyles: CSSProperties = (() => {

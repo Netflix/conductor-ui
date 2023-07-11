@@ -46,7 +46,6 @@ export function XAxis({
 
     const xTicks = xScale.ticks(ticksCount);
     const [minTick, maxTick] = xScale.domain();
-    console.log(xTicks.includes(minTick), xTicks.includes(maxTick))
     if (!xTicks.includes(minTick)){xTicks.push(minTick)}
     if (!xTicks.includes(maxTick)){xTicks.push(maxTick)}
     if (xTicks.length > 1){
