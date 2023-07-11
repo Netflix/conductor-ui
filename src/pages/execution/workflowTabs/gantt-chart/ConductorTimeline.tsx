@@ -266,7 +266,6 @@ return (
             setSelectedTaskId(selectedTaskId===datum.id?null:datum.id);
             onClick(datum.id);
           }}
-          selectedTaskId={selectedTaskId}
           data={series}
           font={`${fontSizes.fontSize3} ${fontFamily.fontFamilySans}`}
         />

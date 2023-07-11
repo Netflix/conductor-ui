@@ -29,9 +29,6 @@ import React, {
 import dayjs from 'dayjs';
 import type { Datum, Series } from '../types';
 import type { EventHandler } from 'react';
-import { Delete } from '@mui/icons-material';
-import CustomTooltip from './CustomTooltip';
-import Typography from '@mui/material/Typography';
 
 export interface BarsProps {
     /**
@@ -46,7 +43,6 @@ export interface BarsProps {
     hideLabel?: boolean;
     hideWait?: boolean;
     font?: string;
-    selectedTaskId?:string
 }
 
 export function Bars({
@@ -58,7 +54,6 @@ export function Bars({
     alignmentRatioAlongYBandwidth,
     hideWait = false,
     hideLabel = false,
-    selectedTaskId,
     font: inputFont = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
 }: BarsProps) {
     useBarIdsOnChange()(data.map(yAccessor));

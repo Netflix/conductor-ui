@@ -1,10 +1,7 @@
 import React, { useMemo, useState } from "react";
-import Timeline from "react-vis-timeline-2";
 import { timestampRenderer, durationRenderer } from "../../../utils/helpers";
 import _ from "lodash";
 import "./timeline.scss";
-import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
-import { IconButton, Tooltip } from "@mui/material";
 import WorkflowDAG from "../../../components/diagram/WorkflowDAG";
 import { TaskResult } from "../../../types/execution";
 import { TaskCoordinate } from "../../../types/workflowDef";
