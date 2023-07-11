@@ -20,7 +20,7 @@ export function Highlight({ children }: PropsWithChildren<unknown>) {
     const canvasHeight = useAtomValue(canvasHeightAtom);
     const canvasWidth = useAtomValue(canvasWidthAtom);
     const marginLeft = useAtomValue(marginLeftAtom);
-
+    const timelineViewport = document.getElementById('Timeline-Viewport')
     const HighlightActions = useCallback(function HighlightActions({
         children,
     }: PropsWithChildren<unknown>) {
@@ -31,26 +31,29 @@ export function Highlight({ children }: PropsWithChildren<unknown>) {
         const dragActionsStyles: CSSProperties = (() => {
             const marginTop = 8;
             const marginLeft = 10;
+            const timelineButtonGroupHeight = 41
+            const zoomButtonGroupHeight = 87
+            const deltaY = canvasHeight > 500
+                    ? timelineViewport.scrollTop+ref.current?.getBoundingClientRect().y  
+                    : timelineViewport.scrollTop+canvasHeight/2
+            
             return {
                 top: 
-                    ref.current?.getBoundingClientRect().y +
-                    // window.scrollY +
-                    document.getElementById('Time').scrollTop+
-                    marginTop || 0,
+                    marginTop + deltaY,
                 left: 
                     rightDrag +
                     ref.current?.getBoundingClientRect().x +
                     marginLeft,
             };
         })();
-        console.log('yo', document.getElementById('Time').scrollTop, window.scrollY);
+
         return (
             <div style={{ position: 'absolute', ...dragActionsStyles }}>
                 {children}
             </div>
         );
     },
-    []);
+    [canvasHeight]);
 
     useEffect(() => {
         setHighlightActions(<HighlightActions>{children}</HighlightActions>);
