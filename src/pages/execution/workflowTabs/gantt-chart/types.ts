@@ -1,3 +1,5 @@
+import { TaskResultType } from "../../../../types/execution";
+
 export interface StyleClass {
     style?: React.CSSProperties;
     className?: string;
@@ -34,7 +36,7 @@ export interface Series {
     data: Datum[];
     parentTaskReferenceName: string,
     referenceTaskName: string,
-    taskType: string,
+    taskType: TaskResultType,
     status: string,
     styles?: Pick<Styles, 'band' | 'bandLabel'>;
 }
