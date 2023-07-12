@@ -7,7 +7,7 @@ export function dagSwitchDefOnly() {
 
   workflow.pushSwitch("switch_task", 2, 2);
   return WorkflowDAG.fromWorkflowDef(
-    workflow.toJSON().execution.workflowDefinition
+    workflow.toJSON().execution.workflowDefinition,
   );
 }
 
@@ -40,7 +40,7 @@ export function dagSwitchDoWhileDefOnly(caseTaken?: number) {
   loopTask.loopOver = [switchTask];
 
   return WorkflowDAG.fromWorkflowDef(
-    workflow.toJSON().execution.workflowDefinition
+    workflow.toJSON().execution.workflowDefinition,
   );
 }
 

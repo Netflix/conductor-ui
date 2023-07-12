@@ -1,5 +1,11 @@
 import { useMemo } from "react";
-import { useQuery, useMutation, useQueryClient, useQueries, Query } from "react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useQueries,
+  Query,
+} from "react-query";
 import useAppContext from "../hooks/useAppContext";
 import { useFetch, useFetchParallel } from "./common";
 import qs from "qs";
@@ -34,14 +40,17 @@ export function useWorkflowSearch(searchObj: any) {
       enabled: ready,
       keepPreviousData: true,
       staleTime: STALE_TIME_SEARCH,
-    }
+    },
   );
 }
 
-export function useWorkflowsByIds(workflowIds: string[], reactQueryOptions: any) {
+export function useWorkflowsByIds(
+  workflowIds: string[],
+  reactQueryOptions: any,
+) {
   return useFetchParallel(
     workflowIds.map((workflowId) => ["workflow", workflowId]),
-    reactQueryOptions
+    reactQueryOptions,
   );
 }
 
@@ -64,10 +73,10 @@ export function useWorkflowDef(
   workflowName: string | undefined,
   version: string | undefined,
   defaultWorkflow: WorkflowDef | undefined,
-  reactQueryOptions = {}
+  reactQueryOptions = {},
 ) {
-  let path="";
-  const key = ["workflowDef", workflowName||""];
+  let path = "";
+  const key = ["workflowDef", workflowName || ""];
 
   if (workflowName) {
     path = `/metadata/workflow/${workflowName}`;
@@ -76,7 +85,12 @@ export function useWorkflowDef(
       key.push(version);
     }
   }
-  return useFetch<WorkflowDef>(key, path, {...reactQueryOptions, enabled: !!workflowName}, defaultWorkflow);
+  return useFetch<WorkflowDef>(
+    key,
+    path,
+    { ...reactQueryOptions, enabled: !!workflowName },
+    defaultWorkflow,
+  );
 }
 
 export function useWorkflowDefs() {
@@ -91,7 +105,7 @@ export function useWorkflowNamesAndVersions() {
     "/metadata/workflow/names-and-versions",
     {
       staleTime: STALE_TIME_WORKFLOW_DEFS,
-    }
+    },
   );
 }
 
@@ -110,20 +124,20 @@ export function usePaginatedWorkflowDefs(from = 0, to = 15, filter = "") {
       queryKey: [stack, "workflowDef", name],
       queryFn: () => fetchWithContext(`/metadata/workflow/${name}`),
       retry: 5,
-    }))
+    })),
   );
 
   const isFetching = useMemo(
     () =>
       _.isEmpty(rawNames) || results.findIndex((row) => row.isLoading) !== -1,
-    [rawNames, results]
+    [rawNames, results],
   );
   const workflows = useMemo(
     () =>
       isFetching
         ? []
         : results.filter((row) => row.isSuccess).map((row) => row.data),
-    [results, isFetching]
+    [results, isFetching],
   );
 
   return {
@@ -164,7 +178,7 @@ export function useSaveWorkflow(callbacks: any) {
   const { fetchWithContext } = useAppContext();
 
   return useMutation(
-    ({ body, isNew }: { body: any, isNew: boolean}) =>
+    ({ body, isNew }: { body: any; isNew: boolean }) =>
       fetchWithContext(path, {
         method: isNew ? "post" : "put",
         headers: {
@@ -172,7 +186,7 @@ export function useSaveWorkflow(callbacks: any) {
         },
         body: JSON.stringify(isNew ? body : [body]),
       }),
-    callbacks
+    callbacks,
   );
 }
 
@@ -195,7 +209,7 @@ export function useStartWorkflow(callbacks: any) {
   const { fetchWithContext } = useAppContext();
 
   return useMutation(
-    ({ body }: { body: any}) =>
+    ({ body }: { body: any }) =>
       fetchWithContext(path, {
         method: "post",
         headers: {
@@ -203,6 +217,6 @@ export function useStartWorkflow(callbacks: any) {
         },
         body: JSON.stringify(body),
       }),
-    callbacks
+    callbacks,
   );
 }

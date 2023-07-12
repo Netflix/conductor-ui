@@ -94,7 +94,7 @@ export default function Execution() {
     "executionLayout",
     {
       defaultValue: defaultLayout,
-    }
+    },
   );
   const [selectedTaskRison, setSelectedTaskRison] = useQueryState("task", "!n");
 
@@ -106,7 +106,7 @@ export default function Execution() {
 
   const selectedTask: TaskCoordinate | null = useMemo(
     () => (selectedTaskRison ? rison.decode(selectedTaskRison) : null),
-    [selectedTaskRison]
+    [selectedTaskRison],
   );
 
   const setSelectedTask = (taskPointer: TaskCoordinate | null) => {

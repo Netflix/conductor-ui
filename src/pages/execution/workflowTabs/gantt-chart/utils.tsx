@@ -1,4 +1,4 @@
-import type { Datum, Series } from './types';
+import type { Datum, Series } from "./types";
 
 export const defaultFormatter = (val: string | number) => val;
 export const idAccessor = (data: Partial<Series>): string => data.id;

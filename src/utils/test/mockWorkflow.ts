@@ -94,7 +94,7 @@ export class WorkflowExecution implements Execution {
     ref: string,
     type: TaskConfigType,
     additionalFields: any,
-    status: TaskStatus = "COMPLETED"
+    status: TaskStatus = "COMPLETED",
   ) {
     this.tasks.push({
       ...emptyTask,
@@ -119,7 +119,7 @@ export class WorkflowExecution implements Execution {
     ref: string,
     count: number,
     idxToFail?: number,
-    status: TaskStatus = "COMPLETED"
+    status: TaskStatus = "COMPLETED",
   ) {
     const dfResult: ForkTaskResult = {
       ...emptyTask,
@@ -223,7 +223,7 @@ export class WorkflowExecution implements Execution {
     ref: string,
     cases: number,
     chainLength: number,
-    caseTaken?: number
+    caseTaken?: number,
   ) {
     const defaultCase: SimpleTaskConfig[] = [];
     for (let j = 0; j < chainLength; j++) {

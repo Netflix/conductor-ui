@@ -12,7 +12,7 @@ import {
   LinearProgress,
   CircularProgress,
   ToggleButton,
-  ToggleButtonGroup
+  ToggleButtonGroup,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
@@ -32,11 +32,11 @@ import {
   Button,
   Pill,
 } from "../../components";
-import FormatBoldIcon from '@mui/icons-material/FormatBold';
-import FormatItalicIcon from '@mui/icons-material/FormatItalic';
-import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
-import FormatColorFillIcon from '@mui/icons-material/FormatColorFill';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import FormatBoldIcon from "@mui/icons-material/FormatBold";
+import FormatItalicIcon from "@mui/icons-material/FormatItalic";
+import FormatUnderlinedIcon from "@mui/icons-material/FormatUnderlined";
+import FormatColorFillIcon from "@mui/icons-material/FormatColorFill";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import * as Yup from "yup";
 import EnhancedTable from "./EnhancedTable";
@@ -331,133 +331,135 @@ const TabsSection = () => {
 };
 
 const Buttons = () => {
-  const [formats, setFormats] = React.useState(() => ['bold', 'italic']);
+  const [formats, setFormats] = React.useState(() => ["bold", "italic"]);
 
   const handleFormat = (event, newFormats) => {
     setFormats(newFormats);
   };
 
-  return <Paper style={{ padding: 15 }}>
-    <Heading level={3} gutterBottom>
-      Button
-    </Heading>
+  return (
+    <Paper style={{ padding: 15 }}>
+      <Heading level={3} gutterBottom>
+        Button
+      </Heading>
 
-    <Grid container spacing={4}>
-      <Grid item>
-        <PrimaryButton>Primary</PrimaryButton>
+      <Grid container spacing={4}>
+        <Grid item>
+          <PrimaryButton>Primary</PrimaryButton>
+        </Grid>
+        <Grid item>
+          <SecondaryButton>Secondary</SecondaryButton>
+        </Grid>
+        <Grid item>
+          <TertiaryButton>Tertiary</TertiaryButton>
+        </Grid>
+        <Grid item>
+          <ButtonGroup
+            options={[{ label: "One" }, { label: "Two" }, { label: "Three" }]}
+          />
+        </Grid>
+        <Grid item>
+          <SplitButton
+            options={[
+              {
+                label: "Create a merge commit",
+                handler: () => alert("you clicked 1"),
+              },
+              {
+                label: "Squash and merge",
+                handler: () => alert("you clicked 2"),
+              },
+              {
+                label: "Rebase and merge",
+                handler: () => alert("you clicked 3"),
+              },
+            ]}
+            onPrimaryClick={() => alert("main button")}
+          >
+            Split Button
+          </SplitButton>
+        </Grid>
+        <Grid item>
+          <ToggleButtonGroup
+            value={formats}
+            onChange={handleFormat}
+            size="small"
+          >
+            <ToggleButton value="bold" aria-label="bold">
+              <FormatBoldIcon />
+            </ToggleButton>
+            <ToggleButton value="italic" aria-label="italic">
+              <FormatItalicIcon />
+            </ToggleButton>
+            <ToggleButton value="underlined" aria-label="underlined">
+              <FormatUnderlinedIcon />
+            </ToggleButton>
+            <ToggleButton value="color" aria-label="color" disabled>
+              <FormatColorFillIcon />
+              <ArrowDropDownIcon />
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Grid>
+        <Grid item>
+          <DropdownButton
+            options={[
+              {
+                label: "Create a merge commit",
+                handler: () => alert("you clicked 1"),
+              },
+              {
+                label: "Squash and merge",
+                handler: () => alert("you clicked 2"),
+              },
+              {
+                label: "Rebase and merge",
+                handler: () => alert("you clicked 3"),
+              },
+            ]}
+          >
+            Dropdown Button
+          </DropdownButton>
+        </Grid>
+        <Grid item>
+          Small{" "}
+          <IconButton size="small">
+            <DeleteIcon fontSize="inherit" />
+          </IconButton>
+          Medium{" "}
+          <IconButton size="medium">
+            <DeleteIcon fontSize="inherit" />
+          </IconButton>
+          Large{" "}
+          <IconButton size="large">
+            <DeleteIcon fontSize="inherit" />
+          </IconButton>
+          <DropdownButton
+            icon={<DeleteIcon />}
+            options={[
+              {
+                label: "Create a merge commit",
+                handler: () => alert("you clicked 1"),
+              },
+              {
+                label: "Squash and merge",
+                handler: () => alert("you clicked 2"),
+              },
+              {
+                label: "Rebase and merge",
+                handler: () => alert("you clicked 3"),
+              },
+            ]}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <ButtonGroup
+            label="Button Group with Label"
+            options={[{ label: "One" }, { label: "Two" }, { label: "Three" }]}
+          />
+        </Grid>
       </Grid>
-      <Grid item>
-        <SecondaryButton>Secondary</SecondaryButton>
-      </Grid>
-      <Grid item>
-        <TertiaryButton>Tertiary</TertiaryButton>
-      </Grid>
-      <Grid item>
-        <ButtonGroup
-          options={[{ label: "One" }, { label: "Two" }, { label: "Three" }]}
-        />
-      </Grid>
-      <Grid item>
-        <SplitButton
-          options={[
-            {
-              label: "Create a merge commit",
-              handler: () => alert("you clicked 1"),
-            },
-            {
-              label: "Squash and merge",
-              handler: () => alert("you clicked 2"),
-            },
-            {
-              label: "Rebase and merge",
-              handler: () => alert("you clicked 3"),
-            },
-          ]}
-          onPrimaryClick={() => alert("main button")}
-        >
-          Split Button
-        </SplitButton>
-      </Grid>
-      <Grid item>
-        <ToggleButtonGroup
-          value={formats}
-          onChange={handleFormat}
-          size="small"
-        >
-          <ToggleButton value="bold" aria-label="bold">
-            <FormatBoldIcon />
-          </ToggleButton>
-          <ToggleButton value="italic" aria-label="italic">
-            <FormatItalicIcon />
-          </ToggleButton>
-          <ToggleButton value="underlined" aria-label="underlined">
-            <FormatUnderlinedIcon />
-          </ToggleButton>
-          <ToggleButton value="color" aria-label="color" disabled>
-            <FormatColorFillIcon />
-            <ArrowDropDownIcon />
-          </ToggleButton>
-        </ToggleButtonGroup>
-      </Grid>
-      <Grid item>
-        <DropdownButton
-          options={[
-            {
-              label: "Create a merge commit",
-              handler: () => alert("you clicked 1"),
-            },
-            {
-              label: "Squash and merge",
-              handler: () => alert("you clicked 2"),
-            },
-            {
-              label: "Rebase and merge",
-              handler: () => alert("you clicked 3"),
-            },
-          ]}
-        >
-          Dropdown Button
-        </DropdownButton>
-      </Grid>
-      <Grid item>
-        Small{" "}
-        <IconButton size="small">
-          <DeleteIcon fontSize="inherit" />
-        </IconButton>
-        Medium{" "}
-        <IconButton size="medium">
-          <DeleteIcon fontSize="inherit" />
-        </IconButton>
-        Large{" "}
-        <IconButton size="large">
-          <DeleteIcon fontSize="inherit" />
-        </IconButton>
-        <DropdownButton
-          icon={<DeleteIcon />}
-          options={[
-            {
-              label: "Create a merge commit",
-              handler: () => alert("you clicked 1"),
-            },
-            {
-              label: "Squash and merge",
-              handler: () => alert("you clicked 2"),
-            },
-            {
-              label: "Rebase and merge",
-              handler: () => alert("you clicked 3"),
-            },
-          ]}
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <ButtonGroup
-          label="Button Group with Label"
-          options={[{ label: "One" }, { label: "Two" }, { label: "Three" }]}
-        />
-      </Grid>
-    </Grid>
-  </Paper>
+    </Paper>
+  );
 };
 
 const Toggles = () => {

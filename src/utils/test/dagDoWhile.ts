@@ -9,7 +9,7 @@ export function dagDoWhileDefOnly() {
   workflow.pushDoWhile("loop_task", 2, 1);
 
   return WorkflowDAG.fromWorkflowDef(
-    workflow.toJSON().execution.workflowDefinition
+    workflow.toJSON().execution.workflowDefinition,
   );
 }
 
@@ -35,12 +35,12 @@ export function dagDoWhileFailure(iterations = 5) {
 
   // Fail loop
   workflow.tasks.find(
-    (task) => task.referenceTaskName === "loop_task"
+    (task) => task.referenceTaskName === "loop_task",
   )!.status = "FAILED";
 
   // Fail last loop task
   const child1 = workflow.tasks.filter(
-    (task) => task.referenceTaskName === "loop_task_child1"
+    (task) => task.referenceTaskName === "loop_task_child1",
   );
   _.last(child1)!.status = "FAILED";
 
@@ -55,7 +55,7 @@ export function dagDoWhileRetries(iterations = 5) {
   const taskToRetry = workflow.tasks.find(
     (task) =>
       task.referenceTaskName === `loop_task_child1` &&
-      task.iteration === iterations - 1
+      task.iteration === iterations - 1,
   ) as TaskResult;
 
   workflow.tasks.push({

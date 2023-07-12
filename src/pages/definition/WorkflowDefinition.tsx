@@ -36,7 +36,7 @@ export default function Workflow() {
   const workflowName = params.name as string;
   const workflowVersion = params.version as string;
   const [workflowDef, setWorkflowDef] = useState<WorkflowDef | undefined>(
-    undefined
+    undefined,
   );
   const [selectedTask, setSelectedTask] = useState<TaskCoordinate | null>(null);
 

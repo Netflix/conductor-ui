@@ -23,7 +23,7 @@ describe("No Retries", () => {
           selectedTask={taskSelection}
           onTaskChange={() => console.log("change")}
         />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
   });
 });
@@ -42,7 +42,7 @@ describe("No Selection", () => {
           selectedTask={undefined}
           onTaskChange={() => console.log("change")}
         />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
   });
 });
@@ -73,7 +73,7 @@ describe("Retries Only", () => {
           selectedTask={taskSelection}
           onTaskChange={() => console.log("change")}
         />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
   });
 });
@@ -96,7 +96,7 @@ describe("Iterations Only", () => {
           selectedTask={taskSelection}
           onTaskChange={() => console.log("change")}
         />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
   });
 });
@@ -110,7 +110,7 @@ describe("Iterations and Retries", () => {
   const taskToRetry = workflow.tasks.find(
     (task) =>
       task.referenceTaskName === `loop_task_child1` &&
-      task.iteration === ITERATIONS - 1
+      task.iteration === ITERATIONS - 1,
   );
 
   workflow.tasks.push({
@@ -137,7 +137,7 @@ describe("Iterations and Retries", () => {
           selectedTask={taskSelection}
           onTaskChange={() => console.log("change")}
         />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
   });
 });
@@ -163,7 +163,7 @@ describe("Dynamic Fork all successes", () => {
           selectedTask={taskSelection}
           onTaskChange={() => console.log("change")}
         />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
   });
 });
@@ -201,7 +201,7 @@ describe("Dynamic Fork with Retries", () => {
           selectedTask={taskSelection}
           onTaskChange={() => console.log("change")}
         />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
   });
 });

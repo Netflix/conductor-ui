@@ -33,7 +33,7 @@ export default function WorkflowBuilder() {
   const handleNewTasks = (tasks: TaskConfig[]) => {
     if (context?.setWorkflowDef) {
       context.setWorkflowDef(
-        update(context.workflowDef, { tasks: { $set: tasks } })
+        update(context.workflowDef, { tasks: { $set: tasks } }),
       );
     }
   };
@@ -41,7 +41,7 @@ export default function WorkflowBuilder() {
   const handleContextMenu = (
     taskCoord: TaskCoordinate,
     type: ExtendedTaskConfigType,
-    event: PointerEvent
+    event: PointerEvent,
   ) => {
     setContextMenu(
       contextMenu === null && taskCoord.ref
@@ -54,7 +54,7 @@ export default function WorkflowBuilder() {
         : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
           // Other native context menus might behave different.
           // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
-          null
+          null,
     );
   };
 

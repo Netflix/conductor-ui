@@ -17,7 +17,7 @@ export function useTask(taskName: string | undefined, defaultTask: any) {
     {
       enabled: !!taskName,
     },
-    defaultTask
+    defaultTask,
   );
 }
 
@@ -60,7 +60,7 @@ export function useTaskSearch({
       enabled: ready,
       keepPreviousData: true,
       staleTime: STALE_TIME_SEARCH,
-    }
+    },
   );
 }
 
@@ -76,7 +76,7 @@ export function usePollData(taskName?: string) {
 
 export function useQueueSize(
   taskName: string | undefined,
-  domain: string | undefined
+  domain: string | undefined,
 ) {
   const { fetchWithContext, ready, stack } = useAppContext();
 
@@ -94,7 +94,7 @@ export function useQueueSize(
     () => fetchWithContext(path.toString()),
     {
       enabled: ready && !!taskName,
-    }
+    },
   );
 }
 
@@ -125,7 +125,7 @@ export function useQueueSizes(taskName: string | undefined, domains: string[]) {
             enabled: ready && !!taskName,
           };
         })
-      : []
+      : [],
   );
 }
 
@@ -133,7 +133,7 @@ export function useTaskNames() {
   const { data } = useTaskDefs();
   return useMemo(
     () => (data ? Array.from(new Set(data.map((def) => def.name))).sort() : []),
-    [data]
+    [data],
   );
 }
 
@@ -155,6 +155,6 @@ export function useSaveTask(callbacks: any) {
         body: JSON.stringify(isNew ? [body] : body), // Note: application of [] is opposite of workflow
       });
     },
-    callbacks
+    callbacks,
   );
 }

@@ -1,5 +1,5 @@
 export { default as App } from "./App";
-export { colors } from "./theme/variables"
+export { colors } from "./theme/variables";
 export { useFetch, useAction, useFetchParallel } from "./data/common";
 export { useWorkflowNames } from "./data/workflow";
 export { default as AppContext } from "./components/context/AppContext";

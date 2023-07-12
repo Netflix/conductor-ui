@@ -11,7 +11,7 @@ const useStyles = makeStyles({
 
 export default React.forwardRef(function (
   { elevation, className, padded, ...props },
-  ref
+  ref,
 ) {
   const classes = useStyles();
   const internalClassName = [];

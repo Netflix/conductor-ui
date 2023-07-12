@@ -17,7 +17,7 @@ export default function TimelineComponent({
   onClick: (task: TaskCoordinate | null) => void;
 }) {
   const timelineRef = React.useRef<HTMLDivElement>(null);
-  
+
   /*
   const selectedId = useMemo(() => {
     if(selectedTask){
@@ -47,7 +47,7 @@ export default function TimelineComponent({
         const endTime =
           task.endTime > 0 ? new Date(task.endTime) : new Date(task.startTime);
         const duration = durationRenderer(
-          endTime.getTime() - startTime.getTime()
+          endTime.getTime() - startTime.getTime(),
         );
         const retval = {
           id: task.taskId,
@@ -58,7 +58,7 @@ export default function TimelineComponent({
           title: `${task.referenceTaskName} (${
             task.status
           })<br/>${timestampRenderer(startTime)} - ${timestampRenderer(
-            endTime
+            endTime,
           )}`,
           className: `status_${task.status}`,
         };
@@ -95,8 +95,13 @@ export default function TimelineComponent({
   return (
     <div ref={timelineRef} style={{ overflow: "auto", height: "100%" }}>
       <div className="timeline-container">
-      <ConductorTimeline data={tasks} selectedTaskId={selectedTaskId} setSelectedTaskId={setSelectedTaskId} onClick={handleClick}
-      viewportRef={timelineRef} />
+        <ConductorTimeline
+          data={tasks}
+          selectedTaskId={selectedTaskId}
+          setSelectedTaskId={setSelectedTaskId}
+          onClick={handleClick}
+          viewportRef={timelineRef}
+        />
       </div>
       <br />
     </div>

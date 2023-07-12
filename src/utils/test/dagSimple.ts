@@ -6,7 +6,7 @@ export function dagSimpleDefOnly() {
   const workflow = new WorkflowExecution("test_workflow", "IN_PROGRESS");
   workflow.pushSimple("simple_task", "COMPLETED", 0);
   return WorkflowDAG.fromWorkflowDef(
-    workflow.toJSON().execution.workflowDefinition
+    workflow.toJSON().execution.workflowDefinition,
   );
 }
 

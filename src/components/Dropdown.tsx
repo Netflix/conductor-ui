@@ -6,7 +6,16 @@ import InputLabel from "@mui/material/InputLabel";
 import CloseIcon from "@mui/icons-material/Close";
 import { InputAdornment, CircularProgress } from "@mui/material";
 
-interface DropdownProps<T> extends Omit<AutocompleteProps<T, boolean | undefined, boolean | undefined, boolean | undefined>, "renderInput"> {
+interface DropdownProps<T>
+  extends Omit<
+    AutocompleteProps<
+      T,
+      boolean | undefined,
+      boolean | undefined,
+      boolean | undefined
+    >,
+    "renderInput"
+  > {
   label?: string;
   className?: string;
   style?: any;

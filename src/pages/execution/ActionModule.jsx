@@ -51,15 +51,15 @@ export default function ActionModule({ execution, triggerReload }) {
     () =>
       ["FAILED", "TIMED_OUT", "TERMINATED"].includes(execution.status) &&
       execution.tasks.find(
-        (task) => task.taskType === "SUB_WORKFLOW" && isFailedTask(task.status)
+        (task) => task.taskType === "SUB_WORKFLOW" && isFailedTask(task.status),
       ),
-    [execution]
+    [execution],
   );
 
   // RESTART buttons
   if (
     ["COMPLETED", "FAILED", "TIMED_OUT", "TERMINATED"].includes(
-      execution.status
+      execution.status,
     ) &&
     restartable
   ) {

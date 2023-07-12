@@ -20,7 +20,7 @@ export default function TaskInput({
     useWorkflowTaskInput(
       taskSelection?.workflowId,
       taskSelection?.taskResult?.referenceTaskName,
-      taskSelection?.taskResult?.taskId
+      taskSelection?.taskResult?.taskId,
     );
   const classes = useStyles();
   if (!taskSelection) return <Blank />;

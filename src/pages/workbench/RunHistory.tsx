@@ -66,7 +66,7 @@ const RunHistory = forwardRef((props: RunHistoryProps, ref) => {
   >(undefined);
   const [runHistory, setRunHistory]: readonly [
     RunEntry[],
-    (v: RunEntry[]) => void
+    (v: RunEntry[]) => void,
   ] = useLocalStorage(`runHistory_${stack}_${RUN_HISTORY_SCHEMA_VER}`, []);
 
   useImperativeHandle(ref, () => ({
@@ -115,7 +115,7 @@ const RunHistory = forwardRef((props: RunHistoryProps, ref) => {
 
   function handleDeleteItem(run: RunEntry) {
     const newHistory = runHistory.filter(
-      (v) => v.createTime !== run.createTime
+      (v) => v.createTime !== run.createTime,
     );
     if (newHistory.length > 0) {
       setSelectedCreateTime(newHistory[0].createTime);

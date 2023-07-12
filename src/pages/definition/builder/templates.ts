@@ -142,7 +142,7 @@ export const templates: {
       inputParameters: {},
       taskReferenceName: ref,
       name: ref,
-      type: "WAIT"
+      type: "WAIT",
     };
     return [retval];
   },

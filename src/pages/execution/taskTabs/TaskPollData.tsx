@@ -13,11 +13,11 @@ export default function TaskPollData({
   taskSelection?: TaskSelection;
 }) {
   const { data: pollData, isLoading: isLoadingPollData } = usePollData(
-    taskSelection?.taskConfig.name
+    taskSelection?.taskConfig.name,
   );
   const { data: queueSize, isLoading: isLoadingQueueSize } = useQueueSize(
     taskSelection?.taskConfig.name,
-    taskSelection?.taskResult?.domain
+    taskSelection?.taskResult?.domain,
   );
 
   if (!taskSelection) {
