@@ -16,7 +16,8 @@ export default function TimelineComponent({
   tasks: TaskResult[];
   onClick: (task: TaskCoordinate | null) => void;
 }) {
-  const timelineRef = React.useRef<any>(null);
+  const timelineRef = React.useRef<HTMLDivElement>(null);
+  
   /*
   const selectedId = useMemo(() => {
     if(selectedTask){
@@ -82,10 +83,6 @@ export default function TimelineComponent({
     };
   }, [tasks, dag]);
 
-  const onFit = () => {
-    timelineRef.current?.timeline?.fit();
-  };
-
   const handleClick = (id: any) => {
     if (id) {
       onClick({
@@ -95,11 +92,11 @@ export default function TimelineComponent({
       onClick(null);
     }
   };
-
   return (
-    <div id='Timeline-Viewport' style={{ overflow: "auto", height: "100%" }}>
+    <div ref={timelineRef} style={{ overflow: "auto", height: "100%" }}>
       <div className="timeline-container">
-      <ConductorTimeline data={tasks} selectedTaskId={selectedTaskId} setSelectedTaskId={setSelectedTaskId} onClick={handleClick} />
+      <ConductorTimeline data={tasks} selectedTaskId={selectedTaskId} setSelectedTaskId={setSelectedTaskId} onClick={handleClick}
+      viewportRef={timelineRef} />
       </div>
       <br />
     </div>

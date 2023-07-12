@@ -20,20 +20,18 @@ export function Highlight({ children }: PropsWithChildren<unknown>) {
     const canvasHeight = useAtomValue(canvasHeightAtom);
     const canvasWidth = useAtomValue(canvasWidthAtom);
     const marginLeft = useAtomValue(marginLeftAtom);
-    const timeline = document.getElementById('Timeline-Viewport')
-    const tabViewPort = document.getElementById('Timeline')
     const HighlightActions = useCallback(function HighlightActions({
         children,
     }: PropsWithChildren<unknown>) {
-        const { ref } = useGanttContext();
+        const { ref, viewportRef } = useGanttContext();
         const rightDrag = useAtomValue(rightDragAtom);
 
         const dragActionsStyles: CSSProperties = (() => {
             const marginTop = 8;
             const marginLeft = 10;
-            const deltaY = canvasHeight > tabViewPort?.getBoundingClientRect().height
-                    ? timeline.scrollTop+ref.current?.getBoundingClientRect().y  
-                    : timeline.scrollTop+canvasHeight/2
+            const deltaY = canvasHeight > viewportRef.current?.getBoundingClientRect().height
+                    ? viewportRef.current?.scrollTop+ref.current?.getBoundingClientRect().y
+                    : viewportRef.current?.scrollTop+canvasHeight/2
             
             return {
                 top: 

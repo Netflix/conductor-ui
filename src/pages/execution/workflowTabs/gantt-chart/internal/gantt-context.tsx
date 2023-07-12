@@ -5,6 +5,7 @@ import type { useStyles } from '../components/styles';
 export interface GanttContextState {
     ref: MutableRefObject<HTMLDivElement>;
     classes: ReturnType<typeof useStyles>;
+    viewportRef: React.MutableRefObject<HTMLDivElement>;
 }
 
 export const GanttContext = createContext<GanttContextState>(null);
