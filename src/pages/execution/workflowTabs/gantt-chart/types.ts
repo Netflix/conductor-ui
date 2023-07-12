@@ -1,3 +1,5 @@
+import { TaskResultType } from "../../../../types/execution";
+
 export interface StyleClass {
     style?: React.CSSProperties;
     className?: string;
@@ -34,7 +36,7 @@ export interface Series {
     data: Datum[];
     parentTaskReferenceName: string,
     referenceTaskName: string,
-    taskType: string,
+    taskType: TaskResultType,
     status: string,
     styles?: Pick<Styles, 'band' | 'bandLabel'>;
 }
@@ -52,7 +54,7 @@ export interface GanttChartAPI {
     isZoomed: boolean;
     scopedMin?: Date;
     scopedMax?: Date;
-    xScale: d3.ScaleTime<number, number, never>;
+    xScale: d3.ScaleTime<number, number>;
     selectedLabel?: { id: string; label: string };
     zoom: (dateA: Date, dateB: Date) => void;
     resetZoom: () => void;

@@ -15,13 +15,14 @@ import {HighlightActions} from './HighlightActions';
 import { blue07, red } from '../../../../theme/colors';
 import { fontFamily, fontSizes } from '../../../../theme/variables';
 import { Datum } from './types'
+import { TaskResult, TaskResultType } from '../../../../types/execution';
 
 const [DO_WHILE, FORK_JOIN_DYNAMIC, FORK] = ["DO_WHILE", "FORK_JOIN_DYNAMIC","FORK"];
 const collapseTaskTypes = [DO_WHILE, FORK, FORK_JOIN_DYNAMIC];
 const [COMPLETED, FAILED, IN_PROGRESS, SCHEDULED, TIMED_OUT] = ["COMPLETED", "FAILED", "IN_PROGRESS", "SCHEDULED", "TIMED_OUT"]
 const [BARHEIGHT, ALIGNMENTRATIOALONGYBANDWIDTH] = [22, 0.3];
 type ConductorTimelineProps = {
-  data: any[], 
+  data: TaskResult[], 
   selectedTaskId: string
   setSelectedTaskId: (id:string)=>void
   onClick: (id: string) => void;
@@ -40,7 +41,7 @@ export default function ConductorTimeline({data, selectedTaskId, setSelectedTask
         }}:{}
   }
   /** ID of tasks which have children: DO_WHILE, FORK, FORK_JOIN_DYNAMIC */
-  const collapsibleTasks = useMemo<Set<string>>(() => new Set(data?.filter(task => collapseTaskTypes.includes(task.taskType)).map(task=> task.taskId)), [data]);
+  const collapsibleTasks = useMemo<Set<string>>(() => new Set(data?.filter(task => collapseTaskTypes.includes(task.taskType as string)).map(task=> task.taskId)), [data]);
   /** Map from id to boolean of whether a task is expanded */ 
   const [taskExpanded, setTaskExpanded]  = useState<Map<string, boolean>>(new Map<string,boolean>(Array.from(collapsibleTasks).map(id => [id,false]))); 
   /** Full expansion of timeline data. Simplified to contain information relevant to timeline  */
@@ -85,13 +86,13 @@ export default function ConductorTimeline({data, selectedTaskId, setSelectedTask
   /** Map from task name to task ID */
   const taskNameToIdMap = useMemo(() => new Map<string, string>(initialData.map(task=> [task.referenceTaskName, task.id])), [initialData]);
   /** Map from task reference name to task type */
-  const taskTypeMap = useMemo(() => new Map<string, string>(initialData.map(task => [task.referenceTaskName, task.taskType])), [initialData]);
+  const taskTypeMap = useMemo(() => new Map<string, TaskResultType>(initialData.map(task => [task.referenceTaskName, task.taskType])), [initialData]);
   /** Data for the fully collapsed view of the workflow */
   const collapsedData = useMemo<Series[]>(()=> { 
     let data:Series[] = [];
     initialData.forEach((task, idx) => {
       const {referenceTaskName:refTaskName, parentTaskReferenceName:parentTaskRefName, taskType} = task
-      if (!parentTaskRefName || !collapseTaskTypes.includes(taskTypeMap.get(parentTaskRefName))){
+      if (!parentTaskRefName || !collapseTaskTypes.includes(taskTypeMap.get(parentTaskRefName) as string)){
         data.push(task);
         if (taskType === DO_WHILE){
           let i = idx+1;
@@ -126,7 +127,7 @@ export default function ConductorTimeline({data, selectedTaskId, setSelectedTask
   /** ID of Tasks which exist in fully collapsed view (may or may not have subtasks) */
   const parentTaskIds = useMemo<string[]>(()=> initialData.filter((task) => {
     const {parentTaskReferenceName:parentTaskRefName} = task
-    if (!parentTaskRefName || !collapseTaskTypes.includes(taskTypeMap.get(parentTaskRefName))){
+    if (!parentTaskRefName || !collapseTaskTypes.includes(taskTypeMap.get(parentTaskRefName) as string)){
       return true;
     }
     return false;
