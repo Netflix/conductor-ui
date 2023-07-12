@@ -17,7 +17,7 @@ export const NEW_WORKFLOW_TEMPLATE = {
         },
       },
       type: "HTTP",
-    } as HttpTaskConfig
+    } as HttpTaskConfig,
   ],
   inputParameters: [],
   outputParameters: {

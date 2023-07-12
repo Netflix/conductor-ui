@@ -724,12 +724,12 @@ exports.yellowXLight = "rgba(251,164,4,0.4)";
 // Transparents / Yellow / 02-Yellow-Xxlight (10%)
 exports.yellowXXLight = "rgba(251,164,4,0.1)";
 
-exports.grayLight6 = 'rgb(214, 214, 214)';
+exports.grayLight6 = "rgb(214, 214, 214)";
 
-exports.grayLight4 = 'rgb(182, 182, 182)'
+exports.grayLight4 = "rgb(182, 182, 182)";
 
-exports.red = '#FF0000';
+exports.red = "#FF0000";
 
-exports.grayDark4 = 'rgb(65, 65, 65)'
+exports.grayDark4 = "rgb(65, 65, 65)";
 
-exports.grayDark = 'rgb(128, 128, 128)';
+exports.grayDark = "rgb(128, 128, 128)";

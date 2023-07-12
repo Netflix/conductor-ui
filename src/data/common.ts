@@ -19,7 +19,7 @@ export function useFetchParallel(paths: string[][], reactQueryOptions?: any) {
         keepPreviousData: true,
         ...reactQueryOptions,
       };
-    })
+    }),
   );
 }
 
@@ -27,7 +27,7 @@ export function useFetch<TData>(
   key: string[],
   path: string,
   reactQueryOptions?: any,
-  defaultResponse?: any
+  defaultResponse?: any,
 ) {
   const { fetchWithContext, ready, stack } = useAppContext();
 
@@ -44,14 +44,14 @@ export function useFetch<TData>(
       enabled: ready && _.get(reactQueryOptions, "enabled", true),
       keepPreviousData: true,
       ...reactQueryOptions,
-    }
+    },
   );
 }
 
 export function useAction<TData>(
   path: string,
   method = "post",
-  callbacks?: MutationOptions
+  callbacks?: MutationOptions,
 ) {
   const { fetchWithContext } = useAppContext();
   return useMutation<TData>(
@@ -63,6 +63,6 @@ export function useAction<TData>(
         },
         body: _.get(mutateParams, "body"),
       }),
-    callbacks
+    callbacks,
   );
 }

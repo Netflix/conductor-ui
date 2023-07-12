@@ -38,7 +38,7 @@ type ITileFactoryContext = {
 };
 
 export const TileFactoryContext = React.createContext<ITileFactoryContext>(
-  {} as ITileFactoryContext
+  {} as ITileFactoryContext,
 );
 
 export default function tabLoader(tabBase: TabBase): TabData {

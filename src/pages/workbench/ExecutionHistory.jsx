@@ -43,7 +43,7 @@ export default function ExecutionHistory({ run }) {
   const resultsMap = new Map(
     results
       .filter((r) => r.isSuccess)
-      .map((result) => [result.data.workflowId, result.data])
+      .map((result) => [result.data.workflowId, result.data]),
   );
   const invalidateWorkflows = useInvalidateWorkflows();
 

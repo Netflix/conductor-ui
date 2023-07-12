@@ -79,7 +79,7 @@ export default function SiblingSelector({
             options={dfSiblings}
             disableClearable
             value={selectedDFResult}
-            getOptionLabel={taskResult =>
+            getOptionLabel={(taskResult) =>
               `${dropdownIcon((taskResult as TaskResult).status)} ${
                 (taskResult as TaskResult).referenceTaskName
               }`
@@ -118,9 +118,9 @@ export default function SiblingSelector({
             style={{ marginBottom: 20, width: 500 }}
             componentsProps={{
               popper: {
-                placement: 'top-start',
-                disablePortal: true
-              }
+                placement: "top-start",
+                disablePortal: true,
+              },
             }}
           />
         </div>
@@ -138,7 +138,7 @@ export default function SiblingSelector({
             }}
             options={retries}
             value={selectedResult}
-            getOptionLabel={taskResult =>
+            getOptionLabel={(taskResult) =>
               `${dropdownIcon((taskResult as TaskResult).status)} [Attempt ${
                 (taskResult as TaskResult).retryCount! + 1
               }] ${(taskResult as TaskResult).taskId}`
@@ -146,9 +146,9 @@ export default function SiblingSelector({
             style={{ marginBottom: 20, width: 500 }}
             componentsProps={{
               popper: {
-                placement: 'top-start',
-                disablePortal: true
-              }
+                placement: "top-start",
+                disablePortal: true,
+              },
             }}
           />
         </div>

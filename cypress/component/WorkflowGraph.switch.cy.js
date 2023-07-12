@@ -66,7 +66,7 @@ describe("Switch", () => {
           dag={dag}
           executionMode={true}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get("#switch_task > .label-container").click();
@@ -136,7 +136,7 @@ describe("Switch", () => {
           dag={dag}
           executionMode={true}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get("#switch_task > .label-container").click();
@@ -166,7 +166,7 @@ describe("Switch", () => {
       cy.get(".edgeLabel text").should(
         "not.have.css",
         "fill",
-        "rgb(0, 0, 255)"
+        "rgb(0, 0, 255)",
       );
     });
 
@@ -178,7 +178,7 @@ describe("Switch", () => {
           dag={dag}
           executionMode={true}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get("#switch_task > .label-container").click();

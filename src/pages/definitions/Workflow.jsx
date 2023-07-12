@@ -102,7 +102,7 @@ export default function WorkflowDefinitions() {
   const { isFetching, totalHits, workflows } = usePaginatedWorkflowDefs(
     PAGE_SIZE * (page - 1),
     PAGE_SIZE * page,
-    nameFilter
+    nameFilter,
   );
 
   const handleFilterChange = (obj) => {

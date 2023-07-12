@@ -298,7 +298,9 @@
 }
 .inovua-react-toolkit-date-input--theme-conductor-light.inovua-react-toolkit-date-input--focused {
   border: 1px solid rgba(0, 0, 0, 0.9);
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0), 0 0 2px 0 rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 1px 2px 0 rgba(0, 0, 0, 0),
+    0 0 2px 0 rgba(0, 0, 0, 0.1);
 }
 .inovua-react-toolkit-date-input--theme-conductor-light
   > .inovua-react-toolkit-date-input__picker {
@@ -526,7 +528,9 @@
   align-items: center;
   justify-content: center;
   border-radius: 4px;
-  transition: background 0.3s, fill 0.3s;
+  transition:
+    background 0.3s,
+    fill 0.3s;
 }
 .inovua-react-toolkit-calendar__decade-view--theme-conductor-light
   .inovua-react-toolkit-calendar__decade-view-arrow:hover {
@@ -678,7 +682,9 @@
   transform: translateY(1px);
 }
 .inovua-react-toolkit-calendar__calendar--theme-conductor-light.inovua-react-toolkit-date-input__picker {
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0), 0 0 2px 0 rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 1px 2px 0 rgba(0, 0, 0, 0),
+    0 0 2px 0 rgba(0, 0, 0, 0.1);
 }
 .inovua-react-toolkit-calendar__calendar--theme-conductor-light
   .inovua-react-toolkit-calendar__calendar--theme-conductor-light {
@@ -1292,7 +1298,9 @@
 }
 .inovua-react-toolkit-menu.inovua-react-toolkit-menu--theme-conductor-light.inovua-react-toolkit-menu--rtl,
 .inovua-react-toolkit-menu.inovua-react-toolkit-menu--theme-conductor-light.inovua-react-toolkit-menu--shadow {
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0), 0 0 2px 0 rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 1px 2px 0 rgba(0, 0, 0, 0),
+    0 0 2px 0 rgba(0, 0, 0, 0.1);
 }
 .inovua-react-toolkit-menu.inovua-react-toolkit-menu--theme-conductor-light.inovua-react-toolkit-menu--depth-1,
 .inovua-react-toolkit-menu.inovua-react-toolkit-menu--theme-conductor-light.inovua-react-toolkit-menu--depth-2,
@@ -2493,9 +2501,16 @@
   fill: rgba(0, 0, 0, 0.9);
   font-size: 13px;
   border-radius: 4px;
-  transition: background 0.2s, -webkit-transform 0.2s;
-  transition: background 0.2s, transform 0.2s;
-  transition: background 0.2s, transform 0.2s, -webkit-transform 0.2s;
+  transition:
+    background 0.2s,
+    -webkit-transform 0.2s;
+  transition:
+    background 0.2s,
+    transform 0.2s;
+  transition:
+    background 0.2s,
+    transform 0.2s,
+    -webkit-transform 0.2s;
 }
 .inovua-react-toolkit-button.inovua-react-toolkit-button--theme-conductor-light:not(
     .inovua-react-toolkit-dropdown-button__button
@@ -4273,7 +4288,9 @@
   transform: translateY(0);
   transition: -webkit-transform 0.2s;
   transition: transform 0.2s;
-  transition: transform 0.2s, -webkit-transform 0.2s;
+  transition:
+    transform 0.2s,
+    -webkit-transform 0.2s;
 }
 .InovuaReactDataGrid--theme-conductor-light
   .InovuaReactDataGrid__column-header__filter-settings:active
@@ -4355,7 +4372,9 @@
   transform: translateY(0);
   transition: -webkit-transform 0.2s;
   transition: transform 0.2s;
-  transition: transform 0.2s, -webkit-transform 0.2s;
+  transition:
+    transform 0.2s,
+    -webkit-transform 0.2s;
   pointer-events: none;
   stroke: rgba(0, 0, 0, 0.9);
 }
@@ -4419,7 +4438,9 @@
   pointer-events: none;
   transition: -webkit-transform 0.2s;
   transition: transform 0.2s;
-  transition: transform 0.2s, -webkit-transform 0.2s;
+  transition:
+    transform 0.2s,
+    -webkit-transform 0.2s;
 }
 .InovuaReactDataGrid--theme-conductor-light
   .InovuaReactDataGrid__column-header__menu-tool

@@ -12,7 +12,7 @@ export const useRestartLatestAction = ({ workflowId, onSuccess }) => {
   return useAction(
     `/workflow/${workflowId}/restart?useLatestDefinitions=true`,
     "post",
-    { onSuccess }
+    { onSuccess },
   );
 };
 
@@ -20,7 +20,7 @@ export const useRetryAction = ({ workflowId, onSuccess }) => {
   return useAction(
     `/workflow/${workflowId}/retry?resumeSubworkflowTasks=false`,
     "post",
-    { onSuccess }
+    { onSuccess },
   );
 };
 
@@ -31,7 +31,7 @@ export const useRetryResumeSubworkflowTasksAction = ({
   return useAction(
     `/workflow/${workflowId}/retry?resumeSubworkflowTasks=true`,
     "post",
-    { onSuccess }
+    { onSuccess },
   );
 };
 
@@ -53,7 +53,7 @@ export const useTerminateAction = ({ workflowId, onSuccess }) => {
         },
       });
     },
-    { onSuccess }
+    { onSuccess },
   );
 };
 

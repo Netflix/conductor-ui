@@ -44,16 +44,16 @@ export default function DataTable(props) {
   const defaultColumns = useMemo(
     () =>
       props.defaultShowColumns || props.columns.map((col) => getColumnId(col)),
-    [props.defaultShowColumns, props.columns]
+    [props.defaultShowColumns, props.columns],
   );
 
   const [tableState, setTableState] = useLocalStorage(
     localStorageKey,
-    defaultColumns
+    defaultColumns,
   );
 
   const [filterObj, setFilterObj] = useState(
-    initialFilterObj || DEFAULT_FILTER_OBJ
+    initialFilterObj || DEFAULT_FILTER_OBJ,
   );
 
   const handleFilterChange = (val) => {
@@ -122,7 +122,7 @@ export default function DataTable(props) {
     if (paginationServer) return data;
 
     const column = dataTableColumns.find(
-      (col) => col.id === filterObj.columnName
+      (col) => col.id === filterObj.columnName,
     );
 
     if (!filterObj.substring || !filterObj.columnName) {

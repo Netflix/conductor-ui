@@ -48,7 +48,7 @@ export const SEARCH_TASK_TYPES_SET = modifyTaskTypes(TASK_TYPES);
 
 function modifyTaskTypes(taskTypes) {
   const newTaskTypes = taskTypes.filter(
-    (ele) => ele !== "FORK_JOIN_DYNAMIC" && ele !== "SIMPLE"
+    (ele) => ele !== "FORK_JOIN_DYNAMIC" && ele !== "SIMPLE",
   );
   const fjIdx = newTaskTypes.findIndex((ele) => ele === "FORK_JOIN");
   newTaskTypes[fjIdx] = "FORK";
