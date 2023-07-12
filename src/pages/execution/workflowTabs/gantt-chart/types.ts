@@ -69,6 +69,7 @@ export interface Band {
 export interface GanttProps {
     max: Date;
     min: Date;
+    viewportRef?:React.MutableRefObject<HTMLDivElement>;
     style?: StyleClass['style'];
     className?: StyleClass['className'];
     band?: {

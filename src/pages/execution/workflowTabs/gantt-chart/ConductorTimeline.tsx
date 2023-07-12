@@ -26,9 +26,10 @@ type ConductorTimelineProps = {
   selectedTaskId: string
   setSelectedTaskId: (id:string)=>void
   onClick: (id: string) => void;
+  viewportRef: React.MutableRefObject<HTMLDivElement>;
 };
 
-export default function ConductorTimeline({data, selectedTaskId, setSelectedTaskId, onClick }:ConductorTimelineProps){
+export default function ConductorTimeline({data, selectedTaskId, setSelectedTaskId, onClick, viewportRef }:ConductorTimelineProps){
   const {resetZoom } = useGanttChartAPI();
   /** Function to return the style object of a span - based on the span status and selection state. */
   function spanStyle(taskId:string, status:string){
@@ -256,7 +257,7 @@ return (
       <Button onClick={toggleAll}>{expanded? 'Collapse All':'Expand All'}</Button> 
       <Button onClick={zoomToFit}>Zoom To Fit</Button>
       </ButtonGroup>
-      <GanttChart min={min} max={max} >
+      <GanttChart min={min} max={max} viewportRef={viewportRef} >
           <Bars
           barHeight={BARHEIGHT}
           waitHeightDelta={2}
@@ -265,7 +266,6 @@ return (
             setSelectedTaskId(selectedTaskId===datum.id?null:datum.id);
             onClick(datum.id);
           }}
-          selectedTaskId={selectedTaskId}
           data={series}
           font={`${fontSizes.fontSize3} ${fontFamily.fontFamilySans}`}
         />

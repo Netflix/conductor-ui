@@ -29,6 +29,7 @@ export function GanttChart({
         height: 22,
         padding: 15,
     },
+    viewportRef,
     margins = {
         top: 0,
         left: 20,
@@ -55,6 +56,7 @@ export function GanttChart({
             value={{
                 ref,
                 classes,
+                viewportRef,
             }}
         >
             <div ref={ref} className={className} style={style}>
