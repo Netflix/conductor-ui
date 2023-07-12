@@ -86,13 +86,13 @@ export default class WorkflowDAG {
     for (const taskResult of tasks!) {
       if (taskResult.parentTaskReferenceName) {
         const parentResult = cls.getTaskResultByRef(
-          taskResult.parentTaskReferenceName
+          taskResult.parentTaskReferenceName,
         );
 
         if (!parentResult)
           throw new Error(
             "Invalid state - parentTaskReferenceName not found: " +
-              taskResult.parentTaskReferenceName
+              taskResult.parentTaskReferenceName,
           );
 
         if (
@@ -180,7 +180,7 @@ export default class WorkflowDAG {
       currAntecedents = this.processTask(
         task,
         currAntecedents,
-        this.taskConfigs
+        this.taskConfigs,
       );
     }
 
@@ -200,7 +200,7 @@ export default class WorkflowDAG {
 
   getTaskConfigExecutionStatus(taskConfig: GenericTaskConfig) {
     const taskResult = this.getTaskResultByRef(
-      taskConfig.aliasForRef || taskConfig.taskReferenceName
+      taskConfig.aliasForRef || taskConfig.taskReferenceName,
     );
     return taskResult?.status;
   }
@@ -213,7 +213,7 @@ export default class WorkflowDAG {
       status?: TaskStatus;
       tally?: Tally;
       containsTaskRefs?: string[];
-    }
+    },
   ) {
     const effectiveRef = taskConfig.aliasForRef || taskConfig.taskReferenceName;
     const taskResult = _.last(this.taskResultsByRef.get(effectiveRef)); //undefined if unexecuted
@@ -236,7 +236,7 @@ export default class WorkflowDAG {
 
     for (let antecedentConfig of antecedentConfigs) {
       const antecedentExecuted = !!this.graph.node(
-        antecedentConfig.taskReferenceName
+        antecedentConfig.taskReferenceName,
       ).status;
       let edgeParams: DagEdgeProperties;
 
@@ -252,7 +252,7 @@ export default class WorkflowDAG {
 
         const caseValue = getCaseValue(
           taskConfig.taskReferenceName,
-          antecedentConfig
+          antecedentConfig,
         );
 
         if (taskResult) {
@@ -261,7 +261,7 @@ export default class WorkflowDAG {
             executed: this.isBranchTaken(
               caseValue,
               taskResult as TaskResult,
-              antecedentConfig
+              antecedentConfig,
             ),
           };
         } else {
@@ -280,14 +280,14 @@ export default class WorkflowDAG {
       this.graph.setEdge(
         antecedentConfig.taskReferenceName,
         taskConfig.taskReferenceName,
-        edgeParams
+        edgeParams,
       );
     }
   }
 
   processTaskList(
     tasks: GenericTaskConfig[],
-    antecedents: GenericTaskConfig[]
+    antecedents: GenericTaskConfig[],
   ) {
     let currAntecedents = antecedents;
     for (const task of tasks) {
@@ -301,7 +301,7 @@ export default class WorkflowDAG {
   processSwitchTask(
     decisionTask: SwitchTaskConfig,
     antecedents: GenericTaskConfig[],
-    parentArray: GenericTaskConfig[]
+    parentArray: GenericTaskConfig[],
   ) {
     const retval: GenericTaskConfig[] = [];
 
@@ -311,7 +311,7 @@ export default class WorkflowDAG {
       retval.push(decisionTask); // Empty default path
     } else {
       retval.push(
-        ...this.processTaskList(decisionTask.defaultCase, [decisionTask])
+        ...this.processTaskList(decisionTask.defaultCase, [decisionTask]),
       );
     }
 
@@ -319,8 +319,8 @@ export default class WorkflowDAG {
       ..._.flatten(
         Object.entries(decisionTask.decisionCases).map(([caseValue, tasks]) => {
           return this.processTaskList(tasks, [decisionTask]);
-        })
-      )
+        }),
+      ),
     );
     return retval;
   }
@@ -328,7 +328,7 @@ export default class WorkflowDAG {
   processForkJoinDynamic(
     dfTask: DynamicForkTaskConfig,
     antecedents: GenericTaskConfig[],
-    parentArray: GenericTaskConfig[]
+    parentArray: GenericTaskConfig[],
   ) {
     // This is the DF task (dotted bar) itself.
     this.addVertex(dfTask, antecedents, parentArray);
@@ -371,10 +371,10 @@ export default class WorkflowDAG {
   processDoWhileTask(
     doWhileTaskConfig: DoWhileTaskConfig,
     antecedents: GenericTaskConfig[],
-    parentArray: GenericTaskConfig[]
+    parentArray: GenericTaskConfig[],
   ) {
     const doWhileTaskResult = this.getTaskResultByRef(
-      doWhileTaskConfig.taskReferenceName
+      doWhileTaskConfig.taskReferenceName,
     );
 
     this.addVertex(doWhileTaskConfig, antecedents, parentArray);
@@ -388,7 +388,7 @@ export default class WorkflowDAG {
     };
 
     const loopOverRefs = doWhileTaskConfig.loopOver.map(
-      (t) => t.taskReferenceName
+      (t) => t.taskReferenceName,
     );
 
     if (doWhileTaskResult) {
@@ -405,7 +405,7 @@ export default class WorkflowDAG {
         containsTaskRefs,
       } = this.getDoWhilePlaceholder(
         doWhileTaskConfig.taskReferenceName,
-        loopOverRefs
+        loopOverRefs,
       );
 
       this.addVertex(placeholderTaskConfig, [doWhileTaskConfig], parentArray, {
@@ -421,7 +421,7 @@ export default class WorkflowDAG {
         parentArray,
         {
           status: doWhileTaskResult.status,
-        }
+        },
       );
     } else {
       // Definition view (or not executed)
@@ -448,12 +448,12 @@ export default class WorkflowDAG {
         const tails = Object.entries(lastLoopTask.decisionCases).map(
           ([caseValue, tasks]) => {
             return tasks[tasks.length - 1];
-          }
+          },
         );
 
         if (lastLoopTask.defaultCase) {
           tails.push(
-            lastLoopTask.defaultCase[lastLoopTask.defaultCase.length - 1]
+            lastLoopTask.defaultCase[lastLoopTask.defaultCase.length - 1],
           );
         }
 
@@ -469,7 +469,7 @@ export default class WorkflowDAG {
   processForkJoin(
     forkJoinTask: ForkTaskConfig,
     antecedents: GenericTaskConfig[],
-    parentArray: GenericTaskConfig[]
+    parentArray: GenericTaskConfig[],
   ) {
     let outerForkTasks = forkJoinTask.forkTasks;
 
@@ -480,8 +480,8 @@ export default class WorkflowDAG {
     if (!_.isEmpty(outerForkTasks)) {
       return _.flatten(
         outerForkTasks.map((innerForkTasks) =>
-          this.processTaskList(innerForkTasks, [forkJoinTask])
-        )
+          this.processTaskList(innerForkTasks, [forkJoinTask]),
+        ),
       );
     } else {
       return [forkJoinTask];
@@ -492,7 +492,7 @@ export default class WorkflowDAG {
   processJoin(
     joinTask: JoinTaskConfig,
     antecedents: GenericTaskConfig[],
-    parentArray: GenericTaskConfig[]
+    parentArray: GenericTaskConfig[],
   ) {
     this.addVertex(joinTask, antecedents, parentArray);
     return [joinTask];
@@ -501,7 +501,7 @@ export default class WorkflowDAG {
   processTask(
     task: GenericTaskConfig,
     antecedents: GenericTaskConfig[],
-    parentArray: GenericTaskConfig[]
+    parentArray: GenericTaskConfig[],
   ): GenericTaskConfig[] {
     switch (task.type) {
       case "FORK_JOIN": {
@@ -517,7 +517,7 @@ export default class WorkflowDAG {
         return this.processSwitchTask(
           task as unknown as SwitchTaskConfig,
           antecedents,
-          parentArray
+          parentArray,
         );
       }
 
@@ -546,13 +546,15 @@ export default class WorkflowDAG {
     }
   }
 
-  getDFSiblingsByCoord(taskCoordinate: TaskCoordinate): TaskResult[] | undefined{
+  getDFSiblingsByCoord(
+    taskCoordinate: TaskCoordinate,
+  ): TaskResult[] | undefined {
     const taskResult = this.getTaskResultByCoord(taskCoordinate);
     if (!taskResult?.parentTaskReferenceName) {
       return undefined;
     }
     const parentResult = this.getTaskResultByRef(
-      taskResult.parentTaskReferenceName
+      taskResult.parentTaskReferenceName,
     ) as ForkTaskResult;
 
     // Parent not a FORK
@@ -573,7 +575,7 @@ export default class WorkflowDAG {
     }
     return Array.from(parentResult.forkedTaskRefs).map((ref) => {
       const taskResult = this.getTaskResultByRef(ref);
-      if(!taskResult) throw new Error("forkedTaskRef not found");
+      if (!taskResult) throw new Error("forkedTaskRef not found");
       return taskResult;
     });
   }
@@ -604,7 +606,7 @@ export default class WorkflowDAG {
     if (!taskResult?.parentTaskReferenceName) return undefined;
 
     const parentResult = this.getTaskResultByRef(
-      taskResult.parentTaskReferenceName
+      taskResult.parentTaskReferenceName,
     );
     if (parentResult?.taskType !== "DO_WHILE") return undefined;
 
@@ -612,7 +614,7 @@ export default class WorkflowDAG {
     if (!parentDoWhileResult.loopTaskIds) return undefined;
 
     const tasks = parentDoWhileResult.loopTaskIds.map((id) =>
-      this.taskResultById.get(id)
+      this.taskResultById.get(id),
     );
 
     return tasks;
@@ -635,11 +637,11 @@ export default class WorkflowDAG {
       } else if (taskResult.parentTaskReferenceName) {
         // Look for collapsed node
         const parentResult = this.getTaskResultByRef(
-          taskResult.parentTaskReferenceName
+          taskResult.parentTaskReferenceName,
         );
 
         const successors = this.graph.successors(
-          taskResult.parentTaskReferenceName
+          taskResult.parentTaskReferenceName,
         );
 
         if (
@@ -647,12 +649,12 @@ export default class WorkflowDAG {
           parentResult?.taskType === "FORK"
         ) {
           const placeholderRef = successors?.find((successor: string) =>
-            successor.includes("_DF_CHILDREN_PLACEHOLDER")
+            successor.includes("_DF_CHILDREN_PLACEHOLDER"),
           );
           return placeholderRef;
         } else if (parentResult?.taskType === "DO_WHILE") {
           const placeholderRef = successors?.find((successor: string) =>
-            successor.includes("_LOOP_CHILDREN_PLACEHOLDER")
+            successor.includes("_LOOP_CHILDREN_PLACEHOLDER"),
           );
           return placeholderRef;
         }
@@ -724,7 +726,7 @@ export default class WorkflowDAG {
 
   getDfPlaceholder(
     dfRef: string,
-    forkedTaskRefs: Set<string> = new Set<string>()
+    forkedTaskRefs: Set<string> = new Set<string>(),
   ) {
     let tally: Tally | undefined = undefined,
       status: TaskStatus | undefined = undefined;
@@ -763,7 +765,7 @@ export default class WorkflowDAG {
             canceled: 0,
             total: 0,
             failed: 0,
-          }
+          },
         );
 
       if (tally.total > 1 && tally.success === tally.total) {
@@ -793,7 +795,7 @@ export default class WorkflowDAG {
 
   getDoWhilePlaceholder(
     doWhileRef: string,
-    loopTaskRefs: string[] = []
+    loopTaskRefs: string[] = [],
   ): {
     taskConfig: PlaceholderTaskConfig;
     tally: Tally;
@@ -837,7 +839,7 @@ export default class WorkflowDAG {
           canceled: 0,
           failed: 0,
           total: 0,
-        }
+        },
       );
 
     const placeholderRef = doWhileRef + "_LOOP_CHILDREN_PLACEHOLDER";
@@ -892,7 +894,7 @@ export default class WorkflowDAG {
         taskConfig = successorNode.taskConfig;
       }
       const pos = parentArray.findIndex(
-        (ele: GenericTaskConfig) => ele === taskConfig
+        (ele: GenericTaskConfig) => ele === taskConfig,
       );
 
       const newTaskConfig = this.getNextUntitled(type);
@@ -915,7 +917,7 @@ export default class WorkflowDAG {
   addSwitchCase(
     parentRef: string,
     type: TaskConfigType,
-    isDefault: boolean = false
+    isDefault: boolean = false,
   ) {
     const { taskConfig }: { taskConfig: SwitchTaskConfig } =
       this.graph.node(parentRef);
@@ -947,11 +949,11 @@ export default class WorkflowDAG {
     const { taskConfig, parentArray } = this.graph.node(ref);
 
     const pos = parentArray.findIndex(
-      (ele: GenericTaskConfig) => ele === taskConfig
+      (ele: GenericTaskConfig) => ele === taskConfig,
     );
     if (pos === -1) {
       throw new Error(
-        "Invalid state. ParentArray expected to contain taskConfig"
+        "Invalid state. ParentArray expected to contain taskConfig",
       );
     }
     // Remove join also if needed
@@ -988,7 +990,7 @@ export default class WorkflowDAG {
         }
       } else if (taskConfig.type === "SWITCH") {
         const matchEntry = Object.entries(taskConfig.decisionCases).find(
-          ([key, tl]) => tl === taskList
+          ([key, tl]) => tl === taskList,
         );
         if (matchEntry) {
           delete taskConfig.decisionCases[matchEntry[0]];
@@ -1001,7 +1003,7 @@ export default class WorkflowDAG {
   isBranchTaken(
     caseValue: string,
     branchTaskResult: ExtendedTaskResult,
-    switchTaskConfig: SwitchTaskConfig
+    switchTaskConfig: SwitchTaskConfig,
   ) {
     let retval;
     if (caseValue === "default") {
@@ -1012,7 +1014,7 @@ export default class WorkflowDAG {
         retval = true;
       } else {
         const switchTaskResult = this.getTaskResultByRef(
-          switchTaskConfig.taskReferenceName
+          switchTaskConfig.taskReferenceName,
         ) as SwitchTaskResult;
         retval = !switchTaskResult?.executedCaseRef;
         // executedCaseRef being set implies some other case was selected and thus the default case could not have been active.
@@ -1036,7 +1038,7 @@ function getCaseValue(ref: string, decisionTask: SwitchTaskConfig) {
   }
 
   for (const [caseValue, taskList] of Object.entries(
-    decisionTask.decisionCases
+    decisionTask.decisionCases,
   )) {
     if (!_.isEmpty(taskList) && ref === taskList[0].taskReferenceName) {
       return caseValue;

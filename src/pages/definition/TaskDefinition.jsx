@@ -52,7 +52,7 @@ export default function TaskDefinition() {
   } = useTask(taskName, NEW_TASK_TEMPLATE);
   const taskJson = useMemo(
     () => (taskDef ? JSON.stringify(taskDef, null, 2) : ""),
-    [taskDef]
+    [taskDef],
   );
 
   // Save

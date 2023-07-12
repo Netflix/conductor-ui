@@ -132,11 +132,11 @@ describe("Simple Task", () => {
       const lastTaskId = simple_task_node.taskResults[2].taskId;
       assert.equal(
         (dag.getTaskResultByRef("simple_task") as TaskResult).taskId,
-        lastTaskId
+        lastTaskId,
       );
       assert.equal(
         (dag.getTaskResultByCoord({ ref: "simple_task" }) as TaskResult).taskId,
-        lastTaskId
+        lastTaskId,
       );
     });
 
@@ -277,7 +277,7 @@ describe("Dynamic Fork", () => {
 
     it("Retry history is accessible", () => {
       const failedRetryResult = dag.getTaskResultsByRef(
-        "dynamic_fork_child_1"
+        "dynamic_fork_child_1",
       )?.[0];
       assert.equal(failedRetryResult?.status, "FAILED");
     });
@@ -309,7 +309,7 @@ describe("Dynamic Fork", () => {
     const dag = dagDynamicForkSuccess(FANOUT_HIGH);
 
     const placeholder_node = dag.graph.node(
-      "dynamic_fork_DF_CHILDREN_PLACEHOLDER"
+      "dynamic_fork_DF_CHILDREN_PLACEHOLDER",
     );
 
     it("FORK_JOIN_DYNAMIC follows start", () => {
@@ -370,7 +370,7 @@ describe("Dynamic Fork", () => {
       assert.equal(dag.graph.node("dynamic_fork").status, "COMPLETED");
       assert.equal(
         dag.graph.node("dynamic_fork_DF_CHILDREN_PLACEHOLDER").status,
-        "COMPLETED"
+        "COMPLETED",
       );
       assert.equal(dag.graph.node("__final").status, "COMPLETED");
     });
@@ -379,7 +379,7 @@ describe("Dynamic Fork", () => {
   describe("High fanout - failure", () => {
     const dag = dagDynamicForkFailure(FANOUT_HIGH);
     const placeholder_node = dag.graph.node(
-      "dynamic_fork_DF_CHILDREN_PLACEHOLDER"
+      "dynamic_fork_DF_CHILDREN_PLACEHOLDER",
     );
 
     it("FORK_JOIN_DYNAMIC follows start", () => {
@@ -426,7 +426,7 @@ describe("Dynamic Fork", () => {
       assert.equal(dag.graph.node("dynamic_fork").status, "COMPLETED");
       assert.equal(
         dag.graph.node("dynamic_fork_DF_CHILDREN_PLACEHOLDER").status,
-        "FAILED"
+        "FAILED",
       );
       assert.equal(dag.graph.node("dynamic_fork_join").status, "FAILED");
       assert.equal(dag.graph.node("__final").status, undefined);
@@ -436,7 +436,7 @@ describe("Dynamic Fork", () => {
   describe("High fanout - retries", () => {
     const dag = dagDynamicForkRetries(FANOUT_HIGH);
     const placeholder_node = dag.graph.node(
-      "dynamic_fork_DF_CHILDREN_PLACEHOLDER"
+      "dynamic_fork_DF_CHILDREN_PLACEHOLDER",
     );
 
     it("Placeholder has no taskResults", () => {
@@ -457,7 +457,7 @@ describe("Dynamic Fork", () => {
       assert.equal(childResult?.status, "COMPLETED");
 
       const failedRetryResult = dag.getTaskResultsByRef(
-        "dynamic_fork_child_4"
+        "dynamic_fork_child_4",
       )?.[0];
       assert.equal(failedRetryResult?.status, "FAILED");
     });
@@ -484,7 +484,7 @@ describe("Dynamic Fork", () => {
       assert.equal(dag.graph.node("dynamic_fork").status, "COMPLETED");
       assert.equal(
         dag.graph.node("dynamic_fork_DF_CHILDREN_PLACEHOLDER").status,
-        "COMPLETED"
+        "COMPLETED",
       );
       assert.equal(dag.graph.node("dynamic_fork_join").status, "COMPLETED");
       assert.equal(dag.graph.node("__final").status, "COMPLETED");
@@ -493,7 +493,7 @@ describe("Dynamic Fork", () => {
   describe("Definition Only", () => {
     const dag = dagDynamicForkDefOnly();
     const placeholder_node: NodeData = dag.graph.node(
-      "dynamic_fork_DF_CHILDREN_PLACEHOLDER"
+      "dynamic_fork_DF_CHILDREN_PLACEHOLDER",
     );
 
     it("Placeholder follows FORK_JOIN_DYNAMIC", () => {
@@ -512,7 +512,7 @@ describe("Dynamic Fork", () => {
     it("Placeholder links to placeholder task config", () => {
       assert.equal(
         placeholder_node.taskConfig?.type,
-        "DF_CHILDREN_PLACEHOLDER"
+        "DF_CHILDREN_PLACEHOLDER",
       );
     });
 
@@ -536,7 +536,7 @@ describe("Dynamic Fork", () => {
   describe("None Spawned", () => {
     const dag = dagDynamicForkNoneSpawned();
     const placeholder_node: NodeData = dag.graph.node(
-      "dynamic_fork_DF_CHILDREN_PLACEHOLDER"
+      "dynamic_fork_DF_CHILDREN_PLACEHOLDER",
     );
 
     it("FORK_JOIN_DYNAMIC follows start", () => {
@@ -561,7 +561,7 @@ describe("Dynamic Fork", () => {
     it("Placeholder links to placeholder task config", () => {
       assert.equal(
         placeholder_node.taskConfig?.type,
-        "DF_CHILDREN_PLACEHOLDER"
+        "DF_CHILDREN_PLACEHOLDER",
       );
     });
 
@@ -731,7 +731,7 @@ describe("Do-While", () => {
     it("End Bar has alias to DO_WHILE", () => {
       assert.equal(
         dag.getTaskConfigByRef("loop_task-END").aliasForRef,
-        "loop_task"
+        "loop_task",
       );
     });
 
@@ -754,7 +754,7 @@ describe("Do-While", () => {
     const dag = dagDoWhileSuccess(ITERATIONS);
 
     const placeholder_node: NodeData = dag.graph.node(
-      "loop_task_LOOP_CHILDREN_PLACEHOLDER"
+      "loop_task_LOOP_CHILDREN_PLACEHOLDER",
     );
 
     it("DO_WHILE follows __start", () => {
@@ -771,7 +771,7 @@ describe("Do-While", () => {
     it("Placeholder Node has taskConfig", () => {
       assert.equal(
         placeholder_node.taskConfig.type,
-        "LOOP_CHILDREN_PLACEHOLDER"
+        "LOOP_CHILDREN_PLACEHOLDER",
       );
     });
 
@@ -799,7 +799,7 @@ describe("Do-While", () => {
     it("End Bar follows placeholder", () => {
       assert.deepEqual(
         dag.graph.successors("loop_task_LOOP_CHILDREN_PLACEHOLDER"),
-        ["loop_task-END"]
+        ["loop_task-END"],
       );
     });
 
@@ -825,7 +825,7 @@ describe("Do-While", () => {
     const ITERATIONS = 2;
     const dag = dagDoWhileFailure(ITERATIONS);
     const placeholder_node: NodeData = dag.graph.node(
-      "loop_task_LOOP_CHILDREN_PLACEHOLDER"
+      "loop_task_LOOP_CHILDREN_PLACEHOLDER",
     );
 
     it("Placeholder Node has correct tally ", () => {
@@ -850,7 +850,7 @@ describe("Do-While", () => {
     const ITERATIONS = 2;
     const dag = dagDoWhileRetries(ITERATIONS);
     const placeholder_node: NodeData = dag.graph.node(
-      "loop_task_LOOP_CHILDREN_PLACEHOLDER"
+      "loop_task_LOOP_CHILDREN_PLACEHOLDER",
     );
 
     it("Placeholder Node has correct tally. Retry does not contribute to tally.", () => {
@@ -885,7 +885,7 @@ describe("Switch", () => {
       const forkSuccessors = dag.graph.successors("switch_task");
       assert.deepEqual(
         forkSuccessors?.sort(),
-        ["case0_0", "case1_0", "default_0"].sort()
+        ["case0_0", "case1_0", "default_0"].sort(),
       );
     });
 
@@ -899,22 +899,22 @@ describe("Switch", () => {
       const joinPredecessors = dag.graph.predecessors("__final");
       assert.deepEqual(
         joinPredecessors?.sort(),
-        ["case0_1", "case1_1", "default_1"].sort()
+        ["case0_1", "case1_1", "default_1"].sort(),
       );
     });
 
     it("Edges labeled with cases", () => {
       assert.equal(
         dag.graph.edge("switch_task", "default_0").caseValue,
-        "default"
+        "default",
       );
       assert.equal(
         dag.graph.edge("switch_task", "case0_0").caseValue,
-        "case_0"
+        "case_0",
       );
       assert.equal(
         dag.graph.edge("switch_task", "case1_0").caseValue,
-        "case_1"
+        "case_1",
       );
     });
 
@@ -958,14 +958,14 @@ describe("Switch", () => {
     it("Default edge is labeled", () => {
       assert.equal(
         dag.graph.edge("switch_task", "__final").caseValue,
-        "default"
+        "default",
       );
     });
 
     it("Case 0 edge is labeled", () => {
       assert.equal(
         dag.graph.edge("switch_task", "case0_0").caseValue,
-        "case_0"
+        "case_0",
       );
     });
 
@@ -1014,7 +1014,7 @@ describe("Switch", () => {
     it("All 3 branches point to DO_WHILE_END", () => {
       assert.deepEqual(
         dag.graph.predecessors("do_while-END")?.sort(),
-        ["case0_1", "case1_1", "default_1"].sort()
+        ["case0_1", "case1_1", "default_1"].sort(),
       );
     });
   });

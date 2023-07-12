@@ -28,11 +28,11 @@ describe("Dynamic Fork", () => {
 
       cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER").should(
         "have.class",
-        "type-DF_CHILDREN_PLACEHOLDER"
+        "type-DF_CHILDREN_PLACEHOLDER",
       );
       cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER").should(
         "not.have.class",
-        "status_COMPLETED"
+        "status_COMPLETED",
       );
     });
 
@@ -42,7 +42,7 @@ describe("Dynamic Fork", () => {
 
       cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER").should(
         "contain.text",
-        "Dynamically spawned tasks"
+        "Dynamically spawned tasks",
       );
     });
 
@@ -67,7 +67,7 @@ describe("Dynamic Fork", () => {
           dag={dag}
           executionMode={false}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get("#dynamic_fork > .label-container").click();
@@ -84,7 +84,7 @@ describe("Dynamic Fork", () => {
           dag={dag}
           executionMode={false}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get("#dynamic_fork_join > .label-container").click();
@@ -111,11 +111,11 @@ describe("Dynamic Fork", () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
       cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER").should(
         "have.class",
-        "type-DF_CHILDREN_PLACEHOLDER"
+        "type-DF_CHILDREN_PLACEHOLDER",
       );
       cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER").should(
         "have.class",
-        "dimmed"
+        "dimmed",
       );
     });
 
@@ -150,11 +150,11 @@ describe("Dynamic Fork", () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
       cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER").should(
         "have.class",
-        "type-DF_CHILDREN_PLACEHOLDER"
+        "type-DF_CHILDREN_PLACEHOLDER",
       );
       cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER").should(
         "have.class",
-        "status_COMPLETED"
+        "status_COMPLETED",
       );
     });
 
@@ -162,7 +162,7 @@ describe("Dynamic Fork", () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={false} />);
       cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER").should(
         "contain.text",
-        "No tasks spawned"
+        "No tasks spawned",
       );
     });
 
@@ -186,11 +186,11 @@ describe("Dynamic Fork", () => {
           dag={dag}
           executionMode={true}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get(
-        "#dynamic_fork_DF_CHILDREN_PLACEHOLDER > .label-container"
+        "#dynamic_fork_DF_CHILDREN_PLACEHOLDER > .label-container",
       ).click();
       cy.get("@onClickSpy").should("not.have.been.called");
     });
@@ -215,11 +215,11 @@ describe("Dynamic Fork", () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
       cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER").should(
         "have.class",
-        "type-DF_CHILDREN_PLACEHOLDER"
+        "type-DF_CHILDREN_PLACEHOLDER",
       );
       cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER").should(
         "have.class",
-        "status_COMPLETED"
+        "status_COMPLETED",
       );
     });
 
@@ -227,7 +227,7 @@ describe("Dynamic Fork", () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
       cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER").should(
         "contain.text",
-        "5 of 5 tasks succeeded"
+        "5 of 5 tasks succeeded",
       );
     });
 
@@ -243,7 +243,7 @@ describe("Dynamic Fork", () => {
       cy.get("#dynamic_fork_join").should("contain.text", "dynamic_fork_join");
       cy.get("#dynamic_fork_join").should(
         "contain.text",
-        "(dynamic_fork_join_name)"
+        "(dynamic_fork_join_name)",
       );
     });
 
@@ -260,11 +260,11 @@ describe("Dynamic Fork", () => {
           dag={dag}
           executionMode={true}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get(
-        "#dynamic_fork_DF_CHILDREN_PLACEHOLDER > .label-container"
+        "#dynamic_fork_DF_CHILDREN_PLACEHOLDER > .label-container",
       ).click();
       cy.get("@onClickSpy").should("have.been.calledWith", {
         ref: "dynamic_fork_child_0",
@@ -279,7 +279,7 @@ describe("Dynamic Fork", () => {
           dag={dag}
           executionMode={true}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get("#dynamic_fork > .label-container").click();
@@ -296,7 +296,7 @@ describe("Dynamic Fork", () => {
           dag={dag}
           executionMode={true}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get("#dynamic_fork_join > .label-container").click();
@@ -319,11 +319,11 @@ describe("Dynamic Fork", () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
       cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER").should(
         "have.class",
-        "type-DF_CHILDREN_PLACEHOLDER"
+        "type-DF_CHILDREN_PLACEHOLDER",
       );
       cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER").should(
         "have.class",
-        "status_FAILED"
+        "status_FAILED",
       );
     });
 
@@ -331,7 +331,7 @@ describe("Dynamic Fork", () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
       cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER").should(
         "contain.text",
-        "4 of 5 tasks succeeded"
+        "4 of 5 tasks succeeded",
       );
     });
 
@@ -368,11 +368,11 @@ describe("Dynamic Fork", () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
       cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER").should(
         "have.class",
-        "type-DF_CHILDREN_PLACEHOLDER"
+        "type-DF_CHILDREN_PLACEHOLDER",
       );
       cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER").should(
         "have.class",
-        "status_COMPLETED"
+        "status_COMPLETED",
       );
     });
 
@@ -380,7 +380,7 @@ describe("Dynamic Fork", () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
       cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER").should(
         "contain.text",
-        "5 of 5 tasks succeeded"
+        "5 of 5 tasks succeeded",
       );
     });
 
@@ -428,11 +428,11 @@ describe("Dynamic Fork", () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
       cy.get("#dynamic_fork_child_0").should(
         "contain.text",
-        "dynamic_fork_child_0"
+        "dynamic_fork_child_0",
       );
       cy.get("#dynamic_fork_child_1").should(
         "contain.text",
-        "(dynamic_fork_child)"
+        "(dynamic_fork_child)",
       );
     });
 
@@ -456,7 +456,7 @@ describe("Dynamic Fork", () => {
           dag={dag}
           executionMode={true}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get("#dynamic_fork_child_0 > .label-container").click();
@@ -546,7 +546,7 @@ describe("Dynamic Fork", () => {
           dag={dag}
           executionMode={true}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get("#dynamic_fork_child_1 > .label-container").click();

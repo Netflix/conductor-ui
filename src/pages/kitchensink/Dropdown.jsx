@@ -68,9 +68,9 @@ export default function () {
         onChange={(e, v) => setDropdownValue(v)}
         componentsProps={{
           popper: {
-            placement: 'top-start',
-            disablePortal: true
-          }
+            placement: "top-start",
+            disablePortal: true,
+          },
         }}
       />
 

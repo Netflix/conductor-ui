@@ -45,7 +45,7 @@ export default function SaveWorkflowDialog({ onSuccess, onCancel, document }) {
     const latestVersion = _.get(
       _.last(namesAndVersions[parsedModified.name]),
       "version",
-      0
+      0,
     );
 
     if (useAutoVersion) {
@@ -67,7 +67,7 @@ export default function SaveWorkflowDialog({ onSuccess, onCancel, document }) {
   useEffect(() => {
     if (modified.isClash) {
       setErrorMsg(
-        "Cannot save workflow definition. Workflow name already in use."
+        "Cannot save workflow definition. Workflow name already in use.",
       );
     } else {
       setErrorMsg(undefined);

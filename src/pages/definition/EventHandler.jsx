@@ -30,7 +30,7 @@ export default function EventHandlerDefinition() {
 
   const eventHandler = useMemo(
     () => data && data.find((row) => row.name === params.name),
-    [data, params.name]
+    [data, params.name],
   );
 
   return (

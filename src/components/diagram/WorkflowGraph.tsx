@@ -39,7 +39,7 @@ interface WorkflowGraphProps
   onContextMenu?: (
     task: TaskCoordinate,
     type: ExtendedTaskConfigType,
-    e: PointerEvent
+    e: PointerEvent,
   ) => void;
   selectedTask: TaskCoordinate | null;
 }
@@ -158,7 +158,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
         if (this.inner) {
           this.inner.attr(
             "transform",
-            "translate(" + [t.x, t.y] + ")scale(" + [t.k, t.k] + ")"
+            "translate(" + [t.x, t.y] + ")scale(" + [t.k, t.k] + ")",
           );
         }
       });
@@ -213,7 +213,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
 
     this.zoom?.transform(
       svg,
-      d3.zoomIdentity.translate(containerWidth / 2 - graphWidth / 2, 0)
+      d3.zoomIdentity.translate(containerWidth / 2 - graphWidth / 2, 0),
     );
 
     /*
@@ -232,7 +232,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
     const containerWidth = svg.node().getBoundingClientRect().width;
     const scale = Math.min(
       containerWidth / (this.graph.graph() as any).width,
-      1
+      1,
     );
     this.zoom?.transform(svg, d3.zoomIdentity.scale(scale));
 
@@ -324,7 +324,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
     inner
       .selectAll("g.node")
       .on("click", (e) =>
-        this.handleClick(e as PointerEvent, this.props.onTaskSelect)
+        this.handleClick(e as PointerEvent, this.props.onTaskSelect),
       );
 
     // Attach context handler
@@ -348,8 +348,8 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
     handler?: (
       coord: TaskCoordinate,
       type: ExtendedTaskConfigType,
-      e: PointerEvent
-    ) => void
+      e: PointerEvent,
+    ) => void,
   ) => {
     const path = e.composedPath && (e.composedPath() as SVGGElement[]);
 
@@ -563,19 +563,17 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
         break;
       case "LOOP_CHILDREN_PLACEHOLDER":
         retval.shape = "stack";
-        const labelArray=[];
+        const labelArray = [];
         const { tally, containsTaskRefs } = dagNode;
         if (tally?.iterations) {
-          labelArray.push(`${tally.iterations} ${pluralize(
-            "iterations",
-            tally.iterations
-          )}`);
+          labelArray.push(
+            `${tally.iterations} ${pluralize("iterations", tally.iterations)}`,
+          );
         }
         if (!tally || tally.total === 0) {
           labelArray.push("No tasks in loop");
-        } 
-        else {
-          if(tally?.success) {
+        } else {
+          if (tally?.success) {
             labelArray.push(`${tally.success} succeeded`);
           }
           if (tally?.failed) {
@@ -589,7 +587,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
           }
           retval.placeholderRef = containsTaskRefs?.[0];
         }
-        retval.label = labelArray.join('\n');
+        retval.label = labelArray.join("\n");
         retval.shape = "stack";
         break;
       case "DO_WHILE":
@@ -597,7 +595,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
           ref,
           `${ref} (${name}) [DO_WHILE]`,
           type,
-          "down"
+          "down",
         );
         this.barNodes.push(ref);
         break;
@@ -609,7 +607,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
             ref,
             `${alias} (${aliasName}) [DO_WHILE]`,
             type,
-            "down"
+            "down",
           ),
           aliasForRef: alias,
         };
@@ -624,7 +622,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
             reverse: true,
             executed: !!dagNode.status,
           } as GraphEdge,
-          `${ref}_loop_reverse`
+          `${ref}_loop_reverse`,
         );
 
         break;
@@ -659,14 +657,14 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
     if (barNode.fanDir === "down") {
       fanOut = this.graph.outEdges(barRef)?.map((e) => {
         const points = parseSvgPath(
-          this.graph.edge(e).elem.querySelector("path").getAttribute("d")
+          this.graph.edge(e).elem.querySelector("path").getAttribute("d"),
         );
         return _.first(points);
       });
     } else {
       fanOut = this.graph.inEdges(barRef)?.map((e) => {
         const points = parseSvgPath(
-          this.graph.edge(e).elem.querySelector("path").getAttribute("d")
+          this.graph.edge(e).elem.querySelector("path").getAttribute("d"),
         );
         return _.last(points);
       });
@@ -695,7 +693,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
     translateX = minX;
     barNode.elem.setAttribute(
       "transform",
-      `translate(${translateX}, ${translateY})`
+      `translate(${translateX}, ${translateY})`,
     );
 
     const rect = barNode.elem.querySelector("rect") as SVGRectElement;
@@ -712,7 +710,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
     const currTextTransformY = text.transform.baseVal[0].matrix.f;
     text.setAttribute(
       "transform",
-      `translate(${newTextTransformX}, ${currTextTransformY})`
+      `translate(${newTextTransformX}, ${currTextTransformY})`,
     );
   }
 }
@@ -723,7 +721,7 @@ function composeBarNode(
   id: string,
   label: string,
   type: ExtendedTaskConfigType,
-  fanDir: FanDir
+  fanDir: FanDir,
 ) {
   const retval: GraphNodeProperties = {
     id: id,
@@ -741,7 +739,7 @@ function composeBarNode(
 function barRenderer(
   parent: any,
   bbox: any,
-  node: GraphNode
+  node: GraphNode,
 ): d3.Selection<any, string, any, any> {
   const group = parent.insert("g", ":first-child");
   group
@@ -778,7 +776,7 @@ const STACK_OFFSET = 5;
 function stackRenderer(
   parent: any,
   bbox: any,
-  node: GraphNode
+  node: GraphNode,
 ): d3.Selection<any, string, any, any> {
   const group = parent.insert("g", ":first-child");
 
@@ -790,7 +788,7 @@ function stackRenderer(
       "transform",
       `translate(${-bbox.width / 2 - STACK_OFFSET * 2}, ${
         -bbox.height / 2 - STACK_OFFSET * 2
-      })`
+      })`,
     );
   group
     .insert("rect")
@@ -800,7 +798,7 @@ function stackRenderer(
       "transform",
       `translate(${-bbox.width / 2 - STACK_OFFSET}, ${
         -bbox.height / 2 - STACK_OFFSET
-      })`
+      })`,
     );
   group
     .insert("rect")

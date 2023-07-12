@@ -53,7 +53,7 @@ export default function WorkflowPanel() {
   const [page, setPage] = useQueryState("page", 1);
   const [rowsPerPage, setRowsPerPage] = useQueryState(
     "rowsPerPage",
-    DEFAULT_ROWS_PER_PAGE
+    DEFAULT_ROWS_PER_PAGE,
   );
   const [sort, setSort] = useQueryState("sort", DEFAULT_SORT);
   const [queryFT, setQueryFT] = useState(buildQuery);

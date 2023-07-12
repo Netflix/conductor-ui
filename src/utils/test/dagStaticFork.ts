@@ -29,14 +29,14 @@ export function dagStaticForkDefOnly() {
   ]);
   workflow.workflowDefinition.tasks = workflow.workflowDefinition.tasks.splice(
     0,
-    1
+    1,
   );
 
   workflow.pushTask("static_join", "JOIN", {
     joinOn: ["static_fork_task_1", "static_fork_task_3"],
   });
   return WorkflowDAG.fromWorkflowDef(
-    workflow.toJSON().execution.workflowDefinition
+    workflow.toJSON().execution.workflowDefinition,
   );
 }
 
@@ -65,7 +65,7 @@ export function dagStaticForkUnexecuted() {
   ]);
   workflow.workflowDefinition.tasks = workflow.workflowDefinition.tasks.splice(
     0,
-    1
+    1,
   );
 
   workflow.pushTask("static_join", "JOIN", {
@@ -103,7 +103,7 @@ export function dagStaticForkSuccess() {
   ]);
   workflow.workflowDefinition.tasks = workflow.workflowDefinition.tasks.splice(
     0,
-    1
+    1,
   );
 
   workflow.pushTask("static_join", "JOIN", {
@@ -137,17 +137,17 @@ export function dagStaticForkFailure() {
   ]);
   workflow.workflowDefinition.tasks = workflow.workflowDefinition.tasks.splice(
     0,
-    1
+    1,
   );
 
   // Fail one of the branches.
   (
     workflow.tasks.find(
-      (task) => task.referenceTaskName === "static_fork_task_2"
+      (task) => task.referenceTaskName === "static_fork_task_2",
     ) as TaskResult
   ).status = "FAILED";
   workflow.tasks = workflow.tasks.filter(
-    (task) => task.referenceTaskName !== "static_fork_task_3"
+    (task) => task.referenceTaskName !== "static_fork_task_3",
   );
 
   workflow.pushTask(
@@ -156,7 +156,7 @@ export function dagStaticForkFailure() {
     {
       joinOn: ["static_fork_task_1", "static_fork_task_3"],
     },
-    "FAILED"
+    "FAILED",
   );
 
   const executionAndTasks = workflow.toJSON();
@@ -189,7 +189,7 @@ export function dagStaticForkRetries() {
   ]);
   workflow.workflowDefinition.tasks = workflow.workflowDefinition.tasks.splice(
     0,
-    1
+    1,
   );
 
   // Retry static_fork_task_3.
