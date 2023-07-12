@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { Link } from "@mui/material";
 import LaunchIcon from "@mui/icons-material/Launch";
@@ -7,8 +7,15 @@ import useAppContext from "../hooks/useAppContext";
 // 1. Strip `navigate` from props to prevent error
 // 2. Preserve stack param
 
-export default React.forwardRef((props, ref) => {
-  const { navigate, path, newTab, children, ...rest } = props;
+type NavLinkProps = {
+  path: string;
+  newTab?: boolean;
+  children?: ReactNode;
+  className?: string;
+};
+
+export default React.forwardRef<HTMLAnchorElement, NavLinkProps>((props, ref) => {
+  const { path, newTab, children, ...rest } = props;
   const { stack, defaultStack } = useAppContext();
 
   const url = new Url(path, {}, true);
@@ -32,7 +39,7 @@ export default React.forwardRef((props, ref) => {
       >
         {children}
         &nbsp;
-        <LaunchIcon fontSize="small" style={{ verticalAlign: "middle" }} />
+        <LaunchIcon fontSize={"12px" as any} style={{ verticalAlign: "middle" }} />
       </Link>
     );
   }
@@ -42,7 +49,7 @@ export function usePushHistory() {
   const navigate = useNavigate();
   const { stack, defaultStack } = useAppContext();
 
-  return (path) => {
+  return (path: string) => {
     const url = new Url(path, {}, true);
     if (stack !== defaultStack) {
       url.query.stack = stack;

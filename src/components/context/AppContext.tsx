@@ -2,6 +2,7 @@ import { createContext } from "react";
 
 export type AppContextType = {
   ready: boolean;
+  env: string;
   stack: string;
   defaultStack: string;
   customTypeRenderers: any;
@@ -12,6 +13,7 @@ export type AppContextType = {
 };
 export default createContext<AppContextType>({
   ready: false,
+  env: "",
   stack: "",
   defaultStack: "",
   customTypeRenderers: {},
