@@ -42,7 +42,7 @@ export default function ConductorTimeline({data, selectedTaskId, setSelectedTask
         }}:{}
   }
   /** ID of tasks which have children: DO_WHILE, FORK, FORK_JOIN_DYNAMIC */
-  const collapsibleTasks = useMemo<Set<string>>(() => new Set(data?.filter(task => collapseTaskTypes.includes(typeof task.taskType)).map(task=> task.taskId)), [data]);
+  const collapsibleTasks = useMemo<Set<string>>(() => new Set(data?.filter(task => collapseTaskTypes.includes(task.taskType as string)).map(task=> task.taskId)), [data]);
   /** Map from id to boolean of whether a task is expanded */ 
   const [taskExpanded, setTaskExpanded]  = useState<Map<string, boolean>>(new Map<string,boolean>(Array.from(collapsibleTasks).map(id => [id,false]))); 
   /** Full expansion of timeline data. Simplified to contain information relevant to timeline  */
@@ -93,7 +93,7 @@ export default function ConductorTimeline({data, selectedTaskId, setSelectedTask
     let data:Series[] = [];
     initialData.forEach((task, idx) => {
       const {referenceTaskName:refTaskName, parentTaskReferenceName:parentTaskRefName, taskType} = task
-      if (!parentTaskRefName || !collapseTaskTypes.includes(typeof taskTypeMap.get(parentTaskRefName))){
+      if (!parentTaskRefName || !collapseTaskTypes.includes(taskTypeMap.get(parentTaskRefName) as string)){
         data.push(task);
         if (taskType === DO_WHILE){
           let i = idx+1;
@@ -128,7 +128,7 @@ export default function ConductorTimeline({data, selectedTaskId, setSelectedTask
   /** ID of Tasks which exist in fully collapsed view (may or may not have subtasks) */
   const parentTaskIds = useMemo<string[]>(()=> initialData.filter((task) => {
     const {parentTaskReferenceName:parentTaskRefName} = task
-    if (!parentTaskRefName || !collapseTaskTypes.includes(typeof taskTypeMap.get(parentTaskRefName))){
+    if (!parentTaskRefName || !collapseTaskTypes.includes(taskTypeMap.get(parentTaskRefName) as string)){
       return true;
     }
     return false;
