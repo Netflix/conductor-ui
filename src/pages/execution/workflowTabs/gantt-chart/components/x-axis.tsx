@@ -49,12 +49,7 @@ export function XAxis({
 
   const xTicks = xScale.ticks(ticksCount);
   const [minTick, maxTick] = xScale.domain();
-  if (!xTicks.includes(minTick)) {
-    xTicks.push(minTick);
-  }
-  if (!xTicks.includes(maxTick)) {
-    xTicks.push(maxTick);
-  }
+
   if (xTicks.length > 1) {
     dateFormat = smartTimeFormat(
       xTicks[1].getTime() - xTicks[0].getTime(),
@@ -105,6 +100,24 @@ export function XAxis({
         x2={canvasWidth}
         y2={canvasHeight}
       />
+      {!xTicks.find((tick) => tick.getTime() === minTick.getTime()) && (
+        <line
+          className={classes.dottedLine}
+          x1={0}
+          y1={0}
+          x2={0}
+          y2={canvasHeight}
+        />
+      )}
+      {!xTicks.find((tick) => tick.getTime() === maxTick.getTime()) && (
+        <line
+          className={classes.dottedLine}
+          x1={canvasWidth}
+          y1={0}
+          x2={canvasWidth}
+          y2={canvasHeight}
+        />
+      )}
     </g>
   );
 }
