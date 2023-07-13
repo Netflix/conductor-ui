@@ -8,6 +8,6 @@ module.exports = function (app) {
       target: target,
       //pathRewrite: { "^/api/": "/" },
       changeOrigin: true,
-    })
+    }),
   );
 };

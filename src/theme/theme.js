@@ -542,7 +542,7 @@ const additionalOptions = {
         root: {
           backgroundColor: baseTheme.palette.grey[50],
           padding: `${baseTheme.spacing("space5")} ${baseTheme.spacing(
-            "space4"
+            "space4",
           )}`,
           borderBottom: `1px solid ${colors.blackXXLight}`,
         },
@@ -560,7 +560,7 @@ const additionalOptions = {
         root: {
           backgroundColor: baseTheme.palette.grey[50],
           padding: `${baseTheme.spacing("space3")} ${baseTheme.spacing(
-            "space5"
+            "space5",
           )}`,
           borderTop: `1px solid ${colors.blackXXLight}`,
           margin: 0,

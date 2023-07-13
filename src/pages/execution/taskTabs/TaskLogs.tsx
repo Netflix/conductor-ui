@@ -11,7 +11,7 @@ export default function TaskLogs({
   taskSelection?: TaskSelection;
 }) {
   const { data: log, isFetching }: { data: any; isFetching: boolean } = useLogs(
-    { taskId: taskSelection?.taskResult?.taskId }
+    { taskId: taskSelection?.taskResult?.taskId },
   );
   if (!taskSelection) return <Blank />;
   if (!taskSelection.taskResult) return <Blank text="Task not executed" />;

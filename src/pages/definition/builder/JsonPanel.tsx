@@ -74,7 +74,7 @@ export default function JsonPanel() {
     modified: string;
   } | null>(null);
   const [resetDialog, setResetDialog] = useState<false | undefined | string>(
-    false
+    false,
   );
   // false=idle (dialog closed)
   // undefined= Ask to reset to current_version
@@ -98,7 +98,7 @@ export default function JsonPanel() {
 
   const versions = useMemo(
     () => _.get(namesAndVersions, workflowName!, []),
-    [namesAndVersions, workflowName]
+    [namesAndVersions, workflowName],
   );
 
   useEffect(() => {
@@ -107,12 +107,12 @@ export default function JsonPanel() {
         const editor = editorRef.current.getModel();
 
         const searchResult = editor.findMatches(
-          `"taskReferenceName": "${selectedTask.ref}"`
+          `"taskReferenceName": "${selectedTask.ref}"`,
         );
         if (searchResult.length) {
           editorRef.current.revealLineInCenter(
             searchResult[0]?.range?.startLineNumber,
-            0
+            0,
           );
           setDecorations(
             editorRef.current.deltaDecorations(decorations, [
@@ -123,7 +123,7 @@ export default function JsonPanel() {
                   inlineClassName: classes.editorLineDecorator,
                 },
               },
-            ])
+            ]),
           );
         }
       } else {
@@ -136,7 +136,7 @@ export default function JsonPanel() {
 
   const workflowJson = useMemo(
     () => (workflowDef ? JSON.stringify(workflowDef, null, 2) : ""),
-    [workflowDef]
+    [workflowDef],
   );
 
   // Saving

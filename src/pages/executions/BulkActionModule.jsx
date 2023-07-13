@@ -75,7 +75,7 @@ export default function BulkActionModule({ selectedRows }) {
         ([key, value]) => ({
           workflowId: key,
           message: value,
-        })
+        }),
       ),
       bulkSuccessfulResults: data.bulkSuccessfulResults.map((value) => ({
         workflowId: value,

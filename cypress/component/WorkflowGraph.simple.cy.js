@@ -28,7 +28,7 @@ describe("Simple Task", () => {
       cy.get("#simple_task rect").should(
         "have.css",
         "fill",
-        "rgb(174, 225, 184)"
+        "rgb(174, 225, 184)",
       );
     });
 
@@ -51,7 +51,7 @@ describe("Simple Task", () => {
           dag={dag}
           executionMode={true}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get("#simple_task > .label-container").click();
@@ -68,7 +68,7 @@ describe("Simple Task", () => {
           dag={dag}
           executionMode={true}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get(".graphSvg").click();
@@ -81,7 +81,7 @@ describe("Simple Task", () => {
           dag={dag}
           executionMode={true}
           selectedTask={{ ref: "simple_task" }}
-        />
+        />,
       );
 
       cy.get("#simple_task").should("have.class", "selected");
@@ -128,7 +128,7 @@ describe("Simple Task", () => {
           dag={dag}
           executionMode={true}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get("#simple_task > .label-container").click();
@@ -170,7 +170,7 @@ describe("Simple Task", () => {
           dag={dag}
           executionMode={false}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get("#simple_task > .label-container").click();

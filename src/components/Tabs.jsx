@@ -55,7 +55,7 @@ export default function Tabs({ contextual = false, children, ...props }) {
     >
       {contextual
         ? children.map((child, idx) =>
-            React.cloneElement(child, { contextual: true, key: idx })
+            React.cloneElement(child, { contextual: true, key: idx }),
           )
         : children}
     </RawTabs>

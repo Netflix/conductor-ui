@@ -12,7 +12,7 @@ export function useWorkflow(workflowId: string) {
     `/v2/execution/${workflowId}`,
     {
       enabled: !!workflowId,
-    }
+    },
   );
 }
 
@@ -22,7 +22,7 @@ export function useWorkflowVariables(workflowId: string) {
     `/v2/execution/${workflowId}/variables`,
     {
       enabled: !!workflowId,
-    }
+    },
   );
 }
 
@@ -32,7 +32,7 @@ export function useWorkflowOutput(workflowId: string) {
     `/v2/execution/${workflowId}/output`,
     {
       enabled: !!workflowId,
-    }
+    },
   );
 }
 
@@ -42,7 +42,7 @@ export function useWorkflowInput(workflowId: string) {
     `/v2/execution/${workflowId}/input`,
     {
       enabled: !!workflowId,
-    }
+    },
   );
 }
 
@@ -76,14 +76,13 @@ export function useExecutionAndTasks(workflowId: string): {
   ]);
 
   useEffect(() => {
-    if(results[0].isFetching || results[1].isFetching){
+    if (results[0].isFetching || results[1].isFetching) {
       setState(undefined);
-    }
-    else if (results[0].isSuccess && results[1].isSuccess) {
-      console.log('Updating workflow and tasks');
+    } else if (results[0].isSuccess && results[1].isSuccess) {
+      console.log("Updating workflow and tasks");
       // Note: In place sort
       results[1].data.sort(
-        (a: TaskResult, b: TaskResult) => a.scheduledTime! - b.scheduledTime!
+        (a: TaskResult, b: TaskResult) => a.scheduledTime! - b.scheduledTime!,
       );
 
       setState({
@@ -92,7 +91,12 @@ export function useExecutionAndTasks(workflowId: string): {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [results[0].isSuccess, results[1].isSuccess, results[0].isFetching, results[1].isFetching]);
+  }, [
+    results[0].isSuccess,
+    results[1].isSuccess,
+    results[0].isFetching,
+    results[1].isFetching,
+  ]);
 
   return {
     error: results[0].error,
@@ -125,7 +129,7 @@ export function useWorkflowDagFromDef(workflowDefinition?: WorkflowDef) {
 export function useWorkflowTask(
   workflowId?: string,
   taskReferenceName?: string,
-  taskId?: string
+  taskId?: string,
 ) {
   let path = `/v2/execution/${workflowId}/task/${taskReferenceName}`;
   if (taskId) {
@@ -143,7 +147,7 @@ export function useWorkflowTask(
 export function useWorkflowTaskOutput(
   workflowId?: string,
   taskReferenceName?: string,
-  taskId?: string
+  taskId?: string,
 ) {
   let path = `/v2/execution/${workflowId}/task/${taskReferenceName}/output`;
   if (taskId) {
@@ -154,14 +158,14 @@ export function useWorkflowTaskOutput(
     path,
     {
       enabled: !!workflowId && !!taskReferenceName,
-    }
+    },
   );
 }
 
 export function useWorkflowTaskInput(
   workflowId?: string,
   taskReferenceName?: string,
-  taskId?: string
+  taskId?: string,
 ) {
   let path = `/v2/execution/${workflowId}/task/${taskReferenceName}/input`;
   if (taskId) {
@@ -172,6 +176,6 @@ export function useWorkflowTaskInput(
     path,
     {
       enabled: !!workflowId && !!taskReferenceName,
-    }
+    },
   );
 }

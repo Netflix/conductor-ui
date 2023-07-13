@@ -66,7 +66,7 @@ export default function Summary({ execution }) {
     customExecutionSummaryRows.map((row) => ({
       label: row.label,
       value: row.renderer(execution),
-    }))
+    })),
   );
 
   return <KeyValueTable data={data} />;

@@ -20,7 +20,7 @@ class Examples extends Component {
             $set: prevState.negcount.nested - 1,
           },
         },
-      })
+      }),
     );
   };
 

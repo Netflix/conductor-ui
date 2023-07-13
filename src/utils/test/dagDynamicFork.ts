@@ -8,7 +8,7 @@ export function dagDynamicForkDefOnly() {
   workflow.pushDynamicFork("dynamic_fork", 0);
 
   return WorkflowDAG.fromWorkflowDef(
-    workflow.toJSON().execution.workflowDefinition
+    workflow.toJSON().execution.workflowDefinition,
   );
 }
 

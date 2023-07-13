@@ -29,11 +29,11 @@ describe("Do While", () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
       cy.get("#loop_task_LOOP_CHILDREN_PLACEHOLDER").should(
         "have.class",
-        "type-LOOP_CHILDREN_PLACEHOLDER"
+        "type-LOOP_CHILDREN_PLACEHOLDER",
       );
       cy.get("#loop_task_LOOP_CHILDREN_PLACEHOLDER").should(
         "have.class",
-        "status_COMPLETED"
+        "status_COMPLETED",
       );
     });
 
@@ -41,7 +41,7 @@ describe("Do While", () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
       cy.get("#loop_task_LOOP_CHILDREN_PLACEHOLDER").should(
         "contain.text",
-        "10 tasks in loop"
+        "10 tasks in loop",
       );
     });
 
@@ -80,7 +80,7 @@ describe("Do While", () => {
           dag={dag}
           executionMode={true}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get("#loop_task_LOOP_CHILDREN_PLACEHOLDER > .label-container").click();
@@ -97,7 +97,7 @@ describe("Do While", () => {
           dag={dag}
           executionMode={true}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get("#loop_task > .label-container").click();
@@ -114,7 +114,7 @@ describe("Do While", () => {
           dag={dag}
           executionMode={true}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get("#loop_task-END > .label-container").click();
@@ -167,7 +167,7 @@ describe("Do While", () => {
           dag={dag}
           executionMode={true}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get("#loop_task > .label-container").click();
@@ -184,7 +184,7 @@ describe("Do While", () => {
           dag={dag}
           executionMode={true}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get("#loop_task-END > .label-container").click();
@@ -201,7 +201,7 @@ describe("Do While", () => {
           dag={dag}
           executionMode={true}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get("#loop_task-END > .label-container").click();
@@ -262,11 +262,11 @@ describe("Do While", () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
       cy.get("#loop_task_LOOP_CHILDREN_PLACEHOLDER").should(
         "have.class",
-        "type-LOOP_CHILDREN_PLACEHOLDER"
+        "type-LOOP_CHILDREN_PLACEHOLDER",
       );
       cy.get("#loop_task_LOOP_CHILDREN_PLACEHOLDER").should(
         "have.class",
-        "status_FAILED"
+        "status_FAILED",
       );
     });
 
@@ -274,7 +274,7 @@ describe("Do While", () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
       cy.get("#loop_task_LOOP_CHILDREN_PLACEHOLDER").should(
         "contain.text",
-        "1 failed"
+        "1 failed",
       );
     });
 
@@ -286,7 +286,7 @@ describe("Do While", () => {
           dag={dag}
           executionMode={true}
           onTaskSelect={onClickSpy}
-        />
+        />,
       );
 
       cy.get("#loop_task_LOOP_CHILDREN_PLACEHOLDER > .label-container").click();
@@ -327,7 +327,7 @@ describe("Do While", () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
       cy.get("#loop_task_LOOP_CHILDREN_PLACEHOLDER").should(
         "contain.text",
-        "11 tasks in loop1 failed"
+        "11 tasks in loop1 failed",
       );
     });
   });

@@ -24,7 +24,7 @@ describe("forklifter", () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
       cy.get("#forklift_and_ks_publish_workflow_0").should(
         "have.class",
-        "status_COMPLETED"
+        "status_COMPLETED",
       );
     });
   });

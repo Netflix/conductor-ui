@@ -29,15 +29,15 @@ describe("Static Fork", () => {
       for (let i = 0; i < 4; i++) {
         cy.get(`#static_fork_task_${i}`).should(
           "have.class",
-          "status_COMPLETED"
+          "status_COMPLETED",
         );
         cy.get(`#static_fork_task_${i}`).should(
           "contain.text",
-          `static_fork_task_${i}`
+          `static_fork_task_${i}`,
         );
         cy.get(`#static_fork_task_${i}`).should(
           "contain.text",
-          `(static_fork_task_${i}_name)`
+          `(static_fork_task_${i}_name)`,
         );
       }
     });
@@ -110,12 +110,12 @@ describe("Static Fork", () => {
       for (let i = 0; i < 4; i++) {
         cy.get(`#static_fork_task_${i}`).should(
           "not.have.class",
-          "status_COMPLETED"
+          "status_COMPLETED",
         );
 
         cy.get(`#static_fork_task_${i}`).should(
           "not.have.class",
-          "status_COMPLETED"
+          "status_COMPLETED",
         );
       }
     });
@@ -154,15 +154,15 @@ describe("Static Fork", () => {
       for (let i = 0; i < 4; i++) {
         cy.get(`#static_fork_task_${i}`).should(
           "not.have.class",
-          "status_COMPLETED"
+          "status_COMPLETED",
         );
         cy.get(`#static_fork_task_${i}`).should(
           "contain.text",
-          `static_fork_task_${i}`
+          `static_fork_task_${i}`,
         );
         cy.get(`#static_fork_task_${i}`).should(
           "contain.text",
-          `(static_fork_task_${i}_name)`
+          `(static_fork_task_${i}_name)`,
         );
       }
     });

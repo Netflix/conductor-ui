@@ -1,13 +1,11 @@
-import React, { useMemo } from "react";
-import Timeline from "react-vis-timeline-2";
+import React, { useMemo, useState } from "react";
 import { timestampRenderer, durationRenderer } from "../../../utils/helpers";
 import _ from "lodash";
 import "./timeline.scss";
-import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
-import { IconButton, Tooltip } from "@mui/material";
 import WorkflowDAG from "../../../components/diagram/WorkflowDAG";
 import { TaskResult } from "../../../types/execution";
 import { TaskCoordinate } from "../../../types/workflowDef";
+import ConductorTimeline from "./gantt-chart/ConductorTimeline";
 
 export default function TimelineComponent({
   dag,
@@ -18,7 +16,8 @@ export default function TimelineComponent({
   tasks: TaskResult[];
   onClick: (task: TaskCoordinate | null) => void;
 }) {
-  const timelineRef = React.useRef<any>(null);
+  const timelineRef = React.useRef<HTMLDivElement>(null);
+
   /*
   const selectedId = useMemo(() => {
     if(selectedTask){
@@ -27,7 +26,7 @@ export default function TimelineComponent({
     }
   }, [dag, selectedTask]);
   */
-  const selectedId = undefined;
+  const [selectedTaskId, setSelectedTaskId] = useState<string>("");
 
   const { items, groups } = useMemo(() => {
     const groupMap = new Map();
@@ -48,7 +47,7 @@ export default function TimelineComponent({
         const endTime =
           task.endTime > 0 ? new Date(task.endTime) : new Date(task.startTime);
         const duration = durationRenderer(
-          endTime.getTime() - startTime.getTime()
+          endTime.getTime() - startTime.getTime(),
         );
         const retval = {
           id: task.taskId,
@@ -59,7 +58,7 @@ export default function TimelineComponent({
           title: `${task.referenceTaskName} (${
             task.status
           })<br/>${timestampRenderer(startTime)} - ${timestampRenderer(
-            endTime
+            endTime,
           )}`,
           className: `status_${task.status}`,
         };
@@ -84,44 +83,24 @@ export default function TimelineComponent({
     };
   }, [tasks, dag]);
 
-  const onFit = () => {
-    timelineRef.current?.timeline?.fit();
-  };
-
-  const handleClick = (e: any) => {
-    const { group, item, what } = e;
-    if (group && what !== "background") {
+  const handleClick = (id: any) => {
+    if (id) {
       onClick({
-        id: item,
+        id: id,
       });
     } else {
       onClick(null);
     }
   };
-
   return (
-    <div style={{ overflow: "auto", height: "100%" }}>
-      <div style={{ marginLeft: 15 }}>
-        Ctrl-scroll to zoom.{" "}
-        <Tooltip title="Zoom to Fit">
-          <IconButton onClick={onFit} size="large">
-            <ZoomOutMapIcon />
-          </IconButton>
-        </Tooltip>
-      </div>
+    <div ref={timelineRef} style={{ overflow: "auto", height: "100%" }}>
       <div className="timeline-container">
-        <Timeline
-          ref={timelineRef}
-          initialGroups={groups}
-          initialItems={items}
-          selection={selectedId}
-          clickHandler={handleClick}
-          options={{
-            orientation: "top",
-            zoomKey: "ctrlKey",
-            type: "range",
-            stack: false,
-          }}
+        <ConductorTimeline
+          data={tasks}
+          selectedTaskId={selectedTaskId}
+          setSelectedTaskId={setSelectedTaskId}
+          onClick={handleClick}
+          viewportRef={timelineRef}
         />
       </div>
       <br />
