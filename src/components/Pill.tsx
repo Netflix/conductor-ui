@@ -46,7 +46,7 @@ const Pill = ({ color, label, tooltip, variant = "filled" }: PillProps) => {
   return (
     <Tooltip title={tooltip}>
       <Chip
-        color={(color as any) || "primary"}
+        color="primary"
         variant={variant}
         label={label}
         classes={overrideClasses}
