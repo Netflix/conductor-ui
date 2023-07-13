@@ -58,7 +58,7 @@ describe("Simple Task", () => {
     it("Final node present and marked COMPLETED.", () => {
       const simple_task_successors = dag.graph.successors("simple_task");
       assert.deepEqual(simple_task_successors, ["__final"]);
-      assert.equal(dag.graph.successors("__final")?.length, 0);
+      assert.equal((dag.graph.successors("__final") as string[])?.length, 0);
       assert.equal(dag.graph.node("__final").status, "COMPLETED");
     });
   });
@@ -87,7 +87,7 @@ describe("Simple Task", () => {
 
       const final_predecessors = dag.graph.predecessors("__final");
       assert.deepEqual(final_predecessors, ["simple_task3"]);
-      assert.equal(dag.graph.successors("__final")?.length, 0);
+      assert.equal((dag.graph.successors("__final") as string[])?.length, 0);
     });
   });
 
@@ -163,7 +163,7 @@ describe("Simple Task", () => {
     it("Final node present and unexecuted", () => {
       const simple_task_successors = dag.graph.successors("simple_task");
       assert.deepEqual(simple_task_successors, ["__final"]);
-      assert.equal(dag.graph.successors("__final")?.length, 0);
+      assert.equal((dag.graph.successors("__final") as string[])?.length, 0);
       assert.equal(dag.graph.node("__final").status, undefined);
     });
   });
@@ -762,7 +762,7 @@ describe("Do-While", () => {
     });
 
     it("Placeholder follows DO_WHILE", () => {
-      assert.equal(dag.graph.successors("loop_task")?.length, 1);
+      assert.equal((dag.graph.successors("loop_task") as string[])?.length, 1);
       assert.deepEqual(dag.graph.successors("loop_task"), [
         "loop_task_LOOP_CHILDREN_PLACEHOLDER",
       ]);
@@ -884,7 +884,7 @@ describe("Switch", () => {
     it("DECISION has 3 successor chains", () => {
       const forkSuccessors = dag.graph.successors("switch_task");
       assert.deepEqual(
-        forkSuccessors?.sort(),
+        (forkSuccessors as string[])?.sort(),
         ["case0_0", "case1_0", "default_0"].sort(),
       );
     });
@@ -898,7 +898,7 @@ describe("Switch", () => {
     it("Chains merge into final", () => {
       const joinPredecessors = dag.graph.predecessors("__final");
       assert.deepEqual(
-        joinPredecessors?.sort(),
+        (joinPredecessors as string[])?.sort(),
         ["case0_1", "case1_1", "default_1"].sort(),
       );
     });
@@ -1013,7 +1013,7 @@ describe("Switch", () => {
 
     it("All 3 branches point to DO_WHILE_END", () => {
       assert.deepEqual(
-        dag.graph.predecessors("do_while-END")?.sort(),
+        (dag.graph.predecessors("do_while-END") as string[])?.sort(),
         ["case0_1", "case1_1", "default_1"].sort(),
       );
     });

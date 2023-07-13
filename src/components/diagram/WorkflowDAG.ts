@@ -648,13 +648,15 @@ export default class WorkflowDAG {
           parentResult?.taskType === "FORK_JOIN_DYNAMIC" ||
           parentResult?.taskType === "FORK"
         ) {
-          const placeholderRef = successors?.find((successor: string) =>
-            successor.includes("_DF_CHILDREN_PLACEHOLDER"),
+          const placeholderRef = (successors as string[])?.find(
+            (successor: string) =>
+              successor.includes("_DF_CHILDREN_PLACEHOLDER"),
           );
           return placeholderRef;
         } else if (parentResult?.taskType === "DO_WHILE") {
-          const placeholderRef = successors?.find((successor: string) =>
-            successor.includes("_LOOP_CHILDREN_PLACEHOLDER"),
+          const placeholderRef = (successors as string[])?.find(
+            (successor: string) =>
+              successor.includes("_LOOP_CHILDREN_PLACEHOLDER"),
           );
           return placeholderRef;
         }
@@ -883,7 +885,7 @@ export default class WorkflowDAG {
         taskConfig.type === "FORK_JOIN"
       ) {
         const successors = this.graph.successors(ref);
-        if (successors?.length !== 1) {
+        if ((successors as string[])?.length !== 1) {
           throw new Error("Fork must be followed by Join");
         }
         const successorNode = this.graph.node(successors[0]);
