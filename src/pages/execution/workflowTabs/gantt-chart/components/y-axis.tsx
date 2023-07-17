@@ -55,6 +55,7 @@ export function YAxis({
   }, [inputRows]);
 
   useEffect(() => {
+    console.log('1',selectedTaskId && !loading && canScroll)
     if (selectedTaskId && !loading && canScroll) {
       document
         .getElementById(selectedTaskId)

@@ -11,10 +11,12 @@ export default function TimelineComponent({
   dag,
   tasks,
   onClick,
+  selectedTask
 }: {
   dag: WorkflowDAG;
   tasks: TaskResult[];
   onClick: (task: TaskCoordinate | null) => void;
+  selectedTask: TaskCoordinate
 }) {
   const timelineRef = React.useRef<HTMLDivElement>(null);
 
@@ -26,8 +28,6 @@ export default function TimelineComponent({
     }
   }, [dag, selectedTask]);
   */
-  const [selectedTaskId, setSelectedTaskId] = useState<string>("");
-
   const { items, groups } = useMemo(() => {
     const groupMap = new Map();
     for (const task of tasks) {
@@ -97,8 +97,8 @@ export default function TimelineComponent({
       <div className="timeline-container">
         <ConductorTimeline
           data={tasks}
-          selectedTaskId={selectedTaskId}
-          setSelectedTaskId={setSelectedTaskId}
+          // selectedTaskId={selectedTask.id}
+          selectedTask={selectedTask}
           onClick={handleClick}
           viewportRef={timelineRef}
         />
