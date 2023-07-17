@@ -1,5 +1,5 @@
 import { defaultFormatter, idAccessor, yAccessor } from "../utils";
-import { rowsAtom, yScaleAtom, canvasWidthAtom } from "../atoms";
+import { rowsAtom, yScaleAtom, canvasWidthAtom, graphOffset } from "../atoms";
 import { useAtom, useAtomValue } from "jotai";
 import React, { useEffect, useState } from "react";
 import type { PropsWithChildren } from "react";
@@ -71,8 +71,8 @@ export function YAxis({
   const getRow = (band: string) => inputRows.find(({ id }) => id === band);
   const bandwidth = yScale.bandwidth();
   return (
-    <g transform={`translate(0, 10)`}>
-      {/* 10 to prevent axis overlap with x-axis*/}
+    <g transform={`translate(0, ${graphOffset})`}>
+      {/* offset to prevent axis overlap with x-axis*/}
       <svg x="0" y="0" height="100%" width="270px">
         <rect x="0" y="0" height="100%" width="270px" fill="white" />
         {yScale.domain().map((band, idx) => {
@@ -82,16 +82,16 @@ export function YAxis({
               (bandwidth - barHeight - 4) * alignmentRatioAlongYBandwidth || 0;
           return (
             <svg key={band} x="0" y="0" transform="translate(0,0)">
-              {!idx && (
+              {idx === yScale.domain().length - 1 && (
                 <line
                   x1={0}
-                  y1={yPos}
+                  y1={yPos + yScale.bandwidth()}
                   x2={canvasWidth}
-                  y2={yPos}
+                  y2={yPos + yScale.bandwidth()}
                   stroke={grayLight6}
                 />
               )}
-              <svg x="0" y="0" height="100%" width="240px">
+              <svg x="0" y="0" width="240px">
                 <g key={band}>
                   {row?.labelSvgIcon && (
                     <g transform={`translate(5, ${yScale(band)})`}>
@@ -115,7 +115,7 @@ export function YAxis({
                       }}
                       transform={`translate(${-marginLeft + 20})`}
                       textAnchor="start"
-                      dominantBaseline="middle"
+                      dominantBaseline="mathematical"
                       fontWeight="bold"
                       onClick={() => {
                         collapsibleRows.has(band) && toggleRow(band);
@@ -140,18 +140,12 @@ export function YAxis({
                     navigator.clipboard.writeText(currRowsMap.get(band))
                   }
                   cx={`${marginLeft - 15}`}
-                  cy={`${yScale(band) + yScale.bandwidth() / 2}`}
+                  cy={`${5 + yScale(band) + yScale.bandwidth() / 2}`}
                   r="5"
                   fill="darkGrey"
                 />
               </svg>
-              <line
-                x1={0}
-                y1={yPos + barHeight + 17 / 2}
-                x2={canvasWidth}
-                y2={yPos + barHeight + 17 / 2}
-                stroke={grayLight6}
-              />
+              <line x1={0} y1={yPos} x2="100%" y2={yPos} stroke={grayLight6} />
             </svg>
           );
         })}

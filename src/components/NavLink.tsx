@@ -14,36 +14,41 @@ type NavLinkProps = {
   className?: string;
 };
 
-export default React.forwardRef<HTMLAnchorElement, NavLinkProps>((props, ref) => {
-  const { path, newTab, children, ...rest } = props;
-  const { stack, defaultStack } = useAppContext();
+export default React.forwardRef<HTMLAnchorElement, NavLinkProps>(
+  (props, ref) => {
+    const { path, newTab, children, ...rest } = props;
+    const { stack, defaultStack } = useAppContext();
 
-  const url = new Url(path, {}, true);
-  if (stack !== defaultStack) {
-    url.query.stack = stack;
-  }
+    const url = new Url(path, {}, true);
+    if (stack !== defaultStack) {
+      url.query.stack = stack;
+    }
 
-  if (!newTab) {
-    return (
-      <Link ref={ref} component={RouterLink} to={url.toString()} {...rest}>
-        {children}
-      </Link>
-    );
-  } else {
-    return (
-      <Link
-        ref={ref}
-        target="_blank"
-        href={url.toString()}
-        className={rest.className}
-      >
-        {children}
-        &nbsp;
-        <LaunchIcon fontSize={"12px" as any} style={{ verticalAlign: "middle" }} />
-      </Link>
-    );
-  }
-});
+    if (!newTab) {
+      return (
+        <Link ref={ref} component={RouterLink} to={url.toString()} {...rest}>
+          {children}
+        </Link>
+      );
+    } else {
+      return (
+        <Link
+          ref={ref}
+          target="_blank"
+          href={url.toString()}
+          className={rest.className}
+        >
+          {children}
+          &nbsp;
+          <LaunchIcon
+            fontSize={"12px" as any}
+            style={{ verticalAlign: "middle" }}
+          />
+        </Link>
+      );
+    }
+  },
+);
 
 export function usePushHistory() {
   const navigate = useNavigate();

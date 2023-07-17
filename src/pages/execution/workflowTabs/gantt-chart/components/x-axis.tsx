@@ -2,6 +2,7 @@ import {
   canvasAtom,
   canvasHeightAtom,
   canvasWidthAtom,
+  graphOffset,
   marginLeftAtom,
   xScaleAtom,
 } from "../atoms";
@@ -63,9 +64,9 @@ export function XAxis({
           <line
             className={classes.dottedLine}
             x1={xScale(tick)}
-            y1="0"
+            y1={0}
             x2={xScale(tick)}
-            y2={canvasHeight}
+            y2={canvasHeight + graphOffset}
           />
           <text
             onClick={() => navigator.clipboard.writeText(tick.toString())}
@@ -96,9 +97,9 @@ export function XAxis({
       <line
         className={classes.dottedLine}
         x1="0"
-        y1={canvasHeight}
+        y1={canvasHeight + graphOffset}
         x2={canvasWidth}
-        y2={canvasHeight}
+        y2={canvasHeight + graphOffset}
       />
       {!xTicks.find((tick) => tick.getTime() === minTick.getTime()) && (
         <line
@@ -106,7 +107,7 @@ export function XAxis({
           x1={0}
           y1={0}
           x2={0}
-          y2={canvasHeight}
+          y2={canvasHeight + graphOffset}
         />
       )}
       {!xTicks.find((tick) => tick.getTime() === maxTick.getTime()) && (
@@ -115,7 +116,7 @@ export function XAxis({
           x1={canvasWidth}
           y1={0}
           x2={canvasWidth}
-          y2={canvasHeight}
+          y2={canvasHeight + graphOffset}
         />
       )}
     </g>

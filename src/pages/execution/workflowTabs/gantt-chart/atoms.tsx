@@ -42,6 +42,7 @@ export const scopedMinMaxAtom = atom<[Date, Date]>([new Date(0), new Date()]);
 export const barIdsAtom = atom<string[]>([]);
 
 // MARK - graph measurements atoms
+export const graphOffset = 10;
 
 export const graphWidthAtom = atom(0, null);
 
