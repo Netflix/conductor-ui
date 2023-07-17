@@ -53,14 +53,6 @@ export function Cursor({
         x2={cursorX}
         y2={canvasHeight + 25}
       />
-      <text
-        className={classes.xAxisLabel}
-        textAnchor="middle"
-        dominantBaseline="hanging"
-        transform={`translate(${cursorX - xLag}, ${canvasHeight + 30})`}
-      >
-        {label}
-      </text>
     </g>
   ) : (
     <></>
