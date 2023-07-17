@@ -11,7 +11,7 @@ import {
   useGanttChartAPI,
 } from "./";
 import { HighlightActions } from "./HighlightActions";
-import { blue07, red } from "../../../../theme/colors";
+import { blue07, red, yellow07 } from "../../../../theme/colors";
 import { fontFamily, fontSizes } from "../../../../theme/variables";
 import { Datum } from "./types";
 import { TaskResult, TaskResultType } from "../../../../types/execution";
@@ -29,6 +29,7 @@ const [COMPLETED, FAILED, IN_PROGRESS, SCHEDULED, TIMED_OUT] = [
   "SCHEDULED",
   "TIMED_OUT",
 ];
+const ongoingStates = [IN_PROGRESS, SCHEDULED];
 const [BARHEIGHT, ALIGNMENTRATIOALONGYBANDWIDTH] = [22, 0.3];
 type ConductorTimelineProps = {
   data: TaskResult[];
@@ -58,6 +59,12 @@ export default function ConductorTimeline({
       ? {
           style: {
             fill: red,
+          },
+        }
+      : ongoingStates.includes(status)
+      ? {
+          style: {
+            fill: yellow07,
           },
         }
       : {};
@@ -137,14 +144,6 @@ export default function ConductorTimeline({
   const idToIndexMap = useMemo(
     () =>
       new Map<string, number>(initialData.map((task, idx) => [task.id, idx])),
-    [initialData],
-  );
-  /** Map from task name to task ID */
-  const taskNameToIdMap = useMemo(
-    () =>
-      new Map<string, string>(
-        initialData.map((task) => [task.referenceTaskName, task.id]),
-      ),
     [initialData],
   );
   /** Map from task reference name to task type */
