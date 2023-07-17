@@ -86,7 +86,7 @@ export function YAxis({
                 <line
                   x1={0}
                   y1={yPos + yScale.bandwidth()}
-                  x2={canvasWidth}
+                  x2='100%'
                   y2={yPos + yScale.bandwidth()}
                   stroke={grayLight6}
                 />
