@@ -1,6 +1,7 @@
 import {
   canvasHeightAtom,
   canvasWidthAtom,
+  graphOffset,
   highlightActionsAtom,
   leftDragAtom,
   marginLeftAtom,
@@ -64,14 +65,14 @@ export function Highlight({ children }: PropsWithChildren<unknown>) {
           fill={grayDark}
           opacity={0.7}
           width={Math.abs(leftDrag - marginLeft)}
-          height={canvasHeight}
+          height={canvasHeight + graphOffset}
         />
       </g>
       <g transform={`translate(${leftDrag})`}>
         <rect
           opacity={0}
           width={Math.abs(rightDrag - leftDrag - marginLeft)}
-          height={canvasHeight}
+          height={canvasHeight + graphOffset}
         />
       </g>
       <g transform={`translate(${rightDrag})`}>
@@ -79,7 +80,7 @@ export function Highlight({ children }: PropsWithChildren<unknown>) {
           fill={grayDark}
           opacity={0.7}
           width={canvasWidth - rightDrag + marginLeft}
-          height={canvasHeight}
+          height={canvasHeight + graphOffset}
         />
       </g>
     </g>
