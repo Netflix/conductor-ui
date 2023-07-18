@@ -16,6 +16,7 @@ import { fontFamily, fontSizes } from "../../../../theme/variables";
 import { Datum } from "./types";
 import { TaskResult, TaskResultType } from "../../../../types/execution";
 import { TaskCoordinate } from "../../../../types/workflowDef";
+import WorkflowDAG from "../../../../components/diagram/WorkflowDAG";
 
 const [DO_WHILE, FORK_JOIN_DYNAMIC, FORK] = [
   "DO_WHILE",
@@ -37,9 +38,11 @@ type ConductorTimelineProps = {
   onClick: (id: string) => void;
   viewportRef: React.MutableRefObject<HTMLDivElement>;
   selectedTask: TaskCoordinate;
+  dag: WorkflowDAG;
 };
 
 export default function ConductorTimeline({
+  dag,
   data,
   selectedTask,
   onClick,
@@ -150,14 +153,6 @@ export default function ConductorTimeline({
     () =>
       new Map<string, TaskResultType>(
         initialData.map((task) => [task.referenceTaskName, task.taskType]),
-      ),
-    [initialData],
-  );
-  /** Map from task reference name to task type */
-  const refToIdMap = useMemo(
-    () =>
-      new Map<string, string>(
-        initialData.map((task) => [task.referenceTaskName, task.id]),
       ),
     [initialData],
   );
@@ -323,13 +318,20 @@ export default function ConductorTimeline({
 
   const [series, setSeries] = useState<Series[]>(collapsedData);
   const [expanded, setExpanded] = useState<boolean>(false);
-  const [max, setMax] = useState(series && series.length ? seriesMax() : null);
-  const [min, setMin] = useState(series && series.length ? seriesMin() : null);
+  const max = useMemo(
+    () => (series && series.length ? seriesMax() : null),
+    [data],
+  );
+  const min = useMemo(
+    () => (series && series.length ? seriesMin() : null),
+    [data],
+  );
 
   useEffect(() => {
     !selectedTask?.id &&
       selectedTask?.ref &&
-      onClick(refToIdMap.get(selectedTask.ref));
+      onClick(dag.getTaskResultByRef(selectedTask.ref).taskId);
+
     setSeries(
       series.map((task) => {
         task.data.forEach((span) => {
