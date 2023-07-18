@@ -36,7 +36,7 @@ type ConductorTimelineProps = {
   data: TaskResult[];
   onClick: (id: string) => void;
   viewportRef: React.MutableRefObject<HTMLDivElement>;
-  selectedTask: TaskCoordinate
+  selectedTask: TaskCoordinate;
 };
 
 export default function ConductorTimeline({
@@ -150,6 +150,14 @@ export default function ConductorTimeline({
     () =>
       new Map<string, TaskResultType>(
         initialData.map((task) => [task.referenceTaskName, task.taskType]),
+      ),
+    [initialData],
+  );
+  /** Map from task reference name to task type */
+  const refToIdMap = useMemo(
+    () =>
+      new Map<string, string>(
+        initialData.map((task) => [task.referenceTaskName, task.id]),
       ),
     [initialData],
   );
@@ -319,7 +327,9 @@ export default function ConductorTimeline({
   const [min, setMin] = useState(series && series.length ? seriesMin() : null);
 
   useEffect(() => {
-    console.log('sel', selectedTask?.id)
+    !selectedTask?.id &&
+      selectedTask?.ref &&
+      onClick(refToIdMap.get(selectedTask.ref));
     setSeries(
       series.map((task) => {
         task.data.forEach((span) => {
@@ -331,7 +341,7 @@ export default function ConductorTimeline({
         return task;
       }),
     );
-  }, [selectedTask?.id]);
+  }, [selectedTask]);
 
   function toggleAll() {
     if (expanded) {
@@ -406,7 +416,7 @@ export default function ConductorTimeline({
           collapsibleRows={collapsibleTasks}
           rows={series}
           taskExpanded={taskExpanded}
-          selectedTaskId={selectedTask?.id}
+          selectedTask={selectedTask}
         />
         <XAxis />
         <Cursor />

@@ -11,12 +11,12 @@ export default function TimelineComponent({
   dag,
   tasks,
   onClick,
-  selectedTask
+  selectedTask,
 }: {
   dag: WorkflowDAG;
   tasks: TaskResult[];
   onClick: (task: TaskCoordinate | null) => void;
-  selectedTask: TaskCoordinate
+  selectedTask: TaskCoordinate;
 }) {
   const timelineRef = React.useRef<HTMLDivElement>(null);
 
@@ -97,7 +97,6 @@ export default function TimelineComponent({
       <div className="timeline-container">
         <ConductorTimeline
           data={tasks}
-          // selectedTaskId={selectedTask.id}
           selectedTask={selectedTask}
           onClick={handleClick}
           viewportRef={timelineRef}

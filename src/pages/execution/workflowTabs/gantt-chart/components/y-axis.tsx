@@ -1,10 +1,11 @@
 import { defaultFormatter, idAccessor, yAccessor } from "../utils";
-import { rowsAtom, yScaleAtom, canvasWidthAtom, graphOffset } from "../atoms";
+import { rowsAtom, yScaleAtom, graphOffset, canvasHeightAtom } from "../atoms";
 import { useAtom, useAtomValue } from "jotai";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import type { PropsWithChildren } from "react";
 import type { Series } from "../types";
 import { grayLight6 } from "../../../../../theme/colors";
+import { TaskCoordinate } from "../../../../../types/workflowDef";
 
 export interface YAxisProps {
   rows: Pick<Series, "id" | "label" | "labelSvgIcon" | "styles">[];
@@ -15,7 +16,7 @@ export interface YAxisProps {
   collapsibleRows: Set<string>;
   toggleRow: (arg0: string) => void;
   taskExpanded: Map<string, boolean>;
-  selectedTaskId: string;
+  selectedTask: TaskCoordinate;
   barHeight?: number;
   alignmentRatioAlongYBandwidth?: number;
 }
@@ -27,7 +28,7 @@ export function YAxis({
   marginRight = 8,
   labelFormatter = defaultFormatter,
   taskExpanded,
-  selectedTaskId,
+  selectedTask,
   barHeight = 22,
   alignmentRatioAlongYBandwidth = 0.3,
   // TODO connect this with the y-axis labels
@@ -35,16 +36,11 @@ export function YAxis({
   children,
 }: PropsWithChildren<YAxisProps>) {
   const [currRows, setRows] = useAtom(rowsAtom);
-  const [loading, setLoading] = useState(true);
-  const [canScroll, setCanScroll] = useState(selectedTaskId ? true : false);
   const yAxisLabelPadding = 20;
   const yAxisWidth = 250;
   const marginLeft = yAxisWidth + yAxisLabelPadding;
   const yScale = useAtomValue(yScaleAtom);
-  const canvasWidth = useAtomValue(canvasWidthAtom);
-  useEffect(() => {
-    setLoading(false);
-  }, []);
+  const canvasHeight = useAtomValue(canvasHeightAtom);
 
   useEffect(() => {
     const newRows = inputRows.map((row) => ({
@@ -55,14 +51,24 @@ export function YAxis({
   }, [inputRows]);
 
   useEffect(() => {
-    console.log('1',selectedTaskId && !loading && canScroll)
-    if (selectedTaskId && !loading && canScroll) {
-      document
-        .getElementById(selectedTaskId)
-        .scrollIntoView({ behavior: "smooth" });
-      setCanScroll(false);
+    if (selectedTask?.id) {
+      let element = document.getElementById(selectedTask?.id);
+      let rect = element?.getBoundingClientRect();
+      if (
+        rect &&
+        !(
+          rect.top >= 0 &&
+          rect.left >= 0 &&
+          rect.bottom <=
+            (window.innerHeight || document.documentElement.clientHeight) &&
+          rect.right <=
+            (window.innerWidth || document.documentElement.clientWidth)
+        )
+      ) {
+        element?.scrollIntoView({ behavior: "smooth" });
+      }
     }
-  }, [selectedTaskId, loading, canScroll]);
+  }, [selectedTask?.id, canvasHeight]);
 
   const currRowsMap = currRows.reduce((agg, row) => {
     agg.set(idAccessor(row), yAccessor(row));
@@ -87,7 +93,7 @@ export function YAxis({
                 <line
                   x1={0}
                   y1={yPos + yScale.bandwidth()}
-                  x2='100%'
+                  x2="100%"
                   y2={yPos + yScale.bandwidth()}
                   stroke={grayLight6}
                 />
