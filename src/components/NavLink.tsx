@@ -2,7 +2,6 @@ import React, { ReactNode } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { Link } from "@mui/material";
 import LaunchIcon from "@mui/icons-material/Launch";
-import Url from "url-parse";
 import useAppContext from "../hooks/useAppContext";
 // 1. Strip `navigate` from props to prevent error
 // 2. Preserve stack param
@@ -19,14 +18,18 @@ export default React.forwardRef<HTMLAnchorElement, NavLinkProps>(
     const { path, newTab, children, ...rest } = props;
     const { stack, defaultStack } = useAppContext();
 
-    const url = new Url(path, {}, true);
+    const url = new URL(path, "http://dummy");
     if (stack !== defaultStack) {
-      url.query.stack = stack;
+      url.searchParams.set("stack", stack);
     }
-
     if (!newTab) {
       return (
-        <Link ref={ref} component={RouterLink} to={url.toString()} {...rest}>
+        <Link
+          ref={ref}
+          component={RouterLink}
+          to={url.pathname + url.search}
+          {...rest}
+        >
           {children}
         </Link>
       );
@@ -55,11 +58,12 @@ export function usePushHistory() {
   const { stack, defaultStack } = useAppContext();
 
   return (path: string) => {
-    const url = new Url(path, {}, true);
+    const url = new URL(path, "http://dummy");
+
     if (stack !== defaultStack) {
-      url.query.stack = stack;
+      url.searchParams.set("stack", stack);
     }
 
-    navigate(url.toString());
+    navigate(url.pathname + url.search);
   };
 }
