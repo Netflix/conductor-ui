@@ -48,6 +48,11 @@ export default function Dropdown<T>({
         {...props}
         disabled={loading || disabled}
         clearIcon={<CloseIcon />}
+        componentsProps={{
+          paper: {
+            elevation: 1,
+          },
+        }}
         renderInput={({ InputProps, ...params }) => (
           <Input
             {...params}

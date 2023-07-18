@@ -38,7 +38,11 @@ export default React.forwardRef<HTMLAnchorElement, NavLinkProps>(
         <Link
           ref={ref}
           target="_blank"
-          href={url.toString()}
+          href={
+            url.hostname === "dummy"
+              ? url.pathname + url.search
+              : url.toString()
+          }
           className={rest.className}
         >
           {children}

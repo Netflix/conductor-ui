@@ -325,7 +325,7 @@ const additionalOptions = {
     },
     MuiPaper: {
       defaultProps: {
-        elevation: 3,
+        elevation: 0,
       },
     },
     MuiPopover: {
