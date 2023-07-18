@@ -15,6 +15,8 @@ import { blue07, red, yellow07 } from "../../../../theme/colors";
 import { fontFamily, fontSizes } from "../../../../theme/variables";
 import { Datum } from "./types";
 import { TaskResult, TaskResultType } from "../../../../types/execution";
+import { TaskCoordinate } from "../../../../types/workflowDef";
+import WorkflowDAG from "../../../../components/diagram/WorkflowDAG";
 
 const [DO_WHILE, FORK_JOIN_DYNAMIC, FORK] = [
   "DO_WHILE",
@@ -33,23 +35,23 @@ const ongoingStates = [IN_PROGRESS, SCHEDULED];
 const [BARHEIGHT, ALIGNMENTRATIOALONGYBANDWIDTH] = [22, 0.3];
 type ConductorTimelineProps = {
   data: TaskResult[];
-  selectedTaskId: string;
-  setSelectedTaskId: (id: string) => void;
   onClick: (id: string) => void;
   viewportRef: React.MutableRefObject<HTMLDivElement>;
+  selectedTask: TaskCoordinate;
+  dag: WorkflowDAG;
 };
 
 export default function ConductorTimeline({
+  dag,
   data,
-  selectedTaskId,
-  setSelectedTaskId,
+  selectedTask,
   onClick,
   viewportRef,
 }: ConductorTimelineProps) {
   const { resetZoom } = useGanttChartAPI();
   /** Function to return the style object of a span - based on the span status and selection state. */
   function spanStyle(taskId: string, status: string) {
-    return taskId === selectedTaskId
+    return taskId === selectedTask?.id
       ? {
           style: {
             fill: blue07,
@@ -316,10 +318,20 @@ export default function ConductorTimeline({
 
   const [series, setSeries] = useState<Series[]>(collapsedData);
   const [expanded, setExpanded] = useState<boolean>(false);
-  const [max, setMax] = useState(series && series.length ? seriesMax() : null);
-  const [min, setMin] = useState(series && series.length ? seriesMin() : null);
+  const max = useMemo(
+    () => (series && series.length ? seriesMax() : null),
+    [data],
+  );
+  const min = useMemo(
+    () => (series && series.length ? seriesMin() : null),
+    [data],
+  );
 
   useEffect(() => {
+    !selectedTask?.id &&
+      selectedTask?.ref &&
+      onClick(dag.getTaskResultByRef(selectedTask.ref).taskId);
+
     setSeries(
       series.map((task) => {
         task.data.forEach((span) => {
@@ -331,7 +343,7 @@ export default function ConductorTimeline({
         return task;
       }),
     );
-  }, [selectedTaskId]);
+  }, [selectedTask]);
 
   function toggleAll() {
     if (expanded) {
@@ -396,8 +408,7 @@ export default function ConductorTimeline({
           waitHeightDelta={2}
           alignmentRatioAlongYBandwidth={ALIGNMENTRATIOALONGYBANDWIDTH}
           onSpanClick={(datum) => {
-            setSelectedTaskId(selectedTaskId === datum.id ? null : datum.id);
-            onClick(datum.id);
+            onClick(selectedTask?.id === datum.id ? null : datum.id);
           }}
           data={series}
           font={`${fontSizes.fontSize3} ${fontFamily.fontFamilySans}`}
@@ -407,7 +418,7 @@ export default function ConductorTimeline({
           collapsibleRows={collapsibleTasks}
           rows={series}
           taskExpanded={taskExpanded}
-          selectedTaskId={selectedTaskId}
+          selectedTask={selectedTask}
         />
         <XAxis />
         <Cursor />

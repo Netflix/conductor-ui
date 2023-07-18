@@ -280,7 +280,7 @@ export function Bars({
                   <line
                     x1={0}
                     y1={bandwidth}
-                    x2={canvasWidth}
+                    x2="100%"
                     y2={bandwidth}
                     stroke={grayLight6}
                   />

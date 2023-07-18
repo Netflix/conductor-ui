@@ -140,11 +140,12 @@ export default function tabLoader(tabBase: TabBase): TabData {
         title: "Timeline",
         content: (
           <TileFactoryContext.Consumer>
-            {({ dag, executionAndTasks, setSelectedTask }) => (
+            {({ dag, executionAndTasks, setSelectedTask, selectedTask }) => (
               <TimelineComponent
                 dag={dag}
                 tasks={executionAndTasks.tasks!}
                 onClick={setSelectedTask}
+                selectedTask={selectedTask}
               />
             )}
           </TileFactoryContext.Consumer>
