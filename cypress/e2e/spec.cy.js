@@ -19,6 +19,7 @@ describe("Landing Page", () => {
   });
 
   it("Workflow name dropdown", () => {
+    cy.visit("/");
     cy.get(".MuiAutocomplete-inputRoot input")
       .first()
       .should("be.enabled", { timeout: 5000 })
@@ -30,20 +31,22 @@ describe("Landing Page", () => {
   });
 
   it("Switch to Task Tab - No results", () => {
+    cy.visit("/");
     cy.get("a.MuiTab-root").contains("Tasks").click();
     cy.contains("Task Name");
     cy.contains("There are no records to display");
   });
 
   it("Task Name Dropdown", () => {
-    cy.get(".MuiAutocomplete-inputRoot input").first().click();
-    cy.get("li.MuiAutocomplete-option").contains("example_task_2").click();
-    cy.get(".MuiAutocomplete-tag").contains("example_task_2");
+    cy.visit("/");
+    cy.get(".MuiAutocomplete-inputRoot input").first().click().get(".MuiAutocomplete-option").contains("19test009").click();
+    cy.get(".MuiAutocomplete-tag").contains("19test009");
   });
 
   it("Execute Task Search", () => {
+    cy.visit("/");
     cy.get("button").contains("Search").click();
     cy.contains("Page 1 of 1");
-    cy.get(".rdt_TableCell").contains("36d24c5c-9c26-46cf-9709-e1bc6963b8a5");
+    cy.get(".rdt_TableCell").contains("9a6438c5-60a4-4af6-b530-f2bf3a2dd859");
   });
 });
