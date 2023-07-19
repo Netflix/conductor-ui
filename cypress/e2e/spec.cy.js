@@ -39,7 +39,12 @@ describe("Landing Page", () => {
 
   it("Task Name Dropdown", () => {
     cy.visit("/");
-    cy.get(".MuiAutocomplete-inputRoot input").first().click().get(".MuiAutocomplete-option").contains("19test009").click();
+    cy.get(".MuiAutocomplete-inputRoot input")
+      .first()
+      .click()
+      .get(".MuiAutocomplete-option")
+      .contains("19test009")
+      .click();
     cy.get(".MuiAutocomplete-tag").contains("19test009");
   });
 
