@@ -221,7 +221,7 @@ export default function tabLoader(tabBase: TabBase): TabData {
       };
     case "TaskPollData":
       return {
-        title: "Poll Data",
+        title: "Workers",
         id: "TaskPollData",
         group: "task",
         content: <TaskSelectionWrapper TaskPanel={TaskPollData} />,
