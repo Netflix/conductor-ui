@@ -307,19 +307,21 @@ export default function ConductorTimeline({
     return subTaskMap;
   }, [idToIndexMap, initialData, parentTaskIds]);
 
-  function seriesMax() {
+  const [series, setSeries] = useState<Series[]>(collapsedData);
+
+  const seriesMax = useCallback(() => {
     let task: Series = series[series.length - 1];
     let idx: number = task.data.length - 1;
     return task.data[idx].t2;
-  }
+  }, [series]);
 
-  function seriesMin() {
+  const seriesMin = useCallback(() => {
     let task: Series = series[0];
     return task.data[0].w1 || task.data[0].t1;
-  }
+  }, [series]);
 
-  const [series, setSeries] = useState<Series[]>(collapsedData);
   const [expanded, setExpanded] = useState<boolean>(false);
+
   const max = useMemo(
     () => (series && series.length ? seriesMax() : null),
     [series, seriesMax],
