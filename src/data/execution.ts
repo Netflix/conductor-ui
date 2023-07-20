@@ -90,14 +90,14 @@ export function useExecutionAndTasks(workflowId: string): {
         tasks: results[1].data,
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    /* eslint-disable react-hooks/exhaustive-deps */
   }, [
     results[0].isSuccess,
     results[1].isSuccess,
     results[0].isFetching,
     results[1].isFetching,
   ]);
-
+  /* eslint-enable react-hooks/exhaustive-deps */
   return {
     error: results[0].error,
     executionAndTasks: state,

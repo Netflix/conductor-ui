@@ -1,6 +1,5 @@
 import React from "react";
-import { Paper, NavLink, KeyValueTable } from "../../../components";
-import { makeStyles } from "@mui/styles";
+import { NavLink, KeyValueTable } from "../../../components";
 import { useAppContext } from "../../../export";
 
 export default function Summary({ execution }) {

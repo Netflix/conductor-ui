@@ -2,9 +2,7 @@ import ReactDataGrid from "@inovua/reactdatagrid-community";
 import Paper from "../../components/Paper";
 
 import StringFilter from "@inovua/reactdatagrid-community/StringFilter";
-import BoolFilter from "@inovua/reactdatagrid-community/BoolFilter";
 import NumberFilter from "@inovua/reactdatagrid-community/NumberFilter";
-import SelectFilter from "@inovua/reactdatagrid-community/SelectFilter";
 import DateFilter from "@inovua/reactdatagrid-community/DateFilter";
 import { timestampRenderer } from "../../utils/helpers";
 

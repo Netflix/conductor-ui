@@ -115,7 +115,7 @@ export function Bars({
   const ctx = useAtomValue(canvasAtom)?.getContext("2d");
   const textRef = useRef<SVGTextElement>();
 
-  const [font, setFont] = useState(inputFont);
+  const font = useMemo(() => inputFont, []);
 
   useEffect(() => {
     if (textRef.current && !inputFont) {
