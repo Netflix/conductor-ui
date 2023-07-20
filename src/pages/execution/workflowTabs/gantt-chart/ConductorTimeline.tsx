@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, ButtonGroup } from "@mui/material";
 import {
   Bars,
@@ -49,27 +49,30 @@ export default function ConductorTimeline({
 }: ConductorTimelineProps) {
   const { resetZoom } = useGanttChartAPI();
   /** Function to return the style object of a span - based on the span status and selection state. */
-  function spanStyle(taskId: string, status: string) {
-    return taskId === selectedTask?.id
-      ? {
-          style: {
-            fill: blue07,
-          },
-        }
-      : [FAILED, TIMED_OUT].includes(status)
-      ? {
-          style: {
-            fill: red,
-          },
-        }
-      : ongoingStates.includes(status)
-      ? {
-          style: {
-            fill: yellow07,
-          },
-        }
-      : {};
-  }
+  const spanStyle = useCallback(
+    (taskId: string, status: string) => {
+      return taskId === selectedTask?.id
+        ? {
+            style: {
+              fill: blue07,
+            },
+          }
+        : [FAILED, TIMED_OUT].includes(status)
+        ? {
+            style: {
+              fill: red,
+            },
+          }
+        : ongoingStates.includes(status)
+        ? {
+            style: {
+              fill: yellow07,
+            },
+          }
+        : {};
+    },
+    [selectedTask],
+  );
   /** ID of tasks which have children: DO_WHILE, FORK, FORK_JOIN_DYNAMIC */
   const collapsibleTasks = useMemo<Set<string>>(
     () =>
@@ -218,7 +221,7 @@ export default function ConductorTimeline({
       }
     });
     return data;
-  }, [data, initialData, taskTypeMap]);
+  }, [initialData, taskTypeMap]);
   /** ID of Tasks which exist in fully collapsed view (may or may not have subtasks) */
   const parentTaskIds = useMemo<string[]>(
     () =>
@@ -236,7 +239,7 @@ export default function ConductorTimeline({
           return false;
         })
         .map((task) => task.id),
-    [collapsedData, initialData, taskTypeMap],
+    [initialData, taskTypeMap],
   );
   /** Map of Task IDs to their content when collapsed */
   const collapsedTaskMap = useMemo<Map<string, Series[]>>(() => {
@@ -282,7 +285,7 @@ export default function ConductorTimeline({
       subTaskMap.set(taskId, subTaskArr);
     });
     return subTaskMap;
-  }, [collapsedData, idToIndexMap, initialData, parentTaskIds]);
+  }, [idToIndexMap, initialData, parentTaskIds]);
   /** Map of Task IDs to their content when expanded */
   const expandedTaskMap = useMemo<Map<string, Series[]>>(() => {
     let subTaskMap = new Map<string, Series[]>();
@@ -302,7 +305,7 @@ export default function ConductorTimeline({
       subTaskMap.set(taskId, subTaskArr);
     });
     return subTaskMap;
-  }, [data, idToIndexMap, initialData, parentTaskIds]);
+  }, [idToIndexMap, initialData, parentTaskIds]);
 
   function seriesMax() {
     let task: Series = series[series.length - 1];
@@ -319,11 +322,11 @@ export default function ConductorTimeline({
   const [expanded, setExpanded] = useState<boolean>(false);
   const max = useMemo(
     () => (series && series.length ? seriesMax() : null),
-    [data, series, seriesMax],
+    [series, seriesMax],
   );
   const min = useMemo(
     () => (series && series.length ? seriesMin() : null),
-    [data, series, seriesMin],
+    [series, seriesMin],
   );
 
   useEffect(() => {

@@ -25,13 +25,7 @@ import {
 } from "../utils";
 import { useAtomValue } from "jotai";
 import { useResetDrag } from "../internal/hooks";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import dayjs from "dayjs";
 import type { Datum, Series } from "../types";
 import type { EventHandler } from "react";
@@ -115,8 +109,6 @@ export function Bars({
   const ctx = useAtomValue(canvasAtom)?.getContext("2d");
   const textRef = useRef<SVGTextElement>();
 
-  const font = useMemo(() => inputFont, []);
-
   useEffect(() => {
     if (textRef.current && !inputFont) {
       //setFont(window.getComputedStyle(textRef.current).font);
@@ -141,7 +133,11 @@ export function Bars({
           return [...series.data].reverse().map((datum) => {
             const label = labelFormatter?.(deltaX(datum)) || deltaX(datum);
             const width = widthX(datum);
-            const textElementWidth = getTextWidth(ctx, label as string, font);
+            const textElementWidth = getTextWidth(
+              ctx,
+              label as string,
+              inputFont,
+            );
             const textPadding = 5;
             const textWidth = textElementWidth + textPadding;
             // TODO does this correctly help us calculate if text will
@@ -304,7 +300,6 @@ export function Bars({
       colorScale,
       ctx,
       data,
-      font,
       hideLabel,
       hideWait,
       inputFont,
