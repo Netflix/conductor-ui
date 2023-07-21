@@ -154,7 +154,7 @@ describe("Dynamic Fork", () => {
       );
       cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER").should(
         "have.class",
-        "status_COMPLETED",
+        "status_FAILED",
       );
     });
 
