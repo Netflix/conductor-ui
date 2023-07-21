@@ -347,7 +347,8 @@ export default function ConductorTimeline({
         return task;
       }),
     );
-  }, [selectedTask, dag, onClick, series, spanStyle]);
+    //eslint-disable-next-line
+  }, [selectedTask]);
 
   function toggleAll() {
     if (expanded) {
