@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Paper, Heading, Select } from "../../components";
-import { MenuItem, Popper } from "@mui/material";
+import { MenuItem } from "@mui/material";
 import top100Films from "./sampleMovieData";
 import Dropdown from "../../components/Dropdown";
 

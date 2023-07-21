@@ -48,7 +48,7 @@ export function YAxis({
       label: labelFormatter(yAccessor(row)) as string,
     }));
     setRows([...newRows]);
-  }, [inputRows]);
+  }, [inputRows, labelFormatter, setRows]);
 
   useEffect(() => {
     if (selectedTask?.id) {

@@ -39,7 +39,7 @@ export function XAxis({
       canvas.getContext("2d"),
       labelFormatter(dayjs().format()) as string,
     );
-  }, [canvas, dateFormat, labelFormatter]);
+  }, [canvas, labelFormatter]);
 
   const textPadding = 75;
 

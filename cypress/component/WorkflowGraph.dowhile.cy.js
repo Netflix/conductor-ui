@@ -41,7 +41,7 @@ describe("Do While", () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
       cy.get("#loop_task_LOOP_CHILDREN_PLACEHOLDER").should(
         "contain.text",
-        "10 tasks in loop",
+        "10 succeeded",
       );
     });
 
@@ -327,7 +327,7 @@ describe("Do While", () => {
       cy.mount(<WorkflowGraph dag={dag} executionMode={true} />);
       cy.get("#loop_task_LOOP_CHILDREN_PLACEHOLDER").should(
         "contain.text",
-        "11 tasks in loop1 failed",
+        "10 succeeded1 failed",
       );
     });
   });
