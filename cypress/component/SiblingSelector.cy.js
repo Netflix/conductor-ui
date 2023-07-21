@@ -4,13 +4,12 @@ import SiblingSelector from "../../src/pages/execution/taskTabs/SiblingSelector"
 import ThemeProvider from "../../src/theme/ThemeProvider";
 import { CssBaseline } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
-import { TaskCoordinate } from "../../src/types/workflowDef";
 describe("No Retries", () => {
   const workflow = new WorkflowExecution("test_workflow", "COMPLETED");
   workflow.pushSimple("simple_task", "COMPLETED", 1);
   const dag = WorkflowDAG.fromExecutionAndTasks(workflow.toJSON());
 
-  const taskSelection: TaskCoordinate = {
+  const taskSelection = {
     id: workflow.tasks[0].taskId,
   };
 
@@ -60,7 +59,7 @@ describe("Retries Only", () => {
   workflow.tasks[2].retried = true;
 
   const dag = WorkflowDAG.fromExecutionAndTasks(workflow.toJSON());
-  const taskSelection: TaskCoordinate = {
+  const taskSelection = {
     id: workflow.tasks[0].taskId,
   };
 
@@ -83,7 +82,7 @@ describe("Iterations Only", () => {
   workflow.pushDoWhile("loop_task", 1, 3);
 
   const dag = WorkflowDAG.fromExecutionAndTasks(workflow.toJSON());
-  const taskSelection: TaskCoordinate = {
+  const taskSelection = {
     id: workflow.tasks[1].taskId,
   };
 
@@ -124,7 +123,7 @@ describe("Iterations and Retries", () => {
   taskToRetry.retried = true;
 
   const dag = WorkflowDAG.fromExecutionAndTasks(workflow.toJSON());
-  const taskSelection: TaskCoordinate = {
+  const taskSelection = {
     id: taskToRetry.taskId,
   };
 
@@ -150,7 +149,7 @@ describe("Dynamic Fork all successes", () => {
   const { execution } = workflow.toJSON();
   const dag = WorkflowDAG.fromExecutionAndTasks(workflow.toJSON());
 
-  const taskSelection: TaskCoordinate = {
+  const taskSelection = {
     id: workflow.tasks[1].taskId,
   };
 
@@ -188,7 +187,7 @@ describe("Dynamic Fork with Retries", () => {
   const { execution } = workflow.toJSON();
   const dag = WorkflowDAG.fromExecutionAndTasks(workflow.toJSON());
 
-  const taskSelection: TaskCoordinate = {
+  const taskSelection = {
     id: workflow.tasks[FANOUT].taskId,
   };
 
