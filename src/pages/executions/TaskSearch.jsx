@@ -11,11 +11,7 @@ import {
   WorkflowNameInput,
 } from "../../components";
 
-import {
-  TASK_STATUSES,
-  SEARCH_TASK_TYPES_SET,
-  TASK_TYPES,
-} from "../../utils/constants";
+import { TASK_STATUSES, TASK_TYPES } from "../../utils/constants";
 import { useQueryState } from "react-router-use-location-state";
 import SearchTabs from "./SearchTabs";
 import TaskResultsTable from "./TaskResultsTable";
