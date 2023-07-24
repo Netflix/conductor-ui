@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { FileCopy } from '@mui/icons-material';
-import Tooltip from '@mui/material/Tooltip';
-import IconButton from '@mui/material/IconButton';
+import React, { useState } from "react";
+import { FileCopy } from "@mui/icons-material";
+import Tooltip from "@mui/material/Tooltip";
+import IconButton from "@mui/material/IconButton";
 
 const ClipboardButton = ({ textToCopy }) => {
   const [isCopied, setIsCopied] = useState(false);
@@ -18,9 +18,12 @@ const ClipboardButton = ({ textToCopy }) => {
   };
 
   return (
-    <Tooltip title={isCopied ? 'Copied' : 'Copy to clipboard'} placement="bottom">
+    <Tooltip
+      title={isCopied ? "Copied" : "Copy to clipboard"}
+      placement="bottom"
+    >
       <IconButton onClick={handleCopyToClipboard}>
-        <FileCopy style={{ fontSize: '16px' }} />
+        <FileCopy style={{ fontSize: "16px" }} />
       </IconButton>
     </Tooltip>
   );
