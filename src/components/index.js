@@ -7,6 +7,7 @@ export { default as DropdownButton } from "./DropdownButton";
 export { default as SplitButton } from "./SplitButton";
 export { default as Button } from "./Button";
 export { default as Banner } from "./Banner";
+export { default as ClipboardButton } from "./ClipBoardButton";
 
 // Layout
 export { default as Paper } from "./Paper";
