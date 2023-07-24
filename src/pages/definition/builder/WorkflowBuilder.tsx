@@ -106,7 +106,7 @@ export default function WorkflowBuilder() {
   const open = contextMenu !== null;
 
   return (
-    <div>
+    <>
       <WorkflowGraph
         dag={dag}
         onTaskSelect={handleTaskSelect}
@@ -179,6 +179,6 @@ export default function WorkflowBuilder() {
 
         <MenuItem onClick={handleDelete}>Delete</MenuItem>
       </Menu>
-    </div>
+    </>
   );
 }
