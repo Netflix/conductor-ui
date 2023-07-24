@@ -130,7 +130,8 @@ export default function JsonPanel() {
         setDecorations([]);
       }
     }
-  }, [selectedTask, decorations, setDecorations, classes]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTask, classes]);
 
   const editorRef = useRef<any | null>(null);
 
