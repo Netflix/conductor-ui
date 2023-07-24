@@ -4,18 +4,19 @@ import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 
 const ClipboardButton = ({ textToCopy }) => {
-  const [isCopied, setIsCopied] = useState(false);
   const [timeoutId, setTimeoutId] = useState(null);
 
   const handleCopyToClipboard = () => {
     clearTimeout(timeoutId); // Clear the previous timeout
     navigator.clipboard.writeText(textToCopy);
-    setIsCopied(true);
     const newTimeoutId = setTimeout(() => {
-      setIsCopied(false);
+      setTimeoutId(null); // Set timeoutId to null after 2 seconds
     }, 2000);
     setTimeoutId(newTimeoutId); // Store the new timeout ID
   };
+
+  // Use !!timeoutId to infer the value of isCopied
+  const isCopied = !!timeoutId;
 
   return (
     <Tooltip
