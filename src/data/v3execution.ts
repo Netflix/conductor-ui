@@ -19,38 +19,26 @@ export function useWorkflow(workflowId: string) {
 
 export function useWorkflowVariables(workflowId: string) {
   const { stack } = useAppContext();
-  return useFetch(
-    [stack, "workflow", workflowId],
-    `/workflow/${workflowId}`, 
-    {
-      enabled: !!workflowId,
-      select: (data)=>data.variables
-    },
-  );
+  return useFetch([stack, "workflow", workflowId], `/workflow/${workflowId}`, {
+    enabled: !!workflowId,
+    select: (data) => data.variables,
+  });
 }
 
 export function useWorkflowOutput(workflowId: string) {
   const { stack } = useAppContext();
-  return useFetch(
-    [stack, "workflow", workflowId],
-    `/workflow/${workflowId}`,
-    {
-      enabled: !!workflowId,
-      select: (data)=>data.output
-    },
-  );
+  return useFetch([stack, "workflow", workflowId], `/workflow/${workflowId}`, {
+    enabled: !!workflowId,
+    select: (data) => data.output,
+  });
 }
 
 export function useWorkflowInput(workflowId: string) {
   const { stack } = useAppContext();
-  return useFetch(
-    [stack, "workflow", workflowId],
-    `/workflow/${workflowId}`,
-    {
-      enabled: !!workflowId,
-      select: (data)=>data.input
-    },
-  );
+  return useFetch([stack, "workflow", workflowId], `/workflow/${workflowId}`, {
+    enabled: !!workflowId,
+    select: (data) => data.input,
+  });
 }
 
 export function useInvalidateExecution(workflowId: string) {
@@ -77,7 +65,8 @@ export function useExecutionAndTasks(workflowId: string): {
     },
     {
       queryKey: [stack, "workflow", workflowId, "tasks"],
-      queryFn: () => fetchWithContext(`/workflow/${workflowId}`).then(data=>data.tasks),
+      queryFn: () =>
+        fetchWithContext(`/workflow/${workflowId}`).then((data) => data.tasks),
       enabled: ready,
     },
   ]);
@@ -154,14 +143,10 @@ export function useWorkflowTaskOutput(
   taskId?: string,
 ) {
   let path = `/task/${taskId}/`;
-  return useFetch(
-    ["task", taskId!],
-    path,
-    {
-      enabled: !!taskId,
-      select: (data)=>data.outputData
-    },
-  );
+  return useFetch(["task", taskId!], path, {
+    enabled: !!taskId,
+    select: (data) => data.outputData,
+  });
 }
 
 export function useWorkflowTaskInput(
@@ -171,12 +156,8 @@ export function useWorkflowTaskInput(
 ) {
   let path = `/tasks/${taskId}`;
 
-  return useFetch(
-    ["task", taskId],
-    path,
-    {
-      enabled: !!taskId,
-      select: (data)=>data.inputData
-    },
-  );
+  return useFetch(["task", taskId], path, {
+    enabled: !!taskId,
+    select: (data) => data.inputData,
+  });
 }

@@ -6,33 +6,41 @@ import { useFetch } from "./common";
 import useAppContext from "../hooks/useAppContext";
 import { useQueries, useQueryClient } from "react-query";
 
-
-function schemaUpdate(tasks){
-  let refNameToParentRefName = new Map<string,string>();
-  let taskTypeMap = new Map<string,string>();
+function schemaUpdate(tasks) {
+  let refNameToParentRefName = new Map<string, string>();
+  let taskTypeMap = new Map<string, string>();
   let loopTasks = new Set<string>();
-  tasks.forEach(task => {
-    if (["FORK", "FORK_JOIN_DYNAMIC"].includes(task.taskType) && task.inputData?.forkedTasks){
-      taskTypeMap.set(task.referenceTaskName, task.taskType)
-      task.inputData.forkedTasks.forEach(subTask => refNameToParentRefName.set(subTask, task.referenceTaskName))
-    }else if(task.taskType==="DO_WHILE" && task.workflowTask?.loopOver){
-      taskTypeMap.set(task.referenceTaskName, task.taskType)
-      task.workflowTask?.loopOver?.forEach(subTask => {
+  tasks.forEach((task) => {
+    if (
+      ["FORK", "FORK_JOIN_DYNAMIC"].includes(task.taskType) &&
+      task.inputData?.forkedTasks
+    ) {
+      taskTypeMap.set(task.referenceTaskName, task.taskType);
+      task.inputData.forkedTasks.forEach((subTask) =>
+        refNameToParentRefName.set(subTask, task.referenceTaskName),
+      );
+    } else if (task.taskType === "DO_WHILE" && task.workflowTask?.loopOver) {
+      taskTypeMap.set(task.referenceTaskName, task.taskType);
+      task.workflowTask?.loopOver?.forEach((subTask) => {
         loopTasks.add(subTask.taskReferenceName);
-        refNameToParentRefName.set(subTask.taskReferenceName, task.referenceTaskName)
-        subTask.joinOn?.forEach(taskName => loopTasks.add(taskName))
-      })
+        refNameToParentRefName.set(
+          subTask.taskReferenceName,
+          task.referenceTaskName,
+        );
+        subTask.joinOn?.forEach((taskName) => loopTasks.add(taskName));
+      });
     }
-  })
+  });
 
-  return tasks.map(task => {
-    let adjustedLen = task.referenceTaskName.length-(task.iteration.toString().length+2)
-    let v4refName = loopTasks.has(task.referenceTaskName.slice(0, adjustedLen))? task.referenceTaskName.slice(0, adjustedLen):task.referenceTaskName;
+  return tasks.map((task) => {
+    let adjustedLen =
+      task.referenceTaskName.length - (task.iteration.toString().length + 2);
+    let v4refName = loopTasks.has(task.referenceTaskName.slice(0, adjustedLen))
+      ? task.referenceTaskName.slice(0, adjustedLen)
+      : task.referenceTaskName;
     let parentTaskReferenceName = refNameToParentRefName.get(v4refName);
-    return {...task, 
-      referenceTaskName: v4refName,
-      parentTaskReferenceName}
-})
+    return { ...task, referenceTaskName: v4refName, parentTaskReferenceName };
+  });
 }
 
 export function useWorkflow(workflowId: string) {
@@ -48,38 +56,26 @@ export function useWorkflow(workflowId: string) {
 
 export function useWorkflowVariables(workflowId: string) {
   const { stack } = useAppContext();
-  return useFetch(
-    [stack, "workflow", workflowId],
-    `/workflow/${workflowId}`, 
-    {
-      enabled: !!workflowId,
-      select: (data)=>data.variables
-    },
-  );
+  return useFetch([stack, "workflow", workflowId], `/workflow/${workflowId}`, {
+    enabled: !!workflowId,
+    select: (data) => data.variables,
+  });
 }
 
 export function useWorkflowOutput(workflowId: string) {
   const { stack } = useAppContext();
-  return useFetch(
-    [stack, "workflow", workflowId],
-    `/workflow/${workflowId}`,
-    {
-      enabled: !!workflowId,
-      select: (data)=>data.output
-    },
-  );
+  return useFetch([stack, "workflow", workflowId], `/workflow/${workflowId}`, {
+    enabled: !!workflowId,
+    select: (data) => data.output,
+  });
 }
 
 export function useWorkflowInput(workflowId: string) {
   const { stack } = useAppContext();
-  return useFetch(
-    [stack, "workflow", workflowId],
-    `/workflow/${workflowId}`,
-    {
-      enabled: !!workflowId,
-      select: (data)=>data.input
-    },
-  );
+  return useFetch([stack, "workflow", workflowId], `/workflow/${workflowId}`, {
+    enabled: !!workflowId,
+    select: (data) => data.input,
+  });
 }
 
 export function useInvalidateExecution(workflowId: string) {
@@ -101,12 +97,18 @@ export function useExecutionAndTasks(workflowId: string): {
   const results = useQueries([
     {
       queryKey: [stack, "workflow", workflowId],
-      queryFn: () => fetchWithContext(`/workflow/${workflowId}`).then(({tasks, ...data}) => ({...data, tasks:[]})),
+      queryFn: () =>
+        fetchWithContext(`/workflow/${workflowId}`).then(
+          ({ tasks, ...data }) => ({ ...data, tasks: [] }),
+        ),
       enabled: ready,
     },
     {
       queryKey: [stack, "workflow", workflowId, "tasks"],
-      queryFn: () => fetchWithContext(`/workflow/${workflowId}`).then(data=>data.tasks).then(tasks => schemaUpdate(tasks)),
+      queryFn: () =>
+        fetchWithContext(`/workflow/${workflowId}`)
+          .then((data) => data.tasks)
+          .then((tasks) => schemaUpdate(tasks)),
       enabled: ready,
     },
   ]);
@@ -183,14 +185,10 @@ export function useWorkflowTaskOutput(
   taskId?: string,
 ) {
   let path = `/task/${taskId}/`;
-  return useFetch(
-    ["task", taskId!],
-    path,
-    {
-      enabled: !!taskId,
-      select: (data)=>data.outputData
-    },
-  );
+  return useFetch(["task", taskId!], path, {
+    enabled: !!taskId,
+    select: (data) => data.outputData,
+  });
 }
 
 export function useWorkflowTaskInput(
@@ -200,12 +198,8 @@ export function useWorkflowTaskInput(
 ) {
   let path = `/tasks/${taskId}`;
 
-  return useFetch(
-    ["task", taskId],
-    path,
-    {
-      enabled: !!taskId,
-      select: (data)=>data.inputData
-    },
-  );
+  return useFetch(["task", taskId], path, {
+    enabled: !!taskId,
+    select: (data) => data.inputData,
+  });
 }
