@@ -1,5 +1,12 @@
 import Alert from "@mui/material/Alert";
-import { NavLink, Heading, StatusBadge, Text, Button } from "../../components";
+import {
+  NavLink,
+  Heading,
+  StatusBadge,
+  Text,
+  Button,
+  ClipboardButton,
+} from "../../components";
 
 import { makeStyles } from "@mui/styles";
 import type { Execution } from "../../types/execution";
@@ -42,7 +49,6 @@ export default function ExecutionHeader({
   const classes = useStyles();
   const { CustomWorkflowActions } = useContext(AppContext);
   const invalidate = useInvalidateExecution(execution.workflowId);
-
   return (
     <div className={classes.header}>
       <div className={classes.headerRow}>
@@ -51,9 +57,12 @@ export default function ExecutionHeader({
             {execution.workflowName} <StatusBadge status={execution.status} />{" "}
             <EngineBadge engine={execution.workflowEngine} />
           </Heading>
-          <Text level={0} className={classes.headerSubtitle}>
-            {execution.workflowId}
-          </Text>
+          <div>
+            <Text level={0} className={classes.headerSubtitle}>
+              {execution.workflowId}
+            </Text>
+            <ClipboardButton textToCopy={execution.workflowId} />
+          </div>
         </div>
 
         {execution.parentWorkflowId && (

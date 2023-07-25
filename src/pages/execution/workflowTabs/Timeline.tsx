@@ -1,6 +1,4 @@
-import React, { useMemo, useState } from "react";
-import { timestampRenderer, durationRenderer } from "../../../utils/helpers";
-import _ from "lodash";
+import React from "react";
 import "./timeline.scss";
 import WorkflowDAG from "../../../components/diagram/WorkflowDAG";
 import { TaskResult } from "../../../types/execution";

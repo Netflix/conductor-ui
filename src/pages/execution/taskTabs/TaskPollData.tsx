@@ -1,5 +1,5 @@
 import React from "react";
-import { KeyValueTable, LinearProgress } from "../../../components";
+import { KeyValueTable } from "../../../components";
 import { usePollData, useQueueSize } from "../../../data/task";
 import _ from "lodash";
 import { timestampRenderer } from "../../../utils/helpers";

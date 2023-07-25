@@ -48,7 +48,7 @@ export function YAxis({
       label: labelFormatter(yAccessor(row)) as string,
     }));
     setRows([...newRows]);
-  }, [inputRows]);
+  }, [inputRows, labelFormatter, setRows]);
 
   useEffect(() => {
     if (selectedTask?.id) {
@@ -141,16 +141,31 @@ export function YAxis({
                 </g>
               </svg>
               <svg>
-                <circle
+                <g
                   style={{ cursor: "pointer" }}
                   onClick={() =>
                     navigator.clipboard.writeText(currRowsMap.get(band))
                   }
-                  cx={`${marginLeft - 15}`}
-                  cy={`${5 + yScale(band) + yScale.bandwidth() / 2}`}
-                  r="5"
-                  fill="darkGrey"
-                />
+                >
+                  <svg
+                    fill="darkGrey"
+                    x={`${marginLeft - 25}`}
+                    y={`${-5 + yScale(band) + yScale.bandwidth() / 2}`}
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="darkGrey"
+                  >
+                    <rect
+                      width="24"
+                      height="24"
+                      fill="white"
+                      stroke="transparent"
+                    />
+                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"></path>
+                  </svg>
+                </g>
               </svg>
               <line x1={0} y1={yPos} x2="100%" y2={yPos} stroke={grayLight6} />
             </svg>

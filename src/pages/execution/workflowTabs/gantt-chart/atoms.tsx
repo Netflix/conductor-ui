@@ -1,7 +1,5 @@
 import { atom, useAtomValue } from "jotai";
-import { getTextWidth } from "./internal/utils";
-import { fontFamily, fontSizes } from "../../../../theme/variables";
-import { idAccessor, yAccessor } from "./utils";
+import { idAccessor } from "./utils";
 import { scaleBand, scaleOrdinal, scaleTime, schemeGreens } from "d3";
 import { useAtomSetterOnChange } from "./internal/hooks";
 import React from "react";

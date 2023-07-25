@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { NavLink, KeyValueTable } from "../../../components";
+import { NavLink, KeyValueTable, ClipboardButton } from "../../../components";
 import { useTime } from "../../../hooks/useTime";
 import { useAppContext } from "../../../export";
 import { KeyValueTableEntry } from "../../../components/KeyValueTable";
@@ -45,7 +45,15 @@ export default function TaskSummary({
   }
 
   if (taskResult?.taskId) {
-    data.push({ label: "Task Execution ID", value: taskResult.taskId });
+    data.push({
+      label: "Task Execution ID",
+      value: (
+        <div>
+          {taskResult.taskId}
+          <ClipboardButton textToCopy={taskResult.taskId} />
+        </div>
+      ),
+    });
   }
 
   if (taskResult?.scheduledTime) {
