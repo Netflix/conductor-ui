@@ -104,6 +104,7 @@ export default function JsonPanel() {
   useEffect(() => {
     if (editorRef.current) {
       if (selectedTask) {
+        console.log('here')
         const editor = editorRef.current.getModel();
 
         const searchResult = editor.findMatches(

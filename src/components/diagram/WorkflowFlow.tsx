@@ -333,7 +333,7 @@ export default function WorkflowFlow({ dag }: WorkflowGraphProps) {
   }, [graph]);
 
   console.log(graph.edges());
-  console.log(graph.edge(graph.edges()[27]));
+  //console.log(graph.edge(graph.edges()[27]));
 /*
   function expandBar(barRef: string) {
     const barNode = graph.node(barRef) as GraphNode;
