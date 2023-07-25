@@ -157,7 +157,7 @@ export default function ConductorTimeline({
       },
     );
     return series;
-  }, [data, spanStyle]);
+  }, [data, spanStyle, taskTypeMap]);
   /** Map from task ID to index in fully expanded data */
   const idToIndexMap = useMemo(
     () =>
