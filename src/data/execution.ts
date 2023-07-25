@@ -6,6 +6,17 @@ import { useFetch } from "./common";
 import useAppContext from "../hooks/useAppContext";
 import { useQueries, useQueryClient } from "react-query";
 
+function schemaUpdate(tasks){
+  let refNameToParentRefName = new Map<string,string>();
+
+  tasks.forEach(task => {
+    if (task.inputData?.forkedTasks){
+      task.inputData.forkedTasks.forEach(subTask => refNameToParentRefName.set(subTask, task.referenceTaskName))
+    }
+  })
+  return tasks.map(task => ({...task, parentTaskReferenceName:refNameToParentRefName.get(task.referenceTaskName)}))
+}
+
 export function useWorkflow(workflowId: string) {
   const { stack } = useAppContext();
   return useFetch<Execution>(
@@ -72,12 +83,12 @@ export function useExecutionAndTasks(workflowId: string): {
   const results = useQueries([
     {
       queryKey: [stack, "workflow", workflowId],
-      queryFn: () => fetchWithContext(`/workflow/${workflowId}`),
+      queryFn: () => fetchWithContext(`/workflow/${workflowId}`).then(({tasks, ...data}) => ({...data, tasks:[]})),
       enabled: ready,
     },
     {
       queryKey: [stack, "workflow", workflowId, "tasks"],
-      queryFn: () => fetchWithContext(`/workflow/${workflowId}`).then(data=>data.tasks),
+      queryFn: () => fetchWithContext(`/workflow/${workflowId}`).then(data=>data.tasks).then(tasks => schemaUpdate(tasks)),
       enabled: ready,
     },
   ]);
