@@ -73,6 +73,17 @@ export default function ConductorTimeline({
     },
     [selectedTask],
   );
+  /** Map from task reference name to task type */
+  const taskTypeMap = useMemo(
+    () =>
+      new Map<string, TaskResultType>(
+        data.map(({ referenceTaskName, taskType }) => [
+          referenceTaskName,
+          taskType,
+        ]),
+      ),
+    [data],
+  );
   /** ID of tasks which have children: DO_WHILE, FORK, FORK_JOIN_DYNAMIC */
   const collapsibleTasks = useMemo<Set<string>>(
     () =>
@@ -124,7 +135,10 @@ export default function ConductorTimeline({
             waitSpan: spanStyle(taskId, status),
           },
         };
-        if (!seenTaskNameToIndexMap.has(referenceTaskName)) {
+        if (
+          !seenTaskNameToIndexMap.has(referenceTaskName) ||
+          taskTypeMap.get(parentTaskReferenceName) === "DO_WHILE"
+        ) {
           series.push({
             id: taskId,
             label: `${referenceTaskName}`,
@@ -148,14 +162,6 @@ export default function ConductorTimeline({
   const idToIndexMap = useMemo(
     () =>
       new Map<string, number>(initialData.map((task, idx) => [task.id, idx])),
-    [initialData],
-  );
-  /** Map from task reference name to task type */
-  const taskTypeMap = useMemo(
-    () =>
-      new Map<string, TaskResultType>(
-        initialData.map((task) => [task.referenceTaskName, task.taskType]),
-      ),
     [initialData],
   );
   /** Data for the fully collapsed view of the workflow */
@@ -372,10 +378,10 @@ export default function ConductorTimeline({
   function toggleExpansion(parentTaskID: string) {
     let taskIsExpanded = taskExpanded.get(parentTaskID);
     let parentTask = initialData[idToIndexMap.get(parentTaskID)];
+    let newData: Series[] = series.filter(
+      (tsk) => tsk.parentTaskReferenceName !== parentTask.referenceTaskName,
+    );
     if (taskIsExpanded) {
-      let newData: Series[] = series.filter(
-        (tsk) => tsk.parentTaskReferenceName !== parentTask.referenceTaskName,
-      );
       let currTaskIndex = newData.findIndex((tsk) => tsk.id === parentTaskID);
       setSeries([
         ...newData.slice(0, currTaskIndex),
@@ -385,9 +391,9 @@ export default function ConductorTimeline({
     } else {
       let currTaskIndex = series.findIndex((tsk) => tsk.id === parentTaskID);
       setSeries([
-        ...series.slice(0, currTaskIndex),
+        ...newData.slice(0, currTaskIndex),
         ...expandedTaskMap.get(parentTaskID),
-        ...series.slice(currTaskIndex + 1),
+        ...newData.slice(currTaskIndex + 1),
       ]);
     }
     setTaskExpanded(taskExpanded.set(parentTaskID, !taskIsExpanded));
