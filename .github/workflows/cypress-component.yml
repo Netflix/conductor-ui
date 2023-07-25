@@ -14,7 +14,6 @@ jobs:
         uses: cypress-io/github-action@v5
         with:
           component: true
-          headed: true
           browser: chrome
           
       
