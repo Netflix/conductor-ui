@@ -408,7 +408,7 @@ export default function ConductorTimeline({
         </Button>
         <Button onClick={zoomToFit}>Zoom To Fit</Button>
         <div style={{ position: "relative", top: "5px" }}>
-          <Tooltip title="Click and drag to zoom">
+          <Tooltip title="Click and drag to zoom" placement="right">
             <InfoIcon fontSize="medium" color="primary" />
           </Tooltip>
         </div>
