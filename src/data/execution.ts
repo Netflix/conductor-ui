@@ -6,15 +6,33 @@ import { useFetch } from "./common";
 import useAppContext from "../hooks/useAppContext";
 import { useQueries, useQueryClient } from "react-query";
 
+
 function schemaUpdate(tasks){
   let refNameToParentRefName = new Map<string,string>();
-
+  let taskTypeMap = new Map<string,string>();
+  let loopTasks = new Set<string>();
   tasks.forEach(task => {
-    if (task.inputData?.forkedTasks){
+    if (["FORK", "FORK_JOIN_DYNAMIC"].includes(task.taskType) && task.inputData?.forkedTasks){
+      taskTypeMap.set(task.referenceTaskName, task.taskType)
       task.inputData.forkedTasks.forEach(subTask => refNameToParentRefName.set(subTask, task.referenceTaskName))
+    }else if(task.taskType==="DO_WHILE" && task.workflowTask?.loopOver){
+      taskTypeMap.set(task.referenceTaskName, task.taskType)
+      task.workflowTask?.loopOver?.forEach(subTask => {
+        loopTasks.add(subTask.taskReferenceName);
+        refNameToParentRefName.set(subTask.taskReferenceName, task.referenceTaskName)
+        subTask.joinOn?.forEach(taskName => loopTasks.add(taskName))
+      })
     }
   })
-  return tasks.map(task => ({...task, parentTaskReferenceName:refNameToParentRefName.get(task.referenceTaskName)}))
+
+  return tasks.map(task => {
+    let adjustedLen = task.referenceTaskName.length-(task.iteration.toString().length+2)
+    let v4refName = loopTasks.has(task.referenceTaskName.slice(0, adjustedLen))? task.referenceTaskName.slice(0, adjustedLen):task.referenceTaskName;
+    let parentTaskReferenceName = refNameToParentRefName.get(v4refName);
+    return {...task, 
+      referenceTaskName: v4refName,
+      parentTaskReferenceName}
+})
 }
 
 export function useWorkflow(workflowId: string) {
