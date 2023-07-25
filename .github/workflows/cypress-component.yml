@@ -15,5 +15,6 @@ jobs:
         with:
           component: true
           headed: true
+          browser: chrome
           
       
