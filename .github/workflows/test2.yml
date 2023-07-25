@@ -1,5 +1,5 @@
 
-name: CI
+name: CI NEW
 
 on: [push, pull_request]
 
