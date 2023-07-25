@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, ButtonGroup } from "@mui/material";
+import { Button, ButtonGroup, Tooltip } from "@mui/material";
 import {
   Bars,
   Cursor,
@@ -17,6 +17,7 @@ import { Datum } from "./types";
 import { TaskResult, TaskResultType } from "../../../../types/execution";
 import { TaskCoordinate } from "../../../../types/workflowDef";
 import WorkflowDAG from "../../../../components/diagram/WorkflowDAG";
+import InfoIcon from "@mui/icons-material/Info";
 
 const [DO_WHILE, FORK_JOIN_DYNAMIC, FORK] = [
   "DO_WHILE",
@@ -406,6 +407,11 @@ export default function ConductorTimeline({
           {expanded ? "Collapse All" : "Expand All"}
         </Button>
         <Button onClick={zoomToFit}>Zoom To Fit</Button>
+        <div style={{ position: "relative", top: "5px" }}>
+          <Tooltip title="Click and drag to zoom">
+            <InfoIcon fontSize="medium" color="primary" />
+          </Tooltip>
+        </div>
       </ButtonGroup>
       <GanttChart min={min} max={max} viewportRef={viewportRef}>
         <Bars
