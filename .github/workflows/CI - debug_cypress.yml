@@ -28,8 +28,8 @@ jobs:
         with:
           install: false
           component: true
-          env:
-            DEBUG:cypress:*
+        env:
+          DEBUG: 'cypress:*'
 
       - name: Archive test screenshots
         uses: actions/upload-artifact@v2
