@@ -93,7 +93,10 @@ export default function ExecutionHeader({
         )}
       </div>
       {execution.reasonForIncompletion && (
-        <Alert severity="error" style={{ margin: "0 20px 20px 20px" }}>
+        <Alert
+          severity={execution.status === "FAILED" ? "error" : "info"}
+          style={{ margin: "0 20px 20px 20px" }}
+        >
           {execution.reasonForIncompletion}
         </Alert>
       )}
