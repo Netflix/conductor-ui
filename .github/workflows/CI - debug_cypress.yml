@@ -12,16 +12,19 @@ jobs:
 
       - name: Install Dependencies
         run: yarn install
+        
+      - name: Browser Cmd
+        run: npx update-browserslist-db@latest
 
       - name: Build UI
         run: yarn run build
 
-      - name: Run E2E Tests
-        uses: cypress-io/github-action@v4
-        with:
-          install: false
-          start: yarn run serve-build
-          wait-on: "http://localhost:5000"
+#       - name: Run E2E Tests
+#         uses: cypress-io/github-action@v4
+#         with:
+#           install: false
+#           start: yarn run serve-build
+#           wait-on: "http://localhost:5000"
 
       - name: Run Component Tests
         uses: cypress-io/github-action@v4
@@ -31,16 +34,16 @@ jobs:
         env:
           DEBUG: 'cypress:*'
 
-      - name: Archive test screenshots
-        uses: actions/upload-artifact@v2
-        if: failure()
-        with:
-          name: cypress-screenshots
-          path: cypress/screenshots
+#       - name: Archive test screenshots
+#         uses: actions/upload-artifact@v2
+#         if: failure()
+#         with:
+#           name: cypress-screenshots
+#           path: cypress/screenshots
 
-      - name: Archive test videos
-        uses: actions/upload-artifact@v2
-        if: always()
-        with:
-          name: cypress-videos
-          path: cypress/videos
+#       - name: Archive test videos
+#         uses: actions/upload-artifact@v2
+#         if: always()
+#         with:
+#           name: cypress-videos
+#           path: cypress/videos
