@@ -19,6 +19,6 @@ jobs:
           component: true
 #           browser: chrome
         env:
-          DEBUG: '@cypress/github-action'
+          DEBUG: 'cypress:*'
           
       
