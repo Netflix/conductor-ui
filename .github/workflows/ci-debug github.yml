@@ -11,7 +11,7 @@ jobs:
         run: yarn install
         
       - name: Browser Cmd
-        run: yarn add update-browserslist-db
+        run: npx update-browserslist-db@latest
         
       - name: Cypress run
         uses: cypress-io/github-action@v5
