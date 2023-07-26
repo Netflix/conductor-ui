@@ -1,4 +1,4 @@
-name: End-to-end tests
+name: CI - debug github
 on: [push, pull_request]
 jobs:
   cypress-run:
