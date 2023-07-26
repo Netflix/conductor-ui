@@ -23,6 +23,8 @@ import WorkflowVariables from "./workflowTabs/WorkflowVariables";
 import WorkflowJson from "./workflowTabs/WorkflowJson";
 import { TabBase, TabData } from "rc-dock";
 import SiblingSelector from "./taskTabs/SiblingSelector";
+import Alert from "@mui/material/Alert";
+import Stack from "@mui/material/Stack";
 
 export type TaskSelection = {
   taskResult: TaskResult;
@@ -95,13 +97,34 @@ export default function tabLoader(tabBase: TabBase): TabData {
     case "WorkflowSummary":
       return {
         id: "WorkflowSummary",
-        title: "Summary",
+        title: (
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <span style={{ marginRight: "5px" }}>Summary</span>
+            <div
+              style={{
+                width: "10px",
+                height: "10px",
+                backgroundColor: "red",
+                borderRadius: "50%",
+              }}
+            />
+          </div>
+        ),
         content: (
-          <TileFactoryContext.Consumer>
-            {({ executionAndTasks }) => (
-              <Summary execution={executionAndTasks.execution} />
-            )}
-          </TileFactoryContext.Consumer>
+          <React.Fragment>
+             <Stack sx={{ width: '100%', margin: "15px"}} spacing={2}>
+      <Alert severity="error">This is an error alert — check it out!</Alert>
+      <Alert severity="warning">This is a warning alert — check it out!</Alert>
+      <Alert severity="info">This is an info alert — check it out!</Alert>
+      <Alert severity="success">This is a success alert — check it out!</Alert>
+    </Stack>
+     
+            <TileFactoryContext.Consumer>
+              {({ executionAndTasks }) => (
+                <Summary execution={executionAndTasks.execution} />
+              )}
+            </TileFactoryContext.Consumer>
+          </React.Fragment>
         ),
         group: "workflow",
       };
