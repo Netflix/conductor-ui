@@ -14,7 +14,7 @@ jobs:
         run: yarn install
         
       - name: Browser Cmd
-        run: yarn add update-browserslist-db
+        run: npx update-browserslist-db@latest
 
       - name: Build UI
         run: yarn run build
