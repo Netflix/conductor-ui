@@ -25,6 +25,7 @@ import { TabBase, TabData } from "rc-dock";
 import SiblingSelector from "./taskTabs/SiblingSelector";
 import Alert from "@mui/material/Alert";
 import Stack from "@mui/material/Stack";
+import { timestampRenderer } from "../../utils/helpers";
 
 export type TaskSelection = {
   taskResult: TaskResult;
@@ -97,28 +98,10 @@ export default function tabLoader(tabBase: TabBase): TabData {
     case "WorkflowSummary":
       return {
         id: "WorkflowSummary",
-        title: (
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <span style={{ marginRight: "5px" }}>Summary</span>
-            <div
-              style={{
-                width: "10px",
-                height: "10px",
-                backgroundColor: "red",
-                borderRadius: "50%",
-              }}
-            />
-          </div>
-        ),
+        title: <SummaryTabHead />,
         content: (
           <React.Fragment>
-             <Stack sx={{ width: '100%', margin: "15px"}} spacing={2}>
-      <Alert severity="error">This is an error alert — check it out!</Alert>
-      <Alert severity="warning">This is a warning alert — check it out!</Alert>
-      <Alert severity="info">This is an info alert — check it out!</Alert>
-      <Alert severity="success">This is a success alert — check it out!</Alert>
-    </Stack>
-     
+            <AlertComponent />
             <TileFactoryContext.Consumer>
               {({ executionAndTasks }) => (
                 <Summary execution={executionAndTasks.execution} />
@@ -276,6 +259,73 @@ export default function tabLoader(tabBase: TabBase): TabData {
     id: "Unknown",
     content: <div>Unknown</div>,
   };
+}
+
+const generateAlerts = (tasks) => {
+  const alerts = [];
+  tasks.forEach((taskResult) => {
+    //detect multiple polls and callbackafterseconds >0
+    if (taskResult.pollCount > 1) {
+      const formatedDate =
+        !isNaN(taskResult.updateTime) && taskResult.updateTime > 0
+          ? timestampRenderer(taskResult.updateTime)
+          : "N/A";
+      let alertMessage = `Task "${taskResult.taskDefName}" has been polled by workers for ${taskResult.pollCount} times.`;
+      if (taskResult.callbackAfterSeconds > 0)
+        alertMessage += ` A callback is set to ${taskResult.callbackAfterSeconds} seconds at ${formatedDate}`;
+      alerts.push(<Alert severity="warning">{alertMessage}</Alert>);
+    }
+  });
+
+  return alerts;
+};
+
+function AlertComponent() {
+  const tileFactoryContext = useContext(TileFactoryContext).executionAndTasks;
+  const alerts = useMemo(
+    () => generateAlerts(tileFactoryContext.tasks),
+    [tileFactoryContext.tasks],
+  );
+
+  if (alerts.length === 0) {
+    return null;
+  }
+
+  return (
+    <Stack sx={{ margin: "15px" }} spacing={2}>
+      {alerts.map((alert, index) => (
+        <React.Fragment key={index}>{alert}</React.Fragment>
+      ))}
+    </Stack>
+  );
+}
+
+function SummaryTabHead() {
+  const tileFactoryContext = useContext(TileFactoryContext).executionAndTasks;
+  const alerts = useMemo(
+    () => generateAlerts(tileFactoryContext.tasks),
+    [tileFactoryContext.tasks],
+  );
+  if (alerts.length === 0) {
+    return (
+      <div>
+        <span style={{ marginRight: "5px" }}>Summary</span>
+      </div>
+    );
+  }
+  return (
+    <div style={{ display: "flex", alignItems: "center" }}>
+      <span style={{ marginRight: "5px" }}>Summary</span>
+      <div
+        style={{
+          width: "10px",
+          height: "10px",
+          backgroundColor: "orange", //hardcoded color for now
+          borderRadius: "50%",
+        }}
+      />
+    </div>
+  );
 }
 
 function TaskSelectionWrapper({ TaskPanel: Tab }: { TaskPanel: any }) {
