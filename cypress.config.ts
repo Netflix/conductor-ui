@@ -3,6 +3,7 @@ import { defineConfig } from "cypress";
 export default defineConfig({
   e2e: {
     baseUrl: "http://localhost:5000",
+    specPattern: "cypress/e2e/*.cy.{js}"
   },
   numTestsKeptInMemory: 1000,
   requestTimeout:120000,
@@ -12,6 +13,7 @@ export default defineConfig({
   execTimeout:120000,
   responseTimeout:120000,
   component: {
+    specPattern: "cypress/component/*.cy.{js}",
     devServer: {
       framework: "create-react-app",
       bundler: "webpack",
