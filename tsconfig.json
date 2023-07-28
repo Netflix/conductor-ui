@@ -16,7 +16,7 @@
     "jsx": "react-jsx",
     "types": [],
     "downlevelIteration": true,
-    "strictNullChecks": false,
+    "strictNullChecks": true,
     "noImplicitAny": false,
     "declaration": true,
     "emitDeclarationOnly": true,
