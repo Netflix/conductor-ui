@@ -132,10 +132,13 @@ export default function tabLoader(tabBase: TabBase): TabData {
         title: "Tasks",
         content: (
           <TileFactoryContext.Consumer>
-            {({ executionAndTasks }) => (
+            {({ executionAndTasks, setSelectedTask, selectedTask, dag }) => (
               <TaskList
                 tasks={executionAndTasks.tasks}
                 workflowId={executionAndTasks.execution.workflowId}
+                setSelectedTask={setSelectedTask}
+                selectedTask={selectedTask}
+                dag={dag}
               />
             )}
           </TileFactoryContext.Consumer>

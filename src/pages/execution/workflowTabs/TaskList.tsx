@@ -11,6 +11,8 @@ import { timestampRenderer } from "../../../utils/helpers";
 import { TypeFilterValue } from "@inovua/reactdatagrid-community/types";
 import NumberFilter from "@inovua/reactdatagrid-community/NumberFilter";
 import DateFilter from "@inovua/reactdatagrid-community/DateFilter";
+import { TaskCoordinate } from "../../../types/workflowDef";
+import WorkflowDAG from "../../../components/diagram/WorkflowDAG";
 
 const filterValue: TypeFilterValue = [
   { name: "taskId", operator: "contains", type: "string", value: null },
@@ -112,11 +114,23 @@ const columns: TypeColumns = [
 export default function TaskList({
   tasks,
   workflowId,
+  selectedTask,
+  setSelectedTask,
+  dag,
 }: {
   tasks: TaskResult[];
   workflowId: string;
+  setSelectedTask: (taskCoordinate: TaskCoordinate | null) => void;
+  selectedTask: TaskCoordinate | null;
+  dag: WorkflowDAG;
 }) {
   const [mode, setMode] = React.useState("table");
+  const selectedId =
+    selectedTask && dag.getTaskResultByCoord(selectedTask)?.taskId;
+
+  function handleSelectionChange({ data }: { data?: any }) {
+    setSelectedTask(data ? { id: data.taskId } : null);
+  }
 
   return (
     <div
@@ -145,6 +159,9 @@ export default function TaskList({
         </TabList>
         <TabPanel value="table" style={{ flex: 1, padding: 0 }}>
           <ReactDataGrid
+            enableSelection
+            selected={selectedId}
+            onSelectionChange={handleSelectionChange}
             columns={columns}
             dataSource={tasks}
             columnUserSelect
