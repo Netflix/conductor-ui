@@ -61,7 +61,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "build-types": "tsc",
+    "build-types": "tsc --build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "prettier": "prettier --write .",
