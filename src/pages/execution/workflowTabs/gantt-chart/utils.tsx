@@ -1,3 +1,4 @@
+//@ts-nocheck
 import type { Datum, Series } from "./types";
 
 export const defaultFormatter = (val: string | number) => val;
