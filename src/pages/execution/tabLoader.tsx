@@ -23,9 +23,8 @@ import WorkflowVariables from "./workflowTabs/WorkflowVariables";
 import WorkflowJson from "./workflowTabs/WorkflowJson";
 import { TabBase, TabData } from "rc-dock";
 import SiblingSelector from "./taskTabs/SiblingSelector";
-import Alert from "@mui/material/Alert";
 import Stack from "@mui/material/Stack";
-import { timestampRenderer } from "../../utils/helpers";
+import { rules, Severity, AlertItem } from "./ExpertSystemRules";
 
 export type TaskSelection = {
   taskResult: TaskResult;
@@ -38,6 +37,10 @@ type ITileFactoryContext = {
   dag: WorkflowDAG;
   selectedTask: TaskCoordinate | null;
   setSelectedTask: (selectedTask: TaskCoordinate | null) => void;
+  severity: Severity;
+  setSeverity: React.Dispatch<React.SetStateAction<Severity>>;
+  alerts: AlertItem[];
+  setAlerts: React.Dispatch<React.SetStateAction<AlertItem[]>>;
 };
 
 export const TileFactoryContext = React.createContext<ITileFactoryContext>(
@@ -261,51 +264,37 @@ export default function tabLoader(tabBase: TabBase): TabData {
   };
 }
 
-const generateAlerts = (tasks) => {
-  const alerts = [];
-  tasks.forEach((taskResult) => {
-    //detect multiple polls and callbackafterseconds >0
-    if (taskResult.pollCount > 1) {
-      const formatedDate =
-        !isNaN(taskResult.updateTime) && taskResult.updateTime > 0
-          ? timestampRenderer(taskResult.updateTime)
-          : "N/A";
-      let alertMessage = `Task "${taskResult.taskDefName}" has been polled by workers for ${taskResult.pollCount} times.`;
-      if (taskResult.callbackAfterSeconds > 0)
-        alertMessage += ` A callback is set to ${taskResult.callbackAfterSeconds} seconds at ${formatedDate}`;
-      alerts.push(<Alert severity="warning">{alertMessage}</Alert>);
-    }
-  });
-
-  return alerts;
-};
-
 function AlertComponent() {
-  const tileFactoryContext = useContext(TileFactoryContext).executionAndTasks;
-  const alerts = useMemo(
-    () => generateAlerts(tileFactoryContext.tasks),
-    [tileFactoryContext.tasks],
-  );
-
+  const { alerts } = useContext(TileFactoryContext);
   if (alerts.length === 0) {
     return null;
   }
-
   return (
     <Stack sx={{ margin: "15px" }} spacing={2}>
       {alerts.map((alert, index) => (
-        <React.Fragment key={index}>{alert}</React.Fragment>
+        <React.Fragment key={index}>{alert.component}</React.Fragment>
       ))}
     </Stack>
   );
 }
 
 function SummaryTabHead() {
-  const tileFactoryContext = useContext(TileFactoryContext).executionAndTasks;
-  const alerts = useMemo(
-    () => generateAlerts(tileFactoryContext.tasks),
-    [tileFactoryContext.tasks],
-  );
+  const executionAndTasks = useContext(TileFactoryContext).executionAndTasks;
+  const { severity, setSeverity, setAlerts } = useContext(TileFactoryContext);
+  const alerts = useMemo(() => {
+    const allAlerts: AlertItem[] = [];
+
+    rules.forEach((rule) => {
+      const [ruleAlerts, maxSeverity] = rule(executionAndTasks, severity);
+      allAlerts.push(...ruleAlerts);
+      setSeverity(maxSeverity);
+    });
+
+    return allAlerts;
+  }, [executionAndTasks, severity]);
+
+  setAlerts(alerts);
+
   if (alerts.length === 0) {
     return (
       <div>
@@ -313,6 +302,21 @@ function SummaryTabHead() {
       </div>
     );
   }
+
+  let dotColor;
+  switch (severity) {
+    case "ERROR":
+      dotColor = "red";
+      break;
+    case "WARNING":
+      dotColor = "orange";
+      break;
+    case "INFO":
+    default:
+      dotColor = "blue";
+      break;
+  }
+
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
       <span style={{ marginRight: "5px" }}>Summary</span>
@@ -320,7 +324,7 @@ function SummaryTabHead() {
         style={{
           width: "10px",
           height: "10px",
-          backgroundColor: "orange", //hardcoded color for now
+          backgroundColor: dotColor,
           borderRadius: "50%",
         }}
       />
