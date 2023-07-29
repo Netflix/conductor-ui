@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { atom, useAtomValue } from "jotai";
 import { idAccessor } from "./utils";
 import { scaleBand, scaleOrdinal, scaleTime, schemeGreens } from "d3";

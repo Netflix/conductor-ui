@@ -563,7 +563,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
         break;
       case "LOOP_CHILDREN_PLACEHOLDER":
         retval.shape = "stack";
-        const labelArray = [];
+        const labelArray: string[] = [];
         const { tally, containsTaskRefs } = dagNode;
         if (tally?.iterations) {
           labelArray.push(
