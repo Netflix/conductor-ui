@@ -16,7 +16,7 @@ interface PaperProps extends RawPaperProps {
 export default React.forwardRef<HTMLDivElement, PaperProps>(
   ({ padded = false, className, ...props }, ref) => {
     const classes = useStyles();
-    const internalClassName = [];
+    const internalClassName: string[] = [];
     if (padded) internalClassName.push(classes.padded);
     return (
       <Paper

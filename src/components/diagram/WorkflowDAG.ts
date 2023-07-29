@@ -357,7 +357,7 @@ export default class WorkflowDAG {
       });
       return [placeholderTaskConfig];
     } else {
-      let taskConfigs = [];
+      let taskConfigs: TaskConfig[] = [];
       for (const taskRef of Array.from(forkedTaskRefs)) {
         const taskResult = this.getTaskResultByRef(taskRef) as TaskResult;
         const taskConfig = makeTaskConfigFromTaskResult(taskResult);
@@ -392,7 +392,7 @@ export default class WorkflowDAG {
     );
 
     if (doWhileTaskResult) {
-      const loopTaskResults = [];
+      const loopTaskResults: ExtendedTaskResult[] = [];
       for (let ref of loopOverRefs) {
         const refList = this.taskResultsByRef.get(ref) || [];
         loopTaskResults.push(...refList);
