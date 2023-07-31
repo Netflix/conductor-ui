@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 import TaskInput from "./taskTabs/TaskInput";
 import TaskOutput from "./taskTabs/TaskOutput";
 import TaskSummary from "./taskTabs/TaskSummary";
@@ -39,8 +39,6 @@ type ITileFactoryContext = {
   setSelectedTask: (selectedTask: TaskCoordinate | null) => void;
   severity: Severity;
   setSeverity: React.Dispatch<React.SetStateAction<Severity>>;
-  hasAlerts: boolean;
-  setHasAlerts: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const TileFactoryContext = React.createContext<ITileFactoryContext>(
@@ -267,24 +265,26 @@ export default function tabLoader(tabBase: TabBase): TabData {
 
 function AlertComponent() {
   const executionAndTasks = useContext(TileFactoryContext).executionAndTasks;
-  const { severity, setSeverity, setHasAlerts } =
-    useContext(TileFactoryContext);
+  const { setSeverity } = useContext(TileFactoryContext);
   const alerts = useMemo(() => {
     const allAlerts: AlertItem[] = [];
 
     rules.forEach((rule) => {
-      const [ruleAlerts, maxSeverity] = rule(executionAndTasks, severity);
+      const ruleAlerts = rule(executionAndTasks);
       allAlerts.push(...ruleAlerts);
-      setSeverity(maxSeverity);
     });
 
     return allAlerts;
-  }, [executionAndTasks, severity, setSeverity]);
+  }, [executionAndTasks]);
+
+  useEffect(() => {
+    const maxSeverity = findMaxSeverity(alerts, undefined);
+    setSeverity(maxSeverity);
+  }, [alerts, setSeverity]);
 
   if (alerts.length === 0) {
     return null;
   }
-  setHasAlerts(true);
 
   return (
     <Stack sx={{ margin: "15px" }} spacing={2}>
@@ -296,44 +296,72 @@ function AlertComponent() {
 }
 
 function SummaryTabHead() {
-  const { severity, hasAlerts } = useContext(TileFactoryContext);
-
-  if (!hasAlerts) {
-    return (
-      <div>
-        <span style={{ marginRight: "5px" }}>Summary</span>
-      </div>
-    );
-  }
+  const { severity } = useContext(TileFactoryContext);
 
   let dotColor;
-  switch (severity) {
-    case "ERROR":
-      dotColor = "red";
-      break;
-    case "WARNING":
-      dotColor = "orange";
-      break;
-    case "INFO":
-    default:
-      dotColor = "blue";
-      break;
+  if (severity === "ERROR") {
+    dotColor = "red";
+  } else if (severity === "WARNING") {
+    dotColor = "orange";
+  } else {
+    dotColor = "blue";
   }
 
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
       <span style={{ marginRight: "5px" }}>Summary</span>
-      <div
-        style={{
-          width: "10px",
-          height: "10px",
-          backgroundColor: dotColor,
-          borderRadius: "50%",
-        }}
-      />
+      {!!severity && (
+        <div
+          style={{
+            width: "10px",
+            height: "10px",
+            backgroundColor: dotColor,
+            borderRadius: "50%",
+          }}
+        />
+      )}
     </div>
   );
 }
+
+const findMaxSeverity = (
+  alerts: AlertItem[],
+  currentMaxSeverity: Severity,
+): Severity => {
+  const compareSeverity = (severity: Severity): number => {
+    switch (severity) {
+      case "ERROR":
+        return 3;
+      case "WARNING":
+        return 2;
+      case "INFO":
+        return 1;
+      default:
+        return 0;
+    }
+  };
+
+  let maxSeverity = compareSeverity(currentMaxSeverity);
+
+  for (const alert of alerts) {
+    const alertSeverity = compareSeverity(alert.severity);
+
+    if (alertSeverity > maxSeverity) {
+      maxSeverity = alertSeverity;
+    }
+  }
+
+  switch (maxSeverity) {
+    case 3:
+      return "ERROR";
+    case 2:
+      return "WARNING";
+    case 1:
+      return "INFO";
+    default:
+      return undefined;
+  }
+};
 
 function TaskSelectionWrapper({ TaskPanel: Tab }: { TaskPanel: any }) {
   const { dag, selectedTask, executionAndTasks } =

@@ -10,31 +10,10 @@ export type AlertItem = {
   severity: Severity;
 };
 
-export type Rule = (
-  executionAndTasks: ExecutionAndTasks,
-  severity: Severity,
-) => [AlertItem[], Severity];
-
-const findMaxSeverity = (
-  alerts: AlertItem[],
-  currentMaxSeverity: Severity,
-): Severity => {
-  for (const alert of alerts) {
-    // Compare the severity levels and update the maxSeverity accordingly
-    if (alert.severity === "ERROR") {
-      return "ERROR";
-    } else if (alert.severity === "WARNING" && currentMaxSeverity !== "ERROR") {
-      return "WARNING";
-    }
-  }
-  return currentMaxSeverity;
-};
+export type Rule = (executionAndTasks: ExecutionAndTasks) => AlertItem[];
 
 // Rule functions
-const checkPollCountAndCallBackAfterSeconds: Rule = (
-  executionAndTasks,
-  severity,
-) => {
+const checkPollCountAndCallBackAfterSeconds: Rule = (executionAndTasks) => {
   const alerts = [];
   const tasks = executionAndTasks.tasks;
   tasks.forEach((taskResult) => {
@@ -54,8 +33,7 @@ const checkPollCountAndCallBackAfterSeconds: Rule = (
       alerts.push(newAlertItem);
     }
   });
-  const maxSeverity = findMaxSeverity(alerts, severity);
-  return [alerts, maxSeverity];
+  return alerts;
 };
 
 export const rules: Rule[] = [checkPollCountAndCallBackAfterSeconds];
