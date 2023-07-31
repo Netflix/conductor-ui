@@ -6,7 +6,7 @@ import { useExecutionAndTasks, useWorkflowDag } from "../../data/execution";
 import { TaskCoordinate } from "../../types/workflowDef";
 import { Alert, AlertTitle } from "@mui/material";
 import { TileFactoryContext } from "./tabLoader";
-import { Rule, rules, Severity, AlertItem } from "./ExpertSystemRules";
+import { Severity, AlertItem } from "./ExpertSystemRules";
 
 import "../../components/rc-dock.css";
 import DockLayout, {
