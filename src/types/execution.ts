@@ -34,6 +34,9 @@ type BaseTaskResult = {
   retried?: boolean;
   domain?: string;
   workflowTask?: TaskConfig;
+  pollCount?: number;
+  updateTime?: number;
+  callbackAfterSeconds?: number;
 };
 
 export type ForkTaskResultType = "FORK" | "FORK_JOIN" | "FORK_JOIN_DYNAMIC"; //FORK is legacy.
