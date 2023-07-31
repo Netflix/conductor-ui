@@ -1,12 +1,16 @@
 import React from "react";
 import { NavLink, KeyValueTable } from "../../../components";
 import { useAppContext } from "../../../export";
+import { ExecutionAndTasks } from "../../../types/execution";
+import WorkflowAlerts from "./WorkflowAlerts";
 
-export default function Summary({ execution }) {
+export default function Summary({ executionAndTasks, setSeverity }:{executionAndTasks: ExecutionAndTasks, setSeverity: Function}) {
   const { customExecutionSummaryRows } = useAppContext();
 
   // To accommodate unexecuted tasks, read type & name out of workflowTask
-  const data = [
+  const {execution} = executionAndTasks;
+
+  const data:any = [
     { label: "Workflow ID", value: execution.workflowId },
     { label: "Status", value: execution.status },
     { label: "Version", value: execution.workflowVersion },
@@ -68,5 +72,8 @@ export default function Summary({ execution }) {
     })),
   );
 
-  return <KeyValueTable data={data} />;
+  return <div> 
+    <WorkflowAlerts executionAndTasks={executionAndTasks} setSeverity={setSeverity}/>
+    <KeyValueTable data={data}/>
+  </div>;
 }

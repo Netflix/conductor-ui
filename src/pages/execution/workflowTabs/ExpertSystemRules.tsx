@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
-import { ExecutionAndTasks } from "../../types/execution";
-import { timestampRenderer } from "../../utils/helpers";
+import { ExecutionAndTasks } from "../../../types/execution";
+import { timestampRenderer } from "../../../utils/helpers";
 import { Alert } from "@mui/material";
 
 export type Severity = "ERROR" | "WARNING" | "INFO";

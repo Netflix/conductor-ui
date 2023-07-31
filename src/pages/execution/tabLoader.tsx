@@ -24,7 +24,7 @@ import WorkflowJson from "./workflowTabs/WorkflowJson";
 import { TabBase, TabData } from "rc-dock";
 import SiblingSelector from "./taskTabs/SiblingSelector";
 import Stack from "@mui/material/Stack";
-import { rules, Severity, AlertItem } from "./ExpertSystemRules";
+import { rules, Severity, AlertItem } from "./workflowTabs/ExpertSystemRules";
 
 export type TaskSelection = {
   taskResult: TaskResult;
@@ -37,8 +37,8 @@ type ITileFactoryContext = {
   dag: WorkflowDAG;
   selectedTask: TaskCoordinate | null;
   setSelectedTask: (selectedTask: TaskCoordinate | null) => void;
-  severity: Severity;
-  setSeverity: React.Dispatch<React.SetStateAction<Severity>>;
+  severity: Severity | undefined;
+  setSeverity: React.Dispatch<React.SetStateAction<Severity | undefined>>;
 };
 
 export const TileFactoryContext = React.createContext<ITileFactoryContext>(
@@ -102,10 +102,9 @@ export default function tabLoader(tabBase: TabBase): TabData {
         title: <SummaryTabHead />,
         content: (
           <React.Fragment>
-            <AlertComponent />
             <TileFactoryContext.Consumer>
-              {({ executionAndTasks }) => (
-                <Summary execution={executionAndTasks.execution} />
+              {({ executionAndTasks, setSeverity }) => (
+                <Summary executionAndTasks={executionAndTasks} setSeverity={setSeverity} />
               )}
             </TileFactoryContext.Consumer>
           </React.Fragment>
@@ -266,37 +265,7 @@ export default function tabLoader(tabBase: TabBase): TabData {
   };
 }
 
-function AlertComponent() {
-  const executionAndTasks = useContext(TileFactoryContext).executionAndTasks;
-  const { setSeverity } = useContext(TileFactoryContext);
-  const alerts = useMemo(() => {
-    const allAlerts: AlertItem[] = [];
 
-    rules.forEach((rule) => {
-      const ruleAlerts = rule(executionAndTasks);
-      allAlerts.push(...ruleAlerts);
-    });
-
-    return allAlerts;
-  }, [executionAndTasks]);
-
-  useEffect(() => {
-    const maxSeverity = findMaxSeverity(alerts, undefined);
-    setSeverity(maxSeverity);
-  }, [alerts, setSeverity]);
-
-  if (alerts.length === 0) {
-    return null;
-  }
-
-  return (
-    <Stack sx={{ margin: "15px" }} spacing={2}>
-      {alerts.map((alert, index) => (
-        <React.Fragment key={index}>{alert.component}</React.Fragment>
-      ))}
-    </Stack>
-  );
-}
 
 function SummaryTabHead() {
   const { severity } = useContext(TileFactoryContext);
@@ -327,44 +296,6 @@ function SummaryTabHead() {
   );
 }
 
-const findMaxSeverity = (
-  alerts: AlertItem[],
-  currentMaxSeverity: Severity,
-): Severity => {
-  const compareSeverity = (severity: Severity): number => {
-    switch (severity) {
-      case "ERROR":
-        return 3;
-      case "WARNING":
-        return 2;
-      case "INFO":
-        return 1;
-      default:
-        return 0;
-    }
-  };
-
-  let maxSeverity = compareSeverity(currentMaxSeverity);
-
-  for (const alert of alerts) {
-    const alertSeverity = compareSeverity(alert.severity);
-
-    if (alertSeverity > maxSeverity) {
-      maxSeverity = alertSeverity;
-    }
-  }
-
-  switch (maxSeverity) {
-    case 3:
-      return "ERROR";
-    case 2:
-      return "WARNING";
-    case 1:
-      return "INFO";
-    default:
-      return undefined;
-  }
-};
 
 function TaskSelectionWrapper({ TaskPanel: Tab }: { TaskPanel: any }) {
   const { dag, selectedTask, executionAndTasks } =
