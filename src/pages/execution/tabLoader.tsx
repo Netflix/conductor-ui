@@ -291,7 +291,7 @@ function SummaryTabHead() {
     });
 
     return allAlerts;
-  }, [executionAndTasks, severity]);
+  }, [executionAndTasks, severity, setSeverity]);
 
   setAlerts(alerts);
 
