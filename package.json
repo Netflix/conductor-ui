@@ -67,7 +67,6 @@
     "prettier": "prettier --write .",
     "serve-build": "http-server ./build --port 5000",
     "cypress:open": "cypress open",
-    "cypress:test:component": "BROWSER=none start-server-and-test serve-build http-get://localhost:5000 'cypress run --component'",
     "cypress:test": "BROWSER=none start-server-and-test serve-build http-get://localhost:5000 'cypress run; cypress run --component'"
   },
   "browserslist": {
