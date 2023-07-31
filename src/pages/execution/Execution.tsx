@@ -92,7 +92,7 @@ export default function Execution() {
   const params = useParams<{ id: string }>();
   const dockRef = useRef<DockLayout>(null);
   const [severity, setSeverity] = useState<Severity>("INFO");
-  const [alerts, setAlerts] = useState<AlertItem[]>([]);
+  const [hasAlerts, setHasAlerts] = useState<boolean>(false);
 
   const [layout, setLayout] = useLocalStorageState<LayoutBase>(
     "executionLayout",
@@ -197,8 +197,8 @@ export default function Execution() {
             setSelectedTask,
             severity,
             setSeverity,
-            alerts,
-            setAlerts,
+            hasAlerts,
+            setHasAlerts,
           }}
         >
           <div

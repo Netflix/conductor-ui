@@ -15,7 +15,6 @@ export type Rule = (
   severity: Severity,
 ) => [AlertItem[], Severity];
 
-
 const findMaxSeverity = (
   alerts: AlertItem[],
   currentMaxSeverity: Severity,
@@ -32,7 +31,10 @@ const findMaxSeverity = (
 };
 
 // Rule functions
-const checkPollCountAndCallBackAfterSeconds: Rule = (executionAndTasks, severity) => {
+const checkPollCountAndCallBackAfterSeconds: Rule = (
+  executionAndTasks,
+  severity,
+) => {
   const alerts = [];
   const tasks = executionAndTasks.tasks;
   tasks.forEach((taskResult) => {

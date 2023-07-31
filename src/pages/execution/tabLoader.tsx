@@ -39,8 +39,8 @@ type ITileFactoryContext = {
   setSelectedTask: (selectedTask: TaskCoordinate | null) => void;
   severity: Severity;
   setSeverity: React.Dispatch<React.SetStateAction<Severity>>;
-  alerts: AlertItem[];
-  setAlerts: React.Dispatch<React.SetStateAction<AlertItem[]>>;
+  hasAlerts: boolean;
+  setHasAlerts: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const TileFactoryContext = React.createContext<ITileFactoryContext>(
@@ -113,6 +113,7 @@ export default function tabLoader(tabBase: TabBase): TabData {
           </React.Fragment>
         ),
         group: "workflow",
+        cached: true,
       };
     case "WorkflowJson":
       return {
@@ -265,22 +266,9 @@ export default function tabLoader(tabBase: TabBase): TabData {
 }
 
 function AlertComponent() {
-  const { alerts } = useContext(TileFactoryContext);
-  if (alerts.length === 0) {
-    return null;
-  }
-  return (
-    <Stack sx={{ margin: "15px" }} spacing={2}>
-      {alerts.map((alert, index) => (
-        <React.Fragment key={index}>{alert.component}</React.Fragment>
-      ))}
-    </Stack>
-  );
-}
-
-function SummaryTabHead() {
   const executionAndTasks = useContext(TileFactoryContext).executionAndTasks;
-  const { severity, setSeverity, setAlerts } = useContext(TileFactoryContext);
+  const { severity, setSeverity, setHasAlerts } =
+    useContext(TileFactoryContext);
   const alerts = useMemo(() => {
     const allAlerts: AlertItem[] = [];
 
@@ -293,9 +281,24 @@ function SummaryTabHead() {
     return allAlerts;
   }, [executionAndTasks, severity, setSeverity]);
 
-  setAlerts(alerts);
-
   if (alerts.length === 0) {
+    return null;
+  }
+  setHasAlerts(true);
+
+  return (
+    <Stack sx={{ margin: "15px" }} spacing={2}>
+      {alerts.map((alert, index) => (
+        <React.Fragment key={index}>{alert.component}</React.Fragment>
+      ))}
+    </Stack>
+  );
+}
+
+function SummaryTabHead() {
+  const { severity, hasAlerts } = useContext(TileFactoryContext);
+
+  if (!hasAlerts) {
     return (
       <div>
         <span style={{ marginRight: "5px" }}>Summary</span>
