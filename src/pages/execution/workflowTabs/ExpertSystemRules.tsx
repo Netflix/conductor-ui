@@ -14,8 +14,10 @@ export type AlertItem = {
 export type Rule = (executionAndTasks: ExecutionAndTasks) => AlertItem[];
 
 // Rule functions
-export const checkPollCountAndCallBackAfterSeconds: Rule = (executionAndTasks) => {
-  const alerts: AlertItem[]= [];
+export const checkPollCountAndCallBackAfterSeconds: Rule = (
+  executionAndTasks,
+) => {
+  const alerts: AlertItem[] = [];
   const tasks = executionAndTasks.tasks;
   tasks.forEach((taskResult) => {
     //detect multiple polls and callbackafterseconds >0

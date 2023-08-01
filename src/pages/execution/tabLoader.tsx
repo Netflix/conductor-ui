@@ -104,7 +104,10 @@ export default function tabLoader(tabBase: TabBase): TabData {
           <React.Fragment>
             <TileFactoryContext.Consumer>
               {({ executionAndTasks, setSeverity }) => (
-                <Summary executionAndTasks={executionAndTasks} setSeverity={setSeverity} />
+                <Summary
+                  executionAndTasks={executionAndTasks}
+                  setSeverity={setSeverity}
+                />
               )}
             </TileFactoryContext.Consumer>
           </React.Fragment>
@@ -265,8 +268,6 @@ export default function tabLoader(tabBase: TabBase): TabData {
   };
 }
 
-
-
 function SummaryTabHead() {
   const { severity } = useContext(TileFactoryContext);
 
@@ -295,7 +296,6 @@ function SummaryTabHead() {
     </div>
   );
 }
-
 
 function TaskSelectionWrapper({ TaskPanel: Tab }: { TaskPanel: any }) {
   const { dag, selectedTask, executionAndTasks } =

@@ -4,13 +4,19 @@ import { useAppContext } from "../../../export";
 import { ExecutionAndTasks } from "../../../types/execution";
 import WorkflowAlerts from "./WorkflowAlerts";
 
-export default function Summary({ executionAndTasks, setSeverity }:{executionAndTasks: ExecutionAndTasks, setSeverity: Function}) {
+export default function Summary({
+  executionAndTasks,
+  setSeverity,
+}: {
+  executionAndTasks: ExecutionAndTasks;
+  setSeverity: Function;
+}) {
   const { customExecutionSummaryRows } = useAppContext();
 
   // To accommodate unexecuted tasks, read type & name out of workflowTask
-  const {execution} = executionAndTasks;
+  const { execution } = executionAndTasks;
 
-  const data:any = [
+  const data: any = [
     { label: "Workflow ID", value: execution.workflowId },
     { label: "Status", value: execution.status },
     { label: "Version", value: execution.workflowVersion },
@@ -18,7 +24,10 @@ export default function Summary({ executionAndTasks, setSeverity }:{executionAnd
     { label: "End Time", value: execution.endTime, type: "date" },
     {
       label: "Duration",
-      value: execution.endTime && execution.startTime && (execution.endTime - execution.startTime),
+      value:
+        execution.endTime &&
+        execution.startTime &&
+        execution.endTime - execution.startTime,
       type: "duration",
     },
   ];
@@ -72,8 +81,13 @@ export default function Summary({ executionAndTasks, setSeverity }:{executionAnd
     })),
   );
 
-  return <div> 
-    <WorkflowAlerts executionAndTasks={executionAndTasks} setSeverity={setSeverity}/>
-    <KeyValueTable data={data}/>
-  </div>;
+  return (
+    <div>
+      <WorkflowAlerts
+        executionAndTasks={executionAndTasks}
+        setSeverity={setSeverity}
+      />
+      <KeyValueTable data={data} />
+    </div>
+  );
 }

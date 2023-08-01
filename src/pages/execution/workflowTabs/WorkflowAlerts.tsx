@@ -3,15 +3,23 @@ import Stack from "@mui/material/Stack";
 import { rules, Severity, AlertItem } from ".//ExpertSystemRules";
 import { ExecutionAndTasks } from "../../../types/execution";
 
-export default function WorkflowAlerts({ executionAndTasks, setSeverity }: { executionAndTasks: ExecutionAndTasks, setSeverity: Function }) {
+export default function WorkflowAlerts({
+  executionAndTasks,
+  setSeverity,
+}: {
+  executionAndTasks: ExecutionAndTasks;
+  setSeverity: Function;
+}) {
   const alerts = useMemo(() => {
     const allAlerts: AlertItem[] = [];
-
-    rules.forEach((rule) => {
-      const ruleAlerts = rule(executionAndTasks);
-      allAlerts.push(...ruleAlerts);
-    });
-
+    try {
+      rules.forEach((rule) => {
+        const ruleAlerts = rule(executionAndTasks);
+        allAlerts.push(...ruleAlerts);
+      });
+    } catch (e) {
+      console.log("error evaluating rules", e);
+    }
     return allAlerts;
   }, [executionAndTasks]);
 
@@ -59,11 +67,7 @@ const levelToSeverity = (level: number): Severity | undefined => {
   }
 };
 
-
-const findMaxSeverity = (
-  alerts: AlertItem[],
-) => {
-
+const findMaxSeverity = (alerts: AlertItem[]) => {
   let maxSeverity = 0;
 
   for (const alert of alerts) {
