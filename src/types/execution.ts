@@ -34,6 +34,9 @@ type BaseTaskResult = {
   retried?: boolean;
   domain?: string;
   workflowTask?: TaskConfig;
+  pollCount?: number;
+  updateTime?: number;
+  callbackAfterSeconds?: number;
 };
 
 export type ForkTaskResultType = "FORK" | "FORK_JOIN" | "FORK_JOIN_DYNAMIC"; //FORK is legacy.
@@ -87,4 +90,10 @@ export type Execution = {
   workflowDefinition: WorkflowDef;
   reasonForIncompletion?: string;
   workflowEngine?: string;
+  workflowVersion?: string;
+  startTime?: number;
+  endTime?: number;
+  parentWorkflowTaskId?: string;
+  externalInputPayloadStoragePath?: string; // TODO: can be removed for conductor 4
+  externalOutputPayloadStoragePath?: string; // TODO: can be removed for conductor 4
 };

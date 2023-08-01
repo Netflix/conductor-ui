@@ -678,7 +678,7 @@ describe("Static Fork", () => {
     });
 
     it("Retry history can be retrieved", () => {
-      const taskResults = dag.getTaskResultsByRef("static_fork_task_3");
+      const taskResults = dag.getTaskResultsByRef("x");
       assert.equal(taskResults?.[0].status, "FAILED");
       assert.equal(taskResults?.[1].status, "COMPLETED");
     });

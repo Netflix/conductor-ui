@@ -23,6 +23,7 @@ import WorkflowVariables from "./workflowTabs/WorkflowVariables";
 import WorkflowJson from "./workflowTabs/WorkflowJson";
 import { TabBase, TabData } from "rc-dock";
 import SiblingSelector from "./taskTabs/SiblingSelector";
+import { Severity } from "./workflowTabs/ExpertSystemRules";
 
 export type TaskSelection = {
   taskResult: TaskResult;
@@ -35,6 +36,8 @@ type ITileFactoryContext = {
   dag: WorkflowDAG;
   selectedTask: TaskCoordinate | null;
   setSelectedTask: (selectedTask: TaskCoordinate | null) => void;
+  severity: Severity | undefined;
+  setSeverity: React.Dispatch<React.SetStateAction<Severity | undefined>>;
 };
 
 export const TileFactoryContext = React.createContext<ITileFactoryContext>(
@@ -95,15 +98,21 @@ export default function tabLoader(tabBase: TabBase): TabData {
     case "WorkflowSummary":
       return {
         id: "WorkflowSummary",
-        title: "Summary",
+        title: <SummaryTabHead />,
         content: (
-          <TileFactoryContext.Consumer>
-            {({ executionAndTasks }) => (
-              <Summary execution={executionAndTasks.execution} />
-            )}
-          </TileFactoryContext.Consumer>
+          <React.Fragment>
+            <TileFactoryContext.Consumer>
+              {({ executionAndTasks, setSeverity }) => (
+                <Summary
+                  executionAndTasks={executionAndTasks}
+                  setSeverity={setSeverity}
+                />
+              )}
+            </TileFactoryContext.Consumer>
+          </React.Fragment>
         ),
         group: "workflow",
+        cached: true,
       };
     case "WorkflowJson":
       return {
@@ -256,6 +265,35 @@ export default function tabLoader(tabBase: TabBase): TabData {
     id: "Unknown",
     content: <div>Unknown</div>,
   };
+}
+
+function SummaryTabHead() {
+  const { severity } = useContext(TileFactoryContext);
+
+  let dotColor;
+  if (severity === "ERROR") {
+    dotColor = "red";
+  } else if (severity === "WARNING") {
+    dotColor = "orange";
+  } else {
+    dotColor = "blue";
+  }
+
+  return (
+    <div style={{ display: "flex", alignItems: "center" }}>
+      <span style={{ marginRight: "5px" }}>Summary</span>
+      {!!severity && (
+        <div
+          style={{
+            width: "10px",
+            height: "10px",
+            backgroundColor: dotColor,
+            borderRadius: "50%",
+          }}
+        />
+      )}
+    </div>
+  );
 }
 
 function TaskSelectionWrapper({ TaskPanel: Tab }: { TaskPanel: any }) {

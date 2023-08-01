@@ -4,7 +4,9 @@ import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 
 const ClipboardButton = ({ textToCopy }) => {
-  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | undefined>(undefined);
+  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | undefined>(
+    undefined,
+  );
 
   const handleCopyToClipboard = () => {
     clearTimeout(timeoutId); // Clear the previous timeout
