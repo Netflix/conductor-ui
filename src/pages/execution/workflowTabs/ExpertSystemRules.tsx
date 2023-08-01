@@ -14,7 +14,7 @@ export type AlertItem = {
 export type Rule = (executionAndTasks: ExecutionAndTasks) => AlertItem[];
 
 // Rule functions
-const checkPollCountAndCallBackAfterSeconds: Rule = (executionAndTasks) => {
+export const checkPollCountAndCallBackAfterSeconds: Rule = (executionAndTasks) => {
   const alerts: AlertItem[]= [];
   const tasks = executionAndTasks.tasks;
   tasks.forEach((taskResult) => {
