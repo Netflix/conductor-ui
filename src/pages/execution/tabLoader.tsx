@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo } from "react";
+import React, { useContext, useMemo } from "react";
 import TaskInput from "./taskTabs/TaskInput";
 import TaskOutput from "./taskTabs/TaskOutput";
 import TaskSummary from "./taskTabs/TaskSummary";
@@ -23,8 +23,7 @@ import WorkflowVariables from "./workflowTabs/WorkflowVariables";
 import WorkflowJson from "./workflowTabs/WorkflowJson";
 import { TabBase, TabData } from "rc-dock";
 import SiblingSelector from "./taskTabs/SiblingSelector";
-import Stack from "@mui/material/Stack";
-import { rules, Severity, AlertItem } from "./workflowTabs/ExpertSystemRules";
+import { Severity } from "./workflowTabs/ExpertSystemRules";
 
 export type TaskSelection = {
   taskResult: TaskResult;

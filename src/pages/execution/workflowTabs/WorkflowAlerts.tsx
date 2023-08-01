@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import Stack from "@mui/material/Stack";
 import { rules, Severity, AlertItem } from ".//ExpertSystemRules";
 import { ExecutionAndTasks } from "../../../types/execution";
