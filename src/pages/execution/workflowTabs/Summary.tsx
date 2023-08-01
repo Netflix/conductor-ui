@@ -18,7 +18,7 @@ export default function Summary({ executionAndTasks, setSeverity }:{executionAnd
     { label: "End Time", value: execution.endTime, type: "date" },
     {
       label: "Duration",
-      value: execution.endTime - execution.startTime,
+      value: execution.endTime && execution.startTime && (execution.endTime - execution.startTime),
       type: "duration",
     },
   ];

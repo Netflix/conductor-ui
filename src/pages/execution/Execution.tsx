@@ -24,6 +24,7 @@ import { MoreHoriz } from "@mui/icons-material";
 import tabLoader from "./tabLoader";
 import useLocalStorageState from "use-local-storage-state";
 import _ from "lodash";
+import React from "react";
 
 const defaultLayout: any = {
   dockbox: {
