@@ -30,9 +30,9 @@ export const checkPollCountAndCallBackAfterSeconds: Rule = (
         !isNaN(taskResult.updateTime!) && taskResult.updateTime! > 0
           ? timestampRenderer(taskResult.updateTime)
           : "N/A";
-      let alertMessage = `This task may have been picked up by a worker but returned to Conductor unprocessed.`;
+      let alertMessage = `This task was picked up by worker ${taskResult.workerId} but returned to Conductor for delayed processing.`;
       if (taskResult.callbackAfterSeconds! > 0)
-        alertMessage += ` Because the callBackAfterSeconds is set to ${taskResult.callbackAfterSeconds} seconds by the worker, Conductor will not retry the task until task time passes.`;
+        alertMessage += ` Because the callBackAfterSeconds is set to ${taskResult.callbackAfterSeconds} seconds by the worker, Conductor will not reschedule the task until task time passes.`;
       const newAlertItem: AlertItem = {
         component: <Alert severity="info">{alertMessage}</Alert>,
         severity: "INFO",
