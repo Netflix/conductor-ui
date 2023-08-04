@@ -25,7 +25,7 @@ export const checkPollCountAndCallBackAfterSeconds: Rule = (
       taskResult.pollCount > 1 &&
       taskResult.status === "SCHEDULED"
     ) {
-      let alertMessage = `This task was picked up by worker ${taskResult.workerId} but returned to Conductor for delayed processing.`;
+      let alertMessage = `Task "${taskResult.referenceTaskName}" was picked up by worker ${taskResult.workerId} but returned to Conductor for delayed processing.`;
       if (taskResult.callbackAfterSeconds! > 0)
         alertMessage += ` Because the callBackAfterSeconds is set to ${taskResult.callbackAfterSeconds} seconds by the worker, Conductor will not reschedule the task until task time passes.`;
       const newAlertItem: AlertItem = {
