@@ -131,7 +131,7 @@ export const checkTasksScheduledForLongTime: Rule = (executionAndTasks) => {
           alertMessage += ".";
         }
         const newAlertItem: AlertItem = {
-          component: <Alert severity="info">{alertMessage}</Alert>,
+          component: <Alert severity="warning">{alertMessage}</Alert>,
           severity: "WARNING",
         };
         alerts.push(newAlertItem);
