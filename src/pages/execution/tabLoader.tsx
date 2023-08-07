@@ -276,7 +276,7 @@ function SummaryTabHead() {
   } else if (severity === "WARNING") {
     dotColor = "orange";
   } else {
-    dotColor = "blue";
+    dotColor = "rgba(0, 128, 255, 0.6)";
   }
 
   return (
