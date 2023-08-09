@@ -88,7 +88,7 @@ export function useWorkflowDef(
   return useFetch<WorkflowDef>(
     key,
     path,
-    { ...reactQueryOptions, enabled: !!workflowName },
+    { ...reactQueryOptions },
     defaultWorkflow,
   );
 }
