@@ -173,7 +173,7 @@ export function useWorkflowTask(
 
   const key = ["task", taskId];
 
-  return useFetch(key, path, {
+  return useFetch(key as string[], path, {
     enabled: !!taskId,
     keepPreviousData: false,
   });
@@ -198,7 +198,7 @@ export function useWorkflowTaskInput(
 ) {
   let path = `/tasks/${taskId}`;
 
-  return useFetch(["task", taskId], path, {
+  return useFetch(["task", taskId!], path, {
     enabled: !!taskId,
     select: (data) => data.inputData,
   });
