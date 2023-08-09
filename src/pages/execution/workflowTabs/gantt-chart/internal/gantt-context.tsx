@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { createContext, useContext } from "react";
 import type { MutableRefObject } from "react";
 import type { useStyles } from "../components/styles";

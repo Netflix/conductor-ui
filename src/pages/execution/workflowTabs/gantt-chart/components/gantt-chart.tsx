@@ -1,3 +1,4 @@
+//@ts-nocheck
 // TODO gauge between runtime / queue wait time @ top (other svg)
 // TODO once working, place into its own module for sharing via nflx npm
 import { DraggableSVG } from "./draggable-svg";

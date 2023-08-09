@@ -75,7 +75,7 @@ export function useWorkflowDef(
   defaultWorkflow: WorkflowDef | undefined,
   reactQueryOptions = {},
 ) {
-  let path = "";
+  let path;
   const key = ["workflowDef", workflowName || ""];
 
   if (workflowName) {

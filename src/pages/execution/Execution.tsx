@@ -1,4 +1,4 @@
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useState } from "react";
 import rison from "rison";
 import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
@@ -6,6 +6,7 @@ import { useExecutionAndTasks, useWorkflowDag } from "../../data/execution";
 import { TaskCoordinate } from "../../types/workflowDef";
 import { Alert, AlertTitle } from "@mui/material";
 import { TileFactoryContext } from "./tabLoader";
+import { Severity } from "./workflowTabs/ExpertSystemRules";
 
 import "../../components/rc-dock.css";
 import DockLayout, {
@@ -23,6 +24,7 @@ import { MoreHoriz } from "@mui/icons-material";
 import tabLoader from "./tabLoader";
 import useLocalStorageState from "use-local-storage-state";
 import _ from "lodash";
+import React from "react";
 
 const defaultLayout: any = {
   dockbox: {
@@ -90,6 +92,8 @@ const defaultLayout: any = {
 export default function Execution() {
   const params = useParams<{ id: string }>();
   const dockRef = useRef<DockLayout>(null);
+  const [severity, setSeverity] = useState<Severity | undefined>(undefined);
+
   const [layout, setLayout] = useLocalStorageState<LayoutBase>(
     "executionLayout",
     {
@@ -191,6 +195,8 @@ export default function Execution() {
             dag,
             selectedTask,
             setSelectedTask,
+            severity,
+            setSeverity,
           }}
         >
           <div

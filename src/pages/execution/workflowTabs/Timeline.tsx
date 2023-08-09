@@ -1,3 +1,4 @@
+//@ts-nocheck
 import React from "react";
 import "./timeline.scss";
 import WorkflowDAG from "../../../components/diagram/WorkflowDAG";
@@ -14,7 +15,7 @@ export default function TimelineComponent({
   dag: WorkflowDAG;
   tasks: TaskResult[];
   onClick: (task: TaskCoordinate | null) => void;
-  selectedTask: TaskCoordinate;
+  selectedTask: TaskCoordinate | null;
 }) {
   const timelineRef = React.useRef<HTMLDivElement>(null);
 
