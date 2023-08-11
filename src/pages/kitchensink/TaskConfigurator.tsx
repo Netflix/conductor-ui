@@ -1,17 +1,12 @@
 import { Form, Formik } from "formik";
 import { useCallback, useEffect, useState } from "react";
-import { Button, FormikInput, FormikJsonInput, Paper } from "../../components";
+import { Button, FormikJsonInput } from "../../components";
 import ReactDataGrid from "@inovua/reactdatagrid-community";
 import { ToggleButtonGroup, ToggleButton } from "@mui/material";
+import { TypeEditInfo } from "@inovua/reactdatagrid-community/types";
 
 const gridStyle = {
   minHeight: 550,
-};
-
-const cellStyle = {
-  border: "1px solid #ccc", // Add border to each cell
-  padding: "8px", // Add some padding to the cells for spacing
-  backgroundColor: "red !important",
 };
 
 const renderCell = ({ value }) => {
@@ -61,6 +56,7 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
   const [parameterOrExpression, setParameterOrExpression] =
     useState("parameter");
   const [updatedJsonState, setUpdatedJsonState] = useState(initialConfig);
+  const [shouldResetForm, setShouldResetForm] = useState(false);
 
   const simpleTaskOptionalParameters = [
     {
@@ -122,8 +118,11 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
     },
   ];
 
+  // eslint-disable-next-line
   useEffect(() => {
-    for (const param of simpleTaskOptionalParameters) {
+    let updatedParameters = [...simpleTaskOptionalParameters]; // Clone the array
+
+    for (const param of updatedParameters) {
       if (initialConfig.hasOwnProperty(param.key)) {
         const newValue = initialConfig[param.key];
         if (param.value !== newValue) {
@@ -132,14 +131,18 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
         }
       }
     }
-    setDataSource(simpleTaskOptionalParameters);
+    setDataSource(updatedParameters);
     setUpdatedJsonState(initialConfig);
+    // eslint-disable-next-line
   }, [initialConfig]);
 
   const [dataSource, setDataSource] = useState(simpleTaskOptionalParameters);
 
+  // eslint-disable-next-line
   const onEditComplete = useCallback(
-    ({ value, columnId, rowId }) => {
+    (editInfo: TypeEditInfo) => {
+      const { value, columnId, rowId } = editInfo;
+      if (!value) return;
       const data = [...dataSource];
       if (data[rowId][columnId].toString() === value.toString()) return;
       data[rowId][columnId] = value;
@@ -157,7 +160,7 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
             edittedJson[item.key] = true;
           else throw new TypeError("must be boolean");
         } else if (item.type === "int") {
-          edittedJson[item.key] = parseInt(item.value, 10);
+          edittedJson[item.key] = item.value;
         } else edittedJson[item.key] = item.value;
       });
       const originalObject = updatedJsonState;
@@ -170,6 +173,7 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
 
       setUpdatedJsonState(originalObject);
     },
+    // eslint-disable-next-line
     [dataSource],
   );
 
@@ -201,29 +205,29 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
   useEffect(() => {
     // Update formState based on initialConfig
     setFormState({
-        inputParameters: JSON.stringify(initialConfig.inputParameters),
-        inputExpression: JSON.stringify(initialConfig.inputExpression)
+      inputParameters: JSON.stringify(initialConfig.inputParameters),
+      inputExpression: JSON.stringify(initialConfig.inputExpression),
     });
-}, [initialConfig]);
+  }, [initialConfig]);
 
-const handleSubmit = (values) => {
-  setFormState(values);
-  let newJsonState;
-  if (parameterOrExpression === "expression") {
-    newJsonState = {
-      ...updatedJsonState,
-      ["inputExpression"]: JSON.parse(values.inputExpression),
-      ["inputParameters"]: {},
-    };
-  } else {
-    newJsonState = {
-      ...updatedJsonState,
-      ["inputParameters"]: JSON.parse(values.inputParameters),
-      ["inputExpression"]: {},
-    };
-  }
-  setUpdatedJsonState(newJsonState);
-  onUpdate(newJsonState);
+  const handleSubmit = (values) => {
+    setFormState(values);
+    let newJsonState;
+    if (parameterOrExpression === "expression") {
+      newJsonState = {
+        ...updatedJsonState,
+        inputExpression: JSON.parse(values.inputExpression),
+        inputParameters: {},
+      };
+    } else {
+      newJsonState = {
+        ...updatedJsonState,
+        inputParameters: JSON.parse(values.inputParameters),
+        inputExpression: {},
+      };
+    }
+    setUpdatedJsonState(newJsonState);
+    onUpdate(newJsonState);
 };
 
   return (
@@ -235,7 +239,6 @@ const handleSubmit = (values) => {
         editable={true}
         columns={columns}
         dataSource={dataSource}
-        cellStyle={cellStyle}
         showCellBorders="horizontal"
         theme="conductor-light"
         key={refreshKey}
@@ -246,16 +249,13 @@ const handleSubmit = (values) => {
         enableReinitialize={true}
       >
         {(formikProps) => {
-          // Destructure resetForm from the Formik bag
           const { resetForm } = formikProps;
 
-          // Use a useEffect hook to reset the form when formState changes
-          useEffect(() => {
-            console.log("Current formState:", formState);
+          if (shouldResetForm) {
             resetForm({ values: formState });
-          }, [formState, resetForm]); // Including resetForm in the dependency array for completeness
+            setShouldResetForm(false);
+          }
 
-          // Return the Form component with all its children
           return (
             <Form>
               <ToggleButtonGroup
@@ -282,14 +282,12 @@ const handleSubmit = (values) => {
                 <FormikJsonInput
                   key="parameter"
                   label="Input Parameters"
-                  name="inputParameters"
-                />
+                  name="inputParameters" className={undefined} height={undefined}                />
               ) : (
                 <FormikJsonInput
-                  key="expression"
-                  label="Input Expression"
-                  name="inputExpression"
-                />
+                    key="expression"
+                    label="Input Expression"
+                    name="inputExpression" className={undefined} height={undefined}                />
               )}
 
               <Button type="submit">Submit</Button>
