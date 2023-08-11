@@ -65,7 +65,7 @@ export default function ({
         height={height || 90}
         defaultLanguage="json"
         onMount={handleEditorMount}
-        defaultValue={field.value}
+        value={field.value}
         options={{
           tabSize: 2,
           minimap: { enabled: false },

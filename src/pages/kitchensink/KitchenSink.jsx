@@ -50,7 +50,6 @@ import FormikInput from "../../components/formik/FormikInput";
 import FormikJsonInput from "../../components/formik/FormikJsonInput";
 import Dropdown from "./Dropdown";
 import { ContextMenu } from "mui-nested-menu";
-
 const useStyles = makeStyles(sharedStyles);
 
 export default function KitchenSink() {
@@ -200,7 +199,7 @@ const FormikSection = () => {
         </Form>
       </Formik>
       <code>
-        <pre>{JSON.stringify(formState)}</pre>
+        <pre>{JSON.stringify(formState, null, 2)}</pre>
       </code>
     </Paper>
   );

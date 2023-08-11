@@ -21,6 +21,7 @@ import Examples from "./pages/kitchensink/Examples";
 import Gantt from "./pages/kitchensink/Gantt";
 import Workbench from "./pages/workbench/Workbench";
 import RcDockTest from "./pages/kitchensink/RCDockTest";
+import TaskConfiguratorPage from "./pages/kitchensink/TaskConfiguratorPage";
 
 // For RDG
 import "@inovua/reactdatagrid-community/base.css";
@@ -93,6 +94,10 @@ export default function App({
           <Route path="/kitchen/examples" element={<Examples />} />
           <Route path="/kitchen/gantt" element={<Gantt />} />
           <Route path="/kitchen/rcdock" element={<RcDockTest />} />
+          <Route
+            path="/kitchen/taskConfigurator"
+            element={<TaskConfiguratorPage />}
+          />
 
           {customRoutes}
         </Routes>
