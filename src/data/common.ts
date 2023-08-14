@@ -30,13 +30,14 @@ export function useFetch<TData>(
   defaultResponse?: any,
 ) {
   const { fetchWithContext, ready, stack } = useAppContext();
-
+  console.log('useFetch', path)
   return useQuery<TData>(
     [stack, ...key],
     () => {
       if (path) {
         return fetchWithContext(path);
       } else {
+        console.log('default')
         return Promise.resolve(defaultResponse);
       }
     },

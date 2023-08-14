@@ -36,7 +36,7 @@ export default function Workflow() {
   const workflowName = params.name as string;
   const workflowVersion = params.version as string;
   const [workflowDef, setWorkflowDef] = useState<WorkflowDef | undefined>(
-    undefined,
+    NEW_WORKFLOW_TEMPLATE,
   );
   const [selectedTask, setSelectedTask] = useState<TaskCoordinate | null>(null);
 
@@ -45,6 +45,8 @@ export default function Workflow() {
     isFetching,
     refetch: refetchWorkflow,
   } = useWorkflowDef(workflowName, workflowVersion, NEW_WORKFLOW_TEMPLATE);
+
+  console.log(remoteWorkflowDef, workflowDef);
 
   useEffect(() => {
     setWorkflowDef(remoteWorkflowDef);

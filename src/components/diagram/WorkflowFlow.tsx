@@ -331,7 +331,7 @@ export default function WorkflowFlow({ dag }: WorkflowGraphProps) {
     });
     return edges;
   }, [graph]);
-
+  console.log(nodes);
   console.log(graph.edges());
   //console.log(graph.edge(graph.edges()[27]));
 /*

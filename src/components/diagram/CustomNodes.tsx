@@ -54,7 +54,8 @@ export const SWITCH_WIDTH = 300;
 export const SWITCH_HEIGHT = 80;
 export const SWITCH_LAYOUT_WIDTH = 80;
 
-export const SwitchNode = ({ id, data }: any) => {
+export const SwitchNode = ({ id, data, width, height}: any) => {
+  console.log(data, width, height);
   return <div>
     <Handle type="target" position={Position.Top} />
 
