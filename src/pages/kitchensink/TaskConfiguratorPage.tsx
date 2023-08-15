@@ -24,6 +24,7 @@ const TaskConfiguratorPage = () => {
   const handleTaskConfiguratorUpdate = (updatedState) => {
     setParentJsonState(updatedState);
   };
+  console.log(initialConfig);
 
   return (
     <Paper padded>

@@ -4,48 +4,14 @@ import { Button, FormikJsonInput } from "../../components";
 import ReactDataGrid from "@inovua/reactdatagrid-community";
 import { ToggleButtonGroup, ToggleButton } from "@mui/material";
 import { TypeEditInfo } from "@inovua/reactdatagrid-community/types";
+import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
+import SelectEditor from "@inovua/reactdatagrid-community/SelectEditor";
+import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
 
 const gridStyle = {
-  minHeight: 550,
+  minHeight: 320,
+  margin: "15px 0",
 };
-
-const renderCell = ({ value }) => {
-  return value.toString(); // Custom rendering for boolean values
-};
-
-const columns = [
-  {
-    name: "id",
-    header: "Id",
-    defaultVisible: false,
-    minWidth: 300,
-    type: "number",
-  },
-  {
-    name: "key",
-    header: "Key",
-    defaultFlex: 1,
-    minWidth: 250,
-    editable: false,
-    render: ({ value, data }) => (
-      <span>
-        {data.changed ? (
-          <span>
-            <span style={{ fontWeight: "bold" }}>{value}</span>
-            <span style={{ fontWeight: "bold" }}> (Changed)</span>
-          </span>
-        ) : (
-          value
-        )}
-        {data.required ? <span style={{ color: "red" }}>*</span> : null}
-      </span>
-    ),
-  },
-  { name: "value", header: "Value", defaultFlex: 1, render: renderCell },
-  { name: "changed", header: "Changed", defaultVisible: false },
-  { name: "required", header: "Required", defaultVisible: false },
-  { name: "type", header: "Type", defaultVisible: false },
-];
 
 const TaskConfigurator = ({ initialConfig, onUpdate }) => {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -82,8 +48,6 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
       required: false,
       type: "boolean",
     },
-    // {id: 3, key : "inputParameters", value: "", changed: false, required: false},
-    // {id: 4, key : "inputExpression", value: "", changed: false, required: false},
     {
       id: 3,
       key: "asyncComplete",
@@ -116,6 +80,71 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
       required: false,
       type: "int",
     },
+  ];
+
+  const renderCell = ({ value }) => {
+    return value.toString();
+  };
+
+  const columns = [
+    {
+      name: "id",
+      header: "Id",
+      defaultVisible: false,
+      minWidth: 300,
+      type: "number",
+    },
+    {
+      name: "key",
+      header: "Key",
+      defaultFlex: 1,
+      minWidth: 250,
+      editable: false,
+      render: ({ value, data }) => (
+        <span>
+          {data.changed ? (
+            <span>
+              <span style={{ fontWeight: "bold" }}>{value}</span>
+            </span>
+          ) : (
+            value
+          )}
+          {data.required ? <span style={{ color: "red" }}>*</span> : null}
+        </span>
+      ),
+    },
+    {
+      name: "value",
+      header: "Value",
+      defaultFlex: 1,
+      render: renderCell,
+      renderEditor: (Props) => {
+        const { data } = Props.cellProps;
+        console.log(Props);
+
+        const selectEditorProps = {
+          idProperty: "id",
+          dataSource: [
+            { id: "true", label: "true" },
+            { id: "false", label: "false" },
+          ],
+          collapseOnSelect: true,
+          clearIcon: null,
+        };
+
+        switch (data.type) {
+          case "int":
+            return <NumericEditor {...Props} />;
+          case "boolean":
+            return <SelectEditor {...Props} editorProps={selectEditorProps} />;
+          default:
+            return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
+        }
+      },
+    },
+    { name: "changed", header: "Changed", defaultVisible: false },
+    { name: "required", header: "Required", defaultVisible: false },
+    { name: "type", header: "Type", defaultVisible: false },
   ];
 
   // eslint-disable-next-line
@@ -160,18 +189,18 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
             edittedJson[item.key] = true;
           else throw new TypeError("must be boolean");
         } else if (item.type === "int") {
-          edittedJson[item.key] = item.value;
+          edittedJson[item.key] = parseInt(item.value.toString());
         } else edittedJson[item.key] = item.value;
       });
-      const originalObject = updatedJsonState;
+      const originalObject = { ...updatedJsonState };
 
       // Step 2: Merge the properties from edittedJson into the original object
       for (const key in edittedJson) {
         originalObject[key] = edittedJson[key];
-        console.log(key);
       }
 
       setUpdatedJsonState(originalObject);
+      console.log("edited", initialConfig);
     },
     // eslint-disable-next-line
     [dataSource],
@@ -186,8 +215,8 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
 
   const clearFormValues = () => {
     const newFormValues = {
-      inputParameters: "",
-      inputExpression: "",
+      inputParameters: "{}",
+      inputExpression: "{}",
     };
 
     setFormState(newFormValues); // Clear the form values
@@ -228,7 +257,15 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
     }
     setUpdatedJsonState(newJsonState);
     onUpdate(newJsonState);
-};
+  };
+
+  const getRowStyle = (data) => {
+    console.log(data.changed);
+    if (data.data.changed) {
+      return { backgroundColor: "#e8f5e9" };
+    }
+    return {};
+  };
 
   return (
     <div>
@@ -237,11 +274,12 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
         style={gridStyle}
         onEditComplete={onEditComplete}
         editable={true}
-        columns={columns}
+        columns={columns as any}
         dataSource={dataSource}
-        showCellBorders="horizontal"
+        showCellBorders={true}
         theme="conductor-light"
         key={refreshKey}
+        rowStyle={getRowStyle}
       />
       <Formik
         initialValues={formState}
@@ -263,6 +301,7 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
                 exclusive
                 onChange={handleToggleButtonChange}
                 aria-label="toggle between parameter and expression"
+                style={{ marginBottom: "15px" }}
               >
                 <ToggleButton value="parameter" aria-label="use parameter">
                   Use Input Parameters
@@ -273,24 +312,26 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
               </ToggleButtonGroup>
 
               {parameterOrExpression === "parameter" ? (
-                <span>Selected: Use Input Parameter</span>
-              ) : (
-                <span>Selected: Use Input Expression</span>
-              )}
-
-              {parameterOrExpression === "parameter" ? (
                 <FormikJsonInput
                   key="parameter"
                   label="Input Parameters"
-                  name="inputParameters" className={undefined} height={undefined}                />
+                  name="inputParameters"
+                  className={undefined}
+                  height={undefined}
+                />
               ) : (
                 <FormikJsonInput
-                    key="expression"
-                    label="Input Expression"
-                    name="inputExpression" className={undefined} height={undefined}                />
+                  key="expression"
+                  label="Input Expression"
+                  name="inputExpression"
+                  className={undefined}
+                  height={undefined}
+                />
               )}
 
-              <Button type="submit">Submit</Button>
+              <Button style={{ marginTop: "15px" }} type="submit">
+                Submit
+              </Button>
             </Form>
           );
         }}
