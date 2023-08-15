@@ -1,28 +1,19 @@
-import { Form, Formik } from "formik";
 import { useCallback, useEffect, useState } from "react";
-import { Button, FormikJsonInput } from "../../components";
+import { Button } from "../../components";
 import ReactDataGrid from "@inovua/reactdatagrid-community";
-import { ToggleButtonGroup, ToggleButton } from "@mui/material";
 import { TypeEditInfo } from "@inovua/reactdatagrid-community/types";
 import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
 import SelectEditor from "@inovua/reactdatagrid-community/SelectEditor";
 import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
 
 const gridStyle = {
-  minHeight: 362.5,
+  minHeight: 442.5,
   margin: "15px 0"
 };
 
-const TaskConfigurator = ({ initialConfig, onUpdate }) => {
+const InlineTaskConfigurator = ({ initialConfig, onUpdate }) => {
   const [refreshKey, setRefreshKey] = useState(0);
-  const [formState, setFormState] = useState({
-    inputParameters: JSON.stringify(initialConfig.inputParameters),
-    inputExpression: JSON.stringify(initialConfig.inputExpression),
-  });
-  const [parameterOrExpression, setParameterOrExpression] =
-    useState("parameter");
   const [updatedJsonState, setUpdatedJsonState] = useState(initialConfig);
-  const [shouldResetForm, setShouldResetForm] = useState(false);
 
   const simpleTaskOptionalParameters = [
     {
@@ -88,6 +79,22 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
       required: false,
       type: "int",
     },
+    {
+        id: 8,
+        key: "evaluatorType",
+        value: "javascript",
+        changed: false,
+        required: true,
+        type: "string",
+      },
+      {
+        id: 9,
+        key: "expression",
+        value: "",
+        changed: false,
+        required: true,
+        type: "string",
+      },
   ];
 
   const renderCell = ({ value }) => {
@@ -128,9 +135,8 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
       render: renderCell,
       renderEditor: (Props) => {
         const { data } = Props.cellProps;
-        console.log(Props);
 
-        const selectEditorProps = {
+        const booleanEditorProps = {
           idProperty: "id",
           dataSource: [
             { id: "true", label: "true" },
@@ -140,11 +146,24 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
           clearIcon: null,
         };
 
+        const evaluatorTypeEditorProps = {
+            idProperty: "id",
+            dataSource: [
+              { id: "value-param", label: "value-param" },
+              { id: "javascript", label: "javascript" },
+            ],
+            collapseOnSelect: true,
+            clearIcon: null,
+          };
+
         switch (data.type) {
           case "int":
             return <NumericEditor {...Props} />;
           case "boolean":
-            return <SelectEditor {...Props} editorProps={selectEditorProps} />;
+            if (data.key === "evaluatorType") {
+                return <SelectEditor {...Props} editorProps={evaluatorTypeEditorProps} />;
+            }
+            else return <SelectEditor {...Props} editorProps={booleanEditorProps} />;
           default:
             return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
         }
@@ -162,6 +181,13 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
     for (const param of updatedParameters) {
       if (initialConfig.hasOwnProperty(param.key)) {
         const newValue = initialConfig[param.key];
+        if (param.value !== newValue) {
+          param.value = newValue;
+          param.changed = true;
+        }
+      }
+      if (initialConfig.inputParameters.hasOwnProperty(param.key)) {
+        const newValue = initialConfig.inputParameters[param.key];
         if (param.value !== newValue) {
           param.value = newValue;
           param.changed = true;
@@ -190,7 +216,6 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
       const edittedJson = {};
       data.forEach((item) => {
         if (item.type === "boolean") {
-          console.log(item.value);
           if (item.value === "false" || item.value === false)
             edittedJson[item.key] = false;
           else if (item.value === "true" || item.value === true)
@@ -204,71 +229,26 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
 
       // Step 2: Merge the properties from edittedJson into the original object
       for (const key in edittedJson) {
-        originalObject[key] = edittedJson[key];
+        
+        if (key === 'evaluatorType' || key === 'expression') {
+            console.log(originalObject.inputParameters[key]);
+            console.log(edittedJson[key]);
+            originalObject.inputParameters[key] = edittedJson[key];
+        }
+        else originalObject[key] = edittedJson[key];
       }
 
       setUpdatedJsonState(originalObject);
-      console.log("edited", initialConfig);
     },
     // eslint-disable-next-line
     [dataSource],
   );
 
-  const handleToggleButtonChange = (event, newSelection) => {
-    if (newSelection) {
-      clearFormValues(); // Clear the form values
-      setParameterOrExpression(newSelection);
-    }
-  };
-
-  const clearFormValues = () => {
-    const newFormValues = {
-      inputParameters: "{}",
-      inputExpression: "{}",
-    };
-
-    setFormState(newFormValues); // Clear the form values
-  };
-
-  useEffect(() => {
-    if (
-      JSON.stringify(initialConfig.inputExpression).length >
-      JSON.stringify(initialConfig.inputParameters).length
-    ) {
-      setParameterOrExpression("expression");
-    }
-  }, [initialConfig]);
-
-  useEffect(() => {
-    // Update formState based on initialConfig
-    setFormState({
-      inputParameters: JSON.stringify(initialConfig.inputParameters),
-      inputExpression: JSON.stringify(initialConfig.inputExpression),
-    });
-  }, [initialConfig]);
-
-  const handleSubmit = (values) => {
-    setFormState(values);
-    let newJsonState;
-    if (parameterOrExpression === "expression") {
-      newJsonState = {
-        ...updatedJsonState,
-        inputExpression: JSON.parse(values.inputExpression),
-        inputParameters: {},
-      };
-    } else {
-      newJsonState = {
-        ...updatedJsonState,
-        inputParameters: JSON.parse(values.inputParameters),
-        inputExpression: {},
-      };
-    }
-    setUpdatedJsonState(newJsonState);
-    onUpdate(newJsonState);
+  const handleSubmit = () => {
+    onUpdate(updatedJsonState);
   };
 
   const getRowStyle = (data) => {
-    console.log(data.changed);
     if (data.data.changed) {
       return { backgroundColor: "#FFF" };
     }
@@ -289,63 +269,11 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
         key={refreshKey}
         rowStyle={getRowStyle}
       />
-      <Formik
-        initialValues={formState}
-        onSubmit={(values) => handleSubmit(values)}
-        enableReinitialize={true}
-      >
-        {(formikProps) => {
-          const { resetForm } = formikProps;
-
-          if (shouldResetForm) {
-            resetForm({ values: formState });
-            setShouldResetForm(false);
-          }
-
-          return (
-            <Form>
-              <ToggleButtonGroup
-                value={parameterOrExpression}
-                exclusive
-                onChange={handleToggleButtonChange}
-                aria-label="toggle between parameter and expression"
-                style={{ marginBottom: "15px" }}
-              >
-                <ToggleButton value="parameter" aria-label="use parameter">
-                  Use Input Parameters
-                </ToggleButton>
-                <ToggleButton value="expression" aria-label="use expression">
-                  Use Input Expression
-                </ToggleButton>
-              </ToggleButtonGroup>
-
-              {parameterOrExpression === "parameter" ? (
-                <FormikJsonInput
-                  key="parameter"
-                  label="Input Parameters"
-                  name="inputParameters"
-                  className={undefined}
-                  height={undefined}
-                />
-              ) : (
-                <FormikJsonInput
-                  key="expression"
-                  label="Input Expression"
-                  name="inputExpression"
-                  className={undefined}
-                  height={undefined}
-                />
-              )}
-
-              <Button style={{ marginTop: "15px" }} type="submit">
+      <Button style={{ marginTop: "15px" }} onClick={handleSubmit}>
                 Submit
               </Button>
-            </Form>
-          );
-        }}
-      </Formik>
     </div>
   );
 };
 
-export default TaskConfigurator;
+export default InlineTaskConfigurator;

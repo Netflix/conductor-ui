@@ -1,21 +1,30 @@
 import React, { useState } from "react";
 import TaskConfigurator from "./TaskConfigurator"; // Update the import path
 import { Button, Paper } from "../../components";
+import InlineTaskConfigurator from "./InlineTaskConfigurator";
 
 const TaskConfiguratorPage = () => {
   const [initialConfig, setInitialConfig] = useState({
     taskReferenceName: "simple_0",
     name: "simple_0",
-    inputParameters: {},
-    inputExpression: { x: 0 },
+    inputParameters: {
+        "evaluatorType": "javascript",
+        "expression": "function scriptFun(){if ($.val){ return $.val + 1; } else { return 0; }} scriptFun()"
+      },
+    description: "description1",
+    type: "INLINE"
   });
 
   const handleResetClick = () => {
     setInitialConfig({
       taskReferenceName: "simple3",
       name: "simple3",
-      inputParameters: {},
-      inputExpression: { x: 3 },
+      inputParameters: {
+        "evaluatorType": "javascript",
+        "expression": "function"
+      },
+      description:"description1",
+      type: "INLINE"
     });
   };
 
@@ -30,11 +39,17 @@ const TaskConfiguratorPage = () => {
     <Paper padded>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <div style={{ width: "50%" }}>
-          {/* Place any other components here */}
-          <TaskConfigurator
-            onUpdate={handleTaskConfiguratorUpdate}
-            initialConfig={initialConfig}
-          />
+        {initialConfig.type === 'INLINE' ? 
+                        <InlineTaskConfigurator
+                            onUpdate={handleTaskConfiguratorUpdate}
+                            initialConfig={initialConfig}
+                        />
+                    :
+                        <TaskConfigurator
+                            onUpdate={handleTaskConfiguratorUpdate}
+                            initialConfig={initialConfig}
+                        />
+                    }
         </div>
         <div style={{ width: "50%" }}>
           <code>
