@@ -9,8 +9,8 @@ import SelectEditor from "@inovua/reactdatagrid-community/SelectEditor";
 import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
 
 const gridStyle = {
-  minHeight: 320,
-  margin: "15px 0",
+  minHeight: 322.5,
+  margin: "15px 0"
 };
 
 const TaskConfigurator = ({ initialConfig, onUpdate }) => {
@@ -262,9 +262,9 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
   const getRowStyle = (data) => {
     console.log(data.changed);
     if (data.data.changed) {
-      return { backgroundColor: "#e8f5e9" };
+      return { backgroundColor: "#FFF" };
     }
-    return {};
+    else return { backgroundColor:  "#F3F3F3" };
   };
 
   return (
