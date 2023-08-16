@@ -1,19 +1,37 @@
 import { useCallback, useEffect, useState } from "react";
-import { Button } from "../../components";
+import { Button, FormikJsonInput } from "../../components";
 import ReactDataGrid from "@inovua/reactdatagrid-community";
 import { TypeEditInfo } from "@inovua/reactdatagrid-community/types";
 import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
 import SelectEditor from "@inovua/reactdatagrid-community/SelectEditor";
 import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
+import { Form, Formik } from "formik";
 
 const gridStyle = {
-  minHeight: 442.5,
+  minHeight: 402.5,
   margin: "15px 0"
 };
 
 const InlineTaskConfigurator = ({ initialConfig, onUpdate }) => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [updatedJsonState, setUpdatedJsonState] = useState(initialConfig);
+  const { expression = "", evaluatorType, ...rest } = initialConfig.inputParameters || {};
+
+const [formState, setFormState] = useState({
+    expression,
+    additionalInputParameters: JSON.stringify(rest)
+});
+
+useEffect(() => {
+    const { expression = "", evaluatorType, ...updatedRest } = initialConfig.inputParameters || {};
+
+    setFormState({
+        expression: expression,
+        additionalInputParameters: JSON.stringify(updatedRest)
+    });
+}, [initialConfig]);
+
+console.log(formState);
 
   const simpleTaskOptionalParameters = [
     {
@@ -27,7 +45,7 @@ const InlineTaskConfigurator = ({ initialConfig, onUpdate }) => {
     {
       id: 1,
       key: "taskReferenceName",
-      value: null,
+      value: "",
       changed: false,
       required: true,
     },
@@ -86,15 +104,7 @@ const InlineTaskConfigurator = ({ initialConfig, onUpdate }) => {
         changed: false,
         required: true,
         type: "string",
-      },
-      {
-        id: 9,
-        key: "expression",
-        value: "",
-        changed: false,
-        required: true,
-        type: "string",
-      },
+      }
   ];
 
   const renderCell = ({ value }) => {
@@ -118,7 +128,7 @@ const InlineTaskConfigurator = ({ initialConfig, onUpdate }) => {
         render: ({ value, data }) => {
           // Check if the key matches the conditions
           const displayValue =
-            data.key === 'evaluatorType' || data.key === 'expression'
+            data.key === 'evaluatorType'
               ? `inputParameters.${value}`
               : value;
       
@@ -238,7 +248,7 @@ const InlineTaskConfigurator = ({ initialConfig, onUpdate }) => {
       // Step 2: Merge the properties from edittedJson into the original object
       for (const key in edittedJson) {
         
-        if (key === 'evaluatorType' || key === 'expression') {
+        if (key === 'evaluatorType') {
             console.log(originalObject.inputParameters[key]);
             console.log(edittedJson[key]);
             originalObject.inputParameters[key] = edittedJson[key];
@@ -252,8 +262,21 @@ const InlineTaskConfigurator = ({ initialConfig, onUpdate }) => {
     [dataSource],
   );
 
-  const handleSubmit = () => {
-    onUpdate(updatedJsonState);
+  const handleSubmit = (values) => {
+    setFormState(values);
+    let newJsonState;
+    let newInputParameters;
+    newInputParameters = {
+        ...JSON.parse(values.additionalInputParameters),
+        evaluatorType: updatedJsonState.inputParameters.evaluatorType,
+        expression: values.expression,
+    }
+      newJsonState = {
+        ...updatedJsonState,
+        inputParameters: newInputParameters
+      };
+    setUpdatedJsonState(newJsonState);
+    onUpdate(newJsonState);
   };
 
   const getRowStyle = (data) => {
@@ -278,9 +301,36 @@ const InlineTaskConfigurator = ({ initialConfig, onUpdate }) => {
         rowStyle={getRowStyle}
         enableColumnAutosize={true}
       />
-      <Button style={{ marginTop: "15px" }} onClick={handleSubmit}>
+       <Formik
+        initialValues={formState}
+        onSubmit={(values) => handleSubmit(values)}
+        enableReinitialize={true}
+      >
+        {() => {
+          return (
+            <Form>
+                <FormikJsonInput
+                  key="expression"
+                  label="inputParameters.expression"
+                  name="expression"
+                  className={undefined}
+                  height={undefined}
+                  language="javascript"
+                />
+                <FormikJsonInput
+                  key="additionalInputParameters"
+                  label="Additional inputParameters"
+                  name="additionalInputParameters"
+                  className={undefined}
+                  height={undefined}
+                />
+              <Button style={{ marginTop: "15px" }} type="submit">
                 Submit
               </Button>
+            </Form>
+          );
+        }}
+      </Formik>
     </div>
   );
 };

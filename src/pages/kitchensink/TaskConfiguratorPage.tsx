@@ -9,7 +9,8 @@ const TaskConfiguratorPage = () => {
         name: "inline_0",
         inputParameters: {
             "evaluatorType": "javascript",
-            "expression": "function scriptFun(){if ($.val){ return $.val + 1; } else { return 0; }} scriptFun()"
+            "expression": "function scriptFun(){if ($.val){ return $.val + 1; } else { return 0; }} scriptFun()",
+            "x": 3
           },
         description: "description1",
         type: "INLINE"
@@ -20,25 +21,29 @@ const TaskConfiguratorPage = () => {
         name: "simple_0",
         inputParameters: {
           },
-        description: "description1",
+        inputExpression:  {
+            "expression": "workflow.input",
+            "type": "JSON_PATH"
+          },
         type: "SIMPLE"
       }
     
-  const [initialConfig, setInitialConfig] = useState(sampleInlineTask);
+  const [initialConfig, setInitialConfig] = useState(sampleSimpleTask);
 
   
 
   const handleResetClick = () => {
     setInitialConfig({
-      taskReferenceName: "simple3",
-      name: "simple3",
-      inputParameters: {
-        "evaluatorType": "javascript",
-        "expression": "function"
-      },
-      description:"description1",
-      type: "INLINE"
-    });
+        taskReferenceName: "inline_2",
+        name: "inline_2",
+        inputParameters: {
+            "evaluatorType": "javascript",
+            "expression": "function scriptFun()",
+            "x": 5
+          },
+        description: "description1",
+        type: "INLINE"
+    })
   };
 
   const [parentJsonState, setParentJsonState] = useState({}); // Initialize with appropriate initial state

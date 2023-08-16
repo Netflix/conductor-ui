@@ -13,7 +13,7 @@ const gridStyle = {
   margin: "15px 0"
 };
 
-const TaskConfigurator = ({ initialConfig, onUpdate }) => {
+const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [formState, setFormState] = useState({
     inputParameters: initialConfig.inputParameters ? JSON.stringify(initialConfig.inputParameters) : '{}',
@@ -87,6 +87,62 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
       required: false,
       type: "int",
     },
+    {
+        id: 8,
+        key: "uri",
+        value: "",
+        changed: false,
+        required: true,
+        type: "string",
+      },
+      {
+        id: 9,
+        key: "method",
+        value: "GET",
+        changed: false,
+        required: true,
+        type: "string",
+      },
+      {
+        id: 10,
+        key: "accept",
+        value: "application/json",
+        changed: false,
+        required: false,
+        type: "string",
+      },
+      {
+        id: 11,
+        key: "contentType",
+        value: "application/json",
+        changed: false,
+        required: false,
+        type: "string",
+      },
+      {
+        id: 12,
+        key: "asyncCompleteExpression",
+        value: null,
+        changed: false,
+        required: false,
+        type: "string",
+      },
+      {
+        id: 13,
+        key: "vipAddress",
+        value: "",
+        changed: false,
+        required: false,
+        type: "string",
+      },
+      {
+        id: 14,
+        key: "appName",
+        value: "",
+        changed: false,
+        required: false,
+        type: "string",
+      },
   ];
 
   const renderCell = ({ value }) => {
@@ -195,7 +251,7 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
           else if (item.value === "true" || item.value === true)
             edittedJson[item.key] = true;
           else throw new TypeError("must be boolean");
-        } else if (item.type === "int") {
+        } else if (item.type === "int" && item.value !== null) {
           edittedJson[item.key] = parseInt(item.value.toString());
         } else edittedJson[item.key] = item.value;
       });
@@ -347,4 +403,4 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
   );
 };
 
-export default TaskConfigurator;
+export default HttpTaskConfigurator;
