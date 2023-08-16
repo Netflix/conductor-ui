@@ -4,16 +4,29 @@ import { Button, Paper } from "../../components";
 import InlineTaskConfigurator from "./InlineTaskConfigurator";
 
 const TaskConfiguratorPage = () => {
-  const [initialConfig, setInitialConfig] = useState({
-    taskReferenceName: "simple_0",
-    name: "simple_0",
-    inputParameters: {
-        "evaluatorType": "javascript",
-        "expression": "function scriptFun(){if ($.val){ return $.val + 1; } else { return 0; }} scriptFun()"
-      },
-    description: "description1",
-    type: "INLINE"
-  });
+    const sampleInlineTask = {
+        taskReferenceName: "inline_0",
+        name: "inline_0",
+        inputParameters: {
+            "evaluatorType": "javascript",
+            "expression": "function scriptFun(){if ($.val){ return $.val + 1; } else { return 0; }} scriptFun()"
+          },
+        description: "description1",
+        type: "INLINE"
+      }
+    
+      const sampleSimpleTask = {
+        taskReferenceName: "simple_0",
+        name: "simple_0",
+        inputParameters: {
+          },
+        description: "description1",
+        type: "SIMPLE"
+      }
+    
+  const [initialConfig, setInitialConfig] = useState(sampleInlineTask);
+
+  
 
   const handleResetClick = () => {
     setInitialConfig({

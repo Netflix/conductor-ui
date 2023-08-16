@@ -231,6 +231,7 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
   };
 
   useEffect(() => {
+    if (!initialConfig.inputExpression || !initialConfig.inputParameters) return;
     if (
       JSON.stringify(initialConfig.inputExpression).length >
       JSON.stringify(initialConfig.inputParameters).length

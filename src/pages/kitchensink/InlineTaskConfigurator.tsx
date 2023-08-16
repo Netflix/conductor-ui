@@ -110,28 +110,36 @@ const InlineTaskConfigurator = ({ initialConfig, onUpdate }) => {
       type: "number",
     },
     {
-      name: "key",
-      header: "Key",
-      defaultFlex: 1,
-      minWidth: 250,
-      editable: false,
-      render: ({ value, data }) => (
-        <span>
-          {data.changed ? (
+        name: "key",
+        header: "Key",
+        defaultFlex: 1,
+        minWidth: 250,
+        editable: false,
+        render: ({ value, data }) => {
+          // Check if the key matches the conditions
+          const displayValue =
+            data.key === 'evaluatorType' || data.key === 'expression'
+              ? `inputParameters.${value}`
+              : value;
+      
+          return (
             <span>
-              <span style={{ fontWeight: "bold" }}>{value}</span>
+              {data.changed ? (
+                <span>
+                  <span style={{ fontWeight: "bold" }}>{displayValue}</span>
+                </span>
+              ) : (
+                displayValue
+              )}
+              {data.required ? <span style={{ color: "red" }}>*</span> : null}
             </span>
-          ) : (
-            value
-          )}
-          {data.required ? <span style={{ color: "red" }}>*</span> : null}
-        </span>
-      ),
-    },
+          );
+        },
+      },
     {
       name: "value",
       header: "Value",
-      defaultFlex: 1,
+      defaultFlex: 2,
       render: renderCell,
       renderEditor: (Props) => {
         const { data } = Props.cellProps;
@@ -160,12 +168,12 @@ const InlineTaskConfigurator = ({ initialConfig, onUpdate }) => {
           case "int":
             return <NumericEditor {...Props} />;
           case "boolean":
+            return <SelectEditor {...Props} editorProps={booleanEditorProps} />;
+          default:
             if (data.key === "evaluatorType") {
                 return <SelectEditor {...Props} editorProps={evaluatorTypeEditorProps} />;
             }
-            else return <SelectEditor {...Props} editorProps={booleanEditorProps} />;
-          default:
-            return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
+            else return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
         }
       },
     },
@@ -268,6 +276,7 @@ const InlineTaskConfigurator = ({ initialConfig, onUpdate }) => {
         theme="conductor-light"
         key={refreshKey}
         rowStyle={getRowStyle}
+        enableColumnAutosize={true}
       />
       <Button style={{ marginTop: "15px" }} onClick={handleSubmit}>
                 Submit
