@@ -10,14 +10,19 @@ import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell
 
 const gridStyle = {
   minHeight: 362.5,
-  margin: "15px 0"
+  margin: "15px 0",
 };
 
 const TaskConfigurator = ({ initialConfig, onUpdate }) => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [formState, setFormState] = useState({
-    inputParameters: initialConfig.inputParameters ? JSON.stringify(initialConfig.inputParameters) : '{}',
-    inputExpression: (initialConfig.inputExpression && initialConfig.inputExpression.expression) ? initialConfig.inputExpression.expression : "",
+    inputParameters: initialConfig.inputParameters
+      ? JSON.stringify(initialConfig.inputParameters)
+      : "{}",
+    inputExpression:
+      initialConfig.inputExpression && initialConfig.inputExpression.expression
+        ? initialConfig.inputExpression.expression
+        : "",
   });
   const [parameterOrExpression, setParameterOrExpression] =
     useState("parameter");
@@ -223,14 +228,15 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
   const clearFormValues = () => {
     const newFormValues = {
       inputParameters: "{}",
-      inputExpression: ""
+      inputExpression: "",
     };
 
     setFormState(newFormValues); // Clear the form values
   };
 
   useEffect(() => {
-    if (!initialConfig.inputExpression || !initialConfig.inputParameters) return;
+    if (!initialConfig.inputExpression || !initialConfig.inputParameters)
+      return;
     if (
       JSON.stringify(initialConfig.inputExpression).length >
       JSON.stringify(initialConfig.inputParameters).length
@@ -242,10 +248,16 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
   useEffect(() => {
     // Update formState based on initialConfig
     setFormState({
-      inputParameters: initialConfig.inputParameters ? JSON.stringify(initialConfig.inputParameters) : '{}',
-      inputExpression: (initialConfig.inputExpression && initialConfig.inputExpression.expression) ? initialConfig.inputExpression.expression : "",
+      inputParameters: initialConfig.inputParameters
+        ? JSON.stringify(initialConfig.inputParameters)
+        : "{}",
+      inputExpression:
+        initialConfig.inputExpression &&
+        initialConfig.inputExpression.expression
+          ? initialConfig.inputExpression.expression
+          : "",
     });
-}, [initialConfig]);
+  }, [initialConfig]);
 
   const handleSubmit = (values) => {
     setFormState(values);
@@ -254,8 +266,8 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
       newJsonState = {
         ...updatedJsonState,
         inputExpression: {
-          "expression": values.inputExpression,
-          "type": "JSON_PATH"
+          expression: values.inputExpression,
+          type: "JSON_PATH",
         },
         inputParameters: {},
       };
@@ -274,8 +286,7 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
     console.log(data.changed);
     if (data.data.changed) {
       return { backgroundColor: "#FFF" };
-    }
-    else return { backgroundColor:  "#F3F3F3" };
+    } else return { backgroundColor: "#F3F3F3" };
   };
 
   console.log(formState);
@@ -332,7 +343,7 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
                   name="inputExpression"
                   className={undefined}
                   height={undefined}
-                  language = 'plaintext'
+                  language="plaintext"
                 />
               )}
 

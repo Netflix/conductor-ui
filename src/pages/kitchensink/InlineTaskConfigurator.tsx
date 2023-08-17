@@ -9,29 +9,37 @@ import { Form, Formik } from "formik";
 
 const gridStyle = {
   minHeight: 402.5,
-  margin: "15px 0"
+  margin: "15px 0",
 };
 
 const InlineTaskConfigurator = ({ initialConfig, onUpdate }) => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [updatedJsonState, setUpdatedJsonState] = useState(initialConfig);
-  const { expression = "", evaluatorType, ...rest } = initialConfig.inputParameters || {};
+  const {
+    expression = "",
+    evaluatorType,
+    ...rest
+  } = initialConfig.inputParameters || {};
 
-const [formState, setFormState] = useState({
+  const [formState, setFormState] = useState({
     expression,
-    additionalInputParameters: JSON.stringify(rest)
-});
+    additionalInputParameters: JSON.stringify(rest),
+  });
 
-useEffect(() => {
-    const { expression = "", evaluatorType, ...updatedRest } = initialConfig.inputParameters || {};
+  useEffect(() => {
+    const {
+      expression = "",
+      evaluatorType,
+      ...updatedRest
+    } = initialConfig.inputParameters || {};
 
     setFormState({
-        expression: expression,
-        additionalInputParameters: JSON.stringify(updatedRest)
+      expression: expression,
+      additionalInputParameters: JSON.stringify(updatedRest),
     });
-}, [initialConfig]);
+  }, [initialConfig]);
 
-console.log(formState);
+  console.log(formState);
 
   const simpleTaskOptionalParameters = [
     {
@@ -98,13 +106,13 @@ console.log(formState);
       type: "int",
     },
     {
-        id: 8,
-        key: "evaluatorType",
-        value: "javascript",
-        changed: false,
-        required: true,
-        type: "string",
-      }
+      id: 8,
+      key: "evaluatorType",
+      value: "javascript",
+      changed: false,
+      required: true,
+      type: "string",
+    },
   ];
 
   const renderCell = ({ value }) => {
@@ -120,32 +128,30 @@ console.log(formState);
       type: "number",
     },
     {
-        name: "key",
-        header: "Key",
-        defaultFlex: 1,
-        minWidth: 250,
-        editable: false,
-        render: ({ value, data }) => {
-          // Check if the key matches the conditions
-          const displayValue =
-            data.key === 'evaluatorType'
-              ? `inputParameters.${value}`
-              : value;
-      
-          return (
-            <span>
-              {data.changed ? (
-                <span>
-                  <span style={{ fontWeight: "bold" }}>{displayValue}</span>
-                </span>
-              ) : (
-                displayValue
-              )}
-              {data.required ? <span style={{ color: "red" }}>*</span> : null}
-            </span>
-          );
-        },
+      name: "key",
+      header: "Key",
+      defaultFlex: 1,
+      minWidth: 250,
+      editable: false,
+      render: ({ value, data }) => {
+        // Check if the key matches the conditions
+        const displayValue =
+          data.key === "evaluatorType" ? `inputParameters.${value}` : value;
+
+        return (
+          <span>
+            {data.changed ? (
+              <span>
+                <span style={{ fontWeight: "bold" }}>{displayValue}</span>
+              </span>
+            ) : (
+              displayValue
+            )}
+            {data.required ? <span style={{ color: "red" }}>*</span> : null}
+          </span>
+        );
       },
+    },
     {
       name: "value",
       header: "Value",
@@ -165,14 +171,14 @@ console.log(formState);
         };
 
         const evaluatorTypeEditorProps = {
-            idProperty: "id",
-            dataSource: [
-              { id: "value-param", label: "value-param" },
-              { id: "javascript", label: "javascript" },
-            ],
-            collapseOnSelect: true,
-            clearIcon: null,
-          };
+          idProperty: "id",
+          dataSource: [
+            { id: "value-param", label: "value-param" },
+            { id: "javascript", label: "javascript" },
+          ],
+          collapseOnSelect: true,
+          clearIcon: null,
+        };
 
         switch (data.type) {
           case "int":
@@ -181,9 +187,13 @@ console.log(formState);
             return <SelectEditor {...Props} editorProps={booleanEditorProps} />;
           default:
             if (data.key === "evaluatorType") {
-                return <SelectEditor {...Props} editorProps={evaluatorTypeEditorProps} />;
-            }
-            else return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
+              return (
+                <SelectEditor
+                  {...Props}
+                  editorProps={evaluatorTypeEditorProps}
+                />
+              );
+            } else return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
         }
       },
     },
@@ -247,13 +257,11 @@ console.log(formState);
 
       // Step 2: Merge the properties from edittedJson into the original object
       for (const key in edittedJson) {
-        
-        if (key === 'evaluatorType') {
-            console.log(originalObject.inputParameters[key]);
-            console.log(edittedJson[key]);
-            originalObject.inputParameters[key] = edittedJson[key];
-        }
-        else originalObject[key] = edittedJson[key];
+        if (key === "evaluatorType") {
+          console.log(originalObject.inputParameters[key]);
+          console.log(edittedJson[key]);
+          originalObject.inputParameters[key] = edittedJson[key];
+        } else originalObject[key] = edittedJson[key];
       }
 
       setUpdatedJsonState(originalObject);
@@ -267,14 +275,14 @@ console.log(formState);
     let newJsonState;
     let newInputParameters;
     newInputParameters = {
-        ...JSON.parse(values.additionalInputParameters),
-        evaluatorType: updatedJsonState.inputParameters.evaluatorType,
-        expression: values.expression,
-    }
-      newJsonState = {
-        ...updatedJsonState,
-        inputParameters: newInputParameters
-      };
+      ...JSON.parse(values.additionalInputParameters),
+      evaluatorType: updatedJsonState.inputParameters.evaluatorType,
+      expression: values.expression,
+    };
+    newJsonState = {
+      ...updatedJsonState,
+      inputParameters: newInputParameters,
+    };
     setUpdatedJsonState(newJsonState);
     onUpdate(newJsonState);
   };
@@ -282,8 +290,7 @@ console.log(formState);
   const getRowStyle = (data) => {
     if (data.data.changed) {
       return { backgroundColor: "#FFF" };
-    }
-    else return { backgroundColor:  "#F3F3F3" };
+    } else return { backgroundColor: "#F3F3F3" };
   };
 
   return (
@@ -301,7 +308,7 @@ console.log(formState);
         rowStyle={getRowStyle}
         enableColumnAutosize={true}
       />
-       <Formik
+      <Formik
         initialValues={formState}
         onSubmit={(values) => handleSubmit(values)}
         enableReinitialize={true}
@@ -309,21 +316,21 @@ console.log(formState);
         {() => {
           return (
             <Form>
-                <FormikJsonInput
-                  key="expression"
-                  label="inputParameters.expression"
-                  name="expression"
-                  className={undefined}
-                  height={undefined}
-                  language="javascript"
-                />
-                <FormikJsonInput
-                  key="additionalInputParameters"
-                  label="Additional inputParameters"
-                  name="additionalInputParameters"
-                  className={undefined}
-                  height={undefined}
-                />
+              <FormikJsonInput
+                key="expression"
+                label="inputParameters.expression"
+                name="expression"
+                className={undefined}
+                height={undefined}
+                language="javascript"
+              />
+              <FormikJsonInput
+                key="additionalInputParameters"
+                label="Additional inputParameters"
+                name="additionalInputParameters"
+                className={undefined}
+                height={undefined}
+              />
               <Button style={{ marginTop: "15px" }} type="submit">
                 Submit
               </Button>

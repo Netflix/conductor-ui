@@ -35,7 +35,7 @@ export default function ({
   label,
   height,
   reinitialize = false,
-  language = 'json',
+  language = "json",
   ...props
 }) {
   const classes = useStyles();
