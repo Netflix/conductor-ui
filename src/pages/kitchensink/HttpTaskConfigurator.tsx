@@ -20,13 +20,14 @@ const httpRequestFormStyle = {
 
 const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
   const [refreshKey, setRefreshKey] = useState(0);
-  const [httpRequestExpressionState, setHttpRequestExpressionState] = useState(
-    {expression:
-        initialConfig.inputParameters.http_request}
-    );
+  const [httpRequestExpressionState, setHttpRequestExpressionState] = useState({
+    expression: initialConfig.inputParameters.http_request,
+  });
   const [parameterOrExpression, setParameterOrExpression] =
     useState("parameter");
   const [updatedJsonState, setUpdatedJsonState] = useState(initialConfig);
+  const [contentType, setContentType] = useState("application/json");
+  const [httpRequestBody, setHttpRequestBody] = useState({ body: "{}" });
 
   const simpleTaskOptionalParameters = [
     {
@@ -103,7 +104,7 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
     {
       id: 8,
       key: "asyncCompleteExpression",
-      value: "",
+      value: "false",
       changed: false,
       required: false,
       type: "string",
@@ -207,7 +208,6 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       render: renderCell,
       renderEditor: (Props) => {
         const { data } = Props.cellProps;
-        console.log(Props);
 
         const methodEditorProps = {
           idProperty: "id",
@@ -362,6 +362,31 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
     setHeadersDataSource(newRows);
   }, [initialConfig.inputParameters.http_request.headers]);
 
+  useEffect(() => {
+    if (!initialConfig.inputParameters.http_request.body) {
+      setHttpRequestBody({ body: "{}" });
+      return;
+    } else {
+      if (typeof initialConfig.inputParameters.http_request.body === "string") {
+        setHttpRequestBody({
+          body: initialConfig.inputParameters.http_request.body,
+        });
+      } else {
+        setHttpRequestBody({
+          body: JSON.stringify(initialConfig.inputParameters.http_request.body),
+        });
+      }
+    }
+  }, [initialConfig.inputParameters.http_request.body]);
+
+  useEffect(() => {
+    if (!initialConfig.inputParameters.http_request.contentType) {
+      setContentType("application/json");
+      return;
+    }
+    setContentType(initialConfig.inputParameters.http_request.contentType);
+  }, [initialConfig.inputParameters.http_request.contentType]);
+
   // eslint-disable-next-line
   const onEditComplete = useCallback(
     (editInfo: TypeEditInfo) => {
@@ -374,7 +399,7 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       setDataSource(data);
       setRefreshKey(Math.random());
 
-      const originalObject = { ...updatedJsonState };
+      const originalObject = JSON.parse(JSON.stringify(updatedJsonState));
 
       const edittedJson = {};
       data.forEach((item) => {
@@ -387,21 +412,18 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
         } else if (item.type === "int" && item.value !== null) {
           edittedJson[item.key] = parseInt(item.value.toString());
         } else edittedJson[item.key] = item.value;
-
-        if (item.level == "task")
+        if (item.level === "task")
           originalObject[item.key] = edittedJson[item.key];
-        else if (item.key == "asyncCompleteExpression")
+        else if (item.key === "asyncCompleteExpression")
           originalObject.inputParameters["asyncComplete"] =
             edittedJson[item.key];
         else {
-          console.log(edittedJson[item.key]);
           originalObject.inputParameters.http_request[item.key] =
             edittedJson[item.key];
         }
       });
 
       setUpdatedJsonState(originalObject);
-      console.log("edited", initialConfig);
     },
     // eslint-disable-next-line
     [dataSource],
@@ -412,14 +434,13 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       const { value, columnId, rowId } = editInfo;
       //if (!value) return;
       const data = [...httpRequestDataSource];
-      console.log("httpdata", data);
       if (data[rowId][columnId].toString() === value.toString()) return;
       data[rowId][columnId] = value;
       data[rowId].changed = true;
       setHttpRequestDataSource(data);
       setRefreshKey(Math.random());
 
-      const originalObject = { ...updatedJsonState };
+      const originalObject = JSON.parse(JSON.stringify(updatedJsonState));
 
       const edittedJson = {};
       data.forEach((item) => {
@@ -431,19 +452,21 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
           edittedJson[item.key] = parseInt(item.value.toString());
         } else edittedJson[item.key] = item.value;
 
+        if (item.key === "contentType") {
+          setContentType(item.value);
+        }
+
         if (item.level == "task")
           originalObject[item.key] = edittedJson[item.key];
         else if (item.level == "inputParameters")
           originalObject.inputParameters[item.key] = edittedJson[item.key];
         else {
-          console.log(edittedJson[item.key]);
           originalObject.inputParameters.http_request[item.key] =
             edittedJson[item.key];
         }
       });
 
       setUpdatedJsonState(originalObject);
-      console.log("edited", initialConfig);
     },
     // eslint-disable-next-line
     [httpRequestDataSource],
@@ -452,7 +475,6 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
   const onHeadersEditComplete = useCallback(
     (editInfo: TypeEditInfo) => {
       const { value, columnId, rowId } = editInfo;
-      console.log(value);
       //if (!value) return;
       const data = [...headersDataSource];
       if (data[rowId][columnId].toString() === value.toString()) return;
@@ -465,40 +487,65 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       data.forEach((item) => {
         if (item.key !== "") edittedJson[item.key] = item.value;
       });
-      const originalObject = { ...updatedJsonState };
+      const originalObject = JSON.parse(JSON.stringify(updatedJsonState));
 
       originalObject.inputParameters.http_request.headers = edittedJson;
 
       setUpdatedJsonState(originalObject);
-      console.log("edited", initialConfig);
     },
     // eslint-disable-next-line
     [headersDataSource],
   );
 
   useEffect(() => {
-    console.log("http_request", initialConfig.inputParameters.http_request);
     if (typeof initialConfig.inputParameters.http_request === "string") {
       setParameterOrExpression("expression");
-      setHttpRequestExpressionState({expression:initialConfig.inputParameters.http_request});
+      setHttpRequestExpressionState({
+        expression: initialConfig.inputParameters.http_request,
+      });
     } else setParameterOrExpression("parameter");
   }, [initialConfig.inputParameters.http_request]);
 
-
-  const handleSubmit = (values) => {
-    console.log(values);
+  const handleHttpExpressionSubmit = (values) => {
     setHttpRequestExpressionState(values);
     let newJsonState;
     let newInputParameters;
     newInputParameters = {
-        ...updatedJsonState.inputParameters,
-      http_request: values.expression
+      ...updatedJsonState.inputParameters,
+      http_request: values.expression,
     };
     newJsonState = {
       ...updatedJsonState,
       inputParameters: newInputParameters,
     };
-    
+
+    setUpdatedJsonState(newJsonState);
+    onUpdate(newJsonState);
+  };
+
+  const handleHttpParametersSubmit = (values) => {
+    setHttpRequestBody(values);
+    let newJsonState;
+    let newHttpRequest;
+    let newInputParameters;
+
+    let bodyValue = values.body;
+    if (contentType === "application/json") bodyValue = JSON.parse(values.body);
+    console.log("contenttype", contentType);
+    console.log("bodyvalue", bodyValue);
+    newHttpRequest = {
+      ...updatedJsonState.inputParameters.http_request,
+      body: bodyValue,
+    };
+    newInputParameters = {
+      ...updatedJsonState.inputParameters,
+      http_request: newHttpRequest,
+    };
+    newJsonState = {
+      ...updatedJsonState,
+      inputParameters: newInputParameters,
+    };
+
     setUpdatedJsonState(newJsonState);
     onUpdate(newJsonState);
   };
@@ -510,17 +557,44 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
   };
 
   const handleAddEmptyRow = () => {
-    const emptyRow = { id: headersDataSource.length + 1, key: "", value: "" };
+    const emptyRow = { id: headersDataSource.length, key: "", value: "" };
     setHeadersDataSource((oldData) => [...oldData, emptyRow]);
   };
 
   const handleToggleButtonChange = (event, newSelection) => {
     if (newSelection) {
-      //clearFormValues(); // Clear the form values
+      clearFormValues(); // Clear the form values
       setParameterOrExpression(newSelection);
+      let newJsonState;
+      let newInputParameters;
+      let newValue = "" as any;
+      if (newSelection === "parameter") newValue = {};
+      newInputParameters = {
+        ...updatedJsonState.inputParameters,
+        http_request: newValue,
+      };
+      newJsonState = {
+        ...updatedJsonState,
+        inputParameters: newInputParameters,
+      };
+
+      setUpdatedJsonState(newJsonState);
+      setDataSource(simpleTaskOptionalParameters);
+      setHttpRequestDataSource(httpRequestParameters);
+      setHeadersDataSource([]);
+      setHttpRequestBody({ body: "{}" });
     }
   };
 
+  const clearFormValues = () => {
+    const newFormValues = {
+      expression: "",
+    };
+
+    setHttpRequestExpressionState(newFormValues); // Clear the form values
+  };
+
+  console.log(httpRequestBody);
   return (
     <div>
       <Heading level={1} gutterBottom>
@@ -589,17 +663,52 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
             //key={refreshKey}
             rowStyle={getRowStyle}
           />
+
+          <Formik
+            initialValues={httpRequestBody}
+            onSubmit={(values) => handleHttpParametersSubmit(values)}
+            enableReinitialize={true}
+          >
+            {() => {
+              return (
+                <Form>
+                  {contentType === "application/json" ? (
+                    <FormikJsonInput
+                      key="body"
+                      label="inputParameters.http_request.body"
+                      name="body"
+                      className={undefined}
+                      height={undefined}
+                    />
+                  ) : (
+                    <FormikJsonInput
+                      key="body"
+                      label="inputParameters.http_request.body"
+                      name="body"
+                      className={undefined}
+                      height={undefined}
+                      language="plaintext"
+                    />
+                  )}
+
+                  <Button style={{ margin: "60px" }} type="submit">
+                    Submit
+                  </Button>
+                </Form>
+              );
+            }}
+          </Formik>
         </div>
       ) : (
         <Formik
-        initialValues={httpRequestExpressionState}
-        onSubmit={(values) => handleSubmit(values)}
-        enableReinitialize={true}
-      >
-        {() => {
-          return (
-            <Form>
-            <FormikJsonInput
+          initialValues={httpRequestExpressionState}
+          onSubmit={(values) => handleHttpExpressionSubmit(values)}
+          enableReinitialize={true}
+        >
+          {() => {
+            return (
+              <Form>
+                <FormikJsonInput
                   key="expression"
                   label="http_request Expression"
                   name="expression"
@@ -608,15 +717,14 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
                   language="plaintext"
                 />
 
-<Button style={{ marginTop: "15px" }} type="submit">
-                Submit
-              </Button>
-            </Form>
-          );
-        }}
-      </Formik>
+                <Button style={{ marginTop: "15px" }} type="submit">
+                  Submit
+                </Button>
+              </Form>
+            );
+          }}
+        </Formik>
       )}
-       
     </div>
   );
 };
