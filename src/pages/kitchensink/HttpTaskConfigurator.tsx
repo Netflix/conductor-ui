@@ -1,6 +1,6 @@
 import { Form, Formik } from "formik";
 import { useCallback, useEffect, useState } from "react";
-import { Button, FormikJsonInput } from "../../components";
+import { Button, FormikJsonInput, Heading } from "../../components";
 import ReactDataGrid from "@inovua/reactdatagrid-community";
 import { ToggleButtonGroup, ToggleButton } from "@mui/material";
 import { TypeEditInfo } from "@inovua/reactdatagrid-community/types";
@@ -8,22 +8,22 @@ import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
 import SelectEditor from "@inovua/reactdatagrid-community/SelectEditor";
 import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
 
-const gridStyle = {
-  minHeight: 362.5,
+const taskFormStyle = {
+  minHeight: 402.5,
+  margin: "15px 0",
+};
+
+const httpRequestFormStyle = {
+  minHeight: 282.5,
   margin: "15px 0",
 };
 
 const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
   const [refreshKey, setRefreshKey] = useState(0);
-  const [formState, setFormState] = useState({
-    inputParameters: initialConfig.inputParameters
-      ? JSON.stringify(initialConfig.inputParameters)
-      : "{}",
-    inputExpression:
-      initialConfig.inputExpression && initialConfig.inputExpression.expression
-        ? initialConfig.inputExpression.expression
-        : "",
-  });
+  const [httpRequestExpressionState, setHttpRequestExpressionState] = useState(
+    {expression:
+        initialConfig.inputParameters.http_request}
+    );
   const [parameterOrExpression, setParameterOrExpression] =
     useState("parameter");
   const [updatedJsonState, setUpdatedJsonState] = useState(initialConfig);
@@ -36,7 +36,7 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       changed: false,
       required: true,
       type: "string",
-      level: "task"
+      level: "task",
     },
     {
       id: 1,
@@ -44,7 +44,7 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       value: "",
       changed: false,
       required: true,
-      level: "task"
+      level: "task",
     },
     {
       id: 2,
@@ -53,7 +53,7 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       changed: false,
       required: false,
       type: "string",
-      level: "task"
+      level: "task",
     },
     {
       id: 3,
@@ -62,7 +62,7 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       changed: false,
       required: false,
       type: "boolean",
-      level: "task"
+      level: "task",
     },
     {
       id: 4,
@@ -71,7 +71,7 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       changed: false,
       required: false,
       type: "boolean",
-      level: "task"
+      level: "task",
     },
     {
       id: 5,
@@ -80,7 +80,7 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       changed: false,
       required: false,
       type: "int",
-      level: "task"
+      level: "task",
     },
     {
       id: 6,
@@ -89,7 +89,7 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       changed: false,
       required: false,
       type: "boolean",
-      level: "task"
+      level: "task",
     },
     {
       id: 7,
@@ -98,7 +98,7 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       changed: false,
       required: false,
       type: "int",
-      level: "task"
+      level: "task",
     },
     {
       id: 8,
@@ -107,67 +107,69 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       changed: false,
       required: false,
       type: "string",
-      level: "inputParameters"
+      level: "inputParameters",
     },
+  ];
+
+  const httpRequestParameters = [
     {
-      id: 9,
+      id: 0,
       key: "uri",
       value: "",
       changed: false,
       required: true,
       type: "string",
-      level: "http_request"
+      level: "http_request",
     },
     {
-      id: 10,
+      id: 1,
       key: "method",
       value: "GET",
       changed: false,
       required: true,
       type: "string",
-      level: "http_request"
+      level: "http_request",
     },
     {
-      id: 11,
+      id: 2,
       key: "accept",
       value: "application/json",
       changed: false,
       required: false,
       type: "string",
-      level: "http_request"
+      level: "http_request",
     },
     {
-      id: 12,
+      id: 3,
       key: "contentType",
       value: "application/json",
       changed: false,
       required: false,
       type: "string",
-      level: "http_request"
+      level: "http_request",
     },
     {
-      id: 13,
+      id: 4,
       key: "vipAddress",
       value: "",
       changed: false,
       required: false,
       type: "string",
-      level: "http_request"
+      level: "http_request",
     },
     {
-      id: 14,
+      id: 5,
       key: "appName",
       value: "",
       changed: false,
       required: false,
       type: "string",
-      level: "http_request"
+      level: "http_request",
     },
   ];
 
   const renderCell = ({ value }) => {
-    if (value !== null)
-    return value.toString();
+    if (value !== null) return value.toString();
     else return null;
   };
 
@@ -224,7 +226,7 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
         const contentTypeEditorProps = {
           idProperty: "id",
           dataSource: [
-            { id: "text/plain", label: "Gtext/plain" },
+            { id: "text/plain", label: "text/plain" },
             { id: "text/html", label: "text/html" },
             { id: "application/json", label: "application/json" },
           ],
@@ -278,7 +280,6 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       header: "Key",
       defaultFlex: 1,
       minWidth: 250,
-      editable: false,
     },
     {
       name: "value",
@@ -286,6 +287,10 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       defaultFlex: 2,
     },
   ];
+
+  const [httpRequestDataSource, setHttpRequestDataSource] = useState(
+    httpRequestParameters,
+  );
 
   // eslint-disable-next-line
   useEffect(() => {
@@ -299,9 +304,13 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
           param.changed = true;
         }
       }
+    }
 
+    let updatedHttpRequestParameters = [...httpRequestParameters];
+    for (const param of updatedHttpRequestParameters) {
       if (
         initialConfig.inputParameters.http_request &&
+        typeof initialConfig.inputParameters.http_request !== "string" &&
         initialConfig.inputParameters.http_request.hasOwnProperty(param.key)
       ) {
         const newValue = initialConfig.inputParameters.http_request[param.key];
@@ -320,6 +329,7 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       }
     }
     setDataSource(updatedParameters);
+    setHttpRequestDataSource(updatedHttpRequestParameters);
     setUpdatedJsonState(initialConfig);
     // eslint-disable-next-line
   }, [initialConfig]);
@@ -330,26 +340,33 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
 
   // eslint-disable-next-line
   useEffect(() => {
+    if (
+      typeof initialConfig.inputParameters.http_request === "string" ||
+      !initialConfig.inputParameters.http_request.headers
+    ) {
+      setHeadersDataSource([]);
+      return;
+    }
     const headers = initialConfig.inputParameters.http_request.headers;
 
     // Convert headers to the desired format
     const newRows = Object.entries(headers).map(([key, value], index) => {
-        return {
-            id: index + 1, // You can adjust this if you need different ID logic
-            key: key,
-            value: value,
-        };
+      return {
+        id: index, // You can adjust this if you need different ID logic
+        key: key,
+        value: value,
+      };
     });
 
     // Update the state with the new rows
     setHeadersDataSource(newRows);
-}, [initialConfig.inputParameters.http_request.headers]);
+  }, [initialConfig.inputParameters.http_request.headers]);
 
   // eslint-disable-next-line
   const onEditComplete = useCallback(
     (editInfo: TypeEditInfo) => {
       const { value, columnId, rowId } = editInfo;
-      if (!value) return;
+      //if (!value) return;
       const data = [...dataSource];
       if (data[rowId][columnId].toString() === value.toString()) return;
       data[rowId][columnId] = value;
@@ -371,13 +388,15 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
           edittedJson[item.key] = parseInt(item.value.toString());
         } else edittedJson[item.key] = item.value;
 
-        if (item.level == 'task')
-        originalObject[item.key] = edittedJson[item.key];
-        else if (item.level == 'inputParameters')
-        originalObject.inputParameters[item.key] = edittedJson[item.key];
+        if (item.level == "task")
+          originalObject[item.key] = edittedJson[item.key];
+        else if (item.key == "asyncCompleteExpression")
+          originalObject.inputParameters["asyncComplete"] =
+            edittedJson[item.key];
         else {
-            console.log(edittedJson[item.key]);
-            originalObject.inputParameters.http_request[item.key] = edittedJson[item.key];
+          console.log(edittedJson[item.key]);
+          originalObject.inputParameters.http_request[item.key] =
+            edittedJson[item.key];
         }
       });
 
@@ -388,11 +407,53 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
     [dataSource],
   );
 
+  const onHttpRequestEditComplete = useCallback(
+    (editInfo: TypeEditInfo) => {
+      const { value, columnId, rowId } = editInfo;
+      //if (!value) return;
+      const data = [...httpRequestDataSource];
+      console.log("httpdata", data);
+      if (data[rowId][columnId].toString() === value.toString()) return;
+      data[rowId][columnId] = value;
+      data[rowId].changed = true;
+      setHttpRequestDataSource(data);
+      setRefreshKey(Math.random());
+
+      const originalObject = { ...updatedJsonState };
+
+      const edittedJson = {};
+      data.forEach((item) => {
+        if (item.type === "boolean") {
+          if (item.value === "false") edittedJson[item.key] = false;
+          else if (item.value === "true") edittedJson[item.key] = true;
+          else throw new TypeError("must be boolean");
+        } else if (item.type === "int" && item.value !== null) {
+          edittedJson[item.key] = parseInt(item.value.toString());
+        } else edittedJson[item.key] = item.value;
+
+        if (item.level == "task")
+          originalObject[item.key] = edittedJson[item.key];
+        else if (item.level == "inputParameters")
+          originalObject.inputParameters[item.key] = edittedJson[item.key];
+        else {
+          console.log(edittedJson[item.key]);
+          originalObject.inputParameters.http_request[item.key] =
+            edittedJson[item.key];
+        }
+      });
+
+      setUpdatedJsonState(originalObject);
+      console.log("edited", initialConfig);
+    },
+    // eslint-disable-next-line
+    [httpRequestDataSource],
+  );
+
   const onHeadersEditComplete = useCallback(
     (editInfo: TypeEditInfo) => {
       const { value, columnId, rowId } = editInfo;
       console.log(value);
-      if (!value) return;
+      //if (!value) return;
       const data = [...headersDataSource];
       if (data[rowId][columnId].toString() === value.toString()) return;
       data[rowId][columnId] = value;
@@ -402,7 +463,7 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
 
       const edittedJson = {};
       data.forEach((item) => {
-        edittedJson[item.key] = item.value;
+        if (item.key !== "") edittedJson[item.key] = item.value;
       });
       const originalObject = { ...updatedJsonState };
 
@@ -415,27 +476,31 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
     [headersDataSource],
   );
 
+  useEffect(() => {
+    console.log("http_request", initialConfig.inputParameters.http_request);
+    if (typeof initialConfig.inputParameters.http_request === "string") {
+      setParameterOrExpression("expression");
+      setHttpRequestExpressionState({expression:initialConfig.inputParameters.http_request});
+    } else setParameterOrExpression("parameter");
+  }, [initialConfig.inputParameters.http_request]);
+
+
   const handleSubmit = (values) => {
-    // setFormState(values);
-    // let newJsonState;
-    // if (parameterOrExpression === "expression") {
-    //   newJsonState = {
-    //     ...updatedJsonState,
-    //     inputExpression: {
-    //       expression: values.inputExpression,
-    //       type: "JSON_PATH",
-    //     },
-    //     inputParameters: {},
-    //   };
-    // } else {
-    //   newJsonState = {
-    //     ...updatedJsonState,
-    //     inputParameters: JSON.parse(values.inputParameters),
-    //     inputExpression: {},
-    //   };
-    // }
-    setUpdatedJsonState(updatedJsonState);
-    onUpdate(updatedJsonState);
+    console.log(values);
+    setHttpRequestExpressionState(values);
+    let newJsonState;
+    let newInputParameters;
+    newInputParameters = {
+        ...updatedJsonState.inputParameters,
+      http_request: values.expression
+    };
+    newJsonState = {
+      ...updatedJsonState,
+      inputParameters: newInputParameters,
+    };
+    
+    setUpdatedJsonState(newJsonState);
+    onUpdate(newJsonState);
   };
 
   const getRowStyle = (data) => {
@@ -444,13 +509,26 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
     } else return { backgroundColor: "#F3F3F3" };
   };
 
-  console.log(formState);
+  const handleAddEmptyRow = () => {
+    const emptyRow = { id: headersDataSource.length + 1, key: "", value: "" };
+    setHeadersDataSource((oldData) => [...oldData, emptyRow]);
+  };
+
+  const handleToggleButtonChange = (event, newSelection) => {
+    if (newSelection) {
+      //clearFormValues(); // Clear the form values
+      setParameterOrExpression(newSelection);
+    }
+  };
 
   return (
     <div>
+      <Heading level={1} gutterBottom>
+        Task Configuration
+      </Heading>
       <ReactDataGrid
         idProperty="id"
-        style={gridStyle}
+        style={taskFormStyle}
         onEditComplete={onEditComplete}
         editable={true}
         columns={columns as any}
@@ -461,40 +539,84 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
         rowStyle={getRowStyle}
       />
 
-      <ReactDataGrid
-        idProperty="id"
-        //style={gridStyle}
-        onEditComplete={onHeadersEditComplete}
-        editable={true}
-        columns={headersColumns as any}
-        dataSource={headersDataSource}
-        showCellBorders={true}
-        theme="conductor-light"
-        //key={refreshKey}
-        rowStyle={getRowStyle}
-      />
-      <Formik
-        initialValues={formState}
+      <ToggleButtonGroup
+        value={parameterOrExpression}
+        exclusive
+        onChange={handleToggleButtonChange}
+        aria-label="toggle between parameter and expression"
+        style={{ marginBottom: "15px" }}
+      >
+        <ToggleButton value="parameter" aria-label="use parameter">
+          Use Json Parameters for Http_request
+        </ToggleButton>
+        <ToggleButton value="expression" aria-label="use expression">
+          Use Json Expression For Http_request
+        </ToggleButton>
+      </ToggleButtonGroup>
+
+      {parameterOrExpression === "parameter" ? (
+        <div>
+          <Heading level={1} gutterBottom>
+            inputParameters.http_request Configuration
+          </Heading>
+          <ReactDataGrid
+            idProperty="id"
+            style={httpRequestFormStyle}
+            onEditComplete={onHttpRequestEditComplete}
+            editable={true}
+            columns={columns as any}
+            dataSource={httpRequestDataSource}
+            showCellBorders={true}
+            theme="conductor-light"
+            //key={refreshKey}
+            rowStyle={getRowStyle}
+          />
+          <Heading level={1} gutterBottom>
+            inputParameters.http_request.headers Configuration
+          </Heading>
+          <Button style={{ margin: "15px" }} onClick={handleAddEmptyRow}>
+            Add New Row
+          </Button>
+          <ReactDataGrid
+            idProperty="id"
+            //style={gridStyle}
+            onEditComplete={onHeadersEditComplete}
+            editable={true}
+            columns={headersColumns as any}
+            dataSource={headersDataSource}
+            showCellBorders={true}
+            theme="conductor-light"
+            //key={refreshKey}
+            rowStyle={getRowStyle}
+          />
+        </div>
+      ) : (
+        <Formik
+        initialValues={httpRequestExpressionState}
         onSubmit={(values) => handleSubmit(values)}
         enableReinitialize={true}
       >
         {() => {
           return (
             <Form>
-              <FormikJsonInput
-                key="parameter"
-                label="inputParameters"
-                name="inputParameters"
-                className={undefined}
-                height={undefined}
-              />
-              <Button style={{ marginTop: "15px" }} type="submit">
+            <FormikJsonInput
+                  key="expression"
+                  label="http_request Expression"
+                  name="expression"
+                  className={undefined}
+                  height={undefined}
+                  language="plaintext"
+                />
+
+<Button style={{ marginTop: "15px" }} type="submit">
                 Submit
               </Button>
             </Form>
           );
         }}
       </Formik>
+      )}
+       
     </div>
   );
 };

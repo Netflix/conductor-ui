@@ -55,15 +55,12 @@ const TaskConfiguratorPage = () => {
 
   const handleResetClick = () => {
     setInitialConfig({
-      taskReferenceName: "inline_2",
-      name: "inline_2",
+      taskReferenceName: "http_1",
+      name: "http_1",
       inputParameters: {
-        evaluatorType: "javascript",
-        expression: "function scriptFun()",
-        x: 5,
+        http_request: "expression2",
       },
-      description: "description1",
-      type: "INLINE",
+      type: "HTTP",
     });
   };
 
@@ -76,7 +73,7 @@ const TaskConfiguratorPage = () => {
   console.log(parentJsonState);
 
   return (
-    <Paper padded>
+    <Paper padded style={{ maxHeight: "100vh", overflow: "auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <div style={{ width: "50%" }}>
           {initialConfig.type === "HTTP" ? (
@@ -99,11 +96,15 @@ const TaskConfiguratorPage = () => {
         <div style={{ width: "50%" }}>
           <code>
             input
-            <pre style={{ fontSize: '10px' }}>{JSON.stringify(initialConfig, null, 2)}</pre>
+            <pre style={{ fontSize: "10px" }}>
+              {JSON.stringify(initialConfig, null, 2)}
+            </pre>
           </code>
           <code>
             output
-            <pre style={{ fontSize: '10px' }}>{JSON.stringify(parentJsonState, null, 2)}</pre>
+            <pre style={{ fontSize: "10px" }}>
+              {JSON.stringify(parentJsonState, null, 2)}
+            </pre>
           </code>
           <Button onClick={handleResetClick}>Reset</Button>
         </div>
