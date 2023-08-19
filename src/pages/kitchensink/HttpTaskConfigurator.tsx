@@ -1,5 +1,5 @@
 import { Form, Formik } from "formik";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button, FormikJsonInput, Heading } from "../../components";
 import ReactDataGrid from "@inovua/reactdatagrid-community";
 import { ToggleButtonGroup, ToggleButton } from "@mui/material";
@@ -28,6 +28,10 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
   const [updatedJsonState, setUpdatedJsonState] = useState(initialConfig);
   const [contentType, setContentType] = useState("application/json");
   const [httpRequestBody, setHttpRequestBody] = useState({ body: "{}" });
+  const updatedJsonStateRef = useRef(updatedJsonState);
+  useEffect(() => {
+    updatedJsonStateRef.current = updatedJsonState;
+  }, [updatedJsonState]);
 
   const simpleTaskOptionalParameters = [
     {
@@ -391,7 +395,6 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
   const onEditComplete = useCallback(
     (editInfo: TypeEditInfo) => {
       const { value, columnId, rowId } = editInfo;
-      //if (!value) return;
       const data = [...dataSource];
       if (data[rowId][columnId].toString() === value.toString()) return;
       data[rowId][columnId] = value;
@@ -399,8 +402,9 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       setDataSource(data);
       setRefreshKey(Math.random());
 
-      const originalObject = JSON.parse(JSON.stringify(updatedJsonState));
-
+      const originalObject = JSON.parse(
+        JSON.stringify(updatedJsonStateRef.current),
+      );
       const edittedJson = {};
       data.forEach((item) => {
         if (item.type === "boolean") {
@@ -418,8 +422,7 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
           originalObject.inputParameters["asyncComplete"] =
             edittedJson[item.key];
         else {
-          originalObject.inputParameters.http_request[item.key] =
-            edittedJson[item.key];
+          originalObject[item.key] = edittedJson[item.key];
         }
       });
 
@@ -429,10 +432,11 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
     [dataSource],
   );
 
+  console.log("***", updatedJsonState);
+
   const onHttpRequestEditComplete = useCallback(
     (editInfo: TypeEditInfo) => {
       const { value, columnId, rowId } = editInfo;
-      //if (!value) return;
       const data = [...httpRequestDataSource];
       if (data[rowId][columnId].toString() === value.toString()) return;
       data[rowId][columnId] = value;
@@ -440,8 +444,9 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       setHttpRequestDataSource(data);
       setRefreshKey(Math.random());
 
-      const originalObject = JSON.parse(JSON.stringify(updatedJsonState));
-
+      const originalObject = JSON.parse(
+        JSON.stringify(updatedJsonStateRef.current),
+      );
       const edittedJson = {};
       data.forEach((item) => {
         if (item.type === "boolean") {
@@ -455,15 +460,8 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
         if (item.key === "contentType") {
           setContentType(item.value);
         }
-
-        if (item.level == "task")
-          originalObject[item.key] = edittedJson[item.key];
-        else if (item.level == "inputParameters")
-          originalObject.inputParameters[item.key] = edittedJson[item.key];
-        else {
-          originalObject.inputParameters.http_request[item.key] =
-            edittedJson[item.key];
-        }
+        originalObject.inputParameters.http_request[item.key] =
+          edittedJson[item.key];
       });
 
       setUpdatedJsonState(originalObject);
@@ -475,7 +473,6 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
   const onHeadersEditComplete = useCallback(
     (editInfo: TypeEditInfo) => {
       const { value, columnId, rowId } = editInfo;
-      //if (!value) return;
       const data = [...headersDataSource];
       if (data[rowId][columnId].toString() === value.toString()) return;
       data[rowId][columnId] = value;
@@ -487,10 +484,10 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       data.forEach((item) => {
         if (item.key !== "") edittedJson[item.key] = item.value;
       });
-      const originalObject = JSON.parse(JSON.stringify(updatedJsonState));
-
+      const originalObject = JSON.parse(
+        JSON.stringify(updatedJsonStateRef.current),
+      );
       originalObject.inputParameters.http_request.headers = edittedJson;
-
       setUpdatedJsonState(originalObject);
     },
     // eslint-disable-next-line
@@ -525,29 +522,14 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
 
   const handleHttpParametersSubmit = (values) => {
     setHttpRequestBody(values);
-    let newJsonState;
-    let newHttpRequest;
-    let newInputParameters;
 
     let bodyValue = values.body;
     if (contentType === "application/json") bodyValue = JSON.parse(values.body);
-    console.log("contenttype", contentType);
-    console.log("bodyvalue", bodyValue);
-    newHttpRequest = {
-      ...updatedJsonState.inputParameters.http_request,
-      body: bodyValue,
-    };
-    newInputParameters = {
-      ...updatedJsonState.inputParameters,
-      http_request: newHttpRequest,
-    };
-    newJsonState = {
-      ...updatedJsonState,
-      inputParameters: newInputParameters,
-    };
+    const originalObject = JSON.parse(JSON.stringify(updatedJsonState));
+    originalObject.inputParameters.http_request.body = bodyValue;
 
-    setUpdatedJsonState(newJsonState);
-    onUpdate(newJsonState);
+    setUpdatedJsonState(originalObject);
+    onUpdate(originalObject);
   };
 
   const getRowStyle = (data) => {
@@ -594,7 +576,6 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
     setHttpRequestExpressionState(newFormValues); // Clear the form values
   };
 
-  console.log(httpRequestBody);
   return (
     <div>
       <Heading level={1} gutterBottom>
