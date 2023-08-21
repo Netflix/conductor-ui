@@ -1,8 +1,6 @@
+import { HttpTaskConfig } from "../../types/workflowDef";
 
-  
- 
-
-  export const httpTaskLevelParameters = [
+export const httpTaskLevelParameters = [
     {
       id: 0,
       key: "name",
@@ -89,7 +87,7 @@
     {
       id: 0,
       key: "uri",
-      value: "",
+      value: "https://datausa.io/api/data?drilldowns=Nation&measures=Population",
       changed: false,
       required: true,
       type: "string",
@@ -142,33 +140,33 @@
     },
   ];
 
-  export const defaultSimpleTask =  {
-    "inputParameters": {},
-    "taskReferenceName": "simple_0",
-    "type": "SIMPLE",
-    "name": "simple_0"
-  };
+  export function createHttpTaskParams(taskReferenceName) {
+    let taskParams = {};
+    let httpRequest = {};
+  
+    httpTaskLevelParameters.forEach(parameter => {
+      // Only expose fields that are marked as required
+      if(parameter.required === true) {
+        // Sets the value as the respective input if the key matches "name" or "taskReferenceName", otherwise, uses the default value
+        if(parameter.key === "name") {
+            taskParams[parameter.key] = taskReferenceName;
+        } else if(parameter.key === "taskReferenceName") {
+            taskParams[parameter.key] = taskReferenceName;
+        } else {
+            taskParams[parameter.key] = parameter.value;
+        }
+      }
+    });
 
-  export const defaultInlineTask =  {
-    "inputParameters": {
-      "evaluatorType": "javascript",
-      "expression": "function scriptFun(){if ($.val){ return $.val + 1; } else { return 0; }} scriptFun()"
-    },
-    "taskReferenceName": "inline_0",
-    "type": "INLINE",
-    "name": "inline_0"
-  };
+    httpRequestParameters.forEach(parameter => {
+        // Only expose fields that are marked as required
+        if(parameter.required === true) {
+              httpRequest[parameter.key] = parameter.value;
+        }
+      });
 
-  export const defaultHttpTask = {
-    "inputParameters": {
-        http_request: {
-            uri: "https://jsonplaceholder.typicode.com/posts/",
-            method: "POST",
-          },
-    },
-    "taskReferenceName": "http_0",
-    "type": "HTTP",
-    "name": "http_0"
-  };
-
- 
+      taskParams["type"] = "SIMPLE";
+      taskParams["inputParameters"] = JSON.parse(JSON.stringify(httpRequest));
+   
+    return taskParams as HttpTaskConfig;
+  }

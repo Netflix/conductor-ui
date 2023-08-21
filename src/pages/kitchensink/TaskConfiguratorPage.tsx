@@ -51,16 +51,18 @@ const TaskConfiguratorPage = () => {
     type: "HTTP",
   };
 
-  const [initialConfig, setInitialConfig] = useState(sampleHttpTask);
+  const [initialConfig, setInitialConfig] = useState(sampleSimpleTask);
 
   const handleResetClick = () => {
     setInitialConfig({
-      taskReferenceName: "http_1",
-      name: "http_1",
-      inputParameters: {
-        http_request: "expression2",
-      },
-      type: "HTTP",
+        taskReferenceName: "simple_0",
+        name: "simple_0",
+        inputParameters: {},
+        inputExpression: {
+          expression: "workflow.input",
+          type: "JSON_PATH",
+        },
+        type: "SIMPLE",
     });
   };
 

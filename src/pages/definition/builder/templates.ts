@@ -16,6 +16,7 @@ import {
 } from "../../../types/workflowDef";
 import { createSimpleTaskParams } from "../../../schema/task/simpleTask";
 import { createInlineTaskParams } from "../../../schema/task/inlineTask";
+import { createHttpTaskParams } from "../../../schema/task/httpTask";
 export const templates: {
   [key in TaskConfigType]: (ref: string) => TaskConfig[];
 } = {
@@ -84,12 +85,7 @@ export const templates: {
     return [retval];
   },
   HTTP: (ref: string) => {
-    const retval: HttpTaskConfig = {
-      inputParameters: {},
-      taskReferenceName: ref,
-      type: "HTTP",
-      name: ref,
-    };
+    const retval: HttpTaskConfig = createHttpTaskParams(ref);
     return [retval];
   },
   SUB_WORKFLOW: (ref) => {

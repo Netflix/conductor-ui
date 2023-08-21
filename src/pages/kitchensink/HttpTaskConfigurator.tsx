@@ -7,7 +7,7 @@ import { TypeEditInfo } from "@inovua/reactdatagrid-community/types";
 import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
 import SelectEditor from "@inovua/reactdatagrid-community/SelectEditor";
 import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
-import { httpTaskLevelParameters, httpRequestParameters } from "../../schema/task/taskSchema";
+import { httpTaskLevelParameters, httpRequestParameters } from "../../schema/task/httpTask";
 const taskFormStyle = {
   minHeight: 402.5,
   margin: "15px 0",
@@ -224,7 +224,7 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
 
     // Update the state with the new rows
     setHeadersDataSource(newRows);
-  }, [initialConfig.inputParameters.http_request.headers]);
+  }, [initialConfig.inputParameters.http_request]);
 
   useEffect(() => {
     if (!initialConfig.inputParameters.http_request.body) {
