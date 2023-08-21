@@ -13,7 +13,7 @@ import {
   TaskConfigType,
   TerminateTaskConfig,
   WaitTaskConfig,
-} from "../../../types/workflowDef";
+} from "../../types/workflowDef";
 
 export const templates: {
   [key in TaskConfigType]: (ref: string) => TaskConfig[];

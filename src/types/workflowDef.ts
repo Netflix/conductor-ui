@@ -8,7 +8,6 @@ export const TASK_CONFIG_TYPES = [
   "DO_WHILE",
   "SUB_WORKFLOW",
   "HTTP",
-  "TERMINATE",
   "INLINE",
   "JQ_TRANSFORM",
   "WAIT",

@@ -7,7 +7,7 @@ import TaskLogs from "./taskTabs/TaskLogs";
 import TaskExecution from "./taskTabs/TaskExecution";
 import TaskConfiguration from "./taskTabs/TaskConfiguration";
 import { ExecutionAndTasks, TaskResult } from "../../types/execution";
-import WorkflowDAG from "../../components/diagram/WorkflowDAG";
+import WorkflowDAG from "../../data/dag/WorkflowDAG";
 import WorkflowGraph from "../../components/diagram/WorkflowGraph";
 import {
   IncompleteDFChildTaskConfig,

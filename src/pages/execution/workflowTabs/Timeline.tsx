@@ -1,7 +1,7 @@
 //@ts-nocheck
 import React from "react";
 import "./timeline.scss";
-import WorkflowDAG from "../../../components/diagram/WorkflowDAG";
+import WorkflowDAG from "../../../data/dag/WorkflowDAG";
 import { TaskResult } from "../../../types/execution";
 import { TaskCoordinate } from "../../../types/workflowDef";
 import ConductorTimeline from "./gantt-chart/ConductorTimeline";

@@ -12,7 +12,7 @@ import JsonPanel from "./builder/JsonPanel";
 import WorkflowBuilder from "./builder/WorkflowBuilder";
 import TaskConfigPanel from "./builder/TaskConfigPanel";
 import BuilderToolbar from "./builder/BuilderToolbar";
-import WorkflowDAG from "../../components/diagram/WorkflowDAG";
+import WorkflowDAG from "../../data/dag/WorkflowDAG";
 import { makeStyles } from "@mui/styles";
 
 type WorkflowDefParams = {

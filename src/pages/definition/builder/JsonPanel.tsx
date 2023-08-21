@@ -7,7 +7,7 @@ import Editor, { Monaco } from "@monaco-editor/react";
 import { DefEditorContext } from "../WorkflowDefinition";
 import { makeStyles } from "@mui/styles";
 import { WORKFLOW_SCHEMA } from "../../../schema/workflow";
-import WorkflowDAG from "../../../components/diagram/WorkflowDAG";
+import WorkflowDAG from "../../../data/dag/WorkflowDAG";
 
 // TODO: import Marker type
 type Marker = any;

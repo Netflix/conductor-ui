@@ -5,16 +5,15 @@ import {
   ExtendedTaskConfigType,
   TaskConfigType,
   TaskCoordinate,
-  TaskConfig,
 } from "../../../types/workflowDef";
 import React, { useContext } from "react";
 import { Menu, MenuItem } from "@mui/material";
 import { DefEditorContext } from "../WorkflowDefinition";
-import update from "immutability-helper";
+import WorkflowDAG from "../../../data/dag/WorkflowDAG";
 
 export default function WorkflowBuilder() {
   const context = useContext(DefEditorContext)!;
-  const { dag, staging, setStaging, setSelectedTask, selectedTask } = context!;
+  const { dag, setStaging, setSelectedTask, selectedTask } = context!;
 
   const [contextMenu, setContextMenu] = React.useState<{
     mouseX: number;
@@ -27,8 +26,8 @@ export default function WorkflowBuilder() {
     setSelectedTask(coord);
   };
 
-  const handleNewTasks = (tasks: TaskConfig[]) => {
-    setStaging(update(staging, { tasks: { $set: tasks } }));
+  const handleNewTasks = (dag: WorkflowDAG) => {
+    setStaging(dag.toWorkflowDef(), dag);
   };
 
   const handleContextMenu = (
@@ -53,8 +52,9 @@ export default function WorkflowBuilder() {
 
   const handleInsert = (type: TaskConfigType) => {
     if (contextMenu) {
-      const newTasks = dag.insertAfter(contextMenu.ref, type);
-      handleNewTasks(newTasks);
+      const newDag = dag.clone();
+      newDag.insertAfter(contextMenu.ref, type);
+      handleNewTasks(newDag);
     }
 
     setContextMenu(null);
@@ -66,32 +66,37 @@ export default function WorkflowBuilder() {
 
   const handleDelete = () => {
     if (contextMenu) {
-      const newTasks = dag.deleteTask(contextMenu.ref);
-      handleNewTasks(newTasks);
+      const newDag = dag.clone();
+      newDag.deleteTask(contextMenu.ref);
+      handleNewTasks(newDag);
     }
     setContextMenu(null);
   };
 
   const handleAddForkTasks = (type: TaskConfigType) => {
     if (contextMenu) {
-      const newTasks = dag.addForkTasks(contextMenu.ref, type);
-      handleNewTasks(newTasks);
+      const newDag = dag.clone();
+      newDag.addForkTasks(contextMenu.ref, type);
+      handleNewTasks(newDag);
     }
     setContextMenu(null);
   };
 
   const handleAddSwitchCase = (type: TaskConfigType, isDefault: boolean) => {
     if (contextMenu) {
-      const newTasks = dag.addSwitchCase(contextMenu.ref, type, isDefault);
-      handleNewTasks(newTasks);
+      const newDag = dag.clone();
+      newDag.addSwitchCase(contextMenu.ref, type, isDefault);
+      handleNewTasks(newDag);
     }
     setContextMenu(null);
   };
 
   const handleAddLoopTask = (type: TaskConfigType, isDefault: boolean) => {
     if (contextMenu) {
-      const newTasks = dag.addLoopTask(contextMenu.ref, type);
-      handleNewTasks(newTasks);
+      const newDag = dag.clone();
+
+      newDag.addLoopTask(contextMenu.ref, type);
+      handleNewTasks(newDag);
     }
     setContextMenu(null);
   };

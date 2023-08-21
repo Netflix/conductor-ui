@@ -1,13 +1,48 @@
 import { useContext } from "react";
 import { DefEditorContext } from "../WorkflowDefinition";
+import { Button } from "../../../components";
 
 // TODO: Placeholder for integration
 
 export default function TaskConfigPanel() {
   const context = useContext(DefEditorContext)!;
-  const { dag, selectedTask } = context!;
+  const { dag, selectedTask, setStaging } = context!;
 
-  const taskResult = selectedTask && dag.getTaskConfigByCoord(selectedTask);
+  const taskConfig = selectedTask && dag.getTaskConfigByCoord(selectedTask);
+
+  function modifyTaskChangeRef() {
+    const newDag = dag.clone();
+    newDag.updateTask("get_population_data", {
+      name: "get_population_data",
+      taskReferenceName: "get_population_data_NEW",
+      inputParameters: {
+        http_request: {
+          uri: "https://datausa.io/api/data?drilldowns=Nation&measures=Population",
+          method: "GET",
+        },
+      },
+      type: "HTTP",
+    });
+
+    setStaging(newDag.toWorkflowDef(), newDag);
+  }
+
+  function modifyTask() {
+    const newDag = dag.clone();
+    newDag.updateTask("get_population_data", {
+      name: "get_population_data_NEW",
+      taskReferenceName: "get_population_data",
+      inputParameters: {
+        http_request: {
+          uri: "https://google.com",
+          method: "GET",
+        },
+      },
+      type: "HTTP",
+    });
+
+    setStaging(newDag.toWorkflowDef(), newDag);
+  }
 
   if (!selectedTask) {
     return (
@@ -30,8 +65,11 @@ export default function TaskConfigPanel() {
     <div style={{ margin: 15 }}>
       <div>Selected Task: {JSON.stringify(selectedTask)}</div>
       <div>Resolved via DAG</div>
+      <Button onClick={modifyTask}>Modify Task</Button>
+
+      <Button onClick={modifyTaskChangeRef}>Modify Task (change ref)</Button>
       <pre>
-        <code>{JSON.stringify(taskResult, null, 2)}</code>
+        <code>{JSON.stringify(taskConfig, null, 2)}</code>
       </pre>
     </div>
   );
