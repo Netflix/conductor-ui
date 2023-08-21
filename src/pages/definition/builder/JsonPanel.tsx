@@ -1,43 +1,32 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import {
-  Button,
-  Text,
-  Select,
-  Pill,
-  usePushHistory,
-} from "../../../components";
-import { MenuItem, SelectChangeEvent, Toolbar, Tooltip } from "@mui/material";
+import { Button, Pill } from "../../../components";
+import { Toolbar, Tooltip } from "@mui/material";
 import _ from "lodash";
 import Editor, { Monaco } from "@monaco-editor/react";
 
 import { DefEditorContext } from "../WorkflowDefinition";
 import { makeStyles } from "@mui/styles";
 import { WORKFLOW_SCHEMA } from "../../../schema/workflow";
-import { NamesAndVersions } from "../../../types/namesAndVersions";
-import { useWorkflowNamesAndVersions } from "../../../data/workflow";
-import ResetConfirmationDialog from "../ResetConfirmationDialog";
-import SaveWorkflowDialog from "../SaveWorkflowDialog";
+import WorkflowDAG from "../../../components/diagram/WorkflowDAG";
 
 // TODO: import Marker type
 type Marker = any;
 
 const useStyles = makeStyles({
-  wrapper: {
+  column: {
+    flex: 1,
     display: "flex",
     height: "100%",
-    alignItems: "stretch",
-  },
-  workflowName: {
-    fontWeight: "bold",
-  },
-  rightButtons: {
-    display: "flex",
-    flexGrow: 1,
-    justifyContent: "flex-end",
-    gap: 8,
+    flexDirection: "column",
   },
   editorLineDecorator: {
     backgroundColor: "rgb(45, 45, 45, 0.1)",
+  },
+  editor: {
+    flex: 1,
+  },
+  spaceBetween: {
+    justifyContent: "space-between",
   },
 });
 
@@ -66,40 +55,18 @@ export function configureMonaco(monaco: any) {
 export default function JsonPanel() {
   const classes = useStyles();
   const context = useContext(DefEditorContext);
-  const navigate = usePushHistory();
+  const { selectedTask, staging, setStaging } = context!;
 
-  const [saveDialog, setSaveDialog] = useState<{
-    original: string;
-    originalObj: any;
-    modified: string;
-  } | null>(null);
-  const [resetDialog, setResetDialog] = useState<false | undefined | string>(
-    false,
-  );
   // false=idle (dialog closed)
   // undefined= Ask to reset to current_version
   // otherwise Ask to reset to version id
-  const [isModified, setIsModified] = useState<boolean>(false);
   const [decorations, setDecorations] = useState([]);
   const [jsonErrors, setJsonErrors] = useState<Marker[]>([]);
+  const [workingText, setWorkingText] = useState<string>();
 
-  const {
-    data: namesAndVersions,
-    refetch: refetchNamesAndVersions,
-  }: { data?: NamesAndVersions; refetch: Function } =
-    useWorkflowNamesAndVersions();
-  const {
-    workflowName,
-    workflowVersion,
-    workflowDef,
-    selectedTask,
-    refetchWorkflow,
-  } = context!;
-
-  const versions = useMemo(
-    () => _.get(namesAndVersions, workflowName!, []),
-    [namesAndVersions, workflowName],
-  );
+  useEffect(() => {
+    setWorkingText(JSON.stringify(staging, null, 2));
+  }, [staging]);
 
   useEffect(() => {
     if (editorRef.current) {
@@ -135,61 +102,6 @@ export default function JsonPanel() {
 
   const editorRef = useRef<any | null>(null);
 
-  const workflowJson = useMemo(
-    () => (workflowDef ? JSON.stringify(workflowDef, null, 2) : ""),
-    [workflowDef],
-  );
-
-  // Saving
-  const handleOpenSave = () => {
-    const modified = editorRef.current?.getValue();
-
-    setSaveDialog({
-      original: workflowName ? workflowJson : "",
-      originalObj: workflowName ? workflowDef : null,
-      modified: modified,
-    });
-  };
-
-  // Version Change or Reset
-  const handleResetVersion = (version: string | undefined) => {
-    if (isModified) {
-      setResetDialog(version);
-    } else {
-      changeVersionOrReset(version);
-    }
-  };
-
-  const changeVersionOrReset = (version: string | undefined) => {
-    if (version === workflowVersion) {
-      // Reset to fetched version
-      editorRef.current?.getModel().setValue(workflowJson);
-    } else if (_.isUndefined(version)) {
-      navigate(`/workflowDef/${workflowName}`);
-    } else {
-      navigate(`/workflowDef/${workflowName}/${version}`);
-    }
-
-    setResetDialog(false);
-    setIsModified(false);
-  };
-
-  const handleSaveCancel = () => {
-    setSaveDialog(null);
-  };
-
-  const handleSaveSuccess = (name: string, version: string) => {
-    setSaveDialog(null);
-    setIsModified(false);
-    refetchNamesAndVersions();
-
-    if (name === workflowName && version === workflowVersion) {
-      refetchWorkflow();
-    } else {
-      navigate(`/workflowDef/${name}/${version}`);
-    }
-  };
-
   // Monaco Handlers
   const handleEditorWillMount = (monaco: Monaco) => {
     configureMonaco(monaco);
@@ -203,108 +115,78 @@ export default function JsonPanel() {
     setJsonErrors(markers);
   };
 
-  const handleChange = (v: string | undefined) => {
-    setIsModified(v !== workflowJson);
+  const handleChange = (v) => setWorkingText(v);
+
+  const handleCommit = () => {
+    try {
+      const workingDef = JSON.parse(workingText!);
+      const dag = WorkflowDAG.fromWorkflowDef(workingDef);
+      setStaging(workingDef, dag);
+    } catch (e) {
+      console.log("error parsing into dag");
+    }
   };
 
+  const errorLevel = useMemo(() => {
+    const maxLevel = Math.max(...jsonErrors.map((err) => err.severity));
+    if (maxLevel > 4) {
+      return "error";
+    } else if (maxLevel > 0) {
+      return "warning";
+    } else return undefined;
+  }, [jsonErrors]);
+
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-        width: "100%",
-      }}
-    >
-      <Toolbar>
-        <Text className={classes.workflowName}>{workflowName || "NEW"}</Text>
-
-        <Select
-          fullWidth
-          label=""
-          disabled={!workflowDef}
-          value={_.isUndefined(workflowVersion) ? "" : workflowVersion}
-          displayEmpty
-          renderValue={(v: string) =>
-            v === "" ? "Latest Version" : `Version ${v}`
-          }
-          onChange={(evt: SelectChangeEvent) =>
-            handleResetVersion(evt.target.value)
-          }
-        >
-          <MenuItem value="">Latest Version</MenuItem>
-          {versions!.map((row) => (
-            <MenuItem value={row.version} key={row.version}>
-              Version {row.version}
-            </MenuItem>
-          ))}
-        </Select>
-
-        {isModified ? (
-          <Pill color="yellow" label="Modified" />
-        ) : (
-          <Pill label="Unmodified" />
-        )}
-        {!_.isEmpty(jsonErrors) && (
-          <Tooltip
-            disableFocusListener
-            title="There are validation or syntax errors. Validation errors at the root level may be seen by hovering over the opening brace."
-          >
+    <div className={classes.column}>
+      <Toolbar
+        variant="dense"
+        classes={{
+          root: classes.spaceBetween,
+        }}
+      >
+        {errorLevel === "error" && (
+          <Tooltip disableFocusListener title="There are JSON syntax errors.">
             <div>
-              <Pill color="red" label="Validation" />
+              <Pill color="red" label="Syntax Error" />
             </div>
           </Tooltip>
         )}
 
-        <div className={classes.rightButtons}>
-          <Button
-            disabled={!_.isEmpty(jsonErrors) || !isModified}
-            onClick={handleOpenSave}
+        {errorLevel === "warning" && (
+          <Tooltip
+            disableFocusListener
+            title="There are schema errors. Look for a yellow swiggly line under an opening brace. Errors may be at the root level (hover over first opening brace)."
           >
-            Save
-          </Button>
-          <Button
-            disabled={!isModified}
-            onClick={() => handleResetVersion(workflowVersion)}
-            variant="secondary"
-          >
-            Reset
-          </Button>
-        </div>
+            <div>
+              <Pill color="yellow" label="Schema Error" />
+            </div>
+          </Tooltip>
+        )}
+        {!errorLevel && <div />}
+
+        <Button disabled={!_.isEmpty(jsonErrors)} onClick={handleCommit}>
+          Validate
+        </Button>
       </Toolbar>
-
-      <div style={{ flex: 1 }}>
-        <Editor
-          height="100%"
-          width="100%"
-          theme="vs-light"
-          language="json"
-          value={workflowJson}
-          beforeMount={handleEditorWillMount}
-          onMount={handleEditorDidMount}
-          onValidate={handleValidate}
-          onChange={handleChange}
-          options={{
-            smoothScrolling: true,
-            selectOnLineNumbers: true,
-            minimap: {
-              enabled: false,
-            },
-          }}
-          path={JSON_FILE_NAME}
-        />
-      </div>
-
-      <ResetConfirmationDialog
-        version={resetDialog}
-        onConfirm={changeVersionOrReset}
-        onClose={() => setResetDialog(false)}
-      />
-
-      <SaveWorkflowDialog
-        document={saveDialog}
-        onCancel={handleSaveCancel}
-        onSuccess={handleSaveSuccess}
+      <Editor
+        className={classes.editor}
+        height="100%"
+        width="100%"
+        theme="vs-light"
+        language="json"
+        value={workingText}
+        beforeMount={handleEditorWillMount}
+        onMount={handleEditorDidMount}
+        onValidate={handleValidate}
+        onChange={handleChange}
+        options={{
+          smoothScrolling: true,
+          selectOnLineNumbers: true,
+          minimap: {
+            enabled: false,
+          },
+        }}
+        path={JSON_FILE_NAME}
       />
     </div>
   );

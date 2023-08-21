@@ -10,12 +10,11 @@ import {
 import React, { useContext } from "react";
 import { Menu, MenuItem } from "@mui/material";
 import { DefEditorContext } from "../WorkflowDefinition";
-import { useWorkflowDagFromDef } from "../../../data/execution";
 import update from "immutability-helper";
 
 export default function WorkflowBuilder() {
-  const context = useContext(DefEditorContext);
-  const dag = useWorkflowDagFromDef(context?.workflowDef)!;
+  const context = useContext(DefEditorContext)!;
+  const { dag, staging, setStaging, setSelectedTask, selectedTask } = context!;
 
   const [contextMenu, setContextMenu] = React.useState<{
     mouseX: number;
@@ -25,17 +24,11 @@ export default function WorkflowBuilder() {
   } | null>(null);
 
   const handleTaskSelect = (coord: TaskCoordinate | null) => {
-    if (context?.setSelectedTask) {
-      context.setSelectedTask(coord);
-    }
+    setSelectedTask(coord);
   };
 
   const handleNewTasks = (tasks: TaskConfig[]) => {
-    if (context?.setWorkflowDef) {
-      context.setWorkflowDef(
-        update(context.workflowDef, { tasks: { $set: tasks } }),
-      );
-    }
+    setStaging(update(staging, { tasks: { $set: tasks } }));
   };
 
   const handleContextMenu = (
@@ -112,7 +105,7 @@ export default function WorkflowBuilder() {
         onTaskSelect={handleTaskSelect}
         onContextMenu={handleContextMenu}
         executionMode={false}
-        selectedTask={null}
+        selectedTask={selectedTask}
       />
       <Menu
         open={open}

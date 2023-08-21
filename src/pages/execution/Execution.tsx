@@ -8,7 +8,6 @@ import { Alert, AlertTitle } from "@mui/material";
 import { TileFactoryContext } from "./tabLoader";
 import { Severity } from "./workflowTabs/ExpertSystemRules";
 
-import "../../components/rc-dock.css";
 import DockLayout, {
   LayoutBase,
   LayoutData,
@@ -24,7 +23,6 @@ import { MoreHoriz } from "@mui/icons-material";
 import tabLoader from "./tabLoader";
 import useLocalStorageState from "use-local-storage-state";
 import _ from "lodash";
-import React from "react";
 
 const defaultLayout: any = {
   dockbox: {

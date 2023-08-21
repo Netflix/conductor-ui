@@ -73,7 +73,6 @@ export function useWorkflowDef(
   workflowName: string | undefined,
   version: string | undefined,
   defaultWorkflow: WorkflowDef | undefined,
-  reactQueryOptions = {},
 ) {
   let path;
   const key = ["workflowDef", workflowName || ""];
@@ -88,7 +87,7 @@ export function useWorkflowDef(
   return useFetch<WorkflowDef>(
     key,
     path,
-    { ...reactQueryOptions },
+    {}, // Always enabled - get defaultWorkflow when workflowName undefined
     defaultWorkflow,
   );
 }
