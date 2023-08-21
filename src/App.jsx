@@ -20,7 +20,6 @@ import DiagramTest from "./pages/kitchensink/DiagramTest";
 import Examples from "./pages/kitchensink/Examples";
 import Gantt from "./pages/kitchensink/Gantt";
 import Workbench from "./pages/workbench/Workbench";
-import RcDockTest from "./pages/kitchensink/RCDockTest";
 import TaskConfiguratorPage from "./pages/kitchensink/TaskConfiguratorPage";
 
 // For rc-dock
@@ -96,7 +95,6 @@ export default function App({
           <Route path="/kitchen/diagram" element={<DiagramTest />} />
           <Route path="/kitchen/examples" element={<Examples />} />
           <Route path="/kitchen/gantt" element={<Gantt />} />
-          <Route path="/kitchen/rcdock" element={<RcDockTest />} />
           <Route
             path="/kitchen/taskConfigurator"
             element={<TaskConfiguratorPage />}
