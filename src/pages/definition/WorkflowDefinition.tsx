@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { LinearProgress } from "../../components";
 import { Helmet } from "react-helmet";
@@ -51,7 +51,7 @@ export default function WorkflowDefinition() {
   const workflowName = params.name;
   const workflowVersion = params.version;
 
-  const [staging, setStaging] = useState<WorkflowDef | undefined>(undefined);
+  const [staging, setStagingRaw] = useState<WorkflowDef | undefined>(undefined);
   const [selectedTask, setSelectedTask] = useState<TaskCoordinate | null>(null);
   const [dag, setDag] = useState<WorkflowDAG | undefined>(undefined);
 
@@ -61,16 +61,30 @@ export default function WorkflowDefinition() {
     refetch: refetchWorkflow,
   } = useWorkflowDef(workflowName, workflowVersion, NEW_WORKFLOW_TEMPLATE);
 
-  useEffect(() => {
-    if (!!staging) {
-      setDag(WorkflowDAG.fromWorkflowDef(staging));
-    }
-  }, [staging]);
+  const setStaging = useCallback(
+    (newStaging: WorkflowDef, newDag?: WorkflowDAG) => {
+      setStagingRaw(newStaging);
+      newDag = newDag || WorkflowDAG.fromWorkflowDef(newStaging);
+      setDag(newDag);
+
+      if (selectedTask) {
+        try {
+          newDag.getTaskConfigByCoord(selectedTask);
+        } catch (e) {
+          // Selected task changed. Unset it.
+          console.log("unsetting selectedTask");
+          setSelectedTask(null);
+        }
+      }
+    },
+    [setStagingRaw, setDag, selectedTask],
+  );
 
   useEffect(() => {
     if (!!original) {
       setStaging(original);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [original]);
 
   const isModified = useMemo(
