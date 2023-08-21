@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { LinearProgress } from "../../components";
 import { Helmet } from "react-helmet";
@@ -10,6 +10,10 @@ import React from "react";
 import DockLayout from "rc-dock";
 import JsonPanel from "./builder/JsonPanel";
 import WorkflowBuilder from "./builder/WorkflowBuilder";
+import TaskConfigPanel from "./builder/TaskConfigPanel";
+import BuilderToolbar from "./builder/BuilderToolbar";
+import WorkflowDAG from "../../components/diagram/WorkflowDAG";
+import { makeStyles } from "@mui/styles";
 
 type WorkflowDefParams = {
   name: string;
@@ -17,38 +21,76 @@ type WorkflowDefParams = {
 };
 
 export type IDefEditorContext = {
-  workflowName: string;
-  workflowVersion: string;
-  workflowDef: WorkflowDef;
+  workflowName: string | undefined;
+  workflowVersion: number | undefined;
+  original: WorkflowDef;
+  staging: WorkflowDef;
+  dag: WorkflowDAG;
   selectedTask: TaskCoordinate | null;
-  setWorkflowDef: (workflowDef: WorkflowDef) => void;
+  setStaging: (workflowDef: WorkflowDef, dag?: WorkflowDAG) => void;
   setSelectedTask: (coord: TaskCoordinate | null) => void;
   refetchWorkflow: () => void;
+  isModified: boolean;
 };
 
 export const DefEditorContext = React.createContext<
   IDefEditorContext | undefined
 >(undefined);
 
-export default function Workflow() {
-  const params = useParams<WorkflowDefParams>();
+const useStyles = makeStyles({
+  column: {
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
+  },
+});
 
-  const workflowName = params.name as string;
-  const workflowVersion = params.version as string;
-  const [workflowDef, setWorkflowDef] = useState<WorkflowDef | undefined>(
-    undefined,
-  );
+export default function WorkflowDefinition() {
+  const params = useParams<WorkflowDefParams>();
+  const classes = useStyles();
+  const workflowName = params.name;
+  const workflowVersion = params.version;
+
+  const [staging, setStagingRaw] = useState<WorkflowDef | undefined>(undefined);
   const [selectedTask, setSelectedTask] = useState<TaskCoordinate | null>(null);
+  const [dag, setDag] = useState<WorkflowDAG | undefined>(undefined);
 
   const {
-    data: remoteWorkflowDef,
+    data: original,
     isFetching,
     refetch: refetchWorkflow,
   } = useWorkflowDef(workflowName, workflowVersion, NEW_WORKFLOW_TEMPLATE);
 
+  const setStaging = useCallback(
+    (newStaging: WorkflowDef, newDag?: WorkflowDAG) => {
+      setStagingRaw(newStaging);
+      newDag = newDag || WorkflowDAG.fromWorkflowDef(newStaging);
+      setDag(newDag);
+
+      if (selectedTask) {
+        try {
+          newDag.getTaskConfigByCoord(selectedTask);
+        } catch (e) {
+          // Selected task changed. Unset it.
+          console.log("unsetting selectedTask");
+          setSelectedTask(null);
+        }
+      }
+    },
+    [setStagingRaw, setDag, selectedTask],
+  );
+
   useEffect(() => {
-    setWorkflowDef(remoteWorkflowDef);
-  }, [remoteWorkflowDef]);
+    if (!!original) {
+      setStaging(original);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [original]);
+
+  const isModified = useMemo(
+    () => !!staging && original !== staging,
+    [original, staging],
+  );
 
   return (
     <>
@@ -59,48 +101,66 @@ export default function Workflow() {
       </Helmet>
 
       {isFetching && <LinearProgress />}
-      {workflowDef && (
+      {staging && (
         <DefEditorContext.Provider
           value={{
             workflowName,
-            workflowVersion,
-            workflowDef,
+            workflowVersion: workflowVersion
+              ? parseInt(workflowVersion)
+              : undefined,
+            original: original!,
+            staging: staging,
+            dag: dag!,
+            setStaging,
             selectedTask,
             setSelectedTask,
-            setWorkflowDef,
             refetchWorkflow,
+            isModified,
           }}
         >
-          <DockLayout
-            style={{ width: "100%", height: "100%" }}
-            defaultLayout={{
-              dockbox: {
-                mode: "horizontal",
-                children: [
-                  {
-                    group: "workflow",
-                    tabs: [
-                      {
-                        id: "JsonPanel",
-                        title: "JSON",
-                        content: <JsonPanel />,
-                      },
-                    ],
-                  },
-                  {
-                    group: "task",
-                    tabs: [
-                      {
-                        id: "WorkflowBuilder",
-                        title: "Workflow Builder",
-                        content: <WorkflowBuilder />,
-                      },
-                    ],
-                  },
-                ],
-              },
-            }}
-          />
+          <div className={classes.column}>
+            <BuilderToolbar />
+            <DockLayout
+              style={{ flex: 1, width: "100%", height: "100%" }}
+              defaultLayout={{
+                dockbox: {
+                  mode: "horizontal",
+                  children: [
+                    {
+                      group: "left",
+                      tabs: [
+                        {
+                          id: "TaskConfigPanel",
+                          title: "Task Config",
+                          content: <TaskConfigPanel />,
+                        },
+                        {
+                          id: "JsonPanel",
+                          title: "JSON",
+                          content: <JsonPanel />,
+                        },
+                      ],
+                    },
+                    {
+                      group: "task",
+                      tabs: [
+                        {
+                          id: "WorkflowBuilder",
+                          title: "Workflow Builder",
+                          content: <WorkflowBuilder />,
+                        },
+                      ],
+                    },
+                  ],
+                },
+              }}
+              groups={{
+                left: {
+                  animated: false,
+                },
+              }}
+            />
+          </div>
         </DefEditorContext.Provider>
       )}
     </>

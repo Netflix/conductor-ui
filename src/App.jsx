@@ -23,6 +23,9 @@ import Workbench from "./pages/workbench/Workbench";
 import RcDockTest from "./pages/kitchensink/RCDockTest";
 import TaskConfiguratorPage from "./pages/kitchensink/TaskConfiguratorPage";
 
+// For rc-dock
+import "./components/rc-dock.css";
+
 // For RDG
 import "@inovua/reactdatagrid-community/base.css";
 import "./components/table.css";

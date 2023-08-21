@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Dialog,
   DialogActions,
@@ -7,11 +6,17 @@ import {
 } from "@mui/material";
 import { Text, Button } from "../../components";
 
+type ResetConfirmationDialogProps = {
+  onClose: () => void;
+  onConfirm: (version: number | undefined) => void;
+  version: number | undefined | false;
+};
+
 export default function ResetConfirmationDialog({
   onClose,
   onConfirm,
   version,
-}) {
+}: ResetConfirmationDialogProps) {
   return (
     <Dialog fullWidth maxWidth="sm" open={version !== false} onClose={onClose}>
       <DialogTitle>Confirmation</DialogTitle>
@@ -21,7 +26,9 @@ export default function ResetConfirmationDialog({
         </Text>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => onConfirm(version)}>Confirm</Button>
+        <Button onClick={() => onConfirm(version as number | undefined)}>
+          Confirm
+        </Button>
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>
