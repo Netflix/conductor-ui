@@ -7,6 +7,7 @@ import { TypeEditInfo } from "@inovua/reactdatagrid-community/types";
 import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
 import SelectEditor from "@inovua/reactdatagrid-community/SelectEditor";
 import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
+import { simpleTaskParameters } from "../../schema/task/simpleTask";
 
 const gridStyle = {
   minHeight: 362.5,
@@ -27,72 +28,6 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
   const [parameterOrExpression, setParameterOrExpression] =
     useState("parameter");
   const [updatedJsonState, setUpdatedJsonState] = useState(initialConfig);
-
-  const simpleTaskOptionalParameters = [
-    {
-      id: 0,
-      key: "name",
-      value: "",
-      changed: false,
-      required: true,
-      type: "string",
-    },
-    {
-      id: 1,
-      key: "taskReferenceName",
-      value: "",
-      changed: false,
-      required: true,
-    },
-    {
-      id: 2,
-      key: "description",
-      value: "",
-      changed: false,
-      required: false,
-      type: "string",
-    },
-    {
-      id: 3,
-      key: "optional",
-      value: false,
-      changed: false,
-      required: false,
-      type: "boolean",
-    },
-    {
-      id: 4,
-      key: "asyncComplete",
-      value: false,
-      changed: false,
-      required: false,
-      type: "boolean",
-    },
-    {
-      id: 5,
-      key: "startDelay",
-      value: 0,
-      changed: false,
-      required: false,
-      type: "int",
-    },
-    {
-      id: 6,
-      key: "rateLimited",
-      value: false,
-      changed: false,
-      required: false,
-      type: "boolean",
-    },
-    {
-      id: 7,
-      key: "retryCount",
-      value: 0,
-      changed: false,
-      required: false,
-      type: "int",
-    },
-  ];
 
   const renderCell = ({ value }) => {
     return value.toString();
@@ -161,7 +96,7 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
 
   // eslint-disable-next-line
   useEffect(() => {
-    let updatedParameters = [...simpleTaskOptionalParameters]; // Clone the array
+    let updatedParameters = [...simpleTaskParameters]; // Clone the array
 
     for (const param of updatedParameters) {
       if (initialConfig.hasOwnProperty(param.key)) {
@@ -177,7 +112,7 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
     // eslint-disable-next-line
   }, [initialConfig]);
 
-  const [dataSource, setDataSource] = useState(simpleTaskOptionalParameters);
+  const [dataSource, setDataSource] = useState(simpleTaskParameters);
 
   // eslint-disable-next-line
   const onEditComplete = useCallback(

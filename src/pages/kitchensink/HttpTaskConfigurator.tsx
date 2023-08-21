@@ -7,7 +7,7 @@ import { TypeEditInfo } from "@inovua/reactdatagrid-community/types";
 import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
 import SelectEditor from "@inovua/reactdatagrid-community/SelectEditor";
 import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
-
+import { httpTaskLevelParameters, httpRequestParameters } from "../../schema/task/taskSchema";
 const taskFormStyle = {
   minHeight: 402.5,
   margin: "15px 0",
@@ -32,146 +32,6 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
   useEffect(() => {
     updatedJsonStateRef.current = updatedJsonState;
   }, [updatedJsonState]);
-
-  const simpleTaskOptionalParameters = [
-    {
-      id: 0,
-      key: "name",
-      value: "",
-      changed: false,
-      required: true,
-      type: "string",
-      level: "task",
-    },
-    {
-      id: 1,
-      key: "taskReferenceName",
-      value: "",
-      changed: false,
-      required: true,
-      level: "task",
-    },
-    {
-      id: 2,
-      key: "description",
-      value: "",
-      changed: false,
-      required: false,
-      type: "string",
-      level: "task",
-    },
-    {
-      id: 3,
-      key: "optional",
-      value: false,
-      changed: false,
-      required: false,
-      type: "boolean",
-      level: "task",
-    },
-    {
-      id: 4,
-      key: "asyncComplete",
-      value: false,
-      changed: false,
-      required: false,
-      type: "boolean",
-      level: "task",
-    },
-    {
-      id: 5,
-      key: "startDelay",
-      value: 0,
-      changed: false,
-      required: false,
-      type: "int",
-      level: "task",
-    },
-    {
-      id: 6,
-      key: "rateLimited",
-      value: false,
-      changed: false,
-      required: false,
-      type: "boolean",
-      level: "task",
-    },
-    {
-      id: 7,
-      key: "retryCount",
-      value: 0,
-      changed: false,
-      required: false,
-      type: "int",
-      level: "task",
-    },
-    {
-      id: 8,
-      key: "asyncCompleteExpression",
-      value: "false",
-      changed: false,
-      required: false,
-      type: "string",
-      level: "inputParameters",
-    },
-  ];
-
-  const httpRequestParameters = [
-    {
-      id: 0,
-      key: "uri",
-      value: "",
-      changed: false,
-      required: true,
-      type: "string",
-      level: "http_request",
-    },
-    {
-      id: 1,
-      key: "method",
-      value: "GET",
-      changed: false,
-      required: true,
-      type: "string",
-      level: "http_request",
-    },
-    {
-      id: 2,
-      key: "accept",
-      value: "application/json",
-      changed: false,
-      required: false,
-      type: "string",
-      level: "http_request",
-    },
-    {
-      id: 3,
-      key: "contentType",
-      value: "application/json",
-      changed: false,
-      required: false,
-      type: "string",
-      level: "http_request",
-    },
-    {
-      id: 4,
-      key: "vipAddress",
-      value: "",
-      changed: false,
-      required: false,
-      type: "string",
-      level: "http_request",
-    },
-    {
-      id: 5,
-      key: "appName",
-      value: "",
-      changed: false,
-      required: false,
-      type: "string",
-      level: "http_request",
-    },
-  ];
 
   const renderCell = ({ value }) => {
     if (value !== null) return value.toString();
@@ -298,7 +158,7 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
 
   // eslint-disable-next-line
   useEffect(() => {
-    let updatedParameters = [...simpleTaskOptionalParameters]; // Clone the array
+    let updatedParameters = [...httpTaskLevelParameters]; // Clone the array
 
     for (const param of updatedParameters) {
       if (initialConfig.hasOwnProperty(param.key)) {
@@ -338,7 +198,7 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
     // eslint-disable-next-line
   }, [initialConfig]);
 
-  const [dataSource, setDataSource] = useState(simpleTaskOptionalParameters);
+  const [dataSource, setDataSource] = useState(httpTaskLevelParameters);
 
   const [headersDataSource, setHeadersDataSource] = useState<any>([]);
 
@@ -561,7 +421,7 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       };
 
       setUpdatedJsonState(newJsonState);
-      setDataSource(simpleTaskOptionalParameters);
+      setDataSource(httpTaskLevelParameters);
       setHttpRequestDataSource(httpRequestParameters);
       setHeadersDataSource([]);
       setHttpRequestBody({ body: "{}" });
