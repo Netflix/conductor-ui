@@ -13,10 +13,10 @@ import {
   TaskConfigType,
   TerminateTaskConfig,
   WaitTaskConfig,
-} from "../../../types/workflowDef";
-import { createSimpleTaskParams } from "../../../schema/task/simpleTask";
-import { createInlineTaskParams } from "../../../schema/task/inlineTask";
-import { createHttpTaskParams } from "../../../schema/task/httpTask";
+} from "../../types/workflowDef";
+import { createSimpleTaskParams } from "../../schema/task/simpleTask";
+import { createInlineTaskParams } from "../../schema/task/inlineTask";
+import { createHttpTaskParams } from "../../schema/task/httpTask";
 export const templates: {
   [key in TaskConfigType]: (ref: string) => TaskConfig[];
 } = {

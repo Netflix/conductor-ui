@@ -1,4 +1,4 @@
-import WorkflowDAG from "../../components/diagram/WorkflowDAG";
+import WorkflowDAG from "../../data/dag/WorkflowDAG";
 import { TaskResult } from "../../types/execution";
 import { WorkflowExecution } from "./mockWorkflow";
 import { v4 as uuidv4 } from "uuid";

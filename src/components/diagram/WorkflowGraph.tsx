@@ -16,7 +16,7 @@ import ZoomOutIcon from "@mui/icons-material/ZoomOut";
 import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
 import HomeIcon from "@mui/icons-material/Home";
 import "./diagram.scss";
-import WorkflowDAG, { NodeData } from "./WorkflowDAG";
+import WorkflowDAG, { NodeData } from "../../data/dag/WorkflowDAG";
 import {
   DagEdgeProperties,
   ExtendedTaskConfigType,
