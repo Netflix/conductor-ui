@@ -35,6 +35,7 @@ export default function ({
   label,
   height,
   reinitialize = false,
+  language = "json",
   ...props
 }) {
   const classes = useStyles();
@@ -63,9 +64,9 @@ export default function ({
       <Editor
         className={classes.monaco}
         height={height || 90}
-        defaultLanguage="json"
+        defaultLanguage={language}
         onMount={handleEditorMount}
-        defaultValue={field.value}
+        value={field.value}
         options={{
           tabSize: 2,
           minimap: { enabled: false },
