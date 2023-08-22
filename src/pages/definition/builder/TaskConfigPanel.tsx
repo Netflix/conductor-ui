@@ -91,11 +91,16 @@ export default function TaskConfigPanel() {
           onUpdate={handleTaskConfiguratorUpdate}
           initialConfig={taskConfig}
         />
-      ) : (
+      ) : taskConfig !== null && taskConfig.type === "SIMPLE" ? (
         <TaskConfigurator
           onUpdate={handleTaskConfiguratorUpdate}
           initialConfig={taskConfig}
         />
+      ) : (
+        <div>
+          Task Type not currently supported by Task Configurator. Please use the
+          JSON panel instead.
+        </div>
       )}
     </div>
   );
