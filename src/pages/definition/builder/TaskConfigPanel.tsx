@@ -1,6 +1,9 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { DefEditorContext } from "../WorkflowDefinition";
-import { Button } from "../../../components";
+import { Button, Paper } from "../../../components";
+import HttpTaskConfigurator from "../../kitchensink/HttpTaskConfigurator";
+import InlineTaskConfigurator from "../../kitchensink/InlineTaskConfigurator";
+import TaskConfigurator from "../../kitchensink/TaskConfigurator";
 
 // TODO: Placeholder for integration
 
@@ -9,6 +12,9 @@ export default function TaskConfigPanel() {
   const { dag, selectedTask, setStaging } = context!;
 
   const taskConfig = selectedTask && dag.getTaskConfigByCoord(selectedTask);
+  console.log(taskConfig);
+  let originalRef = null;
+  if (taskConfig) originalRef = JSON.parse(JSON.stringify(taskConfig)).taskReferenceName;
 
   function modifyTaskChangeRef() {
     const newDag = dag.clone();
@@ -61,16 +67,33 @@ export default function TaskConfigPanel() {
     );
   }
 
-  return (
-    <div style={{ margin: 15 }}>
-      <div>Selected Task: {JSON.stringify(selectedTask)}</div>
-      <div>Resolved via DAG</div>
-      <Button onClick={modifyTask}>Modify Task</Button>
+  const handleTaskConfiguratorUpdate = (updatedState) => {
+    const newDag = dag.clone();
+    console.log("updatedState", updatedState);
+    console.log("originalRef", originalRef);
+    if (originalRef)
+    newDag.updateTask(originalRef, updatedState);
+    setStaging(newDag.toWorkflowDef(), newDag);
+  };
 
-      <Button onClick={modifyTaskChangeRef}>Modify Task (change ref)</Button>
-      <pre>
-        <code>{JSON.stringify(taskConfig, null, 2)}</code>
-      </pre>
-    </div>
+  return (
+    <div > <Button onClick={modifyTaskChangeRef}>Modify Task (change ref)</Button>
+          {taskConfig !== null && taskConfig.type === "HTTP" ? (
+            <HttpTaskConfigurator
+              onUpdate={handleTaskConfiguratorUpdate}
+              initialConfig={taskConfig}
+            />
+          ) : taskConfig !== null && taskConfig.type === "INLINE" ? (
+            <InlineTaskConfigurator
+              onUpdate={handleTaskConfiguratorUpdate}
+              initialConfig={taskConfig}
+            />
+          ) : (
+            <TaskConfigurator
+              onUpdate={handleTaskConfiguratorUpdate}
+              initialConfig={taskConfig}
+            />
+          )}
+      </div>
   );
 }
