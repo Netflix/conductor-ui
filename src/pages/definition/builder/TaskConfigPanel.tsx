@@ -1,9 +1,9 @@
 import { useContext, useState } from "react";
 import { DefEditorContext } from "../WorkflowDefinition";
 import { Button, Paper } from "../../../components";
-import HttpTaskConfigurator from "../../kitchensink/HttpTaskConfigurator";
-import InlineTaskConfigurator from "../../kitchensink/InlineTaskConfigurator";
-import TaskConfigurator from "../../kitchensink/TaskConfigurator";
+import HttpTaskConfigurator from "./taskconfigurator/HttpTaskConfigurator";
+import InlineTaskConfigurator from "./taskconfigurator/InlineTaskConfigurator";
+import TaskConfigurator from "./taskconfigurator/TaskConfigurator";
 
 // TODO: Placeholder for integration
 
@@ -14,7 +14,8 @@ export default function TaskConfigPanel() {
   const taskConfig = selectedTask && dag.getTaskConfigByCoord(selectedTask);
   console.log(taskConfig);
   let originalRef = null;
-  if (taskConfig) originalRef = JSON.parse(JSON.stringify(taskConfig)).taskReferenceName;
+  if (taskConfig)
+    originalRef = JSON.parse(JSON.stringify(taskConfig)).taskReferenceName;
 
   function modifyTaskChangeRef() {
     const newDag = dag.clone();
@@ -69,31 +70,33 @@ export default function TaskConfigPanel() {
 
   const handleTaskConfiguratorUpdate = (updatedState) => {
     const newDag = dag.clone();
+    console.log("newdag", newDag.toWorkflowDef());
     console.log("updatedState", updatedState);
     console.log("originalRef", originalRef);
-    if (originalRef)
-    newDag.updateTask(originalRef, updatedState);
+    if (originalRef) {
+      newDag.updateTask(originalRef, updatedState);
+    }
     setStaging(newDag.toWorkflowDef(), newDag);
   };
 
   return (
-    <div > <Button onClick={modifyTaskChangeRef}>Modify Task (change ref)</Button>
-          {taskConfig !== null && taskConfig.type === "HTTP" ? (
-            <HttpTaskConfigurator
-              onUpdate={handleTaskConfiguratorUpdate}
-              initialConfig={taskConfig}
-            />
-          ) : taskConfig !== null && taskConfig.type === "INLINE" ? (
-            <InlineTaskConfigurator
-              onUpdate={handleTaskConfiguratorUpdate}
-              initialConfig={taskConfig}
-            />
-          ) : (
-            <TaskConfigurator
-              onUpdate={handleTaskConfiguratorUpdate}
-              initialConfig={taskConfig}
-            />
-          )}
-      </div>
+    <div style={{ maxHeight: "800px", overflowY: "auto", margin: "15px" }}>
+      {taskConfig !== null && taskConfig.type === "HTTP" ? (
+        <HttpTaskConfigurator
+          onUpdate={handleTaskConfiguratorUpdate}
+          initialConfig={taskConfig}
+        />
+      ) : taskConfig !== null && taskConfig.type === "INLINE" ? (
+        <InlineTaskConfigurator
+          onUpdate={handleTaskConfiguratorUpdate}
+          initialConfig={taskConfig}
+        />
+      ) : (
+        <TaskConfigurator
+          onUpdate={handleTaskConfiguratorUpdate}
+          initialConfig={taskConfig}
+        />
+      )}
+    </div>
   );
 }

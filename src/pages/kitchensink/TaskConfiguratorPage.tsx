@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import TaskConfigurator from "./TaskConfigurator"; // Update the import path
+import TaskConfigurator from "../definition/builder/taskconfigurator/TaskConfigurator"; // Update the import path
 import { Button, Paper } from "../../components";
-import InlineTaskConfigurator from "./InlineTaskConfigurator";
-import HttpTaskConfigurator from "./HttpTaskConfigurator";
+import InlineTaskConfigurator from "../definition/builder/taskconfigurator/InlineTaskConfigurator";
+import HttpTaskConfigurator from "../definition/builder/taskconfigurator/HttpTaskConfigurator";
 
 const TaskConfiguratorPage = () => {
   const sampleInlineTask = {
@@ -55,14 +55,14 @@ const TaskConfiguratorPage = () => {
 
   const handleResetClick = () => {
     setInitialConfig({
-        taskReferenceName: "simple_0",
-        name: "simple_0",
-        inputParameters: {},
-        inputExpression: {
-          expression: "workflow.input",
-          type: "JSON_PATH",
-        },
-        type: "SIMPLE",
+      taskReferenceName: "simple_0",
+      name: "simple_0",
+      inputParameters: {},
+      inputExpression: {
+        expression: "workflow.input",
+        type: "JSON_PATH",
+      },
+      type: "SIMPLE",
     });
   };
 

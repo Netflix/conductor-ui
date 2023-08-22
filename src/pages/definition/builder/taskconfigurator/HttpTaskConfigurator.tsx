@@ -1,13 +1,16 @@
 import { Form, Formik } from "formik";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Button, FormikJsonInput, Heading } from "../../components";
+import { Button, FormikJsonInput, Heading } from "../../../../components";
 import ReactDataGrid from "@inovua/reactdatagrid-community";
 import { ToggleButtonGroup, ToggleButton } from "@mui/material";
 import { TypeEditInfo } from "@inovua/reactdatagrid-community/types";
 import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
 import SelectEditor from "@inovua/reactdatagrid-community/SelectEditor";
 import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
-import { httpTaskLevelParameters, httpRequestParameters } from "../../schema/task/httpTask";
+import {
+  httpTaskLevelParameters,
+  httpRequestParameters,
+} from "../../../../schema/task/httpTask";
 const taskFormStyle = {
   minHeight: 402.5,
   margin: "15px 0",
@@ -167,6 +170,15 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
           param.value = newValue;
           param.changed = true;
         }
+      } else if (
+        param.key === "asyncCompleteExpression" &&
+        initialConfig.inputParameters.hasOwnProperty("asyncComplete")
+      ) {
+        const newValue = initialConfig.inputParameters["asyncComplete"];
+        if (param.value !== newValue) {
+          param.value = newValue;
+          param.changed = true;
+        }
       }
     }
 
@@ -185,13 +197,6 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       }
     }
 
-    if (initialConfig.inputParameters.hasOwnProperty("asyncComplete")) {
-      const newValue = initialConfig.inputParameters["asyncComplete"];
-      if (updatedParameters["asyncCompleteExpression"].value !== newValue) {
-        updatedParameters["asyncCompleteExpression"].value = newValue;
-        updatedParameters["asyncCompleteExpression"].changed = true;
-      }
-    }
     setDataSource(updatedParameters);
     setHttpRequestDataSource(updatedHttpRequestParameters);
     setUpdatedJsonState(initialConfig);
@@ -489,7 +494,7 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
           <Heading level={1} gutterBottom>
             inputParameters.http_request.headers Configuration
           </Heading>
-          <Button style={{ margin: "15px" }} onClick={handleAddEmptyRow}>
+          <Button style={{ marginBottom: "15px" }} onClick={handleAddEmptyRow}>
             Add New Row
           </Button>
           <ReactDataGrid
@@ -514,25 +519,29 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
               return (
                 <Form>
                   {contentType === "application/json" ? (
-                    <FormikJsonInput
-                      key="body"
-                      label="inputParameters.http_request.body"
-                      name="body"
-                      className={undefined}
-                      height={undefined}
-                    />
+                    <div style={{ marginTop: "15px" }}>
+                      <FormikJsonInput
+                        key="body"
+                        label="inputParameters.http_request.body"
+                        name="body"
+                        className={undefined}
+                        height={undefined}
+                      />
+                    </div>
                   ) : (
-                    <FormikJsonInput
-                      key="body"
-                      label="inputParameters.http_request.body"
-                      name="body"
-                      className={undefined}
-                      height={undefined}
-                      language="plaintext"
-                    />
+                    <div style={{ marginTop: "15px" }}>
+                      <FormikJsonInput
+                        key="body"
+                        label="inputParameters.http_request.body"
+                        name="body"
+                        className={undefined}
+                        height={undefined}
+                        language="plaintext"
+                      />
+                    </div>
                   )}
 
-                  <Button style={{ margin: "60px" }} type="submit">
+                  <Button style={{ marginTop: "15px" }} type="submit">
                     Submit
                   </Button>
                 </Form>

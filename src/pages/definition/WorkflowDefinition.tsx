@@ -65,8 +65,6 @@ export default function WorkflowDefinition() {
     (newStaging: WorkflowDef, newDag?: WorkflowDAG) => {
       setStagingRaw(newStaging);
       newDag = newDag || WorkflowDAG.fromWorkflowDef(newStaging);
-      setDag(newDag);
-
       if (selectedTask) {
         try {
           newDag.getTaskConfigByCoord(selectedTask);
@@ -76,6 +74,7 @@ export default function WorkflowDefinition() {
           setSelectedTask(null);
         }
       }
+      setDag(newDag);
     },
     [setStagingRaw, setDag, selectedTask],
   );

@@ -1,13 +1,13 @@
 import { Form, Formik } from "formik";
 import { useCallback, useEffect, useState } from "react";
-import { Button, FormikJsonInput } from "../../components";
+import { Button, FormikJsonInput } from "../../../../components";
 import ReactDataGrid from "@inovua/reactdatagrid-community";
 import { ToggleButtonGroup, ToggleButton } from "@mui/material";
 import { TypeEditInfo } from "@inovua/reactdatagrid-community/types";
 import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
 import SelectEditor from "@inovua/reactdatagrid-community/SelectEditor";
 import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
-import { simpleTaskParameters } from "../../schema/task/simpleTask";
+import { simpleTaskParameters } from "../../../../schema/task/simpleTask";
 
 const gridStyle = {
   minHeight: 362.5,
@@ -218,7 +218,6 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
   };
 
   const getRowStyle = (data) => {
-    console.log(data.changed);
     if (data.data.changed) {
       return { backgroundColor: "#FFF" };
     } else return { backgroundColor: "#F3F3F3" };

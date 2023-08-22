@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import { Button, FormikJsonInput } from "../../components";
+import { Button, FormikJsonInput } from "../../../../components";
 import ReactDataGrid from "@inovua/reactdatagrid-community";
 import { TypeEditInfo } from "@inovua/reactdatagrid-community/types";
 import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
 import SelectEditor from "@inovua/reactdatagrid-community/SelectEditor";
 import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
 import { Form, Formik } from "formik";
-import { inlineTaskParameters } from "../../schema/task/inlineTask";
+import { inlineTaskParameters } from "../../../../schema/task/inlineTask";
 const gridStyle = {
   minHeight: 402.5,
   margin: "15px 0",
@@ -179,7 +179,7 @@ const InlineTaskConfigurator = ({ initialConfig, onUpdate }) => {
           edittedJson[item.key] = parseInt(item.value.toString());
         } else edittedJson[item.key] = item.value;
       });
-      const originalObject = { ...updatedJsonState };
+      const originalObject = JSON.parse(JSON.stringify(updatedJsonState));
 
       // Step 2: Merge the properties from edittedJson into the original object
       for (const key in edittedJson) {
@@ -250,13 +250,15 @@ const InlineTaskConfigurator = ({ initialConfig, onUpdate }) => {
                 height={undefined}
                 language="javascript"
               />
-              <FormikJsonInput
-                key="additionalInputParameters"
-                label="Additional inputParameters"
-                name="additionalInputParameters"
-                className={undefined}
-                height={undefined}
-              />
+              <div style={{ marginTop: "15px" }}>
+                <FormikJsonInput
+                  key="additionalInputParameters"
+                  label="Additional inputParameters"
+                  name="additionalInputParameters"
+                  className={undefined}
+                  height={undefined}
+                />
+              </div>
               <Button style={{ marginTop: "15px" }} type="submit">
                 Submit
               </Button>
