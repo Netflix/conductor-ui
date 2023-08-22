@@ -4,7 +4,7 @@ import { Toolbar, Tooltip } from "@mui/material";
 import _ from "lodash";
 import Editor, { Monaco } from "@monaco-editor/react";
 
-import { DefEditorContext } from "../WorkflowDefinition";
+import { DefEditorContext, EditorTabSeverity } from "../WorkflowDefinition";
 import { makeStyles } from "@mui/styles";
 import { WORKFLOW_SCHEMA } from "../../../schema/workflow";
 import WorkflowDAG from "../../../data/dag/WorkflowDAG";
@@ -52,10 +52,10 @@ export function configureMonaco(monaco: any) {
   });
 }
 
-export default function JsonPanel() {
+export default function JsonPanel({ setSeverity} : { setSeverity: (EditorTabSeverity) => void }) {
   const classes = useStyles();
   const context = useContext(DefEditorContext);
-  const { selectedTask, staging, setStaging } = context!;
+  const { selectedTask, dag, setStaging } = context!;
 
   // false=idle (dialog closed)
   // undefined= Ask to reset to current_version
@@ -63,10 +63,12 @@ export default function JsonPanel() {
   const [decorations, setDecorations] = useState([]);
   const [jsonErrors, setJsonErrors] = useState<Marker[]>([]);
   const [workingText, setWorkingText] = useState<string>();
+  const [changed, setChanged] = useState<boolean>(false);
 
   useEffect(() => {
-    setWorkingText(JSON.stringify(staging, null, 2));
-  }, [staging]);
+    setWorkingText(JSON.stringify(dag.toWorkflowDef(), null, 2));
+    setChanged(false);
+  }, [dag]);
 
   useEffect(() => {
     if (editorRef.current) {
@@ -115,36 +117,46 @@ export default function JsonPanel() {
     setJsonErrors(markers);
   };
 
-  const handleChange = (v) => setWorkingText(v);
+  const handleChange = (v) => {
+    setWorkingText(v);
+    setChanged(true);
+  }
 
   const handleCommit = () => {
     try {
       const workingDef = JSON.parse(workingText!);
       const dag = WorkflowDAG.fromWorkflowDef(workingDef);
-      setStaging(workingDef, dag);
+      setStaging("JsonPanel", workingDef, dag);
     } catch (e) {
       console.log("error parsing into dag");
     }
   };
 
-  const errorLevel = useMemo(() => {
+  const errorLevel: EditorTabSeverity = useMemo(() => {
     const maxLevel = Math.max(...jsonErrors.map((err) => err.severity));
     if (maxLevel > 4) {
-      return "error";
+      return "ERROR";
     } else if (maxLevel > 0) {
-      return "warning";
-    } else return undefined;
-  }, [jsonErrors]);
+      return "WARNING";
+    } else if (changed){
+      return "INFO"
+    } else {
+      return undefined
+    }
+  }, [jsonErrors, changed]);
+
+
+  useEffect(() => {
+    setSeverity(errorLevel);
+  }, [setSeverity, errorLevel]);
+
 
   return (
     <div className={classes.column}>
       <Toolbar
         variant="dense"
-        classes={{
-          root: classes.spaceBetween,
-        }}
       >
-        {errorLevel === "error" && (
+        {errorLevel === "ERROR" && (
           <Tooltip disableFocusListener title="There are JSON syntax errors.">
             <div>
               <Pill color="red" label="Syntax Error" />
@@ -152,7 +164,7 @@ export default function JsonPanel() {
           </Tooltip>
         )}
 
-        {errorLevel === "warning" && (
+        {errorLevel === "WARNING" && (
           <Tooltip
             disableFocusListener
             title="There are schema errors. Look for a yellow swiggly line under an opening brace. Errors may be at the root level (hover over first opening brace)."
@@ -162,7 +174,7 @@ export default function JsonPanel() {
             </div>
           </Tooltip>
         )}
-        {!errorLevel && <div />}
+        <div style={{ flex: 1 }}></div>
 
         <Button disabled={!_.isEmpty(jsonErrors)} onClick={handleCommit}>
           Validate

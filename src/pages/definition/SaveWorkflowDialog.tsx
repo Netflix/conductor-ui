@@ -103,12 +103,13 @@ export default function SaveWorkflowDialog({
     },
   });
 
+  // Sort top level keys
   const originalText = useMemo(
-    () => JSON.stringify(original, null, 2),
+    () => JSON.stringify(original, Object.keys(original).sort(), 2),
     [original],
   );
   const modifiedText = useMemo(
-    () => JSON.stringify(upVersioned, null, 2),
+    () => JSON.stringify(upVersioned,  Object.keys(upVersioned).sort(), 2),
     [upVersioned],
   );
 

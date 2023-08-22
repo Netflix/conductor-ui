@@ -4,11 +4,19 @@ import { Button } from "../../../components";
 
 // TODO: Placeholder for integration
 
-export default function TaskConfigPanel() {
+export default function TaskConfigPanel({ setSeverity }: { setSeverity: (EditorTabSeverity ) => void}) {
   const context = useContext(DefEditorContext)!;
   const { dag, selectedTask, setStaging } = context!;
 
   const taskConfig = selectedTask && dag.getTaskConfigByCoord(selectedTask);
+
+  function setChange(){
+    setSeverity("WARNING");
+  }
+
+  function clearChange(){
+    setSeverity(undefined);
+  }
 
   function modifyTaskChangeRef() {
     const newDag = dag.clone();
@@ -24,7 +32,7 @@ export default function TaskConfigPanel() {
       type: "HTTP",
     });
 
-    setStaging(newDag.toWorkflowDef(), newDag);
+    setStaging("TaskConfigPanel", newDag.toWorkflowDef(), newDag);
   }
 
   function modifyTask() {
@@ -41,7 +49,7 @@ export default function TaskConfigPanel() {
       type: "HTTP",
     });
 
-    setStaging(newDag.toWorkflowDef(), newDag);
+    setStaging("TaskConfigPanel", newDag.toWorkflowDef(), newDag);
   }
 
   if (!selectedTask) {
@@ -66,8 +74,9 @@ export default function TaskConfigPanel() {
       <div>Selected Task: {JSON.stringify(selectedTask)}</div>
       <div>Resolved via DAG</div>
       <Button onClick={modifyTask}>Modify Task</Button>
-
       <Button onClick={modifyTaskChangeRef}>Modify Task (change ref)</Button>
+      <Button onClick={setChange}>Set Change</Button>
+      <Button onClick={clearChange}>Clear Change</Button>
       <pre>
         <code>{JSON.stringify(taskConfig, null, 2)}</code>
       </pre>

@@ -71,7 +71,7 @@ export function useInvalidateWorkflows() {
 
 export function useWorkflowDef(
   workflowName: string | undefined,
-  version: string | undefined,
+  version: number | undefined,
   defaultWorkflow: WorkflowDef | undefined,
 ) {
   let path;
@@ -81,7 +81,7 @@ export function useWorkflowDef(
     path = `/metadata/workflow/${workflowName}`;
     if (version) {
       path += `?version=${version}`;
-      key.push(version);
+      key.push(version.toString());
     }
   }
   return useFetch<WorkflowDef>(

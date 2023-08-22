@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback, useContext } from "react";
 import { useParams } from "react-router-dom";
-import { LinearProgress } from "../../components";
+import { LinearProgress, usePushHistory } from "../../components";
 import { Helmet } from "react-helmet";
 import { useWorkflowDef } from "../../data/workflow";
 import { NEW_WORKFLOW_TEMPLATE } from "../../schema/workflow";
@@ -24,13 +24,13 @@ export type IDefEditorContext = {
   workflowName: string | undefined;
   workflowVersion: number | undefined;
   original: WorkflowDef;
-  staging: WorkflowDef;
   dag: WorkflowDAG;
   selectedTask: TaskCoordinate | null;
-  setStaging: (workflowDef: WorkflowDef, dag?: WorkflowDAG) => void;
+  setStaging: (sourceId: string, workflowDef: WorkflowDef, dag?: WorkflowDAG) => void;
   setSelectedTask: (coord: TaskCoordinate | null) => void;
-  refetchWorkflow: () => void;
+  reload: (name: string | undefined, version: number | undefined, refetchWorkflow?: boolean) => void;
   isModified: boolean;
+  changes: {[key: string]: EditorTabSeverity};
 };
 
 export const DefEditorContext = React.createContext<
@@ -49,48 +49,94 @@ export default function WorkflowDefinition() {
   const params = useParams<WorkflowDefParams>();
   const classes = useStyles();
   const workflowName = params.name;
-  const workflowVersion = params.version;
+  const workflowVersion = params.version ? parseInt(params.version) : undefined;
 
-  const [staging, setStagingRaw] = useState<WorkflowDef | undefined>(undefined);
   const [selectedTask, setSelectedTask] = useState<TaskCoordinate | null>(null);
   const [dag, setDag] = useState<WorkflowDAG | undefined>(undefined);
+  const [changes, setChanges] = useState<{[key: string]: EditorTabSeverity}>({});
+  const [isModified, setModified] = useState(false);
+  const navigate = usePushHistory();
 
   const {
     data: original,
     isFetching,
-    refetch: refetchWorkflow,
+    refetch,
   } = useWorkflowDef(workflowName, workflowVersion, NEW_WORKFLOW_TEMPLATE);
 
-  const setStaging = useCallback(
-    (newStaging: WorkflowDef, newDag?: WorkflowDAG) => {
-      setStagingRaw(newStaging);
-      newDag = newDag || WorkflowDAG.fromWorkflowDef(newStaging);
-      setDag(newDag);
-
-      if (selectedTask) {
-        try {
-          newDag.getTaskConfigByCoord(selectedTask);
-        } catch (e) {
-          // Selected task changed. Unset it.
-          console.log("unsetting selectedTask");
-          setSelectedTask(null);
-        }
-      }
-    },
-    [setStagingRaw, setDag, selectedTask],
-  );
 
   useEffect(() => {
     if (!!original) {
-      setStaging(original);
+      setDag(WorkflowDAG.fromWorkflowDef(original));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [original]);
 
-  const isModified = useMemo(
-    () => !!staging && original !== staging,
-    [original, staging],
+
+  const reload = (name: string | undefined, version: number | undefined, refetchWorkflow?: boolean) => {
+    const askOverride = Object.entries(changes).reduce((prev, [key, val]) => prev || !!val, false);
+
+    let confirmed = true;
+    if(!refetchWorkflow && (askOverride || isModified)){ // Do not ask about override when refetch true because config just got saved.
+      confirmed = window.confirm("Changes not yet applied in the Task Config or JSON editor, or staged changes that have not been saved will be lost.");
+    }
+
+    if(confirmed){
+      setSelectedTask(null);
+
+      if (name === workflowName && version === workflowVersion) {
+        if(refetchWorkflow){
+          console.log('refetching')
+          refetch();
+        }
+        else {
+          // Reset to fetched version
+          console.log('resetting to fetched version')
+          setDag(WorkflowDAG.fromWorkflowDef(original!));
+        }
+      } else if (version === undefined) {
+        navigate(`/workflowDef/${name}`);
+      } else {
+        navigate(`/workflowDef/${name}/${version}`);
+      }
+      setModified(false);
+    };
+  }
+
+
+  const setStaging = useCallback(
+    (sourceId: string, newStaging: WorkflowDef, newDag?: WorkflowDAG) => {
+      const askOverride = Object.entries(changes).reduce((prev, [key, val]) => prev || (!!val && key !== sourceId), false);
+
+      let confirmed = true;
+      if(askOverride){
+        confirmed = window.confirm("Changes not yet applied in the Task Config or JSON editor will be lost.");
+      }
+
+      if(confirmed){
+        newDag = newDag || WorkflowDAG.fromWorkflowDef(newStaging);
+
+        if (selectedTask) {
+          try {
+            newDag.getTaskConfigByCoord(selectedTask);
+          } catch (e) {
+            // Selected task changed. Unset it.
+            console.log("unsetting selectedTask");
+            setSelectedTask(null);
+          }
+        }
+        setDag(newDag);
+        setModified(true);
+      }
+    },
+    [setDag, selectedTask, changes],
   );
+
+  function setSeverity(tabId: string, severity: EditorTabSeverity ){
+    setChanges(changes => ({...changes, 
+      [tabId]: severity
+    }));
+  }
+
 
   return (
     <>
@@ -101,21 +147,19 @@ export default function WorkflowDefinition() {
       </Helmet>
 
       {isFetching && <LinearProgress />}
-      {staging && (
+      {dag && (
         <DefEditorContext.Provider
           value={{
             workflowName,
-            workflowVersion: workflowVersion
-              ? parseInt(workflowVersion)
-              : undefined,
+            workflowVersion: workflowVersion,
             original: original!,
-            staging: staging,
             dag: dag!,
             setStaging,
             selectedTask,
             setSelectedTask,
-            refetchWorkflow,
+            reload,
             isModified,
+            changes
           }}
         >
           <div className={classes.column}>
@@ -131,13 +175,13 @@ export default function WorkflowDefinition() {
                       tabs: [
                         {
                           id: "TaskConfigPanel",
-                          title: "Task Config",
-                          content: <TaskConfigPanel />,
+                          title: <EditorTabHead text="Task Config" tabId="TaskConfigPanel"/>,
+                          content: <TaskConfigPanel setSeverity={severity => setSeverity("TaskConfigPanel", severity)} />,
                         },
                         {
                           id: "JsonPanel",
-                          title: "JSON",
-                          content: <JsonPanel />,
+                          title: <EditorTabHead text="JSON" tabId="JsonPanel"/>,
+                          content: <JsonPanel setSeverity={severity => setSeverity("JsonPanel", severity)}  />,
                         },
                       ],
                     },
@@ -164,5 +208,41 @@ export default function WorkflowDefinition() {
         </DefEditorContext.Provider>
       )}
     </>
+  );
+}
+
+export type EditorTabSeverity = "ERROR" | "WARNING" | "INFO" | undefined;
+type EditorTabHeadProps = {
+  text: string;
+  tabId: string;
+}
+
+function EditorTabHead({ tabId, text }: EditorTabHeadProps) {
+  const { changes } = useContext(DefEditorContext)!;
+  const severity = changes[tabId];
+  
+  let dotColor;
+  if (severity === "ERROR") {
+    dotColor = "red";
+  } else if (severity === "WARNING") {
+    dotColor = "orange";
+  } else if (severity !== undefined) {
+    dotColor = "rgba(0, 128, 255, 0.6)";
+  }
+
+  return (
+    <div style={{ display: "flex", alignItems: "center" }}>
+      <span style={{ marginRight: "5px" }}>{text}</span>
+      {!!severity && (
+        <div
+          style={{
+            width: "10px",
+            height: "10px",
+            backgroundColor: dotColor,
+            borderRadius: "50%",
+          }}
+        />
+      )}
+    </div>
   );
 }

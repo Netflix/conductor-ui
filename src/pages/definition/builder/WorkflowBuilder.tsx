@@ -27,7 +27,7 @@ export default function WorkflowBuilder() {
   };
 
   const handleNewTasks = (dag: WorkflowDAG) => {
-    setStaging(dag.toWorkflowDef(), dag);
+    setStaging("WorkflowBuilder", dag.toWorkflowDef(), dag);
   };
 
   const handleContextMenu = (
