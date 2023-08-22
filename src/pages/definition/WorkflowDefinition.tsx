@@ -26,11 +26,19 @@ export type IDefEditorContext = {
   original: WorkflowDef;
   dag: WorkflowDAG;
   selectedTask: TaskCoordinate | null;
-  setStaging: (sourceId: string, workflowDef: WorkflowDef, dag?: WorkflowDAG) => void;
+  setStaging: (
+    sourceId: string,
+    workflowDef: WorkflowDef,
+    dag?: WorkflowDAG,
+  ) => void;
   setSelectedTask: (coord: TaskCoordinate | null) => void;
-  reload: (name: string | undefined, version: number | undefined, refetchWorkflow?: boolean) => void;
+  reload: (
+    name: string | undefined,
+    version: number | undefined,
+    refetchWorkflow?: boolean,
+  ) => void;
   isModified: boolean;
-  changes: {[key: string]: EditorTabSeverity};
+  changes: { [key: string]: EditorTabSeverity };
 };
 
 export const DefEditorContext = React.createContext<
@@ -53,7 +61,9 @@ export default function WorkflowDefinition() {
 
   const [selectedTask, setSelectedTask] = useState<TaskCoordinate | null>(null);
   const [dag, setDag] = useState<WorkflowDAG | undefined>(undefined);
-  const [changes, setChanges] = useState<{[key: string]: EditorTabSeverity}>({});
+  const [changes, setChanges] = useState<{ [key: string]: EditorTabSeverity }>(
+    {},
+  );
   const [isModified, setModified] = useState(false);
   const navigate = usePushHistory();
 
@@ -63,7 +73,6 @@ export default function WorkflowDefinition() {
     refetch,
   } = useWorkflowDef(workflowName, workflowVersion, NEW_WORKFLOW_TEMPLATE);
 
-
   useEffect(() => {
     if (!!original) {
       setDag(WorkflowDAG.fromWorkflowDef(original));
@@ -71,26 +80,34 @@ export default function WorkflowDefinition() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [original]);
 
-
-  const reload = (name: string | undefined, version: number | undefined, refetchWorkflow?: boolean) => {
-    const askOverride = Object.entries(changes).reduce((prev, [key, val]) => prev || !!val, false);
+  const reload = (
+    name: string | undefined,
+    version: number | undefined,
+    refetchWorkflow?: boolean,
+  ) => {
+    const askOverride = Object.entries(changes).reduce(
+      (prev, [key, val]) => prev || !!val,
+      false,
+    );
 
     let confirmed = true;
-    if(!refetchWorkflow && (askOverride || isModified)){ // Do not ask about override when refetch true because config just got saved.
-      confirmed = window.confirm("Changes not yet applied in the Task Config or JSON editor, or staged changes that have not been saved will be lost.");
+    if (!refetchWorkflow && (askOverride || isModified)) {
+      // Do not ask about override when refetch true because config just got saved.
+      confirmed = window.confirm(
+        "Changes not yet applied in the Task Config or JSON editor, or staged changes that have not been saved will be lost.",
+      );
     }
 
-    if(confirmed){
+    if (confirmed) {
       setSelectedTask(null);
 
       if (name === workflowName && version === workflowVersion) {
-        if(refetchWorkflow){
-          console.log('refetching')
+        if (refetchWorkflow) {
+          console.log("refetching");
           refetch();
-        }
-        else {
+        } else {
           // Reset to fetched version
-          console.log('resetting to fetched version')
+          console.log("resetting to fetched version");
           setDag(WorkflowDAG.fromWorkflowDef(original!));
         }
       } else if (version === undefined) {
@@ -99,20 +116,24 @@ export default function WorkflowDefinition() {
         navigate(`/workflowDef/${name}/${version}`);
       }
       setModified(false);
-    };
-  }
-
+    }
+  };
 
   const setStaging = useCallback(
     (sourceId: string, newStaging: WorkflowDef, newDag?: WorkflowDAG) => {
-      const askOverride = Object.entries(changes).reduce((prev, [key, val]) => prev || (!!val && key !== sourceId), false);
+      const askOverride = Object.entries(changes).reduce(
+        (prev, [key, val]) => prev || (!!val && key !== sourceId),
+        false,
+      );
 
       let confirmed = true;
-      if(askOverride){
-        confirmed = window.confirm("Changes not yet applied in the Task Config or JSON editor will be lost.");
+      if (askOverride) {
+        confirmed = window.confirm(
+          "Changes not yet applied in the Task Config or JSON editor will be lost.",
+        );
       }
 
-      if(confirmed){
+      if (confirmed) {
         newDag = newDag || WorkflowDAG.fromWorkflowDef(newStaging);
 
         if (selectedTask) {
@@ -131,12 +152,9 @@ export default function WorkflowDefinition() {
     [setDag, selectedTask, changes],
   );
 
-  function setSeverity(tabId: string, severity: EditorTabSeverity ){
-    setChanges(changes => ({...changes, 
-      [tabId]: severity
-    }));
+  function setSeverity(tabId: string, severity: EditorTabSeverity) {
+    setChanges((changes) => ({ ...changes, [tabId]: severity }));
   }
-
 
   return (
     <>
@@ -159,7 +177,7 @@ export default function WorkflowDefinition() {
             setSelectedTask,
             reload,
             isModified,
-            changes
+            changes,
           }}
         >
           <div className={classes.column}>
@@ -175,13 +193,32 @@ export default function WorkflowDefinition() {
                       tabs: [
                         {
                           id: "TaskConfigPanel",
-                          title: <EditorTabHead text="Task Config" tabId="TaskConfigPanel"/>,
-                          content: <TaskConfigPanel setSeverity={severity => setSeverity("TaskConfigPanel", severity)} />,
+                          title: (
+                            <EditorTabHead
+                              text="Task Config"
+                              tabId="TaskConfigPanel"
+                            />
+                          ),
+                          content: (
+                            <TaskConfigPanel
+                              setSeverity={(severity) =>
+                                setSeverity("TaskConfigPanel", severity)
+                              }
+                            />
+                          ),
                         },
                         {
                           id: "JsonPanel",
-                          title: <EditorTabHead text="JSON" tabId="JsonPanel"/>,
-                          content: <JsonPanel setSeverity={severity => setSeverity("JsonPanel", severity)}  />,
+                          title: (
+                            <EditorTabHead text="JSON" tabId="JsonPanel" />
+                          ),
+                          content: (
+                            <JsonPanel
+                              setSeverity={(severity) =>
+                                setSeverity("JsonPanel", severity)
+                              }
+                            />
+                          ),
                         },
                       ],
                     },
@@ -215,12 +252,12 @@ export type EditorTabSeverity = "ERROR" | "WARNING" | "INFO" | undefined;
 type EditorTabHeadProps = {
   text: string;
   tabId: string;
-}
+};
 
 function EditorTabHead({ tabId, text }: EditorTabHeadProps) {
   const { changes } = useContext(DefEditorContext)!;
   const severity = changes[tabId];
-  
+
   let dotColor;
   if (severity === "ERROR") {
     dotColor = "red";

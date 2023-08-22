@@ -1,10 +1,5 @@
 import { useContext, useMemo, useState } from "react";
-import {
-  Button,
-  Text,
-  Select,
-  Pill,
-} from "../../../components";
+import { Button, Text, Select, Pill } from "../../../components";
 import { MenuItem, SelectChangeEvent, Toolbar, Tooltip } from "@mui/material";
 import _ from "lodash";
 
@@ -28,7 +23,7 @@ export default function BuilderToolbar() {
     dag,
     isModified,
     reload,
-    changes
+    changes,
   } = context!;
 
   const versions = useMemo(
@@ -38,7 +33,10 @@ export default function BuilderToolbar() {
 
   const modified = useMemo(() => dag.toWorkflowDef(), [dag]);
 
-  const hasUncommited =   Object.entries(changes).reduce((prev, [key, val]) => prev || !!val, false);
+  const hasUncommited = Object.entries(changes).reduce(
+    (prev, [key, val]) => prev || !!val,
+    false,
+  );
 
   // Saving
   const handleOpenSave = () => {
@@ -47,12 +45,12 @@ export default function BuilderToolbar() {
 
   // Version Change or Reset
   const handleReset = () => {
-    reload(workflowName, workflowVersion, false)
+    reload(workflowName, workflowVersion, false);
   };
 
   const handleChangeVersion = (versionStr: string) => {
-    reload(workflowName, versionStr ? parseInt(versionStr): undefined, false)
-  }
+    reload(workflowName, versionStr ? parseInt(versionStr) : undefined, false);
+  };
 
   const handleSaveCancel = () => {
     setSaveDialog(false);
@@ -98,7 +96,7 @@ export default function BuilderToolbar() {
         <Tooltip
           disableFocusListener
           title={
-            (!isModified || hasUncommited)
+            !isModified || hasUncommited
               ? "If changes were made in the JSON editor, they must be validated first. Likewise, changes made in the Task Configuration tool must be applied"
               : "Push definition to the Conductor service"
           }
@@ -113,10 +111,7 @@ export default function BuilderToolbar() {
             </Button>
           </span>
         </Tooltip>
-        <Button
-          onClick={handleReset}
-          variant="secondary"
-        >
+        <Button onClick={handleReset} variant="secondary">
           Reset
         </Button>
       </Toolbar>

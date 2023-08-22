@@ -52,7 +52,11 @@ export function configureMonaco(monaco: any) {
   });
 }
 
-export default function JsonPanel({ setSeverity} : { setSeverity: (EditorTabSeverity) => void }) {
+export default function JsonPanel({
+  setSeverity,
+}: {
+  setSeverity: (EditorTabSeverity) => void;
+}) {
   const classes = useStyles();
   const context = useContext(DefEditorContext);
   const { selectedTask, dag, setStaging } = context!;
@@ -120,7 +124,7 @@ export default function JsonPanel({ setSeverity} : { setSeverity: (EditorTabSeve
   const handleChange = (v) => {
     setWorkingText(v);
     setChanged(true);
-  }
+  };
 
   const handleCommit = () => {
     try {
@@ -138,24 +142,20 @@ export default function JsonPanel({ setSeverity} : { setSeverity: (EditorTabSeve
       return "ERROR";
     } else if (maxLevel > 0) {
       return "WARNING";
-    } else if (changed){
-      return "INFO"
+    } else if (changed) {
+      return "INFO";
     } else {
-      return undefined
+      return undefined;
     }
   }, [jsonErrors, changed]);
-
 
   useEffect(() => {
     setSeverity(errorLevel);
   }, [setSeverity, errorLevel]);
 
-
   return (
     <div className={classes.column}>
-      <Toolbar
-        variant="dense"
-      >
+      <Toolbar variant="dense">
         {errorLevel === "ERROR" && (
           <Tooltip disableFocusListener title="There are JSON syntax errors.">
             <div>

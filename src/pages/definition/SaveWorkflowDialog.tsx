@@ -109,7 +109,7 @@ export default function SaveWorkflowDialog({
     [original],
   );
   const modifiedText = useMemo(
-    () => JSON.stringify(upVersioned,  Object.keys(upVersioned).sort(), 2),
+    () => JSON.stringify(upVersioned, Object.keys(upVersioned).sort(), 2),
     [upVersioned],
   );
 

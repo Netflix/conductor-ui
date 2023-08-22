@@ -720,11 +720,13 @@ export default class WorkflowDAG {
 
   getTaskConfigByRef(ref: string) {
     const node = this.node(ref);
+    console.log("ref", ref);
     if (node) {
       return node.taskConfig as TaskConfig | IncompleteDFChildTaskConfig; // TODO proper type guard
     } else {
       // Node not found by ref. (e.g. DF child). Return minimal TaskConfig
       const taskResult = this.getTaskResultByRef(ref);
+      console.log("taskresult", taskResult);
       if (taskResult) {
         if (taskResult.taskType === "TERMINAL") {
           throw new Error("Cannot retrieve TERMINAL task by ref");

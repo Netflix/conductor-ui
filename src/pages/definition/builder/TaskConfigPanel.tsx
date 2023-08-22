@@ -1,56 +1,24 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { DefEditorContext } from "../WorkflowDefinition";
-import { Button } from "../../../components";
+import { Button, Paper } from "../../../components";
+import HttpTaskConfigurator from "./taskconfigurator/HttpTaskConfigurator";
+import InlineTaskConfigurator from "./taskconfigurator/InlineTaskConfigurator";
+import TaskConfigurator from "./taskconfigurator/TaskConfigurator";
 
 // TODO: Placeholder for integration
 
-export default function TaskConfigPanel({ setSeverity }: { setSeverity: (EditorTabSeverity ) => void}) {
+export default function TaskConfigPanel({
+  setSeverity,
+}: {
+  setSeverity: (EditorTabSeverity) => void;
+}) {
   const context = useContext(DefEditorContext)!;
   const { dag, selectedTask, setStaging } = context!;
 
   const taskConfig = selectedTask && dag.getTaskConfigByCoord(selectedTask);
-
-  function setChange(){
-    setSeverity("WARNING");
-  }
-
-  function clearChange(){
-    setSeverity(undefined);
-  }
-
-  function modifyTaskChangeRef() {
-    const newDag = dag.clone();
-    newDag.updateTask("get_population_data", {
-      name: "get_population_data",
-      taskReferenceName: "get_population_data_NEW",
-      inputParameters: {
-        http_request: {
-          uri: "https://datausa.io/api/data?drilldowns=Nation&measures=Population",
-          method: "GET",
-        },
-      },
-      type: "HTTP",
-    });
-
-    setStaging("TaskConfigPanel", newDag.toWorkflowDef(), newDag);
-  }
-
-  function modifyTask() {
-    const newDag = dag.clone();
-    newDag.updateTask("get_population_data", {
-      name: "get_population_data_NEW",
-      taskReferenceName: "get_population_data",
-      inputParameters: {
-        http_request: {
-          uri: "https://google.com",
-          method: "GET",
-        },
-      },
-      type: "HTTP",
-    });
-
-    setStaging("TaskConfigPanel", newDag.toWorkflowDef(), newDag);
-  }
+  let originalRef = null;
+  if (taskConfig)
+    originalRef = JSON.parse(JSON.stringify(taskConfig)).taskReferenceName;
 
   if (!selectedTask) {
     return (
@@ -69,17 +37,40 @@ export default function TaskConfigPanel({ setSeverity }: { setSeverity: (EditorT
     );
   }
 
+  const handleTaskConfiguratorUpdate = (updatedState) => {
+    const newDag = dag.clone();
+    console.log("newdag", newDag.toWorkflowDef());
+    console.log("updatedState", updatedState);
+    console.log("originalRef", originalRef);
+    if (originalRef) {
+      newDag.updateTask(originalRef, updatedState);
+    }
+    setStaging("TaskConfigPane", newDag.toWorkflowDef(), newDag);
+  };
+
   return (
-    <div style={{ margin: 15 }}>
-      <div>Selected Task: {JSON.stringify(selectedTask)}</div>
-      <div>Resolved via DAG</div>
-      <Button onClick={modifyTask}>Modify Task</Button>
-      <Button onClick={modifyTaskChangeRef}>Modify Task (change ref)</Button>
-      <Button onClick={setChange}>Set Change</Button>
-      <Button onClick={clearChange}>Clear Change</Button>
-      <pre>
-        <code>{JSON.stringify(taskConfig, null, 2)}</code>
-      </pre>
+    <div style={{ height: "100%", overflowY: "scroll" }}>
+      {taskConfig !== null && taskConfig.type === "HTTP" ? (
+        <HttpTaskConfigurator
+          onUpdate={handleTaskConfiguratorUpdate}
+          initialConfig={taskConfig}
+        />
+      ) : taskConfig !== null && taskConfig.type === "INLINE" ? (
+        <InlineTaskConfigurator
+          onUpdate={handleTaskConfiguratorUpdate}
+          initialConfig={taskConfig}
+        />
+      ) : taskConfig !== null && taskConfig.type === "SIMPLE" ? (
+        <TaskConfigurator
+          onUpdate={handleTaskConfiguratorUpdate}
+          initialConfig={taskConfig}
+        />
+      ) : (
+        <div>
+          Task Type not currently supported by Task Configurator. Please use the
+          JSON panel instead.
+        </div>
+      )}
     </div>
   );
 }

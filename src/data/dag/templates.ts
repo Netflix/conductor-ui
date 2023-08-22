@@ -14,17 +14,14 @@ import {
   TerminateTaskConfig,
   WaitTaskConfig,
 } from "../../types/workflowDef";
-
+import { createSimpleTaskParams } from "../../schema/task/simpleTask";
+import { createInlineTaskParams } from "../../schema/task/inlineTask";
+import { createHttpTaskParams } from "../../schema/task/httpTask";
 export const templates: {
   [key in TaskConfigType]: (ref: string) => TaskConfig[];
 } = {
   SIMPLE: (ref) => {
-    const retval: SimpleTaskConfig = {
-      inputParameters: {},
-      taskReferenceName: ref,
-      type: "SIMPLE",
-      name: ref,
-    };
+    const retval: SimpleTaskConfig = createSimpleTaskParams(ref);
     return [retval];
   },
   SWITCH: (ref) => {
@@ -88,12 +85,7 @@ export const templates: {
     return [retval];
   },
   HTTP: (ref: string) => {
-    const retval: HttpTaskConfig = {
-      inputParameters: {},
-      taskReferenceName: ref,
-      type: "HTTP",
-      name: ref,
-    };
+    const retval: HttpTaskConfig = createHttpTaskParams(ref);
     return [retval];
   },
   SUB_WORKFLOW: (ref) => {
@@ -125,16 +117,7 @@ export const templates: {
     return [retval];
   },
   INLINE: (ref) => {
-    const retval: InlineTaskConfig = {
-      inputParameters: {
-        evaluatorType: "javascript",
-        expression:
-          "function scriptFun(){if ($.val){ return $.val + 1; } else { return 0; }} scriptFun()",
-      },
-      taskReferenceName: ref,
-      type: "INLINE",
-      name: ref,
-    };
+    const retval: InlineTaskConfig = createInlineTaskParams(ref);
     return [retval];
   },
   WAIT: (ref) => {
