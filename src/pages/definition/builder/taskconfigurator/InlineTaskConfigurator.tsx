@@ -13,7 +13,6 @@ const gridStyle = {
 };
 
 const InlineTaskConfigurator = ({ initialConfig, onUpdate }) => {
-  const [refreshKey, setRefreshKey] = useState(0);
   const [updatedJsonState, setUpdatedJsonState] = useState(initialConfig);
   const {
     expression = "",
@@ -128,9 +127,8 @@ const InlineTaskConfigurator = ({ initialConfig, onUpdate }) => {
     { name: "type", header: "Type", defaultVisible: false },
   ];
 
-  // eslint-disable-next-line
   useEffect(() => {
-    let updatedParameters = [...inlineTaskParameters]; // Clone the array
+    let updatedParameters = JSON.parse(JSON.stringify(inlineTaskParameters)); // Clone the array
 
     for (const param of updatedParameters) {
       if (initialConfig.hasOwnProperty(param.key)) {
@@ -150,22 +148,18 @@ const InlineTaskConfigurator = ({ initialConfig, onUpdate }) => {
     }
     setDataSource(updatedParameters);
     setUpdatedJsonState(initialConfig);
-    // eslint-disable-next-line
   }, [initialConfig]);
 
   const [dataSource, setDataSource] = useState(inlineTaskParameters);
 
-  // eslint-disable-next-line
   const onEditComplete = useCallback(
     (editInfo: TypeEditInfo) => {
       const { value, columnId, rowId } = editInfo;
       if (!value) return;
-      const data = [...dataSource];
+      const data = JSON.parse(JSON.stringify(dataSource));
       if (data[rowId][columnId].toString() === value.toString()) return;
       data[rowId][columnId] = value;
       data[rowId].changed = true;
-      setDataSource(data);
-      setRefreshKey(Math.random());
 
       const edittedJson = {};
       data.forEach((item) => {
@@ -190,10 +184,10 @@ const InlineTaskConfigurator = ({ initialConfig, onUpdate }) => {
         } else originalObject[key] = edittedJson[key];
       }
 
+      setDataSource(data);
       setUpdatedJsonState(originalObject);
     },
-    // eslint-disable-next-line
-    [dataSource],
+    [dataSource, updatedJsonState],
   );
 
   const handleSubmit = (values) => {
@@ -230,7 +224,6 @@ const InlineTaskConfigurator = ({ initialConfig, onUpdate }) => {
         dataSource={dataSource}
         showCellBorders={true}
         theme="conductor-light"
-        key={refreshKey}
         rowStyle={getRowStyle}
         enableColumnAutosize={true}
       />

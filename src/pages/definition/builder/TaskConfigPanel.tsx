@@ -45,7 +45,7 @@ export default function TaskConfigPanel({
     setStaging("TaskConfigPane", newDag.toWorkflowDef(), newDag);
   };
 
-  console.log("taskConfig",taskConfig);
+  console.log("taskConfig", taskConfig);
 
   return (
     <div style={{ height: "100%", overflowY: "scroll" }}>

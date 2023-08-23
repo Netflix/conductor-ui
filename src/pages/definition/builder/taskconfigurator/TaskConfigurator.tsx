@@ -111,8 +111,6 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
     setUpdatedJsonState(initialConfig);
   }, [initialConfig]);
 
-  
-
   const onEditComplete = useCallback(
     (editInfo: TypeEditInfo) => {
       const { value, columnId, rowId } = editInfo;
@@ -175,7 +173,7 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
       setParameterOrExpression("expression");
     }
   }, [initialConfig]);
-  
+
   useEffect(() => {
     // Update formState based on initialConfig
     setFormState({

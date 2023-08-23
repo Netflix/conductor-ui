@@ -74,7 +74,6 @@ export const terminateTaskParameters = [
   },
 ];
 
-
 export function createTerminateTaskParams(taskReferenceName) {
   let taskParams = {};
   let inputParameters = {};
@@ -100,5 +99,3 @@ export function createTerminateTaskParams(taskReferenceName) {
 
   return taskParams as TerminateTaskConfig;
 }
-
-

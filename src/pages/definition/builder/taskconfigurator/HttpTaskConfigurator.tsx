@@ -30,8 +30,6 @@ const useStyles = makeStyles({
 
 const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
   const classes = useStyles();
-
-  const [refreshKey, setRefreshKey] = useState(0);
   const [httpRequestExpressionState, setHttpRequestExpressionState] = useState({
     expression: initialConfig.inputParameters.http_request,
   });
@@ -168,9 +166,8 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
     httpRequestParameters,
   );
 
-  // eslint-disable-next-line
   useEffect(() => {
-    let updatedParameters = [...httpTaskLevelParameters]; // Clone the array
+    let updatedParameters = JSON.parse(JSON.stringify(httpTaskLevelParameters)); // Clone the array
 
     for (const param of updatedParameters) {
       if (initialConfig.hasOwnProperty(param.key)) {
@@ -191,7 +188,9 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       }
     }
 
-    let updatedHttpRequestParameters = [...httpRequestParameters];
+    let updatedHttpRequestParameters = JSON.parse(
+      JSON.stringify(httpRequestParameters),
+    );
     for (const param of updatedHttpRequestParameters) {
       if (
         initialConfig.inputParameters.http_request &&
@@ -209,14 +208,12 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
     setDataSource(updatedParameters);
     setHttpRequestDataSource(updatedHttpRequestParameters);
     setUpdatedJsonState(initialConfig);
-    // eslint-disable-next-line
   }, [initialConfig]);
 
   const [dataSource, setDataSource] = useState(httpTaskLevelParameters);
 
   const [headersDataSource, setHeadersDataSource] = useState<any>([]);
 
-  // eslint-disable-next-line
   useEffect(() => {
     if (
       typeof initialConfig.inputParameters.http_request === "string" ||
@@ -265,16 +262,13 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
     setContentType(initialConfig.inputParameters.http_request.contentType);
   }, [initialConfig.inputParameters.http_request.contentType]);
 
-  // eslint-disable-next-line
   const onEditComplete = useCallback(
     (editInfo: TypeEditInfo) => {
       const { value, columnId, rowId } = editInfo;
-      const data = [...dataSource];
+      const data = JSON.parse(JSON.stringify(dataSource));
       if (data[rowId][columnId].toString() === value.toString()) return;
       data[rowId][columnId] = value;
       data[rowId].changed = true;
-      setDataSource(data);
-      setRefreshKey(Math.random());
 
       const originalObject = JSON.parse(
         JSON.stringify(updatedJsonStateRef.current),
@@ -300,23 +294,20 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
         }
       });
 
+      setDataSource(data);
       setUpdatedJsonState(originalObject);
     },
-    // eslint-disable-next-line
     [dataSource],
   );
-
-  console.log("***", updatedJsonState);
 
   const onHttpRequestEditComplete = useCallback(
     (editInfo: TypeEditInfo) => {
       const { value, columnId, rowId } = editInfo;
-      const data = [...httpRequestDataSource];
+      const data = JSON.parse(JSON.stringify(httpRequestDataSource));
+
       if (data[rowId][columnId].toString() === value.toString()) return;
       data[rowId][columnId] = value;
       data[rowId].changed = true;
-      setHttpRequestDataSource(data);
-      setRefreshKey(Math.random());
 
       const originalObject = JSON.parse(
         JSON.stringify(updatedJsonStateRef.current),
@@ -338,21 +329,20 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
           edittedJson[item.key];
       });
 
+      setHttpRequestDataSource(data);
       setUpdatedJsonState(originalObject);
     },
-    // eslint-disable-next-line
     [httpRequestDataSource],
   );
 
   const onHeadersEditComplete = useCallback(
     (editInfo: TypeEditInfo) => {
       const { value, columnId, rowId } = editInfo;
-      const data = [...headersDataSource];
+
+      const data = JSON.parse(JSON.stringify(headersDataSource));
       if (data[rowId][columnId].toString() === value.toString()) return;
       data[rowId][columnId] = value;
       data[rowId].changed = true;
-      setHeadersDataSource(data);
-      setRefreshKey(Math.random());
 
       const edittedJson = {};
       data.forEach((item) => {
@@ -362,9 +352,10 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
         JSON.stringify(updatedJsonStateRef.current),
       );
       originalObject.inputParameters.http_request.headers = edittedJson;
+
+      setHeadersDataSource(data);
       setUpdatedJsonState(originalObject);
     },
-    // eslint-disable-next-line
     [headersDataSource],
   );
 
@@ -464,7 +455,6 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
         dataSource={dataSource}
         showCellBorders={true}
         theme="conductor-light"
-        key={refreshKey}
         rowStyle={getRowStyle}
       />
 
@@ -497,7 +487,6 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
             dataSource={httpRequestDataSource}
             showCellBorders={true}
             theme="conductor-light"
-            //key={refreshKey}
             rowStyle={getRowStyle}
           />
           <Heading level={1} gutterBottom>
@@ -515,7 +504,6 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
             dataSource={headersDataSource}
             showCellBorders={true}
             theme="conductor-light"
-            //key={refreshKey}
             rowStyle={getRowStyle}
           />
 

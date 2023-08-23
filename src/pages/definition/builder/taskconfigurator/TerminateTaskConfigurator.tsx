@@ -15,19 +15,19 @@ const gridStyle = {
 const TerminateTaskConfigurator = ({ initialConfig, onUpdate }) => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [updatedJsonState, setUpdatedJsonState] = useState(initialConfig);
-//   const {
-//     expression = "",
-//     evaluatorType,
-//     ...rest
-//   } = initialConfig.inputParameters || {};
+  //   const {
+  //     expression = "",
+  //     evaluatorType,
+  //     ...rest
+  //   } = initialConfig.inputParameters || {};
 
   const [formState, setFormState] = useState({
-    workflowOutput: initialConfig.inputParameters.workflowOutput || ""
+    workflowOutput: initialConfig.inputParameters.workflowOutput || "",
   });
 
   useEffect(() => {
     setFormState({
-        workflowOutput: initialConfig.inputParameters.workflowOutput || ""
+      workflowOutput: initialConfig.inputParameters.workflowOutput || "",
     });
   }, [initialConfig]);
 
@@ -54,7 +54,9 @@ const TerminateTaskConfigurator = ({ initialConfig, onUpdate }) => {
       render: ({ value, data }) => {
         // Check if the key matches the conditions
         const displayValue =
-          data.key === "terminationStatus" || data.key === "terminationReason" ? `inputParameters.${value}` : value;
+          data.key === "terminationStatus" || data.key === "terminationReason"
+            ? `inputParameters.${value}`
+            : value;
 
         return (
           <span>
