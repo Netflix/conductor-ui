@@ -34,14 +34,6 @@ export const simpleTaskParameters = [
   },
   {
     id: 4,
-    key: "asyncComplete",
-    value: false,
-    changed: false,
-    required: false,
-    type: "boolean",
-  },
-  {
-    id: 5,
     key: "startDelay",
     value: 0,
     changed: false,
@@ -49,7 +41,7 @@ export const simpleTaskParameters = [
     type: "int",
   },
   {
-    id: 6,
+    id: 5,
     key: "rateLimited",
     value: false,
     changed: false,
@@ -57,7 +49,7 @@ export const simpleTaskParameters = [
     type: "boolean",
   },
   {
-    id: 7,
+    id: 6,
     key: "retryCount",
     value: 0,
     changed: false,

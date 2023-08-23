@@ -17,6 +17,7 @@ import {
 import { createSimpleTaskParams } from "../../schema/task/simpleTask";
 import { createInlineTaskParams } from "../../schema/task/inlineTask";
 import { createHttpTaskParams } from "../../schema/task/httpTask";
+import { createTerminateTaskParams } from "../../schema/task/terminateTask";
 export const templates: {
   [key in TaskConfigType]: (ref: string) => TaskConfig[];
 } = {
@@ -99,12 +100,7 @@ export const templates: {
     return [retval];
   },
   TERMINATE: (ref: string) => {
-    const retval: TerminateTaskConfig = {
-      inputParameters: {},
-      taskReferenceName: ref,
-      type: "TERMINATE",
-      name: ref,
-    };
+    const retval: TerminateTaskConfig = createTerminateTaskParams(ref);
     return [retval];
   },
   JQ_TRANSFORM: (ref) => {

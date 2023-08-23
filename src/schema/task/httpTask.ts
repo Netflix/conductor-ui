@@ -165,8 +165,11 @@ export function createHttpTaskParams(taskReferenceName) {
     }
   });
 
-  taskParams["type"] = "SIMPLE";
-  taskParams["inputParameters"] = JSON.parse(JSON.stringify(httpRequest));
+  taskParams["type"] = "HTTP";
+  taskParams["inputParameters"] = { http_request: {} };
+  taskParams["inputParameters"]["http_request"] = JSON.parse(
+    JSON.stringify(httpRequest),
+  );
 
   return taskParams as HttpTaskConfig;
 }
