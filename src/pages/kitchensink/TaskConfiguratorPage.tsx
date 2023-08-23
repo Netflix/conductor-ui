@@ -3,6 +3,7 @@ import TaskConfigurator from "../definition/builder/taskconfigurator/TaskConfigu
 import { Button, Paper } from "../../components";
 import InlineTaskConfigurator from "../definition/builder/taskconfigurator/InlineTaskConfigurator";
 import HttpTaskConfigurator from "../definition/builder/taskconfigurator/HttpTaskConfigurator";
+import TerminateTaskConfigurator from "../definition/builder/taskconfigurator/TerminateTaskConfigurator";
 
 const TaskConfiguratorPage = () => {
   const sampleInlineTask = {
@@ -51,7 +52,17 @@ const TaskConfiguratorPage = () => {
     type: "HTTP",
   };
 
-  const [initialConfig, setInitialConfig] = useState(sampleSimpleTask);
+  const sampleTerminateTask = {
+      "type": "TERMINATE",
+      "name": "terminate_0",
+      "taskReferenceName": "terminate_0",
+      "inputParameters": {
+        "terminationStatus": "COMPLETED"
+      }
+    }
+  
+
+  const [initialConfig, setInitialConfig] = useState(sampleTerminateTask);
 
   const handleResetClick = () => {
     setInitialConfig({
@@ -88,6 +99,11 @@ const TaskConfiguratorPage = () => {
               onUpdate={handleTaskConfiguratorUpdate}
               initialConfig={initialConfig}
             />
+            ) : initialConfig.type === "TERMINATE" ? (
+              <TerminateTaskConfigurator
+                onUpdate={handleTaskConfiguratorUpdate}
+                initialConfig={initialConfig}
+              />
           ) : (
             <TaskConfigurator
               onUpdate={handleTaskConfiguratorUpdate}
