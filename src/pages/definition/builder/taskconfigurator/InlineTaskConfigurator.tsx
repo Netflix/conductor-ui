@@ -8,7 +8,7 @@ import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell
 import { Form, Formik } from "formik";
 import { inlineTaskParameters } from "../../../../schema/task/inlineTask";
 const gridStyle = {
-  minHeight: 402.5,
+  minHeight: 362.5,
   margin: "15px 0",
 };
 

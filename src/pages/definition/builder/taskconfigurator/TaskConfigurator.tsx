@@ -10,7 +10,7 @@ import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell
 import { simpleTaskParameters } from "../../../../schema/task/simpleTask";
 
 const gridStyle = {
-  minHeight: 362.5,
+  minHeight: 322.5,
   margin: "15px 0",
 };
 

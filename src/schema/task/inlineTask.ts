@@ -34,14 +34,6 @@ export const inlineTaskParameters = [
   },
   {
     id: 4,
-    key: "asyncComplete",
-    value: false,
-    changed: false,
-    required: false,
-    type: "boolean",
-  },
-  {
-    id: 5,
     key: "startDelay",
     value: 0,
     changed: false,
@@ -49,7 +41,7 @@ export const inlineTaskParameters = [
     type: "int",
   },
   {
-    id: 6,
+    id: 5,
     key: "rateLimited",
     value: false,
     changed: false,
@@ -57,7 +49,7 @@ export const inlineTaskParameters = [
     type: "boolean",
   },
   {
-    id: 7,
+    id: 6,
     key: "retryCount",
     value: 0,
     changed: false,
@@ -65,7 +57,7 @@ export const inlineTaskParameters = [
     type: "int",
   },
   {
-    id: 8,
+    id: 7,
     key: "evaluatorType",
     value: "javascript",
     changed: false,
