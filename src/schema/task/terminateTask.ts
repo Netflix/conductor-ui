@@ -1,4 +1,4 @@
-import { TerminalTaskConfig, TerminateTaskConfig } from "../../types/workflowDef";
+import { TerminateTaskConfig } from "../../types/workflowDef";
 
 export const terminateTaskParameters = [
   {

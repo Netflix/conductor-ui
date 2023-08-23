@@ -6,7 +6,6 @@ import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
 import SelectEditor from "@inovua/reactdatagrid-community/SelectEditor";
 import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
 import { Form, Formik } from "formik";
-import { inlineTaskParameters } from "../../../../schema/task/inlineTask";
 import { terminateTaskParameters } from "../../../../schema/task/terminateTask";
 const gridStyle = {
   minHeight: 402.5,

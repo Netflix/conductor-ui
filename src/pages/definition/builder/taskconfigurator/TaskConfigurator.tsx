@@ -15,7 +15,6 @@ const gridStyle = {
 };
 
 const TaskConfigurator = ({ initialConfig, onUpdate }) => {
-  const [refreshKey, setRefreshKey] = useState(0);
   const [formState, setFormState] = useState({
     inputParameters: initialConfig.inputParameters
       ? JSON.stringify(initialConfig.inputParameters)
@@ -94,9 +93,10 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
     { name: "type", header: "Type", defaultVisible: false },
   ];
 
-  // eslint-disable-next-line
+  const [dataSource, setDataSource] = useState(simpleTaskParameters);
+
   useEffect(() => {
-    let updatedParameters = [...simpleTaskParameters]; // Clone the array
+    let updatedParameters = JSON.parse(JSON.stringify(simpleTaskParameters));
 
     for (const param of updatedParameters) {
       if (initialConfig.hasOwnProperty(param.key)) {
@@ -109,22 +109,18 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
     }
     setDataSource(updatedParameters);
     setUpdatedJsonState(initialConfig);
-    // eslint-disable-next-line
   }, [initialConfig]);
 
-  const [dataSource, setDataSource] = useState(simpleTaskParameters);
+  
 
-  // eslint-disable-next-line
   const onEditComplete = useCallback(
     (editInfo: TypeEditInfo) => {
       const { value, columnId, rowId } = editInfo;
-      if (!value) return;
+      //if (!value) return;
       const data = [...dataSource];
       if (data[rowId][columnId].toString() === value.toString()) return;
       data[rowId][columnId] = value;
       data[rowId].changed = true;
-      setDataSource(data);
-      setRefreshKey(Math.random());
 
       const edittedJson = {};
       data.forEach((item) => {
@@ -139,7 +135,7 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
           edittedJson[item.key] = parseInt(item.value.toString());
         } else edittedJson[item.key] = item.value;
       });
-      const originalObject = { ...updatedJsonState };
+      const originalObject = JSON.parse(JSON.stringify(updatedJsonState));
 
       // Step 2: Merge the properties from edittedJson into the original object
       for (const key in edittedJson) {
@@ -148,9 +144,9 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
 
       setUpdatedJsonState(originalObject);
       console.log("edited", initialConfig);
+      setDataSource(data);
     },
-    // eslint-disable-next-line
-    [dataSource],
+    [dataSource, initialConfig, updatedJsonState],
   );
 
   const handleToggleButtonChange = (event, newSelection) => {
@@ -179,7 +175,7 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
       setParameterOrExpression("expression");
     }
   }, [initialConfig]);
-
+  
   useEffect(() => {
     // Update formState based on initialConfig
     setFormState({
@@ -236,7 +232,6 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
         dataSource={dataSource}
         showCellBorders={true}
         theme="conductor-light"
-        key={refreshKey}
         rowStyle={getRowStyle}
       />
       <Formik
