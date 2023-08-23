@@ -4,6 +4,7 @@ import { Button, Paper } from "../../../components";
 import HttpTaskConfigurator from "./taskconfigurator/HttpTaskConfigurator";
 import InlineTaskConfigurator from "./taskconfigurator/InlineTaskConfigurator";
 import TaskConfigurator from "./taskconfigurator/TaskConfigurator";
+import TerminateTaskConfigurator from "./taskconfigurator/TerminateTaskConfigurator";
 
 // TODO: Placeholder for integration
 
@@ -64,6 +65,11 @@ export default function TaskConfigPanel({
           onUpdate={handleTaskConfiguratorUpdate}
           initialConfig={taskConfig}
         />
+        ) : taskConfig !== null && taskConfig.type === "TERMINATE" ? (
+          <TerminateTaskConfigurator
+            onUpdate={handleTaskConfiguratorUpdate}
+            initialConfig={taskConfig}
+          />
       ) : (
         <div>
           Task Type not currently supported by Task Configurator. Please use the
