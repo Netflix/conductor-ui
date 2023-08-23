@@ -493,6 +493,14 @@ const additionalOptions = {
         },
       },
     },
+    MuiToggleButton: {
+      styleOverrides: {
+        root: {
+          textTransform: "none",
+          fontSize: "13px"
+        }
+      }
+    },
     MuiListItemText: {
       styleOverrides: {
         secondary: {

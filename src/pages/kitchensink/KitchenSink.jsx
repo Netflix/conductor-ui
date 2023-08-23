@@ -400,6 +400,26 @@ const Buttons = () => {
           </ToggleButtonGroup>
         </Grid>
         <Grid item>
+          <ToggleButtonGroup
+            value={formats}
+            onChange={handleFormat}
+            size="small"
+          >
+            <ToggleButton value="bold">
+              Bold
+            </ToggleButton>
+            <ToggleButton value="italic">
+              Italic
+            </ToggleButton>
+            <ToggleButton value="underlined">
+              Underlined
+            </ToggleButton>
+            <ToggleButton value="color">
+              Color
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Grid>
+        <Grid item>
           <DropdownButton
             options={[
               {

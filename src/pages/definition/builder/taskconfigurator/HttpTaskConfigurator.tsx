@@ -12,6 +12,7 @@ import {
   httpTaskLevelParameters,
   httpRequestParameters,
 } from "../../../../schema/task/httpTask";
+
 const taskFormStyle = {
   minHeight: 402.5,
   margin: "15px 0",
@@ -27,6 +28,121 @@ const useStyles = makeStyles({
     margin: 15,
   },
 });
+
+const methodEditorProps = {
+  idProperty: "id",
+  dataSource: [
+    { id: "GET", label: "GET" },
+    { id: "PUT", label: "PUT" },
+    { id: "POST", label: "POST" },
+    { id: "DELETE", label: "DELETE" },
+    { id: "OPTIONS", label: "OPTIONS" },
+    { id: "HEAD", label: "HEAD" },
+  ],
+  collapseOnSelect: true,
+  clearIcon: null,
+};
+
+const contentTypeEditorProps = {
+  idProperty: "id",
+  dataSource: [
+    { id: "text/plain", label: "text/plain" },
+    { id: "text/html", label: "text/html" },
+    { id: "application/json", label: "application/json" },
+  ],
+  collapseOnSelect: true,
+  clearIcon: null,
+};
+
+const booleanEditorProps = {
+  idProperty: "id",
+  dataSource: [
+    { id: "true", label: "true" },
+    { id: "false", label: "false" },
+  ],
+  collapseOnSelect: true,
+  clearIcon: null,
+};
+
+const columns = [
+  {
+    name: "id",
+    header: "Id",
+    defaultVisible: false,
+    minWidth: 300,
+    type: "number",
+  },
+  {
+    name: "key",
+    header: "Key",
+    defaultFlex: 1,
+    minWidth: 250,
+    editable: false,
+    render: ({ value, data }) => (
+      <span>
+        {data.changed ? (
+          <span>
+            <span style={{ fontWeight: "bold" }}>{value}</span>
+          </span>
+        ) : (
+          value
+        )}
+        {data.required ? <span style={{ color: "red" }}>*</span> : null}
+      </span>
+    ),
+  },
+  {
+    name: "value",
+    header: "Value",
+    defaultFlex: 1,
+    render: ({ value }) => {
+      if (value !== null) return value.toString();
+      else return null;
+    },
+    renderEditor: (Props) => {
+      const { data } = Props.cellProps;
+
+      switch (data.type) {
+        case "int":
+          return <NumericEditor {...Props} />;
+        case "boolean":
+          return <SelectEditor {...Props} editorProps={booleanEditorProps} />;
+        default:
+          if (data.key === "method") {
+            return <SelectEditor {...Props} editorProps={methodEditorProps} />;
+          } else if (data.key === "contentType") {
+            return (
+              <SelectEditor {...Props} editorProps={contentTypeEditorProps} />
+            );
+          } else return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
+      }
+    },
+  },
+  { name: "changed", header: "Changed", defaultVisible: false },
+  { name: "required", header: "Required", defaultVisible: false },
+  { name: "type", header: "Type", defaultVisible: false },
+  { name: "level", header: "Level", defaultVisible: false },
+];
+
+const headersColumns = [
+  {
+    name: "id",
+    header: "Id",
+    defaultVisible: false,
+    minWidth: 300,
+  },
+  {
+    name: "key",
+    header: "Key",
+    defaultFlex: 1,
+    minWidth: 250,
+  },
+  {
+    name: "value",
+    header: "Value",
+    defaultFlex: 2,
+  },
+];
 
 const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
   const classes = useStyles();
@@ -45,130 +161,10 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
     updatedJsonStateRef.current = updatedJsonState;
   }, [updatedJsonState]);
 
-  const renderCell = ({ value }) => {
-    if (value !== null) return value.toString();
-    else return null;
-  };
-
-  const columns = [
-    {
-      name: "id",
-      header: "Id",
-      defaultVisible: false,
-      minWidth: 300,
-      type: "number",
-    },
-    {
-      name: "key",
-      header: "Key",
-      defaultFlex: 1,
-      minWidth: 250,
-      editable: false,
-      render: ({ value, data }) => (
-        <span>
-          {data.changed ? (
-            <span>
-              <span style={{ fontWeight: "bold" }}>{value}</span>
-            </span>
-          ) : (
-            value
-          )}
-          {data.required ? <span style={{ color: "red" }}>*</span> : null}
-        </span>
-      ),
-    },
-    {
-      name: "value",
-      header: "Value",
-      defaultFlex: 1,
-      render: renderCell,
-      renderEditor: (Props) => {
-        const { data } = Props.cellProps;
-
-        const methodEditorProps = {
-          idProperty: "id",
-          dataSource: [
-            { id: "GET", label: "GET" },
-            { id: "PUT", label: "PUT" },
-            { id: "POST", label: "POST" },
-            { id: "DELETE", label: "DELETE" },
-            { id: "OPTIONS", label: "OPTIONS" },
-            { id: "HEAD", label: "HEAD" },
-          ],
-          collapseOnSelect: true,
-          clearIcon: null,
-        };
-
-        const contentTypeEditorProps = {
-          idProperty: "id",
-          dataSource: [
-            { id: "text/plain", label: "text/plain" },
-            { id: "text/html", label: "text/html" },
-            { id: "application/json", label: "application/json" },
-          ],
-          collapseOnSelect: true,
-          clearIcon: null,
-        };
-
-        const booleanEditorProps = {
-          idProperty: "id",
-          dataSource: [
-            { id: "true", label: "true" },
-            { id: "false", label: "false" },
-          ],
-          collapseOnSelect: true,
-          clearIcon: null,
-        };
-
-        switch (data.type) {
-          case "int":
-            return <NumericEditor {...Props} />;
-          case "boolean":
-            return <SelectEditor {...Props} editorProps={booleanEditorProps} />;
-          default:
-            if (data.key === "method") {
-              return (
-                <SelectEditor {...Props} editorProps={methodEditorProps} />
-              );
-            } else if (data.key === "contentType") {
-              return (
-                <SelectEditor {...Props} editorProps={contentTypeEditorProps} />
-              );
-            } else return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
-        }
-      },
-    },
-    { name: "changed", header: "Changed", defaultVisible: false },
-    { name: "required", header: "Required", defaultVisible: false },
-    { name: "type", header: "Type", defaultVisible: false },
-    { name: "level", header: "Level", defaultVisible: false },
-  ];
-
-  const headersColumns = [
-    {
-      name: "id",
-      header: "Id",
-      defaultVisible: false,
-      minWidth: 300,
-    },
-    {
-      name: "key",
-      header: "Key",
-      defaultFlex: 1,
-      minWidth: 250,
-    },
-    {
-      name: "value",
-      header: "Value",
-      defaultFlex: 2,
-    },
-  ];
-
   const [httpRequestDataSource, setHttpRequestDataSource] = useState(
     httpRequestParameters,
   );
 
-  // eslint-disable-next-line
   useEffect(() => {
     let updatedParameters = [...httpTaskLevelParameters]; // Clone the array
 
@@ -209,14 +205,12 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
     setDataSource(updatedParameters);
     setHttpRequestDataSource(updatedHttpRequestParameters);
     setUpdatedJsonState(initialConfig);
-    // eslint-disable-next-line
   }, [initialConfig]);
 
   const [dataSource, setDataSource] = useState(httpTaskLevelParameters);
 
   const [headersDataSource, setHeadersDataSource] = useState<any>([]);
 
-  // eslint-disable-next-line
   useEffect(() => {
     if (
       typeof initialConfig.inputParameters.http_request === "string" ||
@@ -265,7 +259,6 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
     setContentType(initialConfig.inputParameters.http_request.contentType);
   }, [initialConfig.inputParameters.http_request.contentType]);
 
-  // eslint-disable-next-line
   const onEditComplete = useCallback(
     (editInfo: TypeEditInfo) => {
       const { value, columnId, rowId } = editInfo;
@@ -302,11 +295,8 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
 
       setUpdatedJsonState(originalObject);
     },
-    // eslint-disable-next-line
     [dataSource],
   );
-
-  console.log("***", updatedJsonState);
 
   const onHttpRequestEditComplete = useCallback(
     (editInfo: TypeEditInfo) => {
@@ -340,7 +330,6 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
 
       setUpdatedJsonState(originalObject);
     },
-    // eslint-disable-next-line
     [httpRequestDataSource],
   );
 
@@ -364,7 +353,6 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
       originalObject.inputParameters.http_request.headers = edittedJson;
       setUpdatedJsonState(originalObject);
     },
-    // eslint-disable-next-line
     [headersDataSource],
   );
 
@@ -453,8 +441,9 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
   return (
     <div className={classes.container}>
       <Heading level={1} gutterBottom>
-        Task Configuration
+        HTTP Task
       </Heading>
+      <div>Double-click on value to edit</div>
       <ReactDataGrid
         idProperty="id"
         style={taskFormStyle}
@@ -466,8 +455,12 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
         theme="conductor-light"
         key={refreshKey}
         rowStyle={getRowStyle}
+        showHeader={false}
       />
 
+      <Heading level={0} gutterBottom>
+        Request Configuration
+      </Heading>
       <ToggleButtonGroup
         value={parameterOrExpression}
         exclusive
@@ -497,7 +490,6 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
             dataSource={httpRequestDataSource}
             showCellBorders={true}
             theme="conductor-light"
-            //key={refreshKey}
             rowStyle={getRowStyle}
           />
           <Heading level={1} gutterBottom>
@@ -508,14 +500,12 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
           </Button>
           <ReactDataGrid
             idProperty="id"
-            //style={gridStyle}
             onEditComplete={onHeadersEditComplete}
             editable={true}
             columns={headersColumns as any}
             dataSource={headersDataSource}
             showCellBorders={true}
             theme="conductor-light"
-            //key={refreshKey}
             rowStyle={getRowStyle}
           />
 
