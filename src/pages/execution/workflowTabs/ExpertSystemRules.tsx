@@ -27,7 +27,7 @@ export const checkPollCountAndCallBackAfterSeconds: Rule = (
     ) {
       let alertMessage = `Task "${taskResult.referenceTaskName}" was picked up by worker ${taskResult.workerId} but returned to Conductor for delayed processing.`;
       if (taskResult.callbackAfterSeconds! > 0)
-        alertMessage += ` Because the callBackAfterSeconds is set to ${taskResult.callbackAfterSeconds} seconds by the worker, Conductor will not reschedule the task until task time passes.`;
+        alertMessage += ` Because callBackAfterSeconds was set to ${taskResult.callbackAfterSeconds} seconds by the worker, Conductor will not reschedule the task until that time has passed. This condition has occured ${taskResult.pollCount} times. If this is the intended behavior, then no action is necessary.`;
       const newAlertItem: AlertItem = {
         component: <Alert severity="info">{alertMessage}</Alert>,
         severity: "INFO",
