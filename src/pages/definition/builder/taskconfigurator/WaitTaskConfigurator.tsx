@@ -166,13 +166,16 @@ const WaitTaskConfigurator = ({ initialConfig, onUpdate }) => {
     else if (initialConfig.inputParameters.until && !initialConfig.inputParameters.duration) {
         setDurationOrUntil("until");
     }
-
-    if (
+    else if (!initialConfig.inputParameters.until && initialConfig.inputParameters.duration) {
+      setDurationOrUntil("duration");
+    }
+    else if (
       initialConfig.inputParameters.until.length >
       initialConfig.inputParameters.duration.length
     ) {
       setDurationOrUntil("until");
     }
+    else setDurationOrUntil("duration");
   }, [initialConfig]);
 
   useEffect(() => {
