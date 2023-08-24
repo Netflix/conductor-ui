@@ -9,7 +9,7 @@ export const TASK_CONFIG_TYPES = [
   "SUB_WORKFLOW",
   "HTTP",
   "INLINE",
-  "JQ_TRANSFORM",
+  "JSON_JQ_TRANSFORM",
   "WAIT",
 ] as const;
 export const DEPRECATED_TASK_CONFIG_TYPES = [
@@ -115,7 +115,7 @@ export interface InlineTaskConfig extends BaseTaskConfig {
   type: "INLINE";
 }
 export interface JQTransformTaskConfig extends BaseTaskConfig {
-  type: "JQ_TRANSFORM";
+  type: "JSON_JQ_TRANSFORM";
 }
 export interface WaitTaskConfig extends BaseTaskConfig {
   type: "WAIT";

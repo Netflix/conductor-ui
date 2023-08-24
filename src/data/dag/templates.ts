@@ -19,6 +19,7 @@ import { createInlineTaskParams } from "../../schema/task/inlineTask";
 import { createHttpTaskParams } from "../../schema/task/httpTask";
 import { createTerminateTaskParams } from "../../schema/task/terminateTask";
 import { createWaitTaskParams } from "../../schema/task/waitTask";
+import { createJQTransformTaskParams } from "../../schema/task/JQTransformTask";
 export const templates: {
   [key in TaskConfigType]: (ref: string) => TaskConfig[];
 } = {
@@ -104,13 +105,8 @@ export const templates: {
     const retval: TerminateTaskConfig = createTerminateTaskParams(ref);
     return [retval];
   },
-  JQ_TRANSFORM: (ref) => {
-    const retval: JQTransformTaskConfig = {
-      inputParameters: {},
-      taskReferenceName: ref,
-      type: "JQ_TRANSFORM",
-      name: ref,
-    };
+  JSON_JQ_TRANSFORM: (ref) => {
+    const retval: JQTransformTaskConfig = createJQTransformTaskParams(ref);
     return [retval];
   },
   INLINE: (ref) => {

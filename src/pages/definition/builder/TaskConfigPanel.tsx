@@ -6,6 +6,7 @@ import InlineTaskConfigurator from "./taskconfigurator/InlineTaskConfigurator";
 import TaskConfigurator from "./taskconfigurator/TaskConfigurator";
 import TerminateTaskConfigurator from "./taskconfigurator/TerminateTaskConfigurator";
 import WaitTaskConfigurator from "./taskconfigurator/WaitTaskConfigurator";
+import JQTransformTaskConfigurator from "./taskconfigurator/JQTransformTaskConfigurator";
 
 // TODO: Placeholder for integration
 
@@ -47,7 +48,7 @@ export default function TaskConfigPanel({
     setStaging("TaskConfigPane", newDag.toWorkflowDef(), newDag);
   };
 
-  console.log("taskConfig", taskConfig);
+  console.log("taskConfig", taskConfig?.type);
 
   return (
     <div style={{ height: "100%", overflowY: "scroll" }}>
@@ -73,6 +74,11 @@ export default function TaskConfigPanel({
         />
       ) : taskConfig !== null && taskConfig.type === "WAIT" ? (
         <WaitTaskConfigurator
+          onUpdate={handleTaskConfiguratorUpdate}
+          initialConfig={taskConfig}
+        />
+      ) : taskConfig !== null && taskConfig.type === "JSON_JQ_TRANSFORM" ? (
+        <JQTransformTaskConfigurator
           onUpdate={handleTaskConfiguratorUpdate}
           initialConfig={taskConfig}
         />
