@@ -55,7 +55,7 @@ export const waitTaskParameters = [
     changed: false,
     required: false,
     type: "int",
-  }
+  },
 ];
 
 export function createWaitTaskParams(taskReferenceName) {

@@ -53,14 +53,13 @@ const TaskConfiguratorPage = () => {
   };
 
   const sampleTerminateTask = {
-      "type": "TERMINATE",
-      "name": "terminate_0",
-      "taskReferenceName": "terminate_0",
-      "inputParameters": {
-        "terminationStatus": "COMPLETED"
-      }
-    }
-  
+    type: "TERMINATE",
+    name: "terminate_0",
+    taskReferenceName: "terminate_0",
+    inputParameters: {
+      terminationStatus: "COMPLETED",
+    },
+  };
 
   const [initialConfig, setInitialConfig] = useState(sampleTerminateTask);
 
@@ -99,11 +98,11 @@ const TaskConfiguratorPage = () => {
               onUpdate={handleTaskConfiguratorUpdate}
               initialConfig={initialConfig}
             />
-            ) : initialConfig.type === "TERMINATE" ? (
-              <TerminateTaskConfigurator
-                onUpdate={handleTaskConfiguratorUpdate}
-                initialConfig={initialConfig}
-              />
+          ) : initialConfig.type === "TERMINATE" ? (
+            <TerminateTaskConfigurator
+              onUpdate={handleTaskConfiguratorUpdate}
+              initialConfig={initialConfig}
+            />
           ) : (
             <TaskConfigurator
               onUpdate={handleTaskConfiguratorUpdate}

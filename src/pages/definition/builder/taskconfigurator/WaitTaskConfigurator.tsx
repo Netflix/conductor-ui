@@ -18,10 +18,9 @@ const gridStyle = {
 const WaitTaskConfigurator = ({ initialConfig, onUpdate }) => {
   const [formState, setFormState] = useState({
     duration: initialConfig.inputParameters.duration || "",
-    until: initialConfig.inputParameters.until || ""
+    until: initialConfig.inputParameters.until || "",
   });
-  const [durationOrUntil, setDurationOrUntil] =
-    useState("duration");
+  const [durationOrUntil, setDurationOrUntil] = useState("duration");
   const [updatedJsonState, setUpdatedJsonState] = useState(initialConfig);
 
   const renderCell = ({ value }) => {
@@ -160,29 +159,34 @@ const WaitTaskConfigurator = ({ initialConfig, onUpdate }) => {
   };
 
   useEffect(() => {
-    if (!initialConfig.inputParameters.until && !initialConfig.inputParameters.duration) {
+    if (
+      !initialConfig.inputParameters.until &&
+      !initialConfig.inputParameters.duration
+    ) {
       return;
-    }
-    else if (initialConfig.inputParameters.until && !initialConfig.inputParameters.duration) {
-        setDurationOrUntil("until");
-    }
-    else if (!initialConfig.inputParameters.until && initialConfig.inputParameters.duration) {
+    } else if (
+      initialConfig.inputParameters.until &&
+      !initialConfig.inputParameters.duration
+    ) {
+      setDurationOrUntil("until");
+    } else if (
+      !initialConfig.inputParameters.until &&
+      initialConfig.inputParameters.duration
+    ) {
       setDurationOrUntil("duration");
-    }
-    else if (
+    } else if (
       initialConfig.inputParameters.until.length >
       initialConfig.inputParameters.duration.length
     ) {
       setDurationOrUntil("until");
-    }
-    else setDurationOrUntil("duration");
+    } else setDurationOrUntil("duration");
   }, [initialConfig]);
 
   useEffect(() => {
     // Update formState based on initialConfig
     setFormState({
       duration: initialConfig.inputParameters.duration || "",
-      until: initialConfig.inputParameters.until || ""
+      until: initialConfig.inputParameters.until || "",
     });
   }, [initialConfig]);
 
@@ -190,9 +194,9 @@ const WaitTaskConfigurator = ({ initialConfig, onUpdate }) => {
     setFormState(values);
     let newJsonState = cloneDeep(updatedJsonState);
     if (durationOrUntil === "duration") {
-      newJsonState.inputParameters = {"duration": values.duration};
+      newJsonState.inputParameters = { duration: values.duration };
     } else {
-        newJsonState.inputParameters = {"until": values.until};
+      newJsonState.inputParameters = { until: values.until };
     }
     setUpdatedJsonState(newJsonState);
     onUpdate(newJsonState);
@@ -231,13 +235,13 @@ const WaitTaskConfigurator = ({ initialConfig, onUpdate }) => {
                 value={durationOrUntil}
                 exclusive
                 onChange={handleToggleButtonChange}
-                aria-label="toggle between parameter and expression"
+                aria-label="toggle between duration and until"
                 style={{ marginBottom: "15px" }}
               >
                 <ToggleButton value="duration" aria-label="use duration">
                   Use duration in inputParameters
                 </ToggleButton>
-                <ToggleButton value="expression" aria-label="use expression">
+                <ToggleButton value="until" aria-label="use until">
                   Use until in inputParameters
                 </ToggleButton>
               </ToggleButtonGroup>

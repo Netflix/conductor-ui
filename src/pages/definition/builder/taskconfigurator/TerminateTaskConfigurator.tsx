@@ -16,12 +16,14 @@ const TerminateTaskConfigurator = ({ initialConfig, onUpdate }) => {
   const [updatedJsonState, setUpdatedJsonState] = useState(initialConfig);
 
   const [formState, setFormState] = useState({
-    workflowOutput: JSON.stringify(initialConfig.inputParameters.workflowOutput) || "{}"
+    workflowOutput:
+      JSON.stringify(initialConfig.inputParameters.workflowOutput) || "{}",
   });
 
   useEffect(() => {
     setFormState({
-        workflowOutput: JSON.stringify(initialConfig.inputParameters.workflowOutput) || "{}"
+      workflowOutput:
+        JSON.stringify(initialConfig.inputParameters.workflowOutput) || "{}",
     });
   }, [initialConfig]);
 
@@ -78,14 +80,14 @@ const TerminateTaskConfigurator = ({ initialConfig, onUpdate }) => {
           clearIcon: null,
         };
         const terminationStatusEditorProps = {
-            idProperty: "id",
-            dataSource: [
-              { id: "COMPLETED", label: "COMPLETED" },
-              { id: "FAILED", label: "FAILED" },
-            ],
-            collapseOnSelect: true,
-            clearIcon: null,
-          };
+          idProperty: "id",
+          dataSource: [
+            { id: "COMPLETED", label: "COMPLETED" },
+            { id: "FAILED", label: "FAILED" },
+          ],
+          collapseOnSelect: true,
+          clearIcon: null,
+        };
 
         switch (data.type) {
           case "int":
@@ -94,14 +96,13 @@ const TerminateTaskConfigurator = ({ initialConfig, onUpdate }) => {
             return <SelectEditor {...Props} editorProps={booleanEditorProps} />;
           default:
             if (data.key === "terminationStatus") {
-                return (
-                  <SelectEditor
-                    {...Props}
-                    editorProps={terminationStatusEditorProps}
-                  />
-                );
-              }
-            else return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
+              return (
+                <SelectEditor
+                  {...Props}
+                  editorProps={terminationStatusEditorProps}
+                />
+              );
+            } else return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
         }
       },
     },
@@ -174,7 +175,9 @@ const TerminateTaskConfigurator = ({ initialConfig, onUpdate }) => {
   const handleSubmit = (values) => {
     setFormState(values);
     const originalObject = JSON.parse(JSON.stringify(updatedJsonState));
-    originalObject.inputParameters.workflowOutput = JSON.parse(values.workflowOutput);
+    originalObject.inputParameters.workflowOutput = JSON.parse(
+      values.workflowOutput,
+    );
     setUpdatedJsonState(originalObject);
     onUpdate(originalObject);
   };
