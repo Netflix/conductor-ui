@@ -149,7 +149,7 @@ export const WORKFLOW_SCHEMA = {
                 type: "HTTP",
               },
             ],
-            required: ["name", "taskReferenceName", "inputParameters", "type"],
+            required: ["name", "taskReferenceName", "type"],
             properties: {
               name: {
                 $id: "#/properties/tasks/items/anyOf/0/properties/name",
