@@ -7,7 +7,7 @@ import { TypeEditInfo } from "@inovua/reactdatagrid-community/types";
 import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
 import SelectEditor from "@inovua/reactdatagrid-community/SelectEditor";
 import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
-import { simpleTaskParameters } from "../../../../schema/task/simpleTask";
+import { waitTaskParameters } from "../../../../schema/task/waitTask";
 import { cloneDeep } from "lodash";
 
 const gridStyle = {
@@ -15,18 +15,13 @@ const gridStyle = {
   margin: "15px 0",
 };
 
-const TaskConfigurator = ({ initialConfig, onUpdate }) => {
+const WaitTaskConfigurator = ({ initialConfig, onUpdate }) => {
   const [formState, setFormState] = useState({
-    inputParameters: initialConfig.inputParameters
-      ? JSON.stringify(initialConfig.inputParameters)
-      : "{}",
-    inputExpression:
-      initialConfig.inputExpression && initialConfig.inputExpression.expression
-        ? initialConfig.inputExpression.expression
-        : "",
+    duration: initialConfig.inputParameters.duration || "",
+    until: initialConfig.inputParameters.until || ""
   });
-  const [parameterOrExpression, setParameterOrExpression] =
-    useState("parameter");
+  const [durationOrUntil, setDurationOrUntil] =
+    useState("duration");
   const [updatedJsonState, setUpdatedJsonState] = useState(initialConfig);
 
   const renderCell = ({ value }) => {
@@ -94,10 +89,10 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
     { name: "type", header: "Type", defaultVisible: false },
   ];
 
-  const [dataSource, setDataSource] = useState(simpleTaskParameters);
+  const [dataSource, setDataSource] = useState(waitTaskParameters);
 
   useEffect(() => {
-    let updatedParameters = cloneDeep(simpleTaskParameters);
+    let updatedParameters = cloneDeep(waitTaskParameters);
 
     for (const param of updatedParameters) {
       if (initialConfig.hasOwnProperty(param.key)) {
@@ -151,62 +146,50 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
   const handleToggleButtonChange = (event, newSelection) => {
     if (newSelection) {
       clearFormValues(); // Clear the form values
-      setParameterOrExpression(newSelection);
+      setDurationOrUntil(newSelection);
     }
   };
 
   const clearFormValues = () => {
     const newFormValues = {
-      inputParameters: "{}",
-      inputExpression: "",
+      duration: "",
+      until: "",
     };
 
     setFormState(newFormValues); // Clear the form values
   };
 
   useEffect(() => {
-    if (!initialConfig.inputExpression || !initialConfig.inputParameters)
+    if (!initialConfig.inputParameters.until && !initialConfig.inputParameters.duration) {
       return;
+    }
+    else if (initialConfig.inputParameters.until && !initialConfig.inputParameters.duration) {
+        setDurationOrUntil("until");
+    }
+
     if (
-      JSON.stringify(initialConfig.inputExpression).length >
-      JSON.stringify(initialConfig.inputParameters).length
+      initialConfig.inputParameters.until.length >
+      initialConfig.inputParameters.duration.length
     ) {
-      setParameterOrExpression("expression");
+      setDurationOrUntil("until");
     }
   }, [initialConfig]);
 
   useEffect(() => {
     // Update formState based on initialConfig
     setFormState({
-      inputParameters: initialConfig.inputParameters
-        ? JSON.stringify(initialConfig.inputParameters)
-        : "{}",
-      inputExpression:
-        initialConfig.inputExpression &&
-        initialConfig.inputExpression.expression
-          ? initialConfig.inputExpression.expression
-          : "",
+      duration: initialConfig.inputParameters.duration || "",
+      until: initialConfig.inputParameters.until || ""
     });
   }, [initialConfig]);
 
   const handleSubmit = (values) => {
     setFormState(values);
-    let newJsonState;
-    if (parameterOrExpression === "expression") {
-      newJsonState = {
-        ...updatedJsonState,
-        inputExpression: {
-          expression: values.inputExpression,
-          type: "JSON_PATH",
-        },
-        inputParameters: {},
-      };
+    let newJsonState = cloneDeep(updatedJsonState);
+    if (durationOrUntil === "duration") {
+      newJsonState.inputParameters = {"duration": values.duration};
     } else {
-      newJsonState = {
-        ...updatedJsonState,
-        inputParameters: JSON.parse(values.inputParameters),
-        inputExpression: {},
-      };
+        newJsonState.inputParameters = {"until": values.until};
     }
     setUpdatedJsonState(newJsonState);
     onUpdate(newJsonState);
@@ -242,33 +225,34 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
           return (
             <Form>
               <ToggleButtonGroup
-                value={parameterOrExpression}
+                value={durationOrUntil}
                 exclusive
                 onChange={handleToggleButtonChange}
                 aria-label="toggle between parameter and expression"
                 style={{ marginBottom: "15px" }}
               >
-                <ToggleButton value="parameter" aria-label="use parameter">
-                  Use Input Parameters
+                <ToggleButton value="duration" aria-label="use duration">
+                  Use duration in inputParameters
                 </ToggleButton>
                 <ToggleButton value="expression" aria-label="use expression">
-                  Use Input Expression
+                  Use until in inputParameters
                 </ToggleButton>
               </ToggleButtonGroup>
 
-              {parameterOrExpression === "parameter" ? (
+              {durationOrUntil === "duration" ? (
                 <FormikJsonInput
-                  key="parameter"
-                  label="inputParameters"
-                  name="inputParameters"
+                  key="duration"
+                  label="duration"
+                  name="duration"
                   className={undefined}
                   height={undefined}
+                  language="plaintext"
                 />
               ) : (
                 <FormikJsonInput
-                  key="expression"
-                  label="inputExpression.expression"
-                  name="inputExpression"
+                  key="until"
+                  label="until"
+                  name="until"
                   className={undefined}
                   height={undefined}
                   language="plaintext"
@@ -286,4 +270,4 @@ const TaskConfigurator = ({ initialConfig, onUpdate }) => {
   );
 };
 
-export default TaskConfigurator;
+export default WaitTaskConfigurator;

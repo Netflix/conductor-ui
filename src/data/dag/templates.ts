@@ -18,6 +18,7 @@ import { createSimpleTaskParams } from "../../schema/task/simpleTask";
 import { createInlineTaskParams } from "../../schema/task/inlineTask";
 import { createHttpTaskParams } from "../../schema/task/httpTask";
 import { createTerminateTaskParams } from "../../schema/task/terminateTask";
+import { createWaitTaskParams } from "../../schema/task/waitTask";
 export const templates: {
   [key in TaskConfigType]: (ref: string) => TaskConfig[];
 } = {
@@ -117,12 +118,7 @@ export const templates: {
     return [retval];
   },
   WAIT: (ref) => {
-    const retval: WaitTaskConfig = {
-      inputParameters: {},
-      taskReferenceName: ref,
-      name: ref,
-      type: "WAIT",
-    };
+    const retval: WaitTaskConfig = createWaitTaskParams(ref);
     return [retval];
   },
   DECISION: (ref) => [],
