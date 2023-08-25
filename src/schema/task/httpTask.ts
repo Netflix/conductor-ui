@@ -1,5 +1,17 @@
 import { HttpTaskConfig } from "../../types/workflowDef";
 
+export type DataSourceEntry = {
+  id: number;
+  key: string;
+  type: string;
+  level: string;
+  required: boolean;
+  
+  value?: any;
+  changed?: boolean;
+}
+
+
 export const httpTaskLevelParameters = [
   {
     id: 0,

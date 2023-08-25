@@ -1,10 +1,15 @@
-import { useContext } from "react";
+import { useCallback, useContext } from "react";
 import { DefEditorContext } from "../WorkflowDefinition";
 import HttpTaskConfigurator from "./taskconfigurator/HttpTaskConfigurator";
 import InlineTaskConfigurator from "./taskconfigurator/InlineTaskConfigurator";
 import TaskConfigurator from "./taskconfigurator/TaskConfigurator";
+import { TaskConfig } from "../../../types/workflowDef";
 
-// TODO: Placeholder for integration
+export type TaskConfiguratorProps = {
+  initialConfig: TaskConfig;
+  onUpdate: (taskConfig: TaskConfig) => void;
+  onChanged: (changed: boolean) => void;
+};
 
 export default function TaskConfigPanel({
   setSeverity,
@@ -15,9 +20,13 @@ export default function TaskConfigPanel({
   const { dag, selectedTask, setStaging } = context!;
 
   const taskConfig = selectedTask && dag.getTaskConfigByCoord(selectedTask);
-  let originalRef = null;
-  if (taskConfig)
-    originalRef = JSON.parse(JSON.stringify(taskConfig)).taskReferenceName;
+
+  const handleTaskChanged = useCallback(
+    (value) => {
+      setSeverity(value ? "INFO" : undefined);
+    },
+    [setSeverity],
+  );
 
   if (!selectedTask) {
     return (
@@ -37,14 +46,14 @@ export default function TaskConfigPanel({
   }
 
   const handleTaskConfiguratorUpdate = (updatedState) => {
+    const originalRef = taskConfig?.taskReferenceName;
     const newDag = dag.clone();
+
     if (originalRef) {
       newDag.updateTask(originalRef, updatedState);
     }
-    setStaging("TaskConfigPane", newDag.toWorkflowDef(), newDag);
+    setStaging("TaskConfigPanel", newDag.toWorkflowDef(), newDag);
   };
-
-  console.log("taskConfig", taskConfig);
 
   return (
     <div style={{ height: "100%", overflowY: "scroll" }}>
@@ -52,16 +61,19 @@ export default function TaskConfigPanel({
         <HttpTaskConfigurator
           onUpdate={handleTaskConfiguratorUpdate}
           initialConfig={taskConfig}
+          onChanged={handleTaskChanged}
         />
       ) : taskConfig !== null && taskConfig.type === "INLINE" ? (
         <InlineTaskConfigurator
           onUpdate={handleTaskConfiguratorUpdate}
           initialConfig={taskConfig}
+          onChanged={handleTaskChanged}
         />
       ) : taskConfig !== null && taskConfig.type === "SIMPLE" ? (
         <TaskConfigurator
           onUpdate={handleTaskConfiguratorUpdate}
           initialConfig={taskConfig}
+          onChanged={handleTaskChanged}
         />
       ) : (
         <div>

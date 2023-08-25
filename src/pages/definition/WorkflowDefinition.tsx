@@ -125,7 +125,7 @@ export default function WorkflowDefinition() {
         (prev, [key, val]) => prev || (!!val && key !== sourceId),
         false,
       );
-
+      console.log(sourceId, askOverride, changes)
       let confirmed = true;
       if (askOverride) {
         confirmed = window.confirm(

@@ -7,12 +7,13 @@ import SelectEditor from "@inovua/reactdatagrid-community/SelectEditor";
 import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
 import { Form, Formik } from "formik";
 import { inlineTaskParameters } from "../../../../schema/task/inlineTask";
+import { TaskConfiguratorProps } from "../TaskConfigPanel";
 const gridStyle = {
   minHeight: 362.5,
   margin: "15px 0",
 };
 
-const InlineTaskConfigurator = ({ initialConfig, onUpdate }) => {
+const InlineTaskConfigurator = ({ initialConfig, onUpdate }: TaskConfiguratorProps) => {
   const [updatedJsonState, setUpdatedJsonState] = useState(initialConfig);
   const {
     expression = "",
