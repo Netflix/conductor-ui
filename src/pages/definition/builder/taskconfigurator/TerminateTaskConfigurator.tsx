@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Button, FormikJsonInput } from "../../../../components";
+import { Button, FormikInput, FormikJsonInput } from "../../../../components";
 import ReactDataGrid from "@inovua/reactdatagrid-community";
 import { TypeEditInfo } from "@inovua/reactdatagrid-community/types";
 import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
@@ -8,26 +8,20 @@ import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell
 import { Form, Formik } from "formik";
 import { terminateTaskParameters } from "../../../../schema/task/terminateTask";
 const gridStyle = {
-  minHeight: 402.5,
+  minHeight: 362.5,
   margin: "15px 0",
 };
 
 const TerminateTaskConfigurator = ({ initialConfig, onUpdate }) => {
-  const [refreshKey, setRefreshKey] = useState(0);
   const [updatedJsonState, setUpdatedJsonState] = useState(initialConfig);
-  //   const {
-  //     expression = "",
-  //     evaluatorType,
-  //     ...rest
-  //   } = initialConfig.inputParameters || {};
 
   const [formState, setFormState] = useState({
-    workflowOutput: initialConfig.inputParameters.workflowOutput || "",
+    workflowOutput: JSON.stringify(initialConfig.inputParameters.workflowOutput) || "{}"
   });
 
   useEffect(() => {
     setFormState({
-      workflowOutput: initialConfig.inputParameters.workflowOutput || "",
+        workflowOutput: JSON.stringify(initialConfig.inputParameters.workflowOutput) || "{}"
     });
   }, [initialConfig]);
 
@@ -52,20 +46,14 @@ const TerminateTaskConfigurator = ({ initialConfig, onUpdate }) => {
       minWidth: 250,
       editable: false,
       render: ({ value, data }) => {
-        // Check if the key matches the conditions
-        const displayValue =
-          data.key === "terminationStatus" || data.key === "terminationReason"
-            ? `inputParameters.${value}`
-            : value;
-
         return (
           <span>
             {data.changed ? (
               <span>
-                <span style={{ fontWeight: "bold" }}>{displayValue}</span>
+                <span style={{ fontWeight: "bold" }}>{value}</span>
               </span>
             ) : (
-              displayValue
+              value
             )}
             {data.required ? <span style={{ color: "red" }}>*</span> : null}
           </span>
@@ -89,6 +77,15 @@ const TerminateTaskConfigurator = ({ initialConfig, onUpdate }) => {
           collapseOnSelect: true,
           clearIcon: null,
         };
+        const terminationStatusEditorProps = {
+            idProperty: "id",
+            dataSource: [
+              { id: "COMPLETED", label: "COMPLETED" },
+              { id: "FAILED", label: "FAILED" },
+            ],
+            collapseOnSelect: true,
+            clearIcon: null,
+          };
 
         switch (data.type) {
           case "int":
@@ -96,7 +93,15 @@ const TerminateTaskConfigurator = ({ initialConfig, onUpdate }) => {
           case "boolean":
             return <SelectEditor {...Props} editorProps={booleanEditorProps} />;
           default:
-            return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
+            if (data.key === "terminationStatus") {
+                return (
+                  <SelectEditor
+                    {...Props}
+                    editorProps={terminationStatusEditorProps}
+                  />
+                );
+              }
+            else return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
         }
       },
     },
@@ -105,9 +110,8 @@ const TerminateTaskConfigurator = ({ initialConfig, onUpdate }) => {
     { name: "type", header: "Type", defaultVisible: false },
   ];
 
-  // eslint-disable-next-line
   useEffect(() => {
-    let updatedParameters = [...terminateTaskParameters]; // Clone the array
+    let updatedParameters = JSON.parse(JSON.stringify(terminateTaskParameters)); // Clone the array
 
     for (const param of updatedParameters) {
       if (initialConfig.hasOwnProperty(param.key)) {
@@ -127,22 +131,18 @@ const TerminateTaskConfigurator = ({ initialConfig, onUpdate }) => {
     }
     setDataSource(updatedParameters);
     setUpdatedJsonState(initialConfig);
-    // eslint-disable-next-line
   }, [initialConfig]);
 
   const [dataSource, setDataSource] = useState(terminateTaskParameters);
 
-  // eslint-disable-next-line
   const onEditComplete = useCallback(
     (editInfo: TypeEditInfo) => {
       const { value, columnId, rowId } = editInfo;
       if (!value) return;
-      const data = [...dataSource];
+      const data = JSON.parse(JSON.stringify(dataSource));
       if (data[rowId][columnId].toString() === value.toString()) return;
       data[rowId][columnId] = value;
       data[rowId].changed = true;
-      setDataSource(data);
-      setRefreshKey(Math.random());
 
       const edittedJson = {};
       data.forEach((item) => {
@@ -161,33 +161,22 @@ const TerminateTaskConfigurator = ({ initialConfig, onUpdate }) => {
       // Step 2: Merge the properties from edittedJson into the original object
       for (const key in edittedJson) {
         if (key === "terminationStatus" || key === "terminationReason") {
-          console.log(originalObject.inputParameters[key]);
-          console.log(edittedJson[key]);
           originalObject.inputParameters[key] = edittedJson[key];
         } else originalObject[key] = edittedJson[key];
       }
 
+      setDataSource(data);
       setUpdatedJsonState(originalObject);
     },
-    // eslint-disable-next-line
-    [dataSource],
+    [dataSource, updatedJsonState],
   );
 
   const handleSubmit = (values) => {
     setFormState(values);
-    let newJsonState;
-    let newInputParameters;
-    newInputParameters = {
-      ...JSON.parse(values.additionalInputParameters),
-      evaluatorType: updatedJsonState.inputParameters.evaluatorType,
-      expression: values.expression,
-    };
-    newJsonState = {
-      ...updatedJsonState,
-      inputParameters: newInputParameters,
-    };
-    setUpdatedJsonState(newJsonState);
-    onUpdate(newJsonState);
+    const originalObject = JSON.parse(JSON.stringify(updatedJsonState));
+    originalObject.inputParameters.workflowOutput = JSON.parse(values.workflowOutput);
+    setUpdatedJsonState(originalObject);
+    onUpdate(originalObject);
   };
 
   const getRowStyle = (data) => {
@@ -207,7 +196,6 @@ const TerminateTaskConfigurator = ({ initialConfig, onUpdate }) => {
         dataSource={dataSource}
         showCellBorders={true}
         theme="conductor-light"
-        key={refreshKey}
         rowStyle={getRowStyle}
         enableColumnAutosize={true}
       />
@@ -220,22 +208,12 @@ const TerminateTaskConfigurator = ({ initialConfig, onUpdate }) => {
           return (
             <Form>
               <FormikJsonInput
-                key="expression"
-                label="inputParameters.expression"
-                name="expression"
+                key="workflowOutput"
+                label="inputParameters.workflowOutput"
+                name="workflowOutput"
                 className={undefined}
                 height={undefined}
-                language="javascript"
               />
-              <div style={{ marginTop: "15px" }}>
-                <FormikJsonInput
-                  key="additionalInputParameters"
-                  label="Additional inputParameters"
-                  name="additionalInputParameters"
-                  className={undefined}
-                  height={undefined}
-                />
-              </div>
               <Button style={{ marginTop: "15px" }} type="submit">
                 Submit
               </Button>

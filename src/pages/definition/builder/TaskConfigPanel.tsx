@@ -4,6 +4,7 @@ import HttpTaskConfigurator from "./taskconfigurator/HttpTaskConfigurator";
 import InlineTaskConfigurator from "./taskconfigurator/InlineTaskConfigurator";
 import TaskConfigurator from "./taskconfigurator/TaskConfigurator";
 import { TaskConfig } from "../../../types/workflowDef";
+import TerminateTaskConfigurator from "./taskconfigurator/TerminateTaskConfigurator";
 
 export type TaskConfiguratorProps = {
   initialConfig: TaskConfig;
@@ -74,6 +75,11 @@ export default function TaskConfigPanel({
           onUpdate={handleTaskConfiguratorUpdate}
           initialConfig={taskConfig}
           onChanged={handleTaskChanged}
+        />
+        ) : taskConfig !== null && taskConfig.type === "TERMINATE" ? (
+        <TerminateTaskConfigurator
+          onUpdate={handleTaskConfiguratorUpdate}
+          initialConfig={taskConfig}
         />
       ) : (
         <div>

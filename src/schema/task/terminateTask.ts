@@ -26,14 +26,6 @@ export const terminateTaskParameters = [
   },
   {
     id: 3,
-    key: "asyncComplete",
-    value: false,
-    changed: false,
-    required: false,
-    type: "boolean",
-  },
-  {
-    id: 4,
     key: "startDelay",
     value: 0,
     changed: false,
@@ -41,7 +33,7 @@ export const terminateTaskParameters = [
     type: "int",
   },
   {
-    id: 5,
+    id: 4,
     key: "rateLimited",
     value: false,
     changed: false,
@@ -49,7 +41,7 @@ export const terminateTaskParameters = [
     type: "boolean",
   },
   {
-    id: 6,
+    id: 5,
     key: "retryCount",
     value: 0,
     changed: false,
@@ -57,16 +49,16 @@ export const terminateTaskParameters = [
     type: "int",
   },
   {
-    id: 7,
+    id: 6,
     key: "terminationStatus",
-    value: "completed",
+    value: "COMPLETED",
     changed: false,
     required: true,
     type: "string",
   },
   {
-    id: 8,
-    key: "terminationReasion",
+    id: 7,
+    key: "terminationReason",
     value: "",
     changed: false,
     required: false,
