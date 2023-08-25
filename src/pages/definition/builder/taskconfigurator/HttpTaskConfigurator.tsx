@@ -1,8 +1,7 @@
-import { Form, Formik } from "formik";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Button, FormikJsonInput, Heading } from "../../../../components";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Button, Heading } from "../../../../components";
 import ReactDataGrid from "@inovua/reactdatagrid-community";
-import { ToggleButtonGroup, ToggleButton } from "@mui/material";
+import { ToggleButtonGroup, ToggleButton, IconButton } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { TypeEditInfo } from "@inovua/reactdatagrid-community/types";
 import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
@@ -12,6 +11,12 @@ import {
   httpTaskLevelParameters,
   httpRequestParameters,
 } from "../../../../schema/task/httpTask";
+import JsonInput from "../../../../components/JsonInput";
+import _ from "lodash";
+import { TaskConfig } from "../../../../types/workflowDef";
+import { Add } from "@mui/icons-material";
+import { TaskConfiguratorProps } from "../TaskConfigPanel";
+
 const taskFormStyle = {
   minHeight: 402.5,
   margin: "15px 0",
@@ -26,150 +31,162 @@ const useStyles = makeStyles({
   container: {
     margin: 15,
   },
+  subHeader: {
+    fontWeight: 'bold',
+    fontSize: 13
+  }
 });
 
-const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
+const methodEditorProps = {
+  idProperty: "id",
+  dataSource: [
+    { id: "GET", label: "GET" },
+    { id: "PUT", label: "PUT" },
+    { id: "POST", label: "POST" },
+    { id: "DELETE", label: "DELETE" },
+    { id: "OPTIONS", label: "OPTIONS" },
+    { id: "HEAD", label: "HEAD" },
+  ],
+  collapseOnSelect: true,
+  clearIcon: null,
+};
+
+const contentTypeEditorProps = {
+  idProperty: "id",
+  dataSource: [
+    { id: "text/plain", label: "text/plain" },
+    { id: "text/html", label: "text/html" },
+    { id: "application/json", label: "application/json" },
+  ],
+  collapseOnSelect: true,
+  clearIcon: null,
+};
+
+const booleanEditorProps = {
+  idProperty: "id",
+  dataSource: [
+    { id: "true", label: "true" },
+    { id: "false", label: "false" },
+  ],
+  collapseOnSelect: true,
+  clearIcon: null,
+};
+
+const columns = [
+  {
+    name: "id",
+    header: "Id",
+    defaultVisible: false,
+    minWidth: 300,
+    type: "number",
+  },
+  {
+    name: "key",
+    header: "Key",
+    defaultFlex: 1,
+    minWidth: 250,
+    editable: false,
+    render: ({ value, data }) => (
+      <span>
+        {data.changed ? (
+          <span>
+            <span style={{ fontWeight: "bold" }}>{value}</span>
+          </span>
+        ) : (
+          value
+        )}
+        {data.required ? <span style={{ color: "red" }}>*</span> : null}
+      </span>
+    ),
+  },
+  {
+    name: "value",
+    header: "Value",
+    defaultFlex: 1,
+    render: ({ value }) => {
+      if (value !== null) return value.toString();
+      else return null;
+    },
+    renderEditor: (Props) => {
+      const { data } = Props.cellProps;
+
+      switch (data.type) {
+        case "int":
+          return <NumericEditor {...Props} />;
+        case "boolean":
+          return <SelectEditor {...Props} editorProps={booleanEditorProps} />;
+        default:
+          if (data.key === "method") {
+            return <SelectEditor {...Props} editorProps={methodEditorProps} />;
+          } else if (data.key === "contentType") {
+            return (
+              <SelectEditor {...Props} editorProps={contentTypeEditorProps} />
+            );
+          } else return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
+      }
+    },
+  },
+  { name: "changed", header: "Changed", defaultVisible: false },
+  { name: "required", header: "Required", defaultVisible: false },
+  { name: "type", header: "Type", defaultVisible: false },
+  { name: "level", header: "Level", defaultVisible: false },
+];
+
+const headersColumns = [
+  {
+    name: "id",
+    header: "Id",
+    defaultVisible: false,
+    minWidth: 300,
+  },
+  {
+    name: "key",
+    header: "Key",
+    defaultFlex: 1,
+    minWidth: 250,
+  },
+  {
+    name: "value",
+    header: "Value",
+    defaultFlex: 2,
+  },
+];
+
+function getRowStyle(data) {
+  if (data.data.changed) {
+    return { backgroundColor: "#FFF" };
+  } else return { backgroundColor: "#F3F3F3" };
+}
+
+
+const HttpTaskConfigurator = ({
+  initialConfig,
+  onUpdate,
+  onChanged
+}: TaskConfiguratorProps) => {
   const classes = useStyles();
-  const [httpRequestExpressionState, setHttpRequestExpressionState] = useState({
-    expression: initialConfig.inputParameters.http_request,
-  });
   const [parameterOrExpression, setParameterOrExpression] =
     useState("parameter");
-  const [updatedJsonState, setUpdatedJsonState] = useState(initialConfig);
-  const [contentType, setContentType] = useState("application/json");
-  const [httpRequestBody, setHttpRequestBody] = useState({ body: "{}" });
-  const updatedJsonStateRef = useRef(updatedJsonState);
-  useEffect(() => {
-    updatedJsonStateRef.current = updatedJsonState;
-  }, [updatedJsonState]);
 
-  const renderCell = ({ value }) => {
-    if (value !== null) return value.toString();
-    else return null;
-  };
+  const [httpRequestBody, setHttpRequestBody] = useState<string>("{}");
+  const [inputExpression, setInputExpression] = useState<string>("");
 
-  const columns = [
-    {
-      name: "id",
-      header: "Id",
-      defaultVisible: false,
-      minWidth: 300,
-      type: "number",
-    },
-    {
-      name: "key",
-      header: "Key",
-      defaultFlex: 1,
-      minWidth: 250,
-      editable: false,
-      render: ({ value, data }) => (
-        <span>
-          {data.changed ? (
-            <span>
-              <span style={{ fontWeight: "bold" }}>{value}</span>
-            </span>
-          ) : (
-            value
-          )}
-          {data.required ? <span style={{ color: "red" }}>*</span> : null}
-        </span>
-      ),
-    },
-    {
-      name: "value",
-      header: "Value",
-      defaultFlex: 1,
-      render: renderCell,
-      renderEditor: (Props) => {
-        const { data } = Props.cellProps;
+  // Datasources populated in useEffect below
+  const [taskLevelDataSource, setTaskLevelDataSource] = useState<any[]>();
+  const [httpRequestDataSource, setHttpRequestDataSource] = useState<any[]>();
+  const [headersDataSource, setHeadersDataSource] = useState<any[]>([]);
 
-        const methodEditorProps = {
-          idProperty: "id",
-          dataSource: [
-            { id: "GET", label: "GET" },
-            { id: "PUT", label: "PUT" },
-            { id: "POST", label: "POST" },
-            { id: "DELETE", label: "DELETE" },
-            { id: "OPTIONS", label: "OPTIONS" },
-            { id: "HEAD", label: "HEAD" },
-          ],
-          collapseOnSelect: true,
-          clearIcon: null,
-        };
-
-        const contentTypeEditorProps = {
-          idProperty: "id",
-          dataSource: [
-            { id: "text/plain", label: "text/plain" },
-            { id: "text/html", label: "text/html" },
-            { id: "application/json", label: "application/json" },
-          ],
-          collapseOnSelect: true,
-          clearIcon: null,
-        };
-
-        const booleanEditorProps = {
-          idProperty: "id",
-          dataSource: [
-            { id: "true", label: "true" },
-            { id: "false", label: "false" },
-          ],
-          collapseOnSelect: true,
-          clearIcon: null,
-        };
-
-        switch (data.type) {
-          case "int":
-            return <NumericEditor {...Props} />;
-          case "boolean":
-            return <SelectEditor {...Props} editorProps={booleanEditorProps} />;
-          default:
-            if (data.key === "method") {
-              return (
-                <SelectEditor {...Props} editorProps={methodEditorProps} />
-              );
-            } else if (data.key === "contentType") {
-              return (
-                <SelectEditor {...Props} editorProps={contentTypeEditorProps} />
-              );
-            } else return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
-        }
-      },
-    },
-    { name: "changed", header: "Changed", defaultVisible: false },
-    { name: "required", header: "Required", defaultVisible: false },
-    { name: "type", header: "Type", defaultVisible: false },
-    { name: "level", header: "Level", defaultVisible: false },
-  ];
-
-  const headersColumns = [
-    {
-      name: "id",
-      header: "Id",
-      defaultVisible: false,
-      minWidth: 300,
-    },
-    {
-      name: "key",
-      header: "Key",
-      defaultFlex: 1,
-      minWidth: 250,
-    },
-    {
-      name: "value",
-      header: "Value",
-      defaultFlex: 2,
-    },
-  ];
-
-  const [httpRequestDataSource, setHttpRequestDataSource] = useState(
-    httpRequestParameters,
+  
+  const contentType = useMemo(
+    () => httpRequestDataSource?.find((row) => row.key === "contentType")?.value,
+    [httpRequestDataSource],
   );
 
+  // Initialize data sources and state
   useEffect(() => {
-    let updatedParameters = JSON.parse(JSON.stringify(httpTaskLevelParameters)); // Clone the array
-
-    for (const param of updatedParameters) {
+    // task level params
+    let taskLevelParams = _.cloneDeep(httpTaskLevelParameters);
+    for (const param of taskLevelParams) {
       if (initialConfig.hasOwnProperty(param.key)) {
         const newValue = initialConfig[param.key];
         if (param.value !== newValue) {
@@ -187,11 +204,11 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
         }
       }
     }
+    setTaskLevelDataSource(taskLevelParams);
 
-    let updatedHttpRequestParameters = JSON.parse(
-      JSON.stringify(httpRequestParameters),
-    );
-    for (const param of updatedHttpRequestParameters) {
+    // http_request
+    let httpRequestParams = _.cloneDeep(httpRequestParameters);
+    for (const param of httpRequestParams) {
       if (
         initialConfig.inputParameters.http_request &&
         typeof initialConfig.inputParameters.http_request !== "string" &&
@@ -204,114 +221,253 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
         }
       }
     }
+    setHttpRequestDataSource(httpRequestParams);
 
-    setDataSource(updatedParameters);
-    setHttpRequestDataSource(updatedHttpRequestParameters);
-    setUpdatedJsonState(initialConfig);
-  }, [initialConfig]);
-
-  const [dataSource, setDataSource] = useState(httpTaskLevelParameters);
-
-  const [headersDataSource, setHeadersDataSource] = useState<any>([]);
-
-  useEffect(() => {
-    if (
-      typeof initialConfig.inputParameters.http_request === "string" ||
-      !initialConfig.inputParameters.http_request.headers
-    ) {
-      setHeadersDataSource([]);
-      return;
+    // Headers
+    const headers = initialConfig.inputParameters?.http_request?.headers;
+    if (headers) {
+      const rows = Object.entries(headers).map(([key, value], index) => {
+        return {
+          id: index,
+          key: key,
+          value: value,
+        };
+      });
+      setHeadersDataSource(rows);
     }
-    const headers = initialConfig.inputParameters.http_request.headers;
+    else{
+      setHeadersDataSource([]);
+    }
 
-    // Convert headers to the desired format
-    const newRows = Object.entries(headers).map(([key, value], index) => {
-      return {
-        id: index, // You can adjust this if you need different ID logic
-        key: key,
-        value: value,
-      };
-    });
-
-    // Update the state with the new rows
-    setHeadersDataSource(newRows);
-  }, [initialConfig.inputParameters.http_request]);
-
-  useEffect(() => {
-    if (!initialConfig.inputParameters.http_request.body) {
-      setHttpRequestBody({ body: "{}" });
-      return;
-    } else {
-      if (typeof initialConfig.inputParameters.http_request.body === "string") {
-        setHttpRequestBody({
-          body: initialConfig.inputParameters.http_request.body,
-        });
+    // Request body
+    const body = initialConfig.inputParameters?.http_request?.body;
+    if(body){
+      if (typeof body === "string") {
+        setHttpRequestBody(initialConfig.inputParameters.http_request.body);
       } else {
-        setHttpRequestBody({
-          body: JSON.stringify(initialConfig.inputParameters.http_request.body),
-        });
+        setHttpRequestBody(
+          JSON.stringify(initialConfig.inputParameters.http_request.body),
+        );
       }
     }
-  }, [initialConfig.inputParameters.http_request.body]);
-
-  useEffect(() => {
-    if (!initialConfig.inputParameters.http_request.contentType) {
-      setContentType("application/json");
-      return;
+    else {
+      setHttpRequestBody("{}");
     }
-    setContentType(initialConfig.inputParameters.http_request.contentType);
-  }, [initialConfig.inputParameters.http_request.contentType]);
 
-  const onEditComplete = useCallback(
+    // Initialize inputExpression
+    const inputExpression = initialConfig.inputExpression?.expression;
+    setInputExpression(inputExpression || "");
+  
+    // Reset changed
+    onChanged(false);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialConfig]);
+
+  const handleTaskLevelDataSource = useCallback(
     (editInfo: TypeEditInfo) => {
       const { value, columnId, rowId } = editInfo;
-      const data = JSON.parse(JSON.stringify(dataSource));
+      const data = _.cloneDeep(taskLevelDataSource)!;
       if (data[rowId][columnId].toString() === value.toString()) return;
       data[rowId][columnId] = value;
       data[rowId].changed = true;
 
-      const originalObject = JSON.parse(
-        JSON.stringify(updatedJsonStateRef.current),
+      setTaskLevelDataSource(data);
+      onChanged(true);
+    },
+    [taskLevelDataSource, onChanged],
+  );
+
+  const handleHttpRequestDataSource = (value) => {
+    setHttpRequestDataSource(value);
+    onChanged(true);
+  }
+
+  const handleHeadersDataSource = (value) => {
+    setHeadersDataSource(value);
+    onChanged(true);
+  }
+
+  const handleHttpRequestBody = (value) => {
+    setHttpRequestBody(value);
+    onChanged(true);
+  }
+
+  const handleToggleButtonChange = (event, newSelection) => {
+    setParameterOrExpression(newSelection);
+  };
+
+  const handleApply = useCallback(() => {
+    const newTaskConfig = _.cloneDeep(initialConfig)!;
+
+    mergeDataSourceIntoObject(taskLevelDataSource, newTaskConfig);
+
+    if (parameterOrExpression === "parameter") {
+      newTaskConfig.inputParameters = {};
+      // Make sure http_request exist before merge
+      if (!newTaskConfig.inputParameters.http_request) {
+        newTaskConfig.inputParameters.http_request = {};
+      }
+
+      mergeDataSourceIntoObject(
+        httpRequestDataSource,
+        newTaskConfig.inputParameters.http_request,
       );
+
+      // Make sure headers exist before merge
+      if (!newTaskConfig.inputParameters.http_request?.headers) {
+        newTaskConfig.inputParameters.http_request.headers = {};
+      }
+
+      mergeDataSourceIntoObject(
+        headersDataSource,
+        newTaskConfig.inputParameters.http_request.headers,
+      );
+
+      // Request body
+      // This will always serialize parsable json into an object (Map)
+      let parsedBody;
+      if (contentType === "application/json") {
+        try {
+          parsedBody = JSON.parse(httpRequestBody!);
+        } catch (e) {
+          parsedBody = httpRequestBody;
+        }
+      } else {
+        parsedBody = httpRequestBody;
+      }
+      newTaskConfig.inputParameters.http_request.body = parsedBody;
+    } 
+    else if (parameterOrExpression === "expression") {
+      newTaskConfig.inputExpression = {
+        type: "JSON_PATH",
+        expression: inputExpression,
+      };
+    }
+
+    onUpdate(newTaskConfig);
+  }, [
+    initialConfig,
+    taskLevelDataSource,
+    parameterOrExpression,
+    onUpdate,
+    httpRequestDataSource,
+    headersDataSource,
+    contentType,
+    httpRequestBody,
+    inputExpression,
+  ]);
+
+
+  if (
+    !taskLevelDataSource ||
+    !httpRequestDataSource ||
+    !headersDataSource ||
+    !httpRequestBody
+  )
+    return null;
+
+  return (
+    <div className={classes.container}>
+      <div>
+        <div style={{ float: "right" }}>
+          <Button onClick={handleApply}>Apply</Button>
+        </div>
+        <Heading level={1} gutterBottom>
+          HTTP Task
+        </Heading>
+      </div>
+      <div>Double-click on value to edit</div>
+      <ReactDataGrid
+        idProperty="id"
+        style={taskFormStyle}
+        onEditComplete={handleTaskLevelDataSource}
+        editable={true}
+        columns={columns as any}
+        dataSource={taskLevelDataSource!}
+        showCellBorders={true}
+        theme="conductor-light"
+        rowStyle={getRowStyle}
+        showHeader={false}
+      />
+
+      <ToggleButtonGroup
+        value={parameterOrExpression}
+        exclusive
+        onChange={handleToggleButtonChange}
+        size="small"
+        style={{ marginBottom: "15px" }}
+      >
+        <ToggleButton value="parameter">
+          Define inputParameters statically (default)
+        </ToggleButton>
+        <ToggleButton value="expression">Use inputExpression</ToggleButton>
+      </ToggleButtonGroup>
+
+      {parameterOrExpression === "parameter" && (
+        <HttpRequestConfigurator
+          httpRequestDataSource={httpRequestDataSource}
+          setHttpRequestDataSource={handleHttpRequestDataSource}
+          headersDataSource={headersDataSource}
+          setHeadersDataSource={handleHeadersDataSource}
+          httpRequestBody={httpRequestBody}
+          setHttpRequestBody={handleHttpRequestBody}
+          contentType={contentType}
+        />
+      )}
+      {parameterOrExpression === "expression" && (
+        <JsonInput
+          key="expression"
+          label="inputExpression"
+          language="plaintext"
+          value={inputExpression}
+          onChange={v => setInputExpression(v!)}
+        />
+      )}
+    </div>
+  );
+};
+
+export default HttpTaskConfigurator;
+
+function HttpRequestConfigurator({
+  httpRequestDataSource,
+  setHttpRequestDataSource,
+  headersDataSource,
+  setHeadersDataSource,
+  httpRequestBody,
+  setHttpRequestBody,
+  contentType,
+}) {
+  const classes = useStyles();
+  const onHeadersEditComplete = useCallback(
+    (editInfo: TypeEditInfo) => {
+      const { value, columnId, rowId } = editInfo;
+
+      const data = _.cloneDeep(headersDataSource);
+      if (data[rowId][columnId].toString() === value.toString()) return;
+      data[rowId][columnId] = value;
+      data[rowId].changed = true;
+
       const edittedJson = {};
       data.forEach((item) => {
-        if (item.type === "boolean") {
-          if (item.value === "false" || item.value === false)
-            edittedJson[item.key] = false;
-          else if (item.value === "true" || item.value === true)
-            edittedJson[item.key] = true;
-          else throw new TypeError("must be boolean");
-        } else if (item.type === "int" && item.value !== null) {
-          edittedJson[item.key] = parseInt(item.value.toString());
-        } else edittedJson[item.key] = item.value;
-        if (item.level === "task")
-          originalObject[item.key] = edittedJson[item.key];
-        else if (item.key === "asyncCompleteExpression")
-          originalObject.inputParameters["asyncComplete"] =
-            edittedJson[item.key];
-        else {
-          originalObject[item.key] = edittedJson[item.key];
-        }
+        if (item.key !== "") edittedJson[item.key] = item.value;
       });
 
-      setDataSource(data);
-      setUpdatedJsonState(originalObject);
+      setHeadersDataSource(data);
     },
-    [dataSource],
+    [headersDataSource, setHeadersDataSource],
   );
 
   const onHttpRequestEditComplete = useCallback(
     (editInfo: TypeEditInfo) => {
       const { value, columnId, rowId } = editInfo;
-      const data = JSON.parse(JSON.stringify(httpRequestDataSource));
+      const data = _.cloneDeep(httpRequestDataSource)!;
 
       if (data[rowId][columnId].toString() === value.toString()) return;
       data[rowId][columnId] = value;
       data[rowId].changed = true;
 
-      const originalObject = JSON.parse(
-        JSON.stringify(updatedJsonStateRef.current),
-      );
       const edittedJson = {};
       data.forEach((item) => {
         if (item.type === "boolean") {
@@ -321,259 +477,81 @@ const HttpTaskConfigurator = ({ initialConfig, onUpdate }) => {
         } else if (item.type === "int" && item.value !== null) {
           edittedJson[item.key] = parseInt(item.value.toString());
         } else edittedJson[item.key] = item.value;
-
-        if (item.key === "contentType") {
-          setContentType(item.value);
-        }
-        originalObject.inputParameters.http_request[item.key] =
-          edittedJson[item.key];
       });
 
       setHttpRequestDataSource(data);
-      setUpdatedJsonState(originalObject);
     },
-    [httpRequestDataSource],
+    [httpRequestDataSource, setHttpRequestDataSource],
   );
-
-  const onHeadersEditComplete = useCallback(
-    (editInfo: TypeEditInfo) => {
-      const { value, columnId, rowId } = editInfo;
-
-      const data = JSON.parse(JSON.stringify(headersDataSource));
-      if (data[rowId][columnId].toString() === value.toString()) return;
-      data[rowId][columnId] = value;
-      data[rowId].changed = true;
-
-      const edittedJson = {};
-      data.forEach((item) => {
-        if (item.key !== "") edittedJson[item.key] = item.value;
-      });
-      const originalObject = JSON.parse(
-        JSON.stringify(updatedJsonStateRef.current),
-      );
-      originalObject.inputParameters.http_request.headers = edittedJson;
-
-      setHeadersDataSource(data);
-      setUpdatedJsonState(originalObject);
-    },
-    [headersDataSource],
-  );
-
-  useEffect(() => {
-    if (typeof initialConfig.inputParameters.http_request === "string") {
-      setParameterOrExpression("expression");
-      setHttpRequestExpressionState({
-        expression: initialConfig.inputParameters.http_request,
-      });
-    } else setParameterOrExpression("parameter");
-  }, [initialConfig.inputParameters.http_request]);
-
-  const handleHttpExpressionSubmit = (values) => {
-    setHttpRequestExpressionState(values);
-    let newJsonState;
-    let newInputParameters;
-    newInputParameters = {
-      ...updatedJsonState.inputParameters,
-      http_request: values.expression,
-    };
-    newJsonState = {
-      ...updatedJsonState,
-      inputParameters: newInputParameters,
-    };
-
-    setUpdatedJsonState(newJsonState);
-    onUpdate(newJsonState);
-  };
-
-  const handleHttpParametersSubmit = (values) => {
-    setHttpRequestBody(values);
-
-    let bodyValue = values.body;
-    if (contentType === "application/json") bodyValue = JSON.parse(values.body);
-    const originalObject = JSON.parse(JSON.stringify(updatedJsonState));
-    originalObject.inputParameters.http_request.body = bodyValue;
-
-    setUpdatedJsonState(originalObject);
-    onUpdate(originalObject);
-  };
-
-  const getRowStyle = (data) => {
-    if (data.data.changed) {
-      return { backgroundColor: "#FFF" };
-    } else return { backgroundColor: "#F3F3F3" };
-  };
 
   const handleAddEmptyRow = () => {
     const emptyRow = { id: headersDataSource.length, key: "", value: "" };
     setHeadersDataSource((oldData) => [...oldData, emptyRow]);
   };
 
-  const handleToggleButtonChange = (event, newSelection) => {
-    if (newSelection) {
-      clearFormValues(); // Clear the form values
-      setParameterOrExpression(newSelection);
-      let newJsonState;
-      let newInputParameters;
-      let newValue = "" as any;
-      if (newSelection === "parameter") newValue = {};
-      newInputParameters = {
-        ...updatedJsonState.inputParameters,
-        http_request: newValue,
-      };
-      newJsonState = {
-        ...updatedJsonState,
-        inputParameters: newInputParameters,
-      };
-
-      setUpdatedJsonState(newJsonState);
-      setDataSource(httpTaskLevelParameters);
-      setHttpRequestDataSource(httpRequestParameters);
-      setHeadersDataSource([]);
-      setHttpRequestBody({ body: "{}" });
-    }
-  };
-
-  const clearFormValues = () => {
-    const newFormValues = {
-      expression: "",
-    };
-
-    setHttpRequestExpressionState(newFormValues); // Clear the form values
-  };
-
   return (
-    <div className={classes.container}>
-      <Heading level={1} gutterBottom>
-        Task Configuration
-      </Heading>
+    <div>
+      <div className={classes.subHeader}>
+        HTTP Request Configuration
+      </div>
       <ReactDataGrid
         idProperty="id"
-        style={taskFormStyle}
-        onEditComplete={onEditComplete}
+        style={httpRequestFormStyle}
+        onEditComplete={onHttpRequestEditComplete}
         editable={true}
         columns={columns as any}
-        dataSource={dataSource}
+        dataSource={httpRequestDataSource}
+        showCellBorders={true}
+        theme="conductor-light"
+        rowStyle={getRowStyle}
+        showHeader={false}
+      />
+
+      <div style={{height: 30}}>
+        <IconButton size="small" style={{ float: 'right'}} onClick={handleAddEmptyRow}>
+          <Add fontSize="inherit"/>
+        </IconButton>
+
+        <div className={classes.subHeader}>Headers</div>
+      </div>
+      <ReactDataGrid
+        idProperty="id"
+        onEditComplete={onHeadersEditComplete}
+        editable={true}
+        columns={headersColumns as any}
+        dataSource={headersDataSource}
         showCellBorders={true}
         theme="conductor-light"
         rowStyle={getRowStyle}
       />
 
-      <ToggleButtonGroup
-        value={parameterOrExpression}
-        exclusive
-        onChange={handleToggleButtonChange}
-        aria-label="toggle between parameter and expression"
-        style={{ marginBottom: "15px" }}
-      >
-        <ToggleButton value="parameter" aria-label="use parameter">
-          Use Json Parameters for Http_request
-        </ToggleButton>
-        <ToggleButton value="expression" aria-label="use expression">
-          Use Json Expression For Http_request
-        </ToggleButton>
-      </ToggleButtonGroup>
-
-      {parameterOrExpression === "parameter" ? (
-        <div>
-          <Heading level={1} gutterBottom>
-            inputParameters.http_request Configuration
-          </Heading>
-          <ReactDataGrid
-            idProperty="id"
-            style={httpRequestFormStyle}
-            onEditComplete={onHttpRequestEditComplete}
-            editable={true}
-            columns={columns as any}
-            dataSource={httpRequestDataSource}
-            showCellBorders={true}
-            theme="conductor-light"
-            rowStyle={getRowStyle}
-          />
-          <Heading level={1} gutterBottom>
-            inputParameters.http_request.headers Configuration
-          </Heading>
-          <Button style={{ marginBottom: "15px" }} onClick={handleAddEmptyRow}>
-            Add New Row
-          </Button>
-          <ReactDataGrid
-            idProperty="id"
-            //style={gridStyle}
-            onEditComplete={onHeadersEditComplete}
-            editable={true}
-            columns={headersColumns as any}
-            dataSource={headersDataSource}
-            showCellBorders={true}
-            theme="conductor-light"
-            rowStyle={getRowStyle}
-          />
-
-          <Formik
-            initialValues={httpRequestBody}
-            onSubmit={(values) => handleHttpParametersSubmit(values)}
-            enableReinitialize={true}
-          >
-            {() => {
-              return (
-                <Form>
-                  {contentType === "application/json" ? (
-                    <div style={{ marginTop: "15px" }}>
-                      <FormikJsonInput
-                        key="body"
-                        label="inputParameters.http_request.body"
-                        name="body"
-                        className={undefined}
-                        height={undefined}
-                      />
-                    </div>
-                  ) : (
-                    <div style={{ marginTop: "15px" }}>
-                      <FormikJsonInput
-                        key="body"
-                        label="inputParameters.http_request.body"
-                        name="body"
-                        className={undefined}
-                        height={undefined}
-                        language="plaintext"
-                      />
-                    </div>
-                  )}
-
-                  <Button style={{ marginTop: "15px" }} type="submit">
-                    Submit
-                  </Button>
-                </Form>
-              );
-            }}
-          </Formik>
-        </div>
-      ) : (
-        <Formik
-          initialValues={httpRequestExpressionState}
-          onSubmit={(values) => handleHttpExpressionSubmit(values)}
-          enableReinitialize={true}
-        >
-          {() => {
-            return (
-              <Form>
-                <FormikJsonInput
-                  key="expression"
-                  label="http_request Expression"
-                  name="expression"
-                  className={undefined}
-                  height={undefined}
-                  language="plaintext"
-                />
-
-                <Button style={{ marginTop: "15px" }} type="submit">
-                  Submit
-                </Button>
-              </Form>
-            );
-          }}
-        </Formik>
-      )}
+      <JsonInput
+        style={{marginTop: 15 }}
+        height="200px"
+        label="Request Body (POST & PUT)"
+        value={httpRequestBody}
+        onChange={setHttpRequestBody}
+        language={contentType === "application/json" ? "json" : "plaintext"}
+      />
     </div>
   );
-};
+}
 
-export default HttpTaskConfigurator;
+// Note: This mutates obj.
+function mergeDataSourceIntoObject(data, obj) {
+  data.forEach((item) => {
+    if (item.type === "boolean") {
+      if (item.value === "false" || item.value === false) {
+        obj[item.key] = false;
+      } else if (item.value === "true" || item.value === true) {
+        obj[item.key] = true;
+      } else {
+        throw new TypeError("must be boolean");
+      }
+    } else if (item.type === "int" && item.value !== null) {
+      obj[item.key] = parseInt(item.value.toString());
+    } else {
+      obj[item.key] = item.value;
+    }
+  });
+}

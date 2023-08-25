@@ -58,6 +58,10 @@ type BaseTaskConfig = {
   type: ExtendedTaskConfigType;
   name: string;
   inputParameters?: any;
+  inputExpression?: {
+    expression: string;
+    type: "JSON_PATH"
+  };
   aliasForRef?: string;
 };
 // Custom Task Config Types

@@ -9,13 +9,14 @@ import SelectEditor from "@inovua/reactdatagrid-community/SelectEditor";
 import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
 import { simpleTaskParameters } from "../../../../schema/task/simpleTask";
 import { cloneDeep } from "lodash";
+import { TaskConfiguratorProps } from "../TaskConfigPanel";
 
 const gridStyle = {
   minHeight: 322.5,
   margin: "15px 0",
 };
 
-const TaskConfigurator = ({ initialConfig, onUpdate }) => {
+const TaskConfigurator = ({ initialConfig, onUpdate }: TaskConfiguratorProps) => {
   const [formState, setFormState] = useState({
     inputParameters: initialConfig.inputParameters
       ? JSON.stringify(initialConfig.inputParameters)
