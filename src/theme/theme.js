@@ -497,9 +497,9 @@ const additionalOptions = {
       styleOverrides: {
         root: {
           textTransform: "none",
-          fontSize: "13px"
-        }
-      }
+          fontSize: "13px",
+        },
+      },
     },
     MuiListItemText: {
       styleOverrides: {

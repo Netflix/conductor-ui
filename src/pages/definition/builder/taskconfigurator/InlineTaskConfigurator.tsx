@@ -13,7 +13,10 @@ const gridStyle = {
   margin: "15px 0",
 };
 
-const InlineTaskConfigurator = ({ initialConfig, onUpdate }: TaskConfiguratorProps) => {
+const InlineTaskConfigurator = ({
+  initialConfig,
+  onUpdate,
+}: TaskConfiguratorProps) => {
   const [updatedJsonState, setUpdatedJsonState] = useState(initialConfig);
   const {
     expression = "",

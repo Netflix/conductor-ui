@@ -60,7 +60,7 @@ type BaseTaskConfig = {
   inputParameters?: any;
   inputExpression?: {
     expression: string;
-    type: "JSON_PATH"
+    type: "JSON_PATH";
   };
   aliasForRef?: string;
 };

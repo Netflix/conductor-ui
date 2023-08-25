@@ -31,17 +31,17 @@ const useStyles = makeStyles({
 });
 
 type JsonInputProps = {
-  label: string;  
+  label: string;
   value: string;
   onChange: OnChange;
-  language?: string;  
+  language?: string;
   height?: string | number;
   error?: string;
   className?: string;
   style?: any;
-}
+};
 
-export default function JsonInput ({
+export default function JsonInput({
   className,
   style,
   label,
@@ -49,7 +49,7 @@ export default function JsonInput ({
   language = "json",
   error,
   value,
-  onChange
+  onChange,
 }: JsonInputProps) {
   const classes = useStyles();
   const editorRef = useRef(null);
@@ -94,7 +94,7 @@ export default function JsonInput ({
         }}
       />
 
-      {error? (
+      {error ? (
         <FormHelperText variant="outlined" error>
           {error}
         </FormHelperText>

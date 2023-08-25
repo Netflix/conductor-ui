@@ -6,11 +6,10 @@ export type DataSourceEntry = {
   type: string;
   level: string;
   required: boolean;
-  
+
   value?: any;
   changed?: boolean;
-}
-
+};
 
 export const httpTaskLevelParameters = [
   {

@@ -32,9 +32,9 @@ const useStyles = makeStyles({
     margin: 15,
   },
   subHeader: {
-    fontWeight: 'bold',
-    fontSize: 13
-  }
+    fontWeight: "bold",
+    fontSize: 13,
+  },
 });
 
 const methodEditorProps = {
@@ -158,11 +158,10 @@ function getRowStyle(data) {
   } else return { backgroundColor: "#F3F3F3" };
 }
 
-
 const HttpTaskConfigurator = ({
   initialConfig,
   onUpdate,
-  onChanged
+  onChanged,
 }: TaskConfiguratorProps) => {
   const classes = useStyles();
   const [parameterOrExpression, setParameterOrExpression] =
@@ -176,9 +175,9 @@ const HttpTaskConfigurator = ({
   const [httpRequestDataSource, setHttpRequestDataSource] = useState<any[]>();
   const [headersDataSource, setHeadersDataSource] = useState<any[]>([]);
 
-  
   const contentType = useMemo(
-    () => httpRequestDataSource?.find((row) => row.key === "contentType")?.value,
+    () =>
+      httpRequestDataSource?.find((row) => row.key === "contentType")?.value,
     [httpRequestDataSource],
   );
 
@@ -234,14 +233,13 @@ const HttpTaskConfigurator = ({
         };
       });
       setHeadersDataSource(rows);
-    }
-    else{
+    } else {
       setHeadersDataSource([]);
     }
 
     // Request body
     const body = initialConfig.inputParameters?.http_request?.body;
-    if(body){
+    if (body) {
       if (typeof body === "string") {
         setHttpRequestBody(initialConfig.inputParameters.http_request.body);
       } else {
@@ -249,19 +247,18 @@ const HttpTaskConfigurator = ({
           JSON.stringify(initialConfig.inputParameters.http_request.body),
         );
       }
-    }
-    else {
+    } else {
       setHttpRequestBody("{}");
     }
 
     // Initialize inputExpression
     const inputExpression = initialConfig.inputExpression?.expression;
     setInputExpression(inputExpression || "");
-  
+
     // Reset changed
     onChanged(false);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialConfig]);
 
   const handleTaskLevelDataSource = useCallback(
@@ -281,17 +278,17 @@ const HttpTaskConfigurator = ({
   const handleHttpRequestDataSource = (value) => {
     setHttpRequestDataSource(value);
     onChanged(true);
-  }
+  };
 
   const handleHeadersDataSource = (value) => {
     setHeadersDataSource(value);
     onChanged(true);
-  }
+  };
 
   const handleHttpRequestBody = (value) => {
     setHttpRequestBody(value);
     onChanged(true);
-  }
+  };
 
   const handleToggleButtonChange = (event, newSelection) => {
     setParameterOrExpression(newSelection);
@@ -337,8 +334,7 @@ const HttpTaskConfigurator = ({
         parsedBody = httpRequestBody;
       }
       newTaskConfig.inputParameters.http_request.body = parsedBody;
-    } 
-    else if (parameterOrExpression === "expression") {
+    } else if (parameterOrExpression === "expression") {
       newTaskConfig.inputExpression = {
         type: "JSON_PATH",
         expression: inputExpression,
@@ -357,7 +353,6 @@ const HttpTaskConfigurator = ({
     httpRequestBody,
     inputExpression,
   ]);
-
 
   if (
     !taskLevelDataSource ||
@@ -421,7 +416,7 @@ const HttpTaskConfigurator = ({
           label="inputExpression"
           language="plaintext"
           value={inputExpression}
-          onChange={v => setInputExpression(v!)}
+          onChange={(v) => setInputExpression(v!)}
         />
       )}
     </div>
@@ -491,9 +486,7 @@ function HttpRequestConfigurator({
 
   return (
     <div>
-      <div className={classes.subHeader}>
-        HTTP Request Configuration
-      </div>
+      <div className={classes.subHeader}>HTTP Request Configuration</div>
       <ReactDataGrid
         idProperty="id"
         style={httpRequestFormStyle}
@@ -507,9 +500,13 @@ function HttpRequestConfigurator({
         showHeader={false}
       />
 
-      <div style={{height: 30}}>
-        <IconButton size="small" style={{ float: 'right'}} onClick={handleAddEmptyRow}>
-          <Add fontSize="inherit"/>
+      <div style={{ height: 30 }}>
+        <IconButton
+          size="small"
+          style={{ float: "right" }}
+          onClick={handleAddEmptyRow}
+        >
+          <Add fontSize="inherit" />
         </IconButton>
 
         <div className={classes.subHeader}>Headers</div>
@@ -526,7 +523,7 @@ function HttpRequestConfigurator({
       />
 
       <JsonInput
-        style={{marginTop: 15 }}
+        style={{ marginTop: 15 }}
         height="200px"
         label="Request Body (POST & PUT)"
         value={httpRequestBody}
