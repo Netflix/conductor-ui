@@ -20,6 +20,7 @@ import { createHttpTaskParams } from "../../schema/task/httpTask";
 import { createTerminateTaskParams } from "../../schema/task/terminateTask";
 import { createWaitTaskParams } from "../../schema/task/waitTask";
 import { createJQTransformTaskParams } from "../../schema/task/JQTransformTask";
+import { createDoWhileTaskParams } from "../../schema/task/doWhileTask";
 export const templates: {
   [key in TaskConfigType]: (ref: string) => TaskConfig[];
 } = {
@@ -77,14 +78,7 @@ export const templates: {
     return [fork, join];
   },
   DO_WHILE: (ref) => {
-    const retval: DoWhileTaskConfig = {
-      inputParameters: {},
-      taskReferenceName: ref,
-      type: "DO_WHILE",
-      name: ref,
-      loopOver: [],
-      loopCondition: `if($.${ref}['iteration'] < 3`,
-    };
+    const retval: DoWhileTaskConfig = createDoWhileTaskParams(ref);
     return [retval];
   },
   HTTP: (ref: string) => {
