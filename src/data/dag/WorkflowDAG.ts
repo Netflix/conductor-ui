@@ -903,12 +903,19 @@ export default class WorkflowDAG {
 
   updateTask(ref: string, newTaskConfig: TaskConfig) {
     const taskConfig = this.getTaskConfigByRef(ref);
-
+  
+    // Delete keys in taskConfig which are not present in newTaskConfig.
+    Object.keys(taskConfig).forEach((key) => {
+      if (!(key in newTaskConfig)) {
+        delete taskConfig[key];
+      }
+    });
+  
     // Replace attributes without replacing object.
     Object.entries(newTaskConfig).forEach(([key, value]) => {
       taskConfig[key] = value;
     });
-
+  
     this.initialize();
   }
 

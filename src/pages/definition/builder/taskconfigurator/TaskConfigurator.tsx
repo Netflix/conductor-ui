@@ -139,6 +139,21 @@ const TaskConfigurator = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialConfig]);
 
+  useEffect(() => {
+    if (!initialConfig.inputExpression || !initialConfig.inputParameters) {
+      return;
+    }
+    else if (!initialConfig.inputExpression) setParameterOrExpression("parameter");
+    else if (!initialConfig.inputParameters) setParameterOrExpression("expression");
+    else if (
+      JSON.stringify(initialConfig.inputExpression).length >
+      JSON.stringify(initialConfig.inputParameters).length
+    ) {
+      setParameterOrExpression("expression");
+    }
+    else setParameterOrExpression("parameter");
+  }, [initialConfig]);
+
   const handleToggleButtonChange = (event, newSelection) => {
     setParameterOrExpression(newSelection);
   };
@@ -149,17 +164,18 @@ const TaskConfigurator = ({
     mergeDataSourceIntoObject(dataSource, newTaskConfig);
 
     if (parameterOrExpression === "parameter") {
-      console.log(inputParameters);
       newTaskConfig.inputParameters = JSON.parse(inputParameters);
-      console.log(newTaskConfig.inputParameters);
       newTaskConfig.inputExpression = { type: "JSON_PATH", expression: "" };
+      delete newTaskConfig["inputExpression"];
     } else if (parameterOrExpression === "expression") {
       newTaskConfig.inputExpression = {
         type: "JSON_PATH",
         expression: inputExpression,
       };
-      newTaskConfig.inputParameters = {};
+      delete newTaskConfig["inputParameters"];
     }
+
+    console.log(newTaskConfig);
 
     onUpdate(newTaskConfig);
   }, [

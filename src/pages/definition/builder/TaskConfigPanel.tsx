@@ -51,7 +51,7 @@ export default function TaskConfigPanel({
   const handleTaskConfiguratorUpdate = (updatedState) => {
     const originalRef = taskConfig?.taskReferenceName;
     const newDag = dag.clone();
-
+    console.log(updatedState);
     if (originalRef) {
       newDag.updateTask(originalRef, updatedState);
     }
