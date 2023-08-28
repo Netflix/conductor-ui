@@ -140,7 +140,9 @@ const TaskConfigurator = ({
   }, [initialConfig]);
 
   useEffect(() => {
-    if (!initialConfig.inputExpression || !initialConfig.inputParameters) {
+    console.log("in useeffect"
+    )
+    if (!initialConfig.inputExpression && !initialConfig.inputParameters) {
       return;
     }
     else if (!initialConfig.inputExpression) setParameterOrExpression("parameter");
@@ -152,11 +154,12 @@ const TaskConfigurator = ({
       setParameterOrExpression("expression");
     }
     else setParameterOrExpression("parameter");
-  }, [initialConfig]);
+  }, [initialConfig.inputExpression, initialConfig.inputParameters]);
 
   const handleToggleButtonChange = (event, newSelection) => {
     setParameterOrExpression(newSelection);
   };
+  console.log(parameterOrExpression);
 
   const handleApply = useCallback(() => {
     const newTaskConfig = _.cloneDeep(initialConfig)!;
