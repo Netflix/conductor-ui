@@ -92,6 +92,7 @@ export default function JsonPanel() {
     workflowName,
     workflowVersion,
     workflowDef,
+    setWorkflowDef,
     selectedTask,
     refetchWorkflow,
   } = context!;
@@ -205,6 +206,14 @@ export default function JsonPanel() {
 
   const handleChange = (v: string | undefined) => {
     setIsModified(v !== workflowJson);
+    try {
+      const obj = JSON.parse(v!);
+      const newWorkflowDef = JSON.stringify(obj, null, 2);
+      const oldWorkflowDef = JSON.stringify(workflowDef);
+      if (newWorkflowDef !== oldWorkflowDef) {
+        setWorkflowDef(obj);
+      }
+    } catch {}
   };
 
   return (
