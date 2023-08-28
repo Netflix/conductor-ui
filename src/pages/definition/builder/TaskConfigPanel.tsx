@@ -85,6 +85,7 @@ export default function TaskConfigPanel({
         <TerminateTaskConfigurator
           onUpdate={handleTaskConfiguratorUpdate}
           initialConfig={taskConfig}
+          onChanged={handleTaskChanged}
         />
       ) : taskConfig !== null && taskConfig.type === "WAIT" ? (
         <WaitTaskConfigurator

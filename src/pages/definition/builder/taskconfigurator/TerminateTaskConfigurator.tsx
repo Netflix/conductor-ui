@@ -1,120 +1,136 @@
 import { useCallback, useEffect, useState } from "react";
-import { Button, FormikInput, FormikJsonInput } from "../../../../components";
+import { Button, Heading } from "../../../../components";
 import ReactDataGrid from "@inovua/reactdatagrid-community";
+import { ToggleButtonGroup, ToggleButton } from "@mui/material";
+import { makeStyles } from "@mui/styles";
 import { TypeEditInfo } from "@inovua/reactdatagrid-community/types";
 import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
 import SelectEditor from "@inovua/reactdatagrid-community/SelectEditor";
 import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
-import { Form, Formik } from "formik";
+
+import JsonInput from "../../../../components/JsonInput";
+import _ from "lodash";
+import { TaskConfiguratorProps } from "../TaskConfigPanel";
 import { terminateTaskParameters } from "../../../../schema/task/terminateTask";
-const gridStyle = {
-  minHeight: 362.5,
+
+const taskFormStyle = {
+  minHeight: 322.5,
   margin: "15px 0",
 };
 
-const TerminateTaskConfigurator = ({ initialConfig, onUpdate }) => {
-  const [updatedJsonState, setUpdatedJsonState] = useState(initialConfig);
+const useStyles = makeStyles({
+  container: {
+    margin: 15,
+  },
+  subHeader: {
+    fontWeight: "bold",
+    fontSize: 13,
+  },
+});
 
-  const [formState, setFormState] = useState({
-    workflowOutput:
-      JSON.stringify(initialConfig.inputParameters.workflowOutput) || "{}",
-  });
+const booleanEditorProps = {
+  idProperty: "id",
+  dataSource: [
+    { id: "true", label: "true" },
+    { id: "false", label: "false" },
+  ],
+  collapseOnSelect: true,
+  clearIcon: null,
+};
 
-  useEffect(() => {
-    setFormState({
-      workflowOutput:
-        JSON.stringify(initialConfig.inputParameters.workflowOutput) || "{}",
-    });
-  }, [initialConfig]);
+const terminationStatusEditorProps = {
+  idProperty: "id",
+  dataSource: [
+    { id: "COMPLETED", label: "COMPLETED" },
+    { id: "FAILED", label: "FAILED" },
+  ],
+  collapseOnSelect: true,
+  clearIcon: null,
+};
 
-  console.log(formState);
-
-  const renderCell = ({ value }) => {
-    return value.toString();
-  };
-
-  const columns = [
-    {
-      name: "id",
-      header: "Id",
-      defaultVisible: false,
-      minWidth: 300,
-      type: "number",
-    },
-    {
-      name: "key",
-      header: "Key",
-      defaultFlex: 1,
-      minWidth: 250,
-      editable: false,
-      render: ({ value, data }) => {
-        return (
+const columns = [
+  {
+    name: "id",
+    header: "Id",
+    defaultVisible: false,
+    minWidth: 300,
+    type: "number",
+  },
+  {
+    name: "key",
+    header: "Key",
+    defaultFlex: 1,
+    minWidth: 250,
+    editable: false,
+    render: ({ value, data }) => (
+      <span>
+        {data.changed ? (
           <span>
-            {data.changed ? (
-              <span>
-                <span style={{ fontWeight: "bold" }}>{value}</span>
-              </span>
-            ) : (
-              value
-            )}
-            {data.required ? <span style={{ color: "red" }}>*</span> : null}
+            <span style={{ fontWeight: "bold" }}>{value}</span>
           </span>
-        );
-      },
+        ) : (
+          value
+        )}
+        {data.required ? <span style={{ color: "red" }}>*</span> : null}
+      </span>
+    ),
+  },
+  {
+    name: "value",
+    header: "Value",
+    defaultFlex: 1,
+    render: ({ value }) => {
+      if (value !== null) return value.toString();
+      else return null;
     },
-    {
-      name: "value",
-      header: "Value",
-      defaultFlex: 2,
-      render: renderCell,
-      renderEditor: (Props) => {
-        const { data } = Props.cellProps;
+    renderEditor: (Props) => {
+      const { data } = Props.cellProps;
 
-        const booleanEditorProps = {
-          idProperty: "id",
-          dataSource: [
-            { id: "true", label: "true" },
-            { id: "false", label: "false" },
-          ],
-          collapseOnSelect: true,
-          clearIcon: null,
-        };
-        const terminationStatusEditorProps = {
-          idProperty: "id",
-          dataSource: [
-            { id: "COMPLETED", label: "COMPLETED" },
-            { id: "FAILED", label: "FAILED" },
-          ],
-          collapseOnSelect: true,
-          clearIcon: null,
-        };
-
-        switch (data.type) {
-          case "int":
-            return <NumericEditor {...Props} />;
-          case "boolean":
-            return <SelectEditor {...Props} editorProps={booleanEditorProps} />;
-          default:
-            if (data.key === "terminationStatus") {
-              return (
-                <SelectEditor
-                  {...Props}
-                  editorProps={terminationStatusEditorProps}
-                />
-              );
-            } else return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
-        }
-      },
+      switch (data.type) {
+        case "int":
+          return <NumericEditor {...Props} />;
+        case "boolean":
+          return <SelectEditor {...Props} editorProps={booleanEditorProps} />;
+        default:
+          if (data.key === "terminationStatus") {
+            return (
+              <SelectEditor
+                {...Props}
+                editorProps={terminationStatusEditorProps}
+              />
+            );
+          } else return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
+      }
     },
-    { name: "changed", header: "Changed", defaultVisible: false },
-    { name: "required", header: "Required", defaultVisible: false },
-    { name: "type", header: "Type", defaultVisible: false },
-  ];
+  },
+  { name: "changed", header: "Changed", defaultVisible: false },
+  { name: "required", header: "Required", defaultVisible: false },
+  { name: "type", header: "Type", defaultVisible: false },
+];
 
+function getRowStyle(data) {
+  if (data.data.changed) {
+    return { backgroundColor: "#FFF" };
+  } else return { backgroundColor: "#F3F3F3" };
+}
+
+const TerminateTaskConfigurator = ({
+  initialConfig,
+  onUpdate,
+  onChanged,
+}: TaskConfiguratorProps) => {
+  const classes = useStyles();
+  const [workflowOutput, setWorkflowOutput] = useState<string>("{}");
+
+
+  // Datasources populated in useEffect below
+  const [dataSource, setDataSource] = useState<any[]>([]);
+
+  // Initialize data sources and state
   useEffect(() => {
-    let updatedParameters = JSON.parse(JSON.stringify(terminateTaskParameters)); // Clone the array
-
-    for (const param of updatedParameters) {
+    // task level params
+    let taskLevelParams = _.cloneDeep(terminateTaskParameters);
+    for (const param of taskLevelParams) {
       if (initialConfig.hasOwnProperty(param.key)) {
         const newValue = initialConfig[param.key];
         if (param.value !== newValue) {
@@ -130,102 +146,108 @@ const TerminateTaskConfigurator = ({ initialConfig, onUpdate }) => {
         }
       }
     }
-    setDataSource(updatedParameters);
-    setUpdatedJsonState(initialConfig);
+    setDataSource(taskLevelParams);
+
+    const workflowOutput = JSON.stringify(initialConfig.inputParameters.workflowOutput);
+    setWorkflowOutput(workflowOutput || "{}");
+
+    // Reset changed
+    onChanged(false);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialConfig]);
 
-  const [dataSource, setDataSource] = useState(terminateTaskParameters);
+  const handleApply = useCallback(() => {
+    const newTaskConfig = _.cloneDeep(initialConfig)!;
 
-  const onEditComplete = useCallback(
+    mergeDataSourceIntoObject(dataSource, newTaskConfig);
+
+    newTaskConfig.inputParameters.workflowOutput = JSON.parse(workflowOutput);
+
+    console.log(newTaskConfig);
+
+    onUpdate(newTaskConfig);
+  }, [
+    initialConfig,
+    onUpdate,
+  workflowOutput
+  ]);
+
+
+  const handleDataSource = useCallback(
     (editInfo: TypeEditInfo) => {
       const { value, columnId, rowId } = editInfo;
-      if (!value) return;
-      const data = JSON.parse(JSON.stringify(dataSource));
+      const data = _.cloneDeep(dataSource)!;
       if (data[rowId][columnId].toString() === value.toString()) return;
       data[rowId][columnId] = value;
       data[rowId].changed = true;
 
-      const edittedJson = {};
-      data.forEach((item) => {
-        if (item.type === "boolean") {
-          if (item.value === "false" || item.value === false)
-            edittedJson[item.key] = false;
-          else if (item.value === "true" || item.value === true)
-            edittedJson[item.key] = true;
-          else throw new TypeError("must be boolean");
-        } else if (item.type === "int") {
-          edittedJson[item.key] = parseInt(item.value.toString());
-        } else edittedJson[item.key] = item.value;
-      });
-      const originalObject = JSON.parse(JSON.stringify(updatedJsonState));
-
-      // Step 2: Merge the properties from edittedJson into the original object
-      for (const key in edittedJson) {
-        if (key === "terminationStatus" || key === "terminationReason") {
-          originalObject.inputParameters[key] = edittedJson[key];
-        } else originalObject[key] = edittedJson[key];
-      }
-
       setDataSource(data);
-      setUpdatedJsonState(originalObject);
+      onChanged(true);
     },
-    [dataSource, updatedJsonState],
+    [dataSource, onChanged],
   );
 
-  const handleSubmit = (values) => {
-    setFormState(values);
-    const originalObject = JSON.parse(JSON.stringify(updatedJsonState));
-    originalObject.inputParameters.workflowOutput = JSON.parse(
-      values.workflowOutput,
-    );
-    setUpdatedJsonState(originalObject);
-    onUpdate(originalObject);
-  };
-
-  const getRowStyle = (data) => {
-    if (data.data.changed) {
-      return { backgroundColor: "#FFF" };
-    } else return { backgroundColor: "#F3F3F3" };
-  };
-
   return (
-    <div>
+    <div className={classes.container}>
+      <div>
+        <div style={{ float: "right" }}>
+          <Button onClick={handleApply}>Apply</Button>
+        </div>
+        <Heading level={1} gutterBottom>
+          SIMPLE Task
+        </Heading>
+      </div>
+      <div>Double-click on value to edit</div>
       <ReactDataGrid
         idProperty="id"
-        style={gridStyle}
-        onEditComplete={onEditComplete}
+        style={taskFormStyle}
+        onEditComplete={handleDataSource}
         editable={true}
         columns={columns as any}
-        dataSource={dataSource}
+        dataSource={dataSource!}
         showCellBorders={true}
         theme="conductor-light"
         rowStyle={getRowStyle}
-        enableColumnAutosize={true}
+        showHeader={false}
       />
-      <Formik
-        initialValues={formState}
-        onSubmit={(values) => handleSubmit(values)}
-        enableReinitialize={true}
-      >
-        {() => {
-          return (
-            <Form>
-              <FormikJsonInput
-                key="workflowOutput"
-                label="inputParameters.workflowOutput"
-                name="workflowOutput"
-                className={undefined}
-                height={undefined}
-              />
-              <Button style={{ marginTop: "15px" }} type="submit">
-                Submit
-              </Button>
-            </Form>
-          );
-        }}
-      </Formik>
+
+<JsonInput
+        key="workflowOutput"
+        label="workflowOutput"
+        value={workflowOutput}
+        style={{ marginBottom: "15px" }}
+        onChange={(v) => setWorkflowOutput(v!)}
+      />
+
     </div>
   );
 };
 
 export default TerminateTaskConfigurator;
+
+// Note: This mutates obj.
+function mergeDataSourceIntoObject(data, obj) {
+  const edittedJson = {};
+  data.forEach((item) => {
+    if (item.type === "boolean") {
+      if (item.value === "false" || item.value === false) {
+        edittedJson[item.key] = false;
+      } else if (item.value === "true" || item.value === true) {
+        edittedJson[item.key] = true;
+      } else {
+        throw new TypeError("must be boolean");
+      }
+    } else if (item.type === "int" && item.value !== null) {
+      edittedJson[item.key] = parseInt(item.value.toString());
+    } else {
+      edittedJson[item.key] = item.value;
+    }
+  });
+  for (const key in edittedJson) {
+    if (key === "terminationStatus" || key === "terminationReason") {
+      obj.inputParameters[key] = edittedJson[key];
+    } else obj[key] = edittedJson[key];
+  }
+
+}
