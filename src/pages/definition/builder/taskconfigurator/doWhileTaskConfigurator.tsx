@@ -1,104 +1,124 @@
-import { Form, Formik } from "formik";
 import { useCallback, useEffect, useState } from "react";
-import { Button, FormikJsonInput } from "../../../../components";
+import { Button, Heading } from "../../../../components";
 import ReactDataGrid from "@inovua/reactdatagrid-community";
 import { ToggleButtonGroup, ToggleButton } from "@mui/material";
+import { makeStyles } from "@mui/styles";
 import { TypeEditInfo } from "@inovua/reactdatagrid-community/types";
 import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
 import SelectEditor from "@inovua/reactdatagrid-community/SelectEditor";
 import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
-import { cloneDeep } from "lodash";
 
-const gridStyle = {
-  minHeight: 322.5,
+import JsonInput from "../../../../components/JsonInput";
+import _ from "lodash";
+import { TaskConfiguratorProps } from "../TaskConfigPanel";
+import { doWhileTaskParameters } from "../../../../schema/task/doWhileTask";
+
+const taskFormStyle = {
+  minHeight: 282.5,
   margin: "15px 0",
 };
 
-const DoWhileTaskConfigurator = ({ initialConfig, onUpdate }) => {
-  const [formState, setFormState] = useState({
-    inputParameters: initialConfig.inputParameters
-      ? JSON.stringify(initialConfig.inputParameters)
-      : "{}",
-    inputExpression:
-      initialConfig.inputExpression && initialConfig.inputExpression.expression
-        ? initialConfig.inputExpression.expression
-        : "",
-  });
+const useStyles = makeStyles({
+  container: {
+    margin: 15,
+  },
+  subHeader: {
+    fontWeight: "bold",
+    fontSize: 13,
+  },
+});
+
+const booleanEditorProps = {
+  idProperty: "id",
+  dataSource: [
+    { id: "true", label: "true" },
+    { id: "false", label: "false" },
+  ],
+  collapseOnSelect: true,
+  clearIcon: null,
+};
+
+const columns = [
+  {
+    name: "id",
+    header: "Id",
+    defaultVisible: false,
+    minWidth: 300,
+    type: "number",
+  },
+  {
+    name: "key",
+    header: "Key",
+    defaultFlex: 1,
+    minWidth: 250,
+    editable: false,
+    render: ({ value, data }) => (
+      <span>
+        {data.changed ? (
+          <span>
+            <span style={{ fontWeight: "bold" }}>{value}</span>
+          </span>
+        ) : (
+          value
+        )}
+        {data.required ? <span style={{ color: "red" }}>*</span> : null}
+      </span>
+    ),
+  },
+  {
+    name: "value",
+    header: "Value",
+    defaultFlex: 1,
+    render: ({ value }) => {
+      if (value !== null) return value.toString();
+      else return null;
+    },
+    renderEditor: (Props) => {
+      const { data } = Props.cellProps;
+
+      switch (data.type) {
+        case "int":
+          return <NumericEditor {...Props} />;
+        case "boolean":
+          return <SelectEditor {...Props} editorProps={booleanEditorProps} />;
+        default:
+          return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
+      }
+    },
+  },
+  { name: "changed", header: "Changed", defaultVisible: false },
+  { name: "required", header: "Required", defaultVisible: false },
+  { name: "type", header: "Type", defaultVisible: false },
+];
+
+function getRowStyle(data) {
+  if (data.data.changed) {
+    return { backgroundColor: "#FFF" };
+  } else return { backgroundColor: "#F3F3F3" };
+}
+
+const DOWHILETaskConfigurator = ({
+  initialConfig,
+  onUpdate,
+  onChanged,
+}: TaskConfiguratorProps) => {
+  const classes = useStyles();
   const [parameterOrExpression, setParameterOrExpression] =
     useState("parameter");
-  const [updatedJsonState, setUpdatedJsonState] = useState(initialConfig);
 
-  const renderCell = ({ value }) => {
-    return value.toString();
-  };
+  const [inputExpression, setInputExpression] = useState<string>("");
+  const [inputParameters, setInputParameters] = useState<string>("{}");
 
-  const columns = [
-    {
-      name: "id",
-      header: "Id",
-      defaultVisible: false,
-      minWidth: 300,
-      type: "number",
-    },
-    {
-      name: "key",
-      header: "Key",
-      defaultFlex: 1,
-      minWidth: 250,
-      editable: false,
-      render: ({ value, data }) => (
-        <span>
-          {data.changed ? (
-            <span>
-              <span style={{ fontWeight: "bold" }}>{value}</span>
-            </span>
-          ) : (
-            value
-          )}
-          {data.required ? <span style={{ color: "red" }}>*</span> : null}
-        </span>
-      ),
-    },
-    {
-      name: "value",
-      header: "Value",
-      defaultFlex: 1,
-      render: renderCell,
-      renderEditor: (Props) => {
-        const { data } = Props.cellProps;
-        console.log(Props);
+  // Datasources populated in useEffect below
+  const [dataSource, setDataSource] = useState<any[]>([]);
 
-        const selectEditorProps = {
-          idProperty: "id",
-          dataSource: [
-            { id: "true", label: "true" },
-            { id: "false", label: "false" },
-          ],
-          collapseOnSelect: true,
-          clearIcon: null,
-        };
+  const [loopCondition, setLoopCondition] = useState<string>("");
 
-        switch (data.type) {
-          case "int":
-            return <NumericEditor {...Props} />;
-          case "boolean":
-            return <SelectEditor {...Props} editorProps={selectEditorProps} />;
-          default:
-            return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
-        }
-      },
-    },
-    { name: "changed", header: "Changed", defaultVisible: false },
-    { name: "required", header: "Required", defaultVisible: false },
-    { name: "type", header: "Type", defaultVisible: false },
-  ];
-
-  const [dataSource, setDataSource] = useState(simpleTaskParameters);
-
+  // Initialize data sources and state
   useEffect(() => {
-    let updatedParameters = cloneDeep(simpleTaskParameters);
-
-    for (const param of updatedParameters) {
+    // task level params
+    let taskLevelParams = _.cloneDeep(doWhileTaskParameters);
+    for (const param of taskLevelParams) {
       if (initialConfig.hasOwnProperty(param.key)) {
         const newValue = initialConfig[param.key];
         if (param.value !== newValue) {
@@ -107,182 +127,179 @@ const DoWhileTaskConfigurator = ({ initialConfig, onUpdate }) => {
         }
       }
     }
-    setDataSource(updatedParameters);
-    setUpdatedJsonState(initialConfig);
+    setDataSource(taskLevelParams);
+
+    // Initialize inputExpression
+    const inputExpression = initialConfig.inputExpression?.expression;
+    setInputExpression(inputExpression || "");
+
+    const inputParameters = JSON.stringify(initialConfig.inputParameters);
+    setInputParameters(inputParameters || "{}");
+
+    if ('loopCondition' in initialConfig) {
+        const loopCondition = initialConfig.loopCondition || "";
+        setLoopCondition(loopCondition);
+      }
+    // Reset changed
+    onChanged(false);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialConfig]);
 
-  const onEditComplete = useCallback(
-    (editInfo: TypeEditInfo) => {
-      const { value, columnId, rowId } = editInfo;
-      //if (!value) return;
-      const data = cloneDeep(dataSource);
-      if (data[rowId][columnId].toString() === value.toString()) return;
-      data[rowId][columnId] = value;
-      data[rowId].changed = true;
-
-      const edittedJson = {};
-      data.forEach((item) => {
-        if (item.type === "boolean") {
-          console.log(item.value);
-          if (item.value === "false" || item.value === false)
-            edittedJson[item.key] = false;
-          else if (item.value === "true" || item.value === true)
-            edittedJson[item.key] = true;
-          else throw new TypeError("must be boolean");
-        } else if (item.type === "int") {
-          edittedJson[item.key] = parseInt(item.value.toString());
-        } else edittedJson[item.key] = item.value;
-      });
-      const originalObject = cloneDeep(updatedJsonState);
-
-      // Step 2: Merge the properties from edittedJson into the original object
-      for (const key in edittedJson) {
-        originalObject[key] = edittedJson[key];
-      }
-
-      setUpdatedJsonState(originalObject);
-      console.log("edited", initialConfig);
-      setDataSource(data);
-    },
-    [dataSource, initialConfig, updatedJsonState],
-  );
-
-  const handleToggleButtonChange = (event, newSelection) => {
-    if (newSelection) {
-      clearFormValues(); // Clear the form values
-      setParameterOrExpression(newSelection);
-    }
-  };
-
-  const clearFormValues = () => {
-    const newFormValues = {
-      inputParameters: "{}",
-      inputExpression: "",
-    };
-
-    setFormState(newFormValues); // Clear the form values
-  };
-
   useEffect(() => {
-    if (!initialConfig.inputExpression || !initialConfig.inputParameters)
+    console.log("in useeffect");
+    if (!initialConfig.inputExpression && !initialConfig.inputParameters) {
       return;
-    if (
+    } else if (!initialConfig.inputExpression)
+      setParameterOrExpression("parameter");
+    else if (!initialConfig.inputParameters)
+      setParameterOrExpression("expression");
+    else if (
       JSON.stringify(initialConfig.inputExpression).length >
       JSON.stringify(initialConfig.inputParameters).length
     ) {
       setParameterOrExpression("expression");
-    }
-  }, [initialConfig]);
+    } else setParameterOrExpression("parameter");
+  }, [initialConfig.inputExpression, initialConfig.inputParameters]);
 
-  useEffect(() => {
-    // Update formState based on initialConfig
-    setFormState({
-      inputParameters: initialConfig.inputParameters
-        ? JSON.stringify(initialConfig.inputParameters)
-        : "{}",
-      inputExpression:
-        initialConfig.inputExpression &&
-        initialConfig.inputExpression.expression
-          ? initialConfig.inputExpression.expression
-          : "",
-    });
-  }, [initialConfig]);
-
-  const handleSubmit = (values) => {
-    setFormState(values);
-    let newJsonState;
-    if (parameterOrExpression === "expression") {
-      newJsonState = {
-        ...updatedJsonState,
-        inputExpression: {
-          expression: values.inputExpression,
-          type: "JSON_PATH",
-        },
-        inputParameters: {},
-      };
-    } else {
-      newJsonState = {
-        ...updatedJsonState,
-        inputParameters: JSON.parse(values.inputParameters),
-        inputExpression: {},
-      };
-    }
-    setUpdatedJsonState(newJsonState);
-    onUpdate(newJsonState);
+  const handleToggleButtonChange = (event, newSelection) => {
+    setParameterOrExpression(newSelection);
   };
+  console.log(parameterOrExpression);
 
-  const getRowStyle = (data) => {
-    if (data.data.changed) {
-      return { backgroundColor: "#FFF" };
-    } else return { backgroundColor: "#F3F3F3" };
-  };
+  const handleApply = useCallback(() => {
+    const newTaskConfig = _.cloneDeep(initialConfig)!;
 
-  console.log(formState);
+    mergeDataSourceIntoObject(dataSource, newTaskConfig);
+
+    if (parameterOrExpression === "parameter") {
+      newTaskConfig.inputParameters = JSON.parse(inputParameters);
+      newTaskConfig.inputExpression = { type: "JSON_PATH", expression: "" };
+      delete newTaskConfig["inputExpression"];
+    } else if (parameterOrExpression === "expression") {
+      newTaskConfig.inputExpression = {
+        type: "JSON_PATH",
+        expression: inputExpression,
+      };
+      delete newTaskConfig["inputParameters"];
+    }
+
+    if ('loopCondition' in newTaskConfig) {
+        newTaskConfig.loopCondition = loopCondition;
+      }
+
+    console.log(newTaskConfig);
+
+    onUpdate(newTaskConfig);
+  }, [
+    initialConfig,
+    parameterOrExpression,
+    onUpdate,
+    inputExpression,
+    inputParameters,
+    loopCondition,
+  ]);
+
+  console.log(inputParameters);
+
+  const handleDataSource = useCallback(
+    (editInfo: TypeEditInfo) => {
+      const { value, columnId, rowId } = editInfo;
+      const data = _.cloneDeep(dataSource)!;
+      if (data[rowId][columnId].toString() === value.toString()) return;
+      data[rowId][columnId] = value;
+      data[rowId].changed = true;
+
+      setDataSource(data);
+      onChanged(true);
+    },
+    [dataSource, onChanged],
+  );
 
   return (
-    <div>
+    <div className={classes.container}>
+      <div>
+        <div style={{ float: "right" }}>
+          <Button onClick={handleApply}>Apply</Button>
+        </div>
+        <Heading level={1} gutterBottom>
+          SIMPLE Task
+        </Heading>
+      </div>
+      <div>Double-click on value to edit</div>
       <ReactDataGrid
         idProperty="id"
-        style={gridStyle}
-        onEditComplete={onEditComplete}
+        style={taskFormStyle}
+        onEditComplete={handleDataSource}
         editable={true}
         columns={columns as any}
-        dataSource={dataSource}
+        dataSource={dataSource!}
         showCellBorders={true}
         theme="conductor-light"
         rowStyle={getRowStyle}
+        showHeader={false}
       />
-      <Formik
-        initialValues={formState}
-        onSubmit={(values) => handleSubmit(values)}
-        enableReinitialize={true}
+
+      <JsonInput
+        key="loopCondition"
+        label="loopCondition"
+        language="javascript"
+        value={loopCondition}
+        style={{ marginBottom: "15px" }}
+        onChange={(v) => setLoopCondition(v!)}
+      />
+
+      <ToggleButtonGroup
+        value={parameterOrExpression}
+        exclusive
+        onChange={handleToggleButtonChange}
+        size="small"
+        style={{ marginBottom: "15px" }}
       >
-        {() => {
-          return (
-            <Form>
-              <ToggleButtonGroup
-                value={parameterOrExpression}
-                exclusive
-                onChange={handleToggleButtonChange}
-                aria-label="toggle between parameter and expression"
-                style={{ marginBottom: "15px" }}
-              >
-                <ToggleButton value="parameter" aria-label="use parameter">
-                  Use Input Parameters
-                </ToggleButton>
-                <ToggleButton value="expression" aria-label="use expression">
-                  Use Input Expression
-                </ToggleButton>
-              </ToggleButtonGroup>
+        <ToggleButton value="parameter">
+          Define inputParameters statically (default)
+        </ToggleButton>
+        <ToggleButton value="expression">Use inputExpression</ToggleButton>
+      </ToggleButtonGroup>
 
-              {parameterOrExpression === "parameter" ? (
-                <FormikJsonInput
-                  key="parameter"
-                  label="inputParameters"
-                  name="inputParameters"
-                  className={undefined}
-                  height={undefined}
-                />
-              ) : (
-                <FormikJsonInput
-                  key="expression"
-                  label="inputExpression.expression"
-                  name="inputExpression"
-                  className={undefined}
-                  height={undefined}
-                  language="plaintext"
-                />
-              )}
-
-              <Button style={{ marginTop: "15px" }} type="submit">
-                Submit
-              </Button>
-            </Form>
-          );
-        }}
-      </Formik>
+      {parameterOrExpression === "parameter" && (
+        <JsonInput
+          key="parameter"
+          label="inputParameters"
+          value={inputParameters}
+          onChange={(v) => setInputParameters(v!)}
+        />
+      )}
+      {parameterOrExpression === "expression" && (
+        <JsonInput
+          key="expression"
+          label="inputExpression"
+          language="plaintext"
+          value={inputExpression}
+          onChange={(v) => setInputExpression(v!)}
+        />
+      )}
     </div>
   );
 };
 
-export default DoWhileTaskConfigurator;
+export default DOWHILETaskConfigurator;
+
+// Note: This mutates obj.
+function mergeDataSourceIntoObject(data, obj) {
+  data.forEach((item) => {
+    if (item.type === "boolean") {
+      if (item.value === "false" || item.value === false) {
+        obj[item.key] = false;
+      } else if (item.value === "true" || item.value === true) {
+        obj[item.key] = true;
+      } else {
+        throw new TypeError("must be boolean");
+      }
+    } else if (item.type === "int" && item.value !== null) {
+      obj[item.key] = parseInt(item.value.toString());
+    } else {
+      obj[item.key] = item.value;
+    }
+  });
+}

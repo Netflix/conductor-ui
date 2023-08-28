@@ -140,20 +140,19 @@ const TaskConfigurator = ({
   }, [initialConfig]);
 
   useEffect(() => {
-    console.log("in useeffect"
-    )
+    console.log("in useeffect");
     if (!initialConfig.inputExpression && !initialConfig.inputParameters) {
       return;
-    }
-    else if (!initialConfig.inputExpression) setParameterOrExpression("parameter");
-    else if (!initialConfig.inputParameters) setParameterOrExpression("expression");
+    } else if (!initialConfig.inputExpression)
+      setParameterOrExpression("parameter");
+    else if (!initialConfig.inputParameters)
+      setParameterOrExpression("expression");
     else if (
       JSON.stringify(initialConfig.inputExpression).length >
       JSON.stringify(initialConfig.inputParameters).length
     ) {
       setParameterOrExpression("expression");
-    }
-    else setParameterOrExpression("parameter");
+    } else setParameterOrExpression("parameter");
   }, [initialConfig.inputExpression, initialConfig.inputParameters]);
 
   const handleToggleButtonChange = (event, newSelection) => {

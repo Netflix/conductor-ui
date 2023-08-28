@@ -3,10 +3,11 @@ import { DefEditorContext } from "../WorkflowDefinition";
 import HttpTaskConfigurator from "./taskconfigurator/HttpTaskConfigurator";
 import InlineTaskConfigurator from "./taskconfigurator/InlineTaskConfigurator";
 import TaskConfigurator from "./taskconfigurator/TaskConfigurator";
-import { TaskConfig } from "../../../types/workflowDef";
+import { DoWhileTaskConfig, TaskConfig } from "../../../types/workflowDef";
 import TerminateTaskConfigurator from "./taskconfigurator/TerminateTaskConfigurator";
 import WaitTaskConfigurator from "./taskconfigurator/WaitTaskConfigurator";
 import JQTransformTaskConfigurator from "./taskconfigurator/JQTransformTaskConfigurator";
+import DOWHILETaskConfigurator from "./taskconfigurator/doWhileTaskConfigurator";
 
 export type TaskConfiguratorProps = {
   initialConfig: TaskConfig;
@@ -94,6 +95,12 @@ export default function TaskConfigPanel({
         <JQTransformTaskConfigurator
           onUpdate={handleTaskConfiguratorUpdate}
           initialConfig={taskConfig}
+        />
+      ) : taskConfig !== null && taskConfig.type === "DO_WHILE" ? (
+        <DOWHILETaskConfigurator
+          onUpdate={handleTaskConfiguratorUpdate}
+          initialConfig={taskConfig as DoWhileTaskConfig}
+          onChanged={handleTaskChanged}
         />
       ) : (
         <div>
