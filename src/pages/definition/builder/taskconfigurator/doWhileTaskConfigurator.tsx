@@ -136,10 +136,10 @@ const DOWHILETaskConfigurator = ({
     const inputParameters = JSON.stringify(initialConfig.inputParameters);
     setInputParameters(inputParameters || "{}");
 
-    if ('loopCondition' in initialConfig) {
-        const loopCondition = initialConfig.loopCondition || "";
-        setLoopCondition(loopCondition);
-      }
+    if ("loopCondition" in initialConfig) {
+      const loopCondition = initialConfig.loopCondition || "";
+      setLoopCondition(loopCondition);
+    }
     // Reset changed
     onChanged(false);
 
@@ -184,9 +184,9 @@ const DOWHILETaskConfigurator = ({
       delete newTaskConfig["inputParameters"];
     }
 
-    if ('loopCondition' in newTaskConfig) {
-        newTaskConfig.loopCondition = loopCondition;
-      }
+    if ("loopCondition" in newTaskConfig) {
+      newTaskConfig.loopCondition = loopCondition;
+    }
 
     console.log(newTaskConfig);
 

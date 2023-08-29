@@ -121,7 +121,6 @@ const TerminateTaskConfigurator = ({
   const classes = useStyles();
   const [workflowOutput, setWorkflowOutput] = useState<string>("{}");
 
-
   // Datasources populated in useEffect below
   const [dataSource, setDataSource] = useState<any[]>([]);
 
@@ -147,7 +146,9 @@ const TerminateTaskConfigurator = ({
     }
     setDataSource(taskLevelParams);
 
-    const workflowOutput = JSON.stringify(initialConfig.inputParameters.workflowOutput);
+    const workflowOutput = JSON.stringify(
+      initialConfig.inputParameters.workflowOutput,
+    );
     setWorkflowOutput(workflowOutput || "{}");
 
     // Reset changed
@@ -166,12 +167,7 @@ const TerminateTaskConfigurator = ({
     console.log(newTaskConfig);
 
     onUpdate(newTaskConfig);
-  }, [
-    initialConfig,
-    onUpdate,
-  workflowOutput
-  ]);
-
+  }, [initialConfig, onUpdate, workflowOutput]);
 
   const handleDataSource = useCallback(
     (editInfo: TypeEditInfo) => {
@@ -211,14 +207,13 @@ const TerminateTaskConfigurator = ({
         showHeader={false}
       />
 
-<JsonInput
+      <JsonInput
         key="workflowOutput"
         label="workflowOutput"
         value={workflowOutput}
         style={{ marginBottom: "15px" }}
         onChange={(v) => setWorkflowOutput(v!)}
       />
-
     </div>
   );
 };
@@ -248,5 +243,4 @@ function mergeDataSourceIntoObject(data, obj) {
       obj.inputParameters[key] = edittedJson[key];
     } else obj[key] = edittedJson[key];
   }
-
 }

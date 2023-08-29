@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import TaskConfigurator from "../definition/builder/taskconfigurator/TaskConfigurator"; // Update the import path
+import TaskConfigurator from "../definition/builder/taskconfigurator/SimpleTaskConfigurator"; // Update the import path
 import { Button, Paper } from "../../components";
 import InlineTaskConfigurator from "../definition/builder/taskconfigurator/InlineTaskConfigurator";
 import HttpTaskConfigurator from "../definition/builder/taskconfigurator/HttpTaskConfigurator";

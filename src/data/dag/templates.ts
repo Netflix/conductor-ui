@@ -14,7 +14,7 @@ import {
   TerminateTaskConfig,
   WaitTaskConfig,
 } from "../../types/workflowDef";
-import { createSimpleTaskParams } from "../../schema/task/simpleTask";
+import { createNewSimpleTask } from "../../schema/task/simpleTask";
 import { createInlineTaskParams } from "../../schema/task/inlineTask";
 import { createHttpTaskParams } from "../../schema/task/httpTask";
 import { createTerminateTaskParams } from "../../schema/task/terminateTask";
@@ -25,7 +25,7 @@ export const templates: {
   [key in TaskConfigType]: (ref: string) => TaskConfig[];
 } = {
   SIMPLE: (ref) => {
-    const retval: SimpleTaskConfig = createSimpleTaskParams(ref);
+    const retval: SimpleTaskConfig = createNewSimpleTask(ref);
     return [retval];
   },
   SWITCH: (ref) => {

@@ -2,12 +2,12 @@ import { useCallback, useContext } from "react";
 import { DefEditorContext } from "../WorkflowDefinition";
 import HttpTaskConfigurator from "./taskconfigurator/HttpTaskConfigurator";
 import InlineTaskConfigurator from "./taskconfigurator/InlineTaskConfigurator";
-import TaskConfigurator from "./taskconfigurator/TaskConfigurator";
+import TaskConfigurator from "./taskconfigurator/SimpleTaskConfigurator";
 import { DoWhileTaskConfig, TaskConfig } from "../../../types/workflowDef";
 import TerminateTaskConfigurator from "./taskconfigurator/TerminateTaskConfigurator";
 import WaitTaskConfigurator from "./taskconfigurator/WaitTaskConfigurator";
 import JQTransformTaskConfigurator from "./taskconfigurator/JQTransformTaskConfigurator";
-import DOWHILETaskConfigurator from "./taskconfigurator/doWhileTaskConfigurator";
+import DOWHILETaskConfigurator from "./taskconfigurator/DoWhileTaskConfigurator";
 
 export type TaskConfiguratorProps = {
   initialConfig: TaskConfig;

@@ -1,81 +1,68 @@
 import { SimpleTaskConfig } from "../../types/workflowDef";
 
-export const simpleTaskParameters = [
+export const simpleTaskSchema = [
   {
-    id: 0,
     key: "name",
-    value: "",
-    changed: false,
+    default: "",
     required: true,
     type: "string",
   },
   {
-    id: 1,
     key: "taskReferenceName",
-    value: "",
-    changed: false,
+    default: "",
     required: true,
+    type: "string",
   },
   {
-    id: 2,
     key: "description",
-    value: "",
-    changed: false,
+    default: "",
     required: false,
     type: "string",
   },
   {
-    id: 3,
     key: "optional",
-    value: false,
-    changed: false,
+    default: false,
     required: false,
     type: "boolean",
   },
   {
-    id: 4,
     key: "startDelay",
-    value: 0,
-    changed: false,
+    default: 0,
     required: false,
     type: "int",
   },
   {
-    id: 5,
     key: "rateLimited",
-    value: false,
-    changed: false,
+    default: false,
     required: false,
     type: "boolean",
   },
   {
-    id: 6,
     key: "retryCount",
-    value: 0,
-    changed: false,
+    default: 0,
     required: false,
     type: "int",
   },
 ];
 
-export function createSimpleTaskParams(taskReferenceName) {
-  let taskParams = {};
+export function createNewSimpleTask(taskReferenceName) {
+  let taskConfig = {};
 
-  simpleTaskParameters.forEach((parameter) => {
+  simpleTaskSchema.forEach((parameter) => {
     // Only expose fields that are marked as required
     if (parameter.required === true) {
       // Sets the value as the respective input if the key matches "name" or "taskReferenceName", otherwise, uses the default value
       if (parameter.key === "name") {
-        taskParams[parameter.key] = taskReferenceName;
+        taskConfig[parameter.key] = taskReferenceName;
       } else if (parameter.key === "taskReferenceName") {
-        taskParams[parameter.key] = taskReferenceName;
+        taskConfig[parameter.key] = taskReferenceName;
       } else {
-        taskParams[parameter.key] = parameter.value;
+        taskConfig[parameter.key] = parameter.default;
       }
     }
   });
-  taskParams["type"] = "SIMPLE";
-  taskParams["inputParameters"] = {};
+  taskConfig["type"] = "SIMPLE";
+  taskConfig["inputParameters"] = {};
 
-  return taskParams as SimpleTaskConfig;
+  return taskConfig as SimpleTaskConfig;
 }
