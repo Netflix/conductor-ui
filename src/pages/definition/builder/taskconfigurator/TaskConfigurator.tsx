@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Button, Heading } from "../../../../components";
 import ReactDataGrid from "@inovua/reactdatagrid-community";
-import { ToggleButtonGroup, ToggleButton } from "@mui/material";
+import { ToggleButtonGroup, ToggleButton, Snackbar, Alert } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { TypeEditInfo } from "@inovua/reactdatagrid-community/types";
 import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
@@ -112,6 +112,8 @@ const TaskConfigurator = ({
   // Datasources populated in useEffect below
   const [dataSource, setDataSource] = useState<any[]>([]);
 
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
   // Initialize data sources and state
   useEffect(() => {
     // task level params
@@ -163,6 +165,12 @@ const TaskConfigurator = ({
   const handleApply = useCallback(() => {
     const newTaskConfig = _.cloneDeep(initialConfig)!;
 
+    const hasError = validateDatasource(dataSource);
+    if ((hasError)) {
+      setSnackbarOpen(true);
+      return;
+    }
+    else setSnackbarOpen(false);
     mergeDataSourceIntoObject(dataSource, newTaskConfig);
 
     if (parameterOrExpression === "parameter") {
@@ -188,7 +196,7 @@ const TaskConfigurator = ({
     inputParameters,
   ]);
 
-  console.log(inputParameters);
+  console.log(snackbarOpen);
 
   const handleDataSource = useCallback(
     (editInfo: TypeEditInfo) => {
@@ -203,6 +211,14 @@ const TaskConfigurator = ({
     },
     [dataSource, onChanged],
   );
+
+  const handleSnackbarClose = (event: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setSnackbarOpen(false);
+  };
 
   return (
     <div className={classes.container}>
@@ -258,6 +274,11 @@ const TaskConfigurator = ({
           onChange={(v) => setInputExpression(v!)}
         />
       )}
+       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
+        <Alert onClose={handleSnackbarClose} severity="error" sx={{ width: '100%' }}>
+          Please fill in all required fields!
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
@@ -280,5 +301,16 @@ function mergeDataSourceIntoObject(data, obj) {
     } else {
       obj[item.key] = item.value;
     }
+  });
+}
+
+function validateDatasource(dataSource) {
+  const data = _.cloneDeep(dataSource);
+  console.log(data);
+  return data.some(item => {
+    if (item.required) {
+      return !item.value || !item.value.trim() || item.value.length == 0;
+    }
+    return false;
   });
 }
