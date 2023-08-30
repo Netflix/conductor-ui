@@ -16,7 +16,7 @@ const JQTransformTaskConfigurator = ({
   const classes = useStyles();
   const [queryExpression, setQueryExpression] = useState<string>("{}");
   const [additionalInputParameters, setAdditionalInputParameters] =
-  useState<string>("{}");
+    useState<string>("{}");
   const [taskLevelParams, setTaskLevelParams] = useState<any>({});
 
   // Initialize data sources and state
@@ -34,10 +34,10 @@ const JQTransformTaskConfigurator = ({
 
   const handleApply = useCallback(() => {
     const newTaskConfig = _.cloneDeep(taskLevelParams)!;
-   
+
     const newInputParameters = {
       ...JSON.parse(additionalInputParameters),
-      queryExpression: queryExpression
+      queryExpression: queryExpression,
     };
     newTaskConfig.inputParameters = newInputParameters;
     console.log(newTaskConfig);
@@ -48,7 +48,7 @@ const JQTransformTaskConfigurator = ({
     onUpdate,
     taskLevelParams,
     queryExpression,
-    additionalInputParameters
+    additionalInputParameters,
   ]);
 
   const initialTaskLevelParams = useMemo(
@@ -79,7 +79,7 @@ const JQTransformTaskConfigurator = ({
         taskType={"JQ_TRANSFORM"}
       />
 
-<JsonInput
+      <JsonInput
         key="queryExpression"
         label="queryExpression"
         value={queryExpression}
