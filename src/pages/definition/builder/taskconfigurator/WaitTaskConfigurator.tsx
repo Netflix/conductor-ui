@@ -1,162 +1,41 @@
-import { Form, Formik } from "formik";
-import { useCallback, useEffect, useState } from "react";
-import { Button, FormikJsonInput } from "../../../../components";
-import ReactDataGrid from "@inovua/reactdatagrid-community";
-import { ToggleButtonGroup, ToggleButton } from "@mui/material";
-import { TypeEditInfo } from "@inovua/reactdatagrid-community/types";
-import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
-import SelectEditor from "@inovua/reactdatagrid-community/SelectEditor";
-import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
-import { waitTaskParameters } from "../../../../schema/task/waitTask";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Button, Heading } from "../../../../components";
 import { cloneDeep } from "lodash";
+import { TaskConfiguratorProps } from "../TaskConfigPanel";
+import { useStyles } from "./TaskConfiguratorUtils";
+import AttributeEditor from "./AttributeEditor";
+import { waitTaskSchema } from "../../../../schema/task/waitTask";
+import JsonInput from "../../../../components/JsonInput";
+import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 
-const gridStyle = {
-  minHeight: 322.5,
-  margin: "15px 0",
-};
+const WaitTaskConfigurator = ({
+  initialConfig,
+  onUpdate,
+  onChanged,
+}: TaskConfiguratorProps) => {
+  const classes = useStyles();
 
-const WaitTaskConfigurator = ({ initialConfig, onUpdate }) => {
-  const [formState, setFormState] = useState({
-    duration: initialConfig.inputParameters.duration || "",
-    until: initialConfig.inputParameters.until || "",
-  });
   const [durationOrUntil, setDurationOrUntil] = useState("duration");
-  const [updatedJsonState, setUpdatedJsonState] = useState(initialConfig);
 
-  const renderCell = ({ value }) => {
-    return value.toString();
-  };
+  const [duration, setDuration] = useState<string>("");
+  const [until, setUntil] = useState<string>("{}");
 
-  const columns = [
-    {
-      name: "id",
-      header: "Id",
-      defaultVisible: false,
-      minWidth: 300,
-      type: "number",
-    },
-    {
-      name: "key",
-      header: "Key",
-      defaultFlex: 1,
-      minWidth: 250,
-      editable: false,
-      render: ({ value, data }) => (
-        <span>
-          {data.changed ? (
-            <span>
-              <span style={{ fontWeight: "bold" }}>{value}</span>
-            </span>
-          ) : (
-            value
-          )}
-          {data.required ? <span style={{ color: "red" }}>*</span> : null}
-        </span>
-      ),
-    },
-    {
-      name: "value",
-      header: "Value",
-      defaultFlex: 1,
-      render: renderCell,
-      renderEditor: (Props) => {
-        const { data } = Props.cellProps;
-        console.log(Props);
+  const [taskLevelParams, setTaskLevelParams] = useState<any>({});
 
-        const selectEditorProps = {
-          idProperty: "id",
-          dataSource: [
-            { id: "true", label: "true" },
-            { id: "false", label: "false" },
-          ],
-          collapseOnSelect: true,
-          clearIcon: null,
-        };
-
-        switch (data.type) {
-          case "int":
-            return <NumericEditor {...Props} />;
-          case "boolean":
-            return <SelectEditor {...Props} editorProps={selectEditorProps} />;
-          default:
-            return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
-        }
-      },
-    },
-    { name: "changed", header: "Changed", defaultVisible: false },
-    { name: "required", header: "Required", defaultVisible: false },
-    { name: "type", header: "Type", defaultVisible: false },
-  ];
-
-  const [dataSource, setDataSource] = useState(waitTaskParameters);
-
+  // Initialize data sources and state
   useEffect(() => {
-    let updatedParameters = cloneDeep(waitTaskParameters);
+    setTaskLevelParams(extractTaskLevelParams(initialConfig));
+    // Initialize inputExpression
+    const duration = initialConfig.inputParameters.duration;
+    setDuration(duration || "");
 
-    for (const param of updatedParameters) {
-      if (initialConfig.hasOwnProperty(param.key)) {
-        const newValue = initialConfig[param.key];
-        if (param.value !== newValue) {
-          param.value = newValue;
-          param.changed = true;
-        }
-      }
-    }
-    setDataSource(updatedParameters);
-    setUpdatedJsonState(initialConfig);
+    const until = initialConfig.inputParameters.until;
+    setUntil(until || "");
+    // Reset changed
+    onChanged(false);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialConfig]);
-
-  const onEditComplete = useCallback(
-    (editInfo: TypeEditInfo) => {
-      const { value, columnId, rowId } = editInfo;
-      //if (!value) return;
-      const data = cloneDeep(dataSource);
-      if (data[rowId][columnId].toString() === value.toString()) return;
-      data[rowId][columnId] = value;
-      data[rowId].changed = true;
-
-      const edittedJson = {};
-      data.forEach((item) => {
-        if (item.type === "boolean") {
-          console.log(item.value);
-          if (item.value === "false" || item.value === false)
-            edittedJson[item.key] = false;
-          else if (item.value === "true" || item.value === true)
-            edittedJson[item.key] = true;
-          else throw new TypeError("must be boolean");
-        } else if (item.type === "int") {
-          edittedJson[item.key] = parseInt(item.value.toString());
-        } else edittedJson[item.key] = item.value;
-      });
-      const originalObject = cloneDeep(updatedJsonState);
-
-      // Step 2: Merge the properties from edittedJson into the original object
-      for (const key in edittedJson) {
-        originalObject[key] = edittedJson[key];
-      }
-
-      setUpdatedJsonState(originalObject);
-      console.log("edited", initialConfig);
-      setDataSource(data);
-    },
-    [dataSource, initialConfig, updatedJsonState],
-  );
-
-  const handleToggleButtonChange = (event, newSelection) => {
-    if (newSelection) {
-      clearFormValues(); // Clear the form values
-      setDurationOrUntil(newSelection);
-    }
-  };
-
-  const clearFormValues = () => {
-    const newFormValues = {
-      duration: "",
-      until: "",
-    };
-
-    setFormState(newFormValues); // Clear the form values
-  };
 
   useEffect(() => {
     if (
@@ -182,99 +61,106 @@ const WaitTaskConfigurator = ({ initialConfig, onUpdate }) => {
     } else setDurationOrUntil("duration");
   }, [initialConfig]);
 
-  useEffect(() => {
-    // Update formState based on initialConfig
-    setFormState({
-      duration: initialConfig.inputParameters.duration || "",
-      until: initialConfig.inputParameters.until || "",
-    });
-  }, [initialConfig]);
+  const handleApply = useCallback(() => {
+    const newTaskConfig = cloneDeep(taskLevelParams)!;
 
-  const handleSubmit = (values) => {
-    setFormState(values);
-    let newJsonState = cloneDeep(updatedJsonState);
     if (durationOrUntil === "duration") {
-      newJsonState.inputParameters = { duration: values.duration };
-    } else {
-      newJsonState.inputParameters = { until: values.until };
+      newTaskConfig.inputParameters = { duration: duration };
+      delete newTaskConfig.inputParameters.until;
+    } else if (durationOrUntil === "until") {
+      newTaskConfig.inputParameters = { until: until };
+      delete newTaskConfig.inputParameters.duration;
     }
-    setUpdatedJsonState(newJsonState);
-    onUpdate(newJsonState);
+    console.log(newTaskConfig);
+
+    onUpdate(newTaskConfig);
+  }, [
+    initialConfig,
+    durationOrUntil,
+    onUpdate,
+    duration,
+    until,
+    taskLevelParams,
+  ]);
+
+  const initialTaskLevelParams = useMemo(
+    () => extractTaskLevelParams(initialConfig),
+    [initialConfig],
+  );
+
+  const handleOnchange = (updatedJson) => {
+    setTaskLevelParams(updatedJson);
+    onChanged(true);
   };
 
-  const getRowStyle = (data) => {
-    if (data.data.changed) {
-      return { backgroundColor: "#FFF" };
-    } else return { backgroundColor: "#F3F3F3" };
+  const handleToggleButtonChange = (event, newSelection) => {
+    setDurationOrUntil(newSelection);
   };
-
-  console.log(formState);
 
   return (
-    <div>
-      <ReactDataGrid
-        idProperty="id"
-        style={gridStyle}
-        onEditComplete={onEditComplete}
-        editable={true}
-        columns={columns as any}
-        dataSource={dataSource}
-        showCellBorders={true}
-        theme="conductor-light"
-        rowStyle={getRowStyle}
+    <div className={classes.container}>
+      <div>
+        <div style={{ float: "right" }}>
+          <Button onClick={handleApply}>Apply</Button>
+        </div>
+        <Heading level={1} gutterBottom>
+          SIMPLE Task
+        </Heading>
+      </div>
+      <div>Double-click on value to edit</div>
+      <AttributeEditor
+        schema={waitTaskSchema}
+        initialTaskLevelParams={initialTaskLevelParams}
+        onChange={handleOnchange}
+        taskType={"WAIT"}
       />
-      <Formik
-        initialValues={formState}
-        onSubmit={(values) => handleSubmit(values)}
-        enableReinitialize={true}
+
+      <ToggleButtonGroup
+        value={durationOrUntil}
+        exclusive
+        onChange={handleToggleButtonChange}
+        size="small"
+        style={{ marginBottom: "15px" }}
       >
-        {() => {
-          return (
-            <Form>
-              <ToggleButtonGroup
-                value={durationOrUntil}
-                exclusive
-                onChange={handleToggleButtonChange}
-                aria-label="toggle between duration and until"
-                style={{ marginBottom: "15px" }}
-              >
-                <ToggleButton value="duration" aria-label="use duration">
-                  Use duration in inputParameters
-                </ToggleButton>
-                <ToggleButton value="until" aria-label="use until">
-                  Use until in inputParameters
-                </ToggleButton>
-              </ToggleButtonGroup>
+        <ToggleButton value="duration">
+          Use duration in inputParameters
+        </ToggleButton>
+        <ToggleButton value="until">Use until in inputParameters</ToggleButton>
+      </ToggleButtonGroup>
 
-              {durationOrUntil === "duration" ? (
-                <FormikJsonInput
-                  key="duration"
-                  label="duration"
-                  name="duration"
-                  className={undefined}
-                  height={undefined}
-                  language="plaintext"
-                />
-              ) : (
-                <FormikJsonInput
-                  key="until"
-                  label="until"
-                  name="until"
-                  className={undefined}
-                  height={undefined}
-                  language="plaintext"
-                />
-              )}
-
-              <Button style={{ marginTop: "15px" }} type="submit">
-                Submit
-              </Button>
-            </Form>
-          );
-        }}
-      </Formik>
+      {durationOrUntil === "duration" && (
+        <JsonInput
+          key="duration"
+          label="duration"
+          value={duration}
+          onChange={(v) => {
+            setDuration(v!);
+            onChanged(true);
+          }}
+          language="plaintext"
+        />
+      )}
+      {durationOrUntil === "until" && (
+        <JsonInput
+          key="until"
+          label="until"
+          language="plaintext"
+          value={until}
+          onChange={(v) => {
+            setUntil(v!);
+            onChanged(true);
+          }}
+        />
+      )}
     </div>
   );
+};
+
+const extractTaskLevelParams = (taskConfig) => {
+  const params = cloneDeep(taskConfig);
+  delete params.inputExpression;
+  delete params.inputParameters;
+  return params;
 };
 
 export default WaitTaskConfigurator;

@@ -91,11 +91,13 @@ export default function TaskConfigPanel({
         <WaitTaskConfigurator
           onUpdate={handleTaskConfiguratorUpdate}
           initialConfig={taskConfig}
+          onChanged={handleTaskChanged}
         />
       ) : taskConfig !== null && taskConfig.type === "JSON_JQ_TRANSFORM" ? (
         <JQTransformTaskConfigurator
           onUpdate={handleTaskConfiguratorUpdate}
           initialConfig={taskConfig}
+          onChanged={handleTaskChanged}
         />
       ) : taskConfig !== null && taskConfig.type === "DO_WHILE" ? (
         <DOWHILETaskConfigurator

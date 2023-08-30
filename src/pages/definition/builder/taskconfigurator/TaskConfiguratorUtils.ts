@@ -20,7 +20,7 @@ export function mergeDataSourceIntoObject(data, obj) {
   });
 }
 
-export function dataSourceToObject(data) {
+export function dataSourceToObject(data, taskType) {
   const obj = {};
   data.forEach((item) => {
     if (item.type === "boolean") {
@@ -37,6 +37,26 @@ export function dataSourceToObject(data) {
       obj[item.key] = item.value;
     }
   });
+
+  if (taskType === "TERMINATE") {
+    const returnValue = { inputParameters: {} };
+    for (const key in obj) {
+      if (key === "terminationStatus" || key === "terminationReason") {
+        returnValue["inputParameters"][key] = obj[key];
+      } else returnValue[key] = obj[key];
+    }
+    return returnValue;
+  }
+
+  if (taskType === "INLINE") {
+    const returnValue = { inputParameters: {} };
+    for (const key in obj) {
+      if (key === "evaluatorType") {
+        returnValue["inputParameters"][key] = obj[key];
+      } else returnValue[key] = obj[key];
+    }
+    return returnValue;
+  }
   return obj;
 }
 
@@ -76,3 +96,23 @@ export function getRowStyle(data) {
     return { backgroundColor: "#FFF" };
   } else return { backgroundColor: "#F3F3F3" };
 }
+
+export const terminationStatusEditorProps = {
+  idProperty: "id",
+  dataSource: [
+    { id: "COMPLETED", label: "COMPLETED" },
+    { id: "FAILED", label: "FAILED" },
+  ],
+  collapseOnSelect: true,
+  clearIcon: null,
+};
+
+export const evaluatorTypeEditorProps = {
+  idProperty: "id",
+  dataSource: [
+    { id: "value-param", label: "value-param" },
+    { id: "javascript", label: "javascript" },
+  ],
+  collapseOnSelect: true,
+  clearIcon: null,
+};

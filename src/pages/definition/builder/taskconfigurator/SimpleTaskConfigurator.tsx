@@ -85,8 +85,8 @@ const SimpleTaskConfigurator = ({
   );
 
   const handleOnchange = (updatedJson) => {
-   setTaskLevelParams(updatedJson);
-   onChanged(true);
+    setTaskLevelParams(updatedJson);
+    onChanged(true);
   };
 
   return (
@@ -104,6 +104,7 @@ const SimpleTaskConfigurator = ({
         schema={simpleTaskSchema}
         initialTaskLevelParams={initialTaskLevelParams}
         onChange={handleOnchange}
+        taskType={"SIMPLE"}
       />
 
       <ParameterExpressionToggle
@@ -113,6 +114,7 @@ const SimpleTaskConfigurator = ({
         setInputParameters={setInputParameters}
         inputExpression={inputExpression}
         setInputExpression={setInputExpression}
+        onChange={onChanged}
       />
     </div>
   );

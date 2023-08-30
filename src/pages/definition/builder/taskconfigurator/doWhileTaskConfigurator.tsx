@@ -11,7 +11,7 @@ import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell
 import JsonInput from "../../../../components/JsonInput";
 import _ from "lodash";
 import { TaskConfiguratorProps } from "../TaskConfigPanel";
-import { doWhileTaskParameters } from "../../../../schema/task/doWhileTask";
+import { doWhileTaskSchema } from "../../../../schema/task/doWhileTask";
 
 const taskFormStyle = {
   minHeight: 282.5,

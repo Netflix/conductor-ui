@@ -11,6 +11,7 @@ const ParameterExpressionToggle = ({
   setInputParameters,
   inputExpression,
   setInputExpression,
+  onChange,
 }) => {
   const handleToggleButtonChange = (event, newSelection) => {
     setParameterOrExpression(newSelection);
@@ -35,7 +36,10 @@ const ParameterExpressionToggle = ({
           key="parameter"
           label="inputParameters"
           value={inputParameters}
-          onChange={(v) => setInputParameters(v!)}
+          onChange={(v) => {
+            setInputParameters(v!);
+            onChange(true);
+          }}
         />
       )}
       {parameterOrExpression === "expression" && (
@@ -44,7 +48,10 @@ const ParameterExpressionToggle = ({
           label="inputExpression"
           language="plaintext"
           value={inputExpression}
-          onChange={(v) => setInputExpression(v!)}
+          onChange={(v) => {
+            setInputExpression(v!);
+            onChange(true);
+          }}
         />
       )}
     </div>

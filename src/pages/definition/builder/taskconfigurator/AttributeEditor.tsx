@@ -4,7 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 import {
   booleanEditorProps,
   dataSourceToObject,
+  evaluatorTypeEditorProps,
   getRowStyle,
+  terminationStatusEditorProps,
 } from "./TaskConfiguratorUtils";
 import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
 import SelectEditor from "@inovua/reactdatagrid-community/SelectEditor";
@@ -54,7 +56,18 @@ const columns = [
         case "boolean":
           return <SelectEditor {...Props} editorProps={booleanEditorProps} />;
         default:
-          return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
+          if (data.key === "terminationStatus") {
+            return (
+              <SelectEditor
+                {...Props}
+                editorProps={terminationStatusEditorProps}
+              />
+            );
+          } else if (data.key === "evaluatorType") {
+            return (
+              <SelectEditor {...Props} editorProps={evaluatorTypeEditorProps} />
+            );
+          } else return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
       }
     },
   },
@@ -63,12 +76,30 @@ const columns = [
   { name: "type", header: "Type", defaultVisible: false },
 ];
 
-const taskFormStyle = {
-  minHeight: 282.5,
-  margin: "15px 0",
+const taskFormStyle = (taskType) => {
+  if (taskType === "TERMINATE") {
+    return {
+      minHeight: 362.5,
+      margin: "15px 0",
+    };
+  } else if (taskType === "INLINE") {
+    return {
+      minHeight: 322.5,
+      margin: "15px 0",
+    };
+  } else
+    return {
+      minHeight: 282.5,
+      margin: "15px 0",
+    };
 };
 
-function AttributeEditor({ schema, initialTaskLevelParams, onChange }) {
+function AttributeEditor({
+  schema,
+  initialTaskLevelParams,
+  onChange,
+  taskType,
+}) {
   const [dataSource, setDataSource] = useState<any[]>([]);
 
   useEffect(() => {
@@ -88,9 +119,18 @@ function AttributeEditor({ schema, initialTaskLevelParams, onChange }) {
           param.changed = true;
         }
       }
+      if (
+        (taskType === "TERMINAL" || taskType === "INLINE") &&
+        initialTaskLevelParams.inputParameters.hasOwnProperty(param.key)
+      ) {
+        const newValue = initialTaskLevelParams.inputParameters[param.key];
+        if (param.value !== newValue) {
+          param.value = newValue;
+          param.changed = true;
+        }
+      }
     }
     setDataSource(taskLevelParams);
-
   }, [initialTaskLevelParams]);
 
   const handleDataSource = useCallback(
@@ -107,7 +147,7 @@ function AttributeEditor({ schema, initialTaskLevelParams, onChange }) {
       data[rowId].changed = true;
       const returnValue = {
         ...initialTaskLevelParams,
-        ...dataSourceToObject(data),
+        ...dataSourceToObject(data, taskType),
       };
       console.log("returnValue", returnValue);
       setDataSource(data);
@@ -116,11 +156,12 @@ function AttributeEditor({ schema, initialTaskLevelParams, onChange }) {
     [dataSource],
   );
   console.log(dataSource);
+  console.log(initialTaskLevelParams);
 
   return (
     <ReactDataGrid
       idProperty="id"
-      style={taskFormStyle}
+      style={taskFormStyle(taskType)}
       onEditComplete={handleDataSource}
       editable={true}
       columns={columns as any}

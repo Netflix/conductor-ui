@@ -1,66 +1,57 @@
 import { TerminateTaskConfig } from "../../types/workflowDef";
 
-export const terminateTaskParameters = [
+export const terminateTaskSchema = [
   {
-    id: 0,
     key: "name",
-    value: "",
-    changed: false,
+    default: "",
     required: true,
     type: "string",
   },
   {
-    id: 1,
     key: "taskReferenceName",
-    value: "",
-    changed: false,
+    default: "",
     required: true,
+    type: "string",
   },
   {
-    id: 2,
     key: "description",
-    value: "",
-    changed: false,
+    default: "",
     required: false,
     type: "string",
   },
   {
-    id: 3,
-    key: "startDelay",
-    value: 0,
-    changed: false,
-    required: false,
-    type: "int",
-  },
-  {
-    id: 4,
-    key: "rateLimited",
-    value: false,
-    changed: false,
+    key: "optional",
+    default: false,
     required: false,
     type: "boolean",
   },
   {
-    id: 5,
-    key: "retryCount",
-    value: 0,
-    changed: false,
+    key: "startDelay",
+    default: 0,
     required: false,
     type: "int",
   },
   {
-    id: 6,
+    key: "rateLimited",
+    default: false,
+    required: false,
+    type: "boolean",
+  },
+  {
+    key: "retryCount",
+    default: 0,
+    required: false,
+    type: "int",
+  },
+  {
     key: "terminationStatus",
-    value: "COMPLETED",
-    changed: false,
+    default: "COMPLETED",
     required: true,
     type: "string",
   },
   {
-    id: 7,
     key: "terminationReason",
-    value: "",
-    changed: false,
+    default: "",
     required: false,
     type: "string",
   },
@@ -72,7 +63,7 @@ export function createTerminateTaskParams(taskReferenceName) {
 
   taskParams["type"] = "TERMINATE";
 
-  terminateTaskParameters.forEach((parameter) => {
+  terminateTaskSchema.forEach((parameter) => {
     // Only expose fields that are marked as required
     if (parameter.required === true) {
       // Sets the value as the respective input if the key matches "name" or "taskReferenceName", otherwise, uses the default value
@@ -81,9 +72,9 @@ export function createTerminateTaskParams(taskReferenceName) {
       } else if (parameter.key === "taskReferenceName") {
         taskParams[parameter.key] = taskReferenceName;
       } else if (parameter.key === "terminationStatus") {
-        inputParameters[parameter.key] = parameter.value;
+        inputParameters[parameter.key] = parameter.default;
       } else {
-        taskParams[parameter.key] = parameter.value;
+        taskParams[parameter.key] = parameter.default;
       }
     }
   });
