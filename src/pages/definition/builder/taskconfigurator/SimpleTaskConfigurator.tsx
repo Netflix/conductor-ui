@@ -79,12 +79,15 @@ const SimpleTaskConfigurator = ({
     taskLevelParams,
   ]);
 
-  console.log(taskLevelParams);
-
   const initialTaskLevelParams = useMemo(
     () => extractTaskLevelParams(initialConfig),
     [initialConfig],
   );
+
+  const handleOnchange = (updatedJson) => {
+   setTaskLevelParams(updatedJson);
+   onChanged(true);
+  };
 
   return (
     <div className={classes.container}>
@@ -100,7 +103,7 @@ const SimpleTaskConfigurator = ({
       <AttributeEditor
         schema={simpleTaskSchema}
         initialTaskLevelParams={initialTaskLevelParams}
-        onChange={setTaskLevelParams}
+        onChange={handleOnchange}
       />
 
       <ParameterExpressionToggle
