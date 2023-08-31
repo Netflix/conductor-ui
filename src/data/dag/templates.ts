@@ -25,6 +25,7 @@ import {
   createNewJoinTask,
   createNewJoinTaskForDynamicFork,
 } from "../../schema/task/joinTask";
+import { createNewForkJoinTask } from "../../schema/task/forkJoinTask";
 export const templates: {
   [key in TaskConfigType]: (ref: string) => TaskConfig[];
 } = {
@@ -46,13 +47,7 @@ export const templates: {
     return [retval];
   },
   FORK_JOIN: (ref) => {
-    const fork: ForkTaskConfig = {
-      inputParameters: {},
-      taskReferenceName: ref,
-      type: "FORK_JOIN",
-      name: ref,
-      forkTasks: [],
-    };
+    const fork: ForkTaskConfig = createNewForkJoinTask(ref);
 
     const join: JoinTaskConfig = createNewJoinTask(ref + "_join");
     return [fork, join];

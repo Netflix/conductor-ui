@@ -5,6 +5,7 @@ import InlineTaskConfigurator from "./taskconfigurator/InlineTaskConfigurator";
 import TaskConfigurator from "./taskconfigurator/SimpleTaskConfigurator";
 import {
   DoWhileTaskConfig,
+  ForkTaskConfig,
   JoinTaskConfig,
   TaskConfig,
 } from "../../../types/workflowDef";
@@ -13,6 +14,7 @@ import WaitTaskConfigurator from "./taskconfigurator/WaitTaskConfigurator";
 import JQTransformTaskConfigurator from "./taskconfigurator/JQTransformTaskConfigurator";
 import DOWHILETaskConfigurator from "./taskconfigurator/DoWhileTaskConfigurator";
 import JoinTaskConfigurator from "./taskconfigurator/JoinTaskConfigurator";
+import ForkJoinTaskConfigurator from "./taskconfigurator/ForkJoinTaskConfigurator";
 
 export type TaskConfiguratorProps = {
   initialConfig: TaskConfig;
@@ -114,6 +116,12 @@ export default function TaskConfigPanel({
         <JoinTaskConfigurator
           onUpdate={handleTaskConfiguratorUpdate}
           initialConfig={taskConfig as JoinTaskConfig}
+          onChanged={handleTaskChanged}
+        />
+      ) : taskConfig !== null && taskConfig.type === "FORK_JOIN" ? (
+        <ForkJoinTaskConfigurator
+          onUpdate={handleTaskConfiguratorUpdate}
+          initialConfig={taskConfig as ForkTaskConfig}
           onChanged={handleTaskChanged}
         />
       ) : (
