@@ -87,6 +87,11 @@ const taskFormStyle = (taskType) => {
       minHeight: 322.5,
       margin: "15px 0",
     };
+  } else if (taskType === "JOIN") {
+    return {
+      minHeight: 162.5,
+      margin: "15px 0",
+    };
   } else
     return {
       minHeight: 282.5,

@@ -15,12 +15,16 @@ import {
   WaitTaskConfig,
 } from "../../types/workflowDef";
 import { createNewSimpleTask } from "../../schema/task/simpleTask";
-import { createInlineTaskParams } from "../../schema/task/inlineTask";
-import { createHttpTaskParams } from "../../schema/task/httpTask";
-import { createTerminateTaskParams } from "../../schema/task/terminateTask";
-import { createWaitTaskParams } from "../../schema/task/waitTask";
-import { createJQTransformTaskParams } from "../../schema/task/JQTransformTask";
-import { createDoWhileTaskParams } from "../../schema/task/doWhileTask";
+import { createNewInlineTask } from "../../schema/task/inlineTask";
+import { createNewHttpTask } from "../../schema/task/httpTask";
+import { createNewTerminateTask } from "../../schema/task/terminateTask";
+import { createNewWaitTask } from "../../schema/task/waitTask";
+import { createNewJQTransformTask } from "../../schema/task/JQTransformTask";
+import { createNewDoWhileTask } from "../../schema/task/doWhileTask";
+import {
+  createNewJoinTask,
+  createNewJoinTaskForDynamicFork,
+} from "../../schema/task/joinTask";
 export const templates: {
   [key in TaskConfigType]: (ref: string) => TaskConfig[];
 } = {
@@ -50,13 +54,7 @@ export const templates: {
       forkTasks: [],
     };
 
-    const join: JoinTaskConfig = {
-      inputParameters: {},
-      taskReferenceName: ref + "_join",
-      type: "JOIN",
-      name: ref + "_join",
-      joinOn: [],
-    };
+    const join: JoinTaskConfig = createNewJoinTask(ref + "_join");
     return [fork, join];
   },
   FORK_JOIN_DYNAMIC: (ref) => {
@@ -68,21 +66,15 @@ export const templates: {
       dynamicForkTasksParam: "",
     };
 
-    const join: JoinTaskConfig = {
-      inputParameters: {},
-      taskReferenceName: ref + "_join",
-      type: "JOIN",
-      name: ref + "_join",
-      joinOn: [],
-    };
+    const join: JoinTaskConfig = createNewJoinTaskForDynamicFork(ref + "_join");
     return [fork, join];
   },
   DO_WHILE: (ref) => {
-    const retval: DoWhileTaskConfig = createDoWhileTaskParams(ref);
+    const retval: DoWhileTaskConfig = createNewDoWhileTask(ref);
     return [retval];
   },
   HTTP: (ref: string) => {
-    const retval: HttpTaskConfig = createHttpTaskParams(ref);
+    const retval: HttpTaskConfig = createNewHttpTask(ref);
     return [retval];
   },
   SUB_WORKFLOW: (ref) => {
@@ -96,19 +88,19 @@ export const templates: {
     return [retval];
   },
   TERMINATE: (ref: string) => {
-    const retval: TerminateTaskConfig = createTerminateTaskParams(ref);
+    const retval: TerminateTaskConfig = createNewTerminateTask(ref);
     return [retval];
   },
   JSON_JQ_TRANSFORM: (ref) => {
-    const retval: JQTransformTaskConfig = createJQTransformTaskParams(ref);
+    const retval: JQTransformTaskConfig = createNewJQTransformTask(ref);
     return [retval];
   },
   INLINE: (ref) => {
-    const retval: InlineTaskConfig = createInlineTaskParams(ref);
+    const retval: InlineTaskConfig = createNewInlineTask(ref);
     return [retval];
   },
   WAIT: (ref) => {
-    const retval: WaitTaskConfig = createWaitTaskParams(ref);
+    const retval: WaitTaskConfig = createNewWaitTask(ref);
     return [retval];
   },
   DECISION: (ref) => [],

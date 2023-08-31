@@ -45,7 +45,7 @@ export const JQTransformTaskSchema = [
   },
 ];
 
-export function createJQTransformTaskParams(taskReferenceName) {
+export function createNewJQTransformTask(taskReferenceName) {
   let taskParams = {};
 
   JQTransformTaskSchema.forEach((parameter) => {

@@ -57,7 +57,7 @@ export const terminateTaskSchema = [
   },
 ];
 
-export function createTerminateTaskParams(taskReferenceName) {
+export function createNewTerminateTask(taskReferenceName) {
   let taskParams = {};
   let inputParameters = {};
 

@@ -151,7 +151,7 @@ export const httpRequestParameters = [
   },
 ];
 
-export function createHttpTaskParams(taskReferenceName) {
+export function createNewHttpTask(taskReferenceName) {
   let taskParams = {};
   let httpRequest = {};
 

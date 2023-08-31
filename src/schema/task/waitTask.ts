@@ -45,7 +45,7 @@ export const waitTaskSchema = [
   },
 ];
 
-export function createWaitTaskParams(taskReferenceName) {
+export function createNewWaitTask(taskReferenceName) {
   let taskParams = {};
 
   waitTaskSchema.forEach((parameter) => {

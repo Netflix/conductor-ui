@@ -45,7 +45,7 @@ export const doWhileTaskSchema = [
   },
 ];
 
-export function createDoWhileTaskParams(taskReferenceName) {
+export function createNewDoWhileTask(taskReferenceName) {
   let taskParams = {};
 
   doWhileTaskSchema.forEach((parameter) => {

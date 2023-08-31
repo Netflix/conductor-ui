@@ -52,7 +52,7 @@ export const inlineTaskSchema = [
   },
 ];
 
-export function createInlineTaskParams(taskReferenceName) {
+export function createNewInlineTask(taskReferenceName) {
   let taskParams = {};
   let inputParameters = {};
 
