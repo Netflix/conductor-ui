@@ -5,6 +5,7 @@ import InlineTaskConfigurator from "./taskconfigurator/InlineTaskConfigurator";
 import TaskConfigurator from "./taskconfigurator/SimpleTaskConfigurator";
 import {
   DoWhileTaskConfig,
+  DynamicForkTaskConfig,
   ForkTaskConfig,
   JoinTaskConfig,
   TaskConfig,
@@ -15,6 +16,7 @@ import JQTransformTaskConfigurator from "./taskconfigurator/JQTransformTaskConfi
 import DOWHILETaskConfigurator from "./taskconfigurator/DoWhileTaskConfigurator";
 import JoinTaskConfigurator from "./taskconfigurator/JoinTaskConfigurator";
 import ForkJoinTaskConfigurator from "./taskconfigurator/ForkJoinTaskConfigurator";
+import ForkJoinDynamicTaskConfigurator from "./taskconfigurator/ForkJoinDynamicTaskConfigurator";
 
 export type TaskConfiguratorProps = {
   initialConfig: TaskConfig;
@@ -124,6 +126,12 @@ export default function TaskConfigPanel({
           initialConfig={taskConfig as ForkTaskConfig}
           onChanged={handleTaskChanged}
         />
+        ) : taskConfig !== null && taskConfig.type === "FORK_JOIN_DYNAMIC" ? (
+          <ForkJoinDynamicTaskConfigurator
+            onUpdate={handleTaskConfiguratorUpdate}
+            initialConfig={taskConfig as DynamicForkTaskConfig}
+            onChanged={handleTaskChanged}
+          />
       ) : (
         <div>
           Task Type not currently supported by Task Configurator. Please use the

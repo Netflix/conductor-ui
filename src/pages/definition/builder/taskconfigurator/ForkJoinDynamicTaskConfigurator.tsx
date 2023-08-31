@@ -4,19 +4,22 @@ import _, { cloneDeep } from "lodash";
 import { TaskConfiguratorProps } from "../TaskConfigPanel";
 import { useStyles } from "./TaskConfiguratorUtils";
 import AttributeEditor from "./AttributeEditor";
-import { forkJoinTaskSchema } from "../../../../schema/task/forkJoinTask";
+import JsonInput from "../../../../components/JsonInput";
+import { forkJoinDynamicTaskSchema } from "../../../../schema/task/forkJoinDynamicTask";
 
-const ForkJoinTaskConfigurator = ({
+const ForkJoinDynamicTaskConfigurator = ({
   initialConfig,
   onUpdate,
   onChanged,
 }: TaskConfiguratorProps) => {
   const classes = useStyles();
   const [taskLevelParams, setTaskLevelParams] = useState<any>({});
+  const [inputParameters, setInputParameters] = useState<string>("{}");
 
   // Initialize data sources and state
   useEffect(() => {
     setTaskLevelParams(extractTaskLevelParams(initialConfig));
+    setInputParameters(JSON.stringify(initialConfig.inputParameters));
     // Reset changed
     onChanged(false);
 
@@ -26,10 +29,17 @@ const ForkJoinTaskConfigurator = ({
   const handleApply = useCallback(() => {
     const newTaskConfig = _.cloneDeep(taskLevelParams)!;
 
+    newTaskConfig.inputParameters = JSON.parse(inputParameters);
+
     console.log(newTaskConfig);
 
     onUpdate(newTaskConfig);
-  }, [initialConfig, , onUpdate, taskLevelParams]);
+  }, [
+    initialConfig,
+    onUpdate,
+    inputParameters,
+    taskLevelParams,
+  ]);
 
   const initialTaskLevelParams = useMemo(
     () => extractTaskLevelParams(initialConfig),
@@ -53,10 +63,21 @@ const ForkJoinTaskConfigurator = ({
       </div>
       <div>Double-click on value to edit</div>
       <AttributeEditor
-        schema={forkJoinTaskSchema}
+        schema={forkJoinDynamicTaskSchema}
         initialTaskLevelParams={initialTaskLevelParams}
         onChange={handleOnchange}
-        taskType={"FORK_JOIN"}
+        taskType={"FORK_JOIN_DYNAMIC"}
+      />
+
+      <JsonInput
+        key="inputParameters"
+        label="inputParameters"
+        value={inputParameters}
+        style={{ marginBottom: "15px" }}
+        onChange={(v) => {
+          setInputParameters(v!);
+          onChanged(true);
+        }}
       />
     </div>
   );
@@ -68,4 +89,4 @@ const extractTaskLevelParams = (taskConfig) => {
   return params;
 };
 
-export default ForkJoinTaskConfigurator;
+export default ForkJoinDynamicTaskConfigurator;

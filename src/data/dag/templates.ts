@@ -26,6 +26,7 @@ import {
   createNewJoinTaskForDynamicFork,
 } from "../../schema/task/joinTask";
 import { createNewForkJoinTask } from "../../schema/task/forkJoinTask";
+import { createNewForkJoinDynamicTask } from "../../schema/task/forkJoinDynamicTask";
 export const templates: {
   [key in TaskConfigType]: (ref: string) => TaskConfig[];
 } = {
@@ -53,13 +54,7 @@ export const templates: {
     return [fork, join];
   },
   FORK_JOIN_DYNAMIC: (ref) => {
-    const fork: DynamicForkTaskConfig = {
-      inputParameters: {},
-      taskReferenceName: ref,
-      type: "FORK_JOIN_DYNAMIC",
-      name: ref,
-      dynamicForkTasksParam: "",
-    };
+    const fork: DynamicForkTaskConfig = createNewForkJoinDynamicTask(ref);
 
     const join: JoinTaskConfig = createNewJoinTaskForDynamicFork(ref + "_join");
     return [fork, join];
