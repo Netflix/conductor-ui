@@ -97,8 +97,12 @@ const taskFormStyle = (taskType) => {
       minHeight: 242.5,
       margin: "15px 0",
     };
-  }
-  else
+  } else if (taskType === "SWITCH") {
+    return {
+      minHeight: 202.5,
+      margin: "15px 0",
+    };
+  } else
     return {
       minHeight: 282.5,
       margin: "15px 0",

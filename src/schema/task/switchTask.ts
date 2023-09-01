@@ -1,6 +1,6 @@
-import { DynamicForkTaskConfig } from "../../types/workflowDef";
+import { SwitchTaskConfig } from "../../types/workflowDef";
 
-export const forkJoinDynamicTaskSchema = [
+export const SwitchTaskSchema = [
   {
     key: "name",
     default: "",
@@ -26,23 +26,17 @@ export const forkJoinDynamicTaskSchema = [
     type: "boolean",
   },
   {
-    key: "dynamicForkTasksParam",
-    default: "",
-    required: true,
-    type: "string",
-  },
-  {
-    key: "dynamicForkTasksInputParamName",
-    default: "",
+    key: "evaluatorType",
+    default: "javascript",
     required: true,
     type: "string",
   },
 ];
 
-export function createNewForkJoinDynamicTask(taskReferenceName) {
+export function createNewSwitchTask(taskReferenceName) {
   let taskConfig = {};
 
-  forkJoinDynamicTaskSchema.forEach((parameter) => {
+  SwitchTaskSchema.forEach((parameter) => {
     // Only expose fields that are marked as required
     if (parameter.required === true) {
       // Sets the value as the respective input if the key matches "name" or "taskReferenceName", otherwise, uses the default value
@@ -55,10 +49,12 @@ export function createNewForkJoinDynamicTask(taskReferenceName) {
       }
     }
   });
-  taskConfig["type"] = "FORK_JOIN_DYNAMIC";
+  taskConfig["type"] = "SWITCH";
   taskConfig["inputParameters"] = {};
-  taskConfig["dynamicForkTasksParam"] = "";
-  taskConfig["dynamicForkTasksInputParamName"] = "";
+  taskConfig["evaluatorType"] = "javascript";
+  taskConfig["expression"] = "";
+  taskConfig["decisionCases"] = {};
+  taskConfig["defaultCase"] = [];
 
-  return taskConfig as DynamicForkTaskConfig;
+  return taskConfig as SwitchTaskConfig;
 }

@@ -27,6 +27,7 @@ import {
 } from "../../schema/task/joinTask";
 import { createNewForkJoinTask } from "../../schema/task/forkJoinTask";
 import { createNewForkJoinDynamicTask } from "../../schema/task/forkJoinDynamicTask";
+import { createNewSwitchTask } from "../../schema/task/switchTask";
 export const templates: {
   [key in TaskConfigType]: (ref: string) => TaskConfig[];
 } = {
@@ -35,16 +36,7 @@ export const templates: {
     return [retval];
   },
   SWITCH: (ref) => {
-    const retval: SwitchTaskConfig = {
-      inputParameters: {},
-      taskReferenceName: ref,
-      type: "SWITCH",
-      name: ref,
-      defaultCase: [],
-      evaluatorType: "",
-      expression: "",
-      decisionCases: {},
-    };
+    const retval: SwitchTaskConfig = createNewSwitchTask(ref);
     return [retval];
   },
   FORK_JOIN: (ref) => {

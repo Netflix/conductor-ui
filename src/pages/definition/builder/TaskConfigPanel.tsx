@@ -8,6 +8,7 @@ import {
   DynamicForkTaskConfig,
   ForkTaskConfig,
   JoinTaskConfig,
+  SwitchTaskConfig,
   TaskConfig,
 } from "../../../types/workflowDef";
 import TerminateTaskConfigurator from "./taskconfigurator/TerminateTaskConfigurator";
@@ -17,6 +18,7 @@ import DOWHILETaskConfigurator from "./taskconfigurator/DoWhileTaskConfigurator"
 import JoinTaskConfigurator from "./taskconfigurator/JoinTaskConfigurator";
 import ForkJoinTaskConfigurator from "./taskconfigurator/ForkJoinTaskConfigurator";
 import ForkJoinDynamicTaskConfigurator from "./taskconfigurator/ForkJoinDynamicTaskConfigurator";
+import SwitchTaskConfigurator from "./taskconfigurator/SwitchTaskConfigurator";
 
 export type TaskConfiguratorProps = {
   initialConfig: TaskConfig;
@@ -126,12 +128,18 @@ export default function TaskConfigPanel({
           initialConfig={taskConfig as ForkTaskConfig}
           onChanged={handleTaskChanged}
         />
-        ) : taskConfig !== null && taskConfig.type === "FORK_JOIN_DYNAMIC" ? (
-          <ForkJoinDynamicTaskConfigurator
-            onUpdate={handleTaskConfiguratorUpdate}
-            initialConfig={taskConfig as DynamicForkTaskConfig}
-            onChanged={handleTaskChanged}
-          />
+      ) : taskConfig !== null && taskConfig.type === "FORK_JOIN_DYNAMIC" ? (
+        <ForkJoinDynamicTaskConfigurator
+          onUpdate={handleTaskConfiguratorUpdate}
+          initialConfig={taskConfig as DynamicForkTaskConfig}
+          onChanged={handleTaskChanged}
+        />
+      ) : taskConfig !== null && taskConfig.type === "SWITCH" ? (
+        <SwitchTaskConfigurator
+          onUpdate={handleTaskConfiguratorUpdate}
+          initialConfig={taskConfig as SwitchTaskConfig}
+          onChanged={handleTaskChanged}
+        />
       ) : (
         <div>
           Task Type not currently supported by Task Configurator. Please use the
