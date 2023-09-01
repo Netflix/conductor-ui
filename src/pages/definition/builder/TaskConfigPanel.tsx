@@ -8,6 +8,7 @@ import {
   DynamicForkTaskConfig,
   ForkTaskConfig,
   JoinTaskConfig,
+  SubworkflowTaskConfig,
   SwitchTaskConfig,
   TaskConfig,
 } from "../../../types/workflowDef";
@@ -19,6 +20,7 @@ import JoinTaskConfigurator from "./taskconfigurator/JoinTaskConfigurator";
 import ForkJoinTaskConfigurator from "./taskconfigurator/ForkJoinTaskConfigurator";
 import ForkJoinDynamicTaskConfigurator from "./taskconfigurator/ForkJoinDynamicTaskConfigurator";
 import SwitchTaskConfigurator from "./taskconfigurator/SwitchTaskConfigurator";
+import SubWorkflowTaskConfigurator from "./taskconfigurator/SubWorkflowTaskConfigurator";
 
 export type TaskConfiguratorProps = {
   initialConfig: TaskConfig;
@@ -138,6 +140,12 @@ export default function TaskConfigPanel({
         <SwitchTaskConfigurator
           onUpdate={handleTaskConfiguratorUpdate}
           initialConfig={taskConfig as SwitchTaskConfig}
+          onChanged={handleTaskChanged}
+        />
+      ) : taskConfig !== null && taskConfig.type === "SUB_WORKFLOW" ? (
+        <SubWorkflowTaskConfigurator
+          onUpdate={handleTaskConfiguratorUpdate}
+          initialConfig={taskConfig as SubworkflowTaskConfig}
           onChanged={handleTaskChanged}
         />
       ) : (

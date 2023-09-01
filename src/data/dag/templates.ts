@@ -28,6 +28,7 @@ import {
 import { createNewForkJoinTask } from "../../schema/task/forkJoinTask";
 import { createNewForkJoinDynamicTask } from "../../schema/task/forkJoinDynamicTask";
 import { createNewSwitchTask } from "../../schema/task/switchTask";
+import { createNewSubWorkflowTask } from "../../schema/task/subWorkflowTask";
 export const templates: {
   [key in TaskConfigType]: (ref: string) => TaskConfig[];
 } = {
@@ -60,13 +61,7 @@ export const templates: {
     return [retval];
   },
   SUB_WORKFLOW: (ref) => {
-    const retval: SubworkflowTaskConfig = {
-      inputParameters: {},
-      taskReferenceName: ref,
-      type: "SUB_WORKFLOW",
-      name: ref,
-      subWorkflowParam: {},
-    };
+    const retval: SubworkflowTaskConfig = createNewSubWorkflowTask(ref);
     return [retval];
   },
   TERMINATE: (ref: string) => {

@@ -82,7 +82,7 @@ const taskFormStyle = (taskType) => {
       minHeight: 362.5,
       margin: "15px 0",
     };
-  } else if (taskType === "INLINE") {
+  } else if (taskType === "INLINE" || taskType === "SUB_WORKFLOW") {
     return {
       minHeight: 322.5,
       margin: "15px 0",
@@ -142,6 +142,20 @@ function AttributeEditor({
         if (param.value !== newValue) {
           param.value = newValue;
           param.changed = true;
+        }
+      } else if (taskType === "SUB_WORKFLOW") {
+        if (param.key === "subWorkflowParam.name") {
+          const newValue = initialTaskLevelParams.subWorkflowParam["name"];
+          if (param.value !== newValue) {
+            param.value = newValue;
+            param.changed = true;
+          }
+        } else if (param.key === "subWorkflowParam.version") {
+          const newValue = initialTaskLevelParams.subWorkflowParam["version"];
+          if (param.value !== newValue) {
+            param.value = newValue;
+            param.changed = true;
+          }
         }
       }
     }

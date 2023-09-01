@@ -57,6 +57,19 @@ export function dataSourceToObject(data, taskType) {
     }
     return returnValue;
   }
+
+  if (taskType === "SUB_WORKFLOW") {
+    const returnValue = { subWorkflowParam: {} };
+    for (const key in obj) {
+      if (key === "subWorkflowParam.name") {
+        returnValue["subWorkflowParam"]["name"] = obj[key];
+      } else if (key === "subWorkflowParam.version") {
+        returnValue["subWorkflowParam"]["version"] = obj[key];
+      } else returnValue[key] = obj[key];
+    }
+    return returnValue;
+  }
+
   return obj;
 }
 
