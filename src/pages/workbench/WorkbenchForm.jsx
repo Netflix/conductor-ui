@@ -1,7 +1,6 @@
 import { Text, Pill } from "../../components";
 import { Toolbar, IconButton, Tooltip } from "@material-ui/core";
 import FormikInput from "../../components/formik/FormikInput";
-import FormikJsonInput from "../../components/formik/FormikJsonInput";
 import { makeStyles } from "@material-ui/styles";
 import _ from "lodash";
 import { Form, setNestedObjectValues, withFormik } from "formik";
@@ -144,6 +143,66 @@ function WorkbenchForm(props) {
     });
   }
 
+  // const [field, meta, helpers] = useField(props);
+  var workflowInput = 'hello world';
+
+  function showFile  (e) { 
+    e.preventDefault();
+    const reader = new FileReader();
+    reader.onload = async (e) => { 
+      const text = (e.target.result);
+      console.log(text);
+      workflowInput = text;
+      console.log(workflowInput);
+
+      document.getElementById("InputJson").value = (text);
+
+       
+      var ugly = document.getElementById('InputJson').value;
+      var obj = JSON.parse(ugly);
+      var pretty = JSON.stringify(obj, undefined, 2);
+      document.getElementById('InputJson').value = pretty;
+    }; 
+    reader.readAsText(e.target.files[0]);
+  }
+
+  const useStylesField = makeStyles({
+    wrapper: {
+      width: "100%",
+    },
+    monaco: {
+      textAlign: "left",
+      paddingLeft: 10,
+      float: "left",
+      resize: "none",
+      width: "100%",
+      borderColor: "rgba(128, 128, 128, 0.2)",
+      borderStyle: "solid",
+      borderWidth: 1,
+      borderRadius: 4,
+      backgroundColor: "rgb(255, 255, 255)",
+      height: 200,
+      outline: 0,
+      "&:focus-within": {
+        margin: -2,
+        borderColor: "rgb(73, 105, 228)",
+        borderStyle: "solid",
+        borderWidth: 2,
+      },
+    },
+    label: {
+      display: "block",
+      fontFamily: 'Segoe UI',
+      fontSize: 13,
+      color: '#050505',
+      fontWeight: 600,
+      wordSpacing: 0,
+      margin: 0,
+      lineHeight: 0
+    },
+  });
+  const classesField = useStylesField();
+
   return (
     <Form className={classes.main}>
       <Toolbar className={classes.toolbar}>
@@ -190,25 +249,25 @@ function WorkbenchForm(props) {
           name="workflowVersion"
         />
 
-        <FormikJsonInput
-          reinitialize
-          height={200}
-          label="Input (JSON)"
-          name="workflowInput"
-        />
+        <label className={classesField.label}>Input (JSON)</label>
+        <input id="InputJson" type="text" className={classesField.monaco} />
+
+        <input type="file" accept=".json" onChange={(e) => showFile(e)} />
 
         <FormikInput fullWidth label="Correlation ID" name="correlationId" />
 
-        <FormikJsonInput
-          className={classes.field}
-          height={200}
-          label="Task to Domain (JSON)"
-          name="taskToDomain"
-        />
+
+        <label className={classesField.label}>Task to Domain (JSON)</label>
+        <input id="InputJson" type="text" className={classesField.monaco} />
+
+        <input type="file" accept=".json" onChange={(e) => showFile(e)} />
+
       </div>
     </Form>
   );
 }
+
+
 
 function runPayloadToFormData(runPayload) {
   return {
