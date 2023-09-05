@@ -6,11 +6,10 @@ export type DataSourceEntry = {
   type: string;
   level: string;
   required: boolean;
-  
+
   value?: any;
   changed?: boolean;
-}
-
+};
 
 export const httpTaskLevelParameters = [
   {
@@ -152,7 +151,7 @@ export const httpRequestParameters = [
   },
 ];
 
-export function createHttpTaskParams(taskReferenceName) {
+export function createNewHttpTask(taskReferenceName) {
   let taskParams = {};
   let httpRequest = {};
 

@@ -1,37 +1,25 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Heading } from "../../../../components";
-import { cloneDeep } from "lodash";
+import _, { cloneDeep } from "lodash";
 import { TaskConfiguratorProps } from "../TaskConfigPanel";
 import { useStyles } from "./TaskConfiguratorUtils";
-import JsonInput from "../../../../components/JsonInput";
 import AttributeEditor from "./AttributeEditor";
-import { inlineTaskSchema } from "../../../../schema/task/inlineTask";
+import JsonInput from "../../../../components/JsonInput";
+import { forkJoinDynamicTaskSchema } from "../../../../schema/task/forkJoinDynamicTask";
 
-const InlineTaskConfigurator = ({
+const ForkJoinDynamicTaskConfigurator = ({
   initialConfig,
   onUpdate,
   onChanged,
 }: TaskConfiguratorProps) => {
   const classes = useStyles();
-
-  const [expression, setExpression] = useState<string>("");
-  const [additionalInputParameters, setAdditionalInputParameters] =
-    useState<string>("{}");
   const [taskLevelParams, setTaskLevelParams] = useState<any>({});
+  const [inputParameters, setInputParameters] = useState<string>("{}");
 
   // Initialize data sources and state
   useEffect(() => {
     setTaskLevelParams(extractTaskLevelParams(initialConfig));
-
-    const {
-      expression = "",
-      evaluatorType,
-      ...updatedRest
-    } = initialConfig.inputParameters || {};
-
-    setExpression(expression);
-    setAdditionalInputParameters(JSON.stringify(updatedRest));
-
+    setInputParameters(JSON.stringify(initialConfig.inputParameters));
     // Reset changed
     onChanged(false);
 
@@ -39,28 +27,19 @@ const InlineTaskConfigurator = ({
   }, [initialConfig]);
 
   const handleApply = useCallback(() => {
-    const newTaskConfig = cloneDeep(taskLevelParams)!;
-    const newInputParameters = {
-      ...JSON.parse(additionalInputParameters),
-      evaluatorType: newTaskConfig.inputParameters.evaluatorType,
-      expression: expression,
-    };
-    newTaskConfig.inputParameters = newInputParameters;
+    const newTaskConfig = _.cloneDeep(taskLevelParams)!;
+
+    newTaskConfig.inputParameters = JSON.parse(inputParameters);
+
     console.log(newTaskConfig);
+
     onUpdate(newTaskConfig);
-  }, [
-    onUpdate,
-    taskLevelParams,
-    expression,
-    additionalInputParameters,
-  ]);
+  }, [onUpdate, inputParameters, taskLevelParams]);
 
   const initialTaskLevelParams = useMemo(
     () => extractTaskLevelParams(initialConfig),
     [initialConfig],
   );
-
-  console.log(initialConfig);
 
   const handleOnchange = (updatedJson) => {
     setTaskLevelParams(updatedJson);
@@ -79,30 +58,19 @@ const InlineTaskConfigurator = ({
       </div>
       <div>Double-click on value to edit</div>
       <AttributeEditor
-        schema={inlineTaskSchema}
+        schema={forkJoinDynamicTaskSchema}
         initialTaskLevelParams={initialTaskLevelParams}
         onChange={handleOnchange}
-        taskType={"INLINE"}
+        taskType={"FORK_JOIN_DYNAMIC"}
       />
 
       <JsonInput
-        key="expression"
-        label="expression"
-        value={expression}
+        key="inputParameters"
+        label="inputParameters"
+        value={inputParameters}
         style={{ marginBottom: "15px" }}
         onChange={(v) => {
-          setExpression(v!);
-          onChanged(true);
-        }}
-        language="javascript"
-      />
-      <JsonInput
-        key="additionalInputParameters"
-        label="Additional inputParameters"
-        value={additionalInputParameters}
-        style={{ marginBottom: "15px" }}
-        onChange={(v) => {
-          setAdditionalInputParameters(v!);
+          setInputParameters(v!);
           onChanged(true);
         }}
       />
@@ -113,10 +81,7 @@ const InlineTaskConfigurator = ({
 const extractTaskLevelParams = (taskConfig) => {
   const params = cloneDeep(taskConfig);
   delete params.inputExpression;
-  const evaluatorType = params.inputParameters.evaluatorType;
-  params.inputParameters = { evaluatorType: evaluatorType };
-  console.log(taskConfig);
   return params;
 };
 
-export default InlineTaskConfigurator;
+export default ForkJoinDynamicTaskConfigurator;

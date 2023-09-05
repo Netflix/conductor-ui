@@ -5,32 +5,35 @@ import { TaskConfiguratorProps } from "../TaskConfigPanel";
 import { useStyles } from "./TaskConfiguratorUtils";
 import JsonInput from "../../../../components/JsonInput";
 import AttributeEditor from "./AttributeEditor";
-import { inlineTaskSchema } from "../../../../schema/task/inlineTask";
+import { subWorkflowTaskSchema } from "../../../../schema/task/subWorkflowTask";
 
-const InlineTaskConfigurator = ({
+const SubWorkflowTaskConfigurator = ({
   initialConfig,
   onUpdate,
   onChanged,
 }: TaskConfiguratorProps) => {
   const classes = useStyles();
 
-  const [expression, setExpression] = useState<string>("");
-  const [additionalInputParameters, setAdditionalInputParameters] =
-    useState<string>("{}");
+  const [inputParameters, setInputParameters] = useState<string>("{}");
   const [taskLevelParams, setTaskLevelParams] = useState<any>({});
+  const [taskToDomain, setTaskToDomain] = useState<string>("{}");
+  const [workflowDefinition, setWorkflowDefinition] = useState<string>("{}");
 
   // Initialize data sources and state
   useEffect(() => {
     setTaskLevelParams(extractTaskLevelParams(initialConfig));
 
-    const {
-      expression = "",
-      evaluatorType,
-      ...updatedRest
-    } = initialConfig.inputParameters || {};
+    setInputParameters(JSON.stringify(initialConfig.inputParameters) || "{}");
 
-    setExpression(expression);
-    setAdditionalInputParameters(JSON.stringify(updatedRest));
+    if ("subWorkflowParam" in initialConfig) {
+      setTaskToDomain(
+        JSON.stringify(initialConfig.subWorkflowParam.taskToDomain) || "{}",
+      );
+      setWorkflowDefinition(
+        JSON.stringify(initialConfig.subWorkflowParam.workflowDefinition) ||
+          "{}",
+      );
+    }
 
     // Reset changed
     onChanged(false);
@@ -40,19 +43,18 @@ const InlineTaskConfigurator = ({
 
   const handleApply = useCallback(() => {
     const newTaskConfig = cloneDeep(taskLevelParams)!;
-    const newInputParameters = {
-      ...JSON.parse(additionalInputParameters),
-      evaluatorType: newTaskConfig.inputParameters.evaluatorType,
-      expression: expression,
-    };
-    newTaskConfig.inputParameters = newInputParameters;
+    newTaskConfig.inputParameters = JSON.parse(inputParameters);
+    newTaskConfig.subWorkflowParam.taskToDomain = JSON.parse(taskToDomain);
+    newTaskConfig.subWorkflowParam.workflowDefinition =
+      JSON.parse(workflowDefinition);
     console.log(newTaskConfig);
     onUpdate(newTaskConfig);
   }, [
     onUpdate,
     taskLevelParams,
-    expression,
-    additionalInputParameters,
+    inputParameters,
+    taskToDomain,
+    workflowDefinition,
   ]);
 
   const initialTaskLevelParams = useMemo(
@@ -79,30 +81,40 @@ const InlineTaskConfigurator = ({
       </div>
       <div>Double-click on value to edit</div>
       <AttributeEditor
-        schema={inlineTaskSchema}
+        schema={subWorkflowTaskSchema}
         initialTaskLevelParams={initialTaskLevelParams}
         onChange={handleOnchange}
-        taskType={"INLINE"}
+        taskType={"SUB_WORKFLOW"}
       />
 
       <JsonInput
-        key="expression"
-        label="expression"
-        value={expression}
+        key="taskToDomain"
+        label="taskToDomain"
+        value={taskToDomain}
         style={{ marginBottom: "15px" }}
         onChange={(v) => {
-          setExpression(v!);
+          setTaskToDomain(v!);
           onChanged(true);
         }}
-        language="javascript"
       />
+
       <JsonInput
-        key="additionalInputParameters"
-        label="Additional inputParameters"
-        value={additionalInputParameters}
+        key="workflowDefinition"
+        label="workflowDefinition"
+        value={workflowDefinition}
         style={{ marginBottom: "15px" }}
         onChange={(v) => {
-          setAdditionalInputParameters(v!);
+          setWorkflowDefinition(v!);
+          onChanged(true);
+        }}
+      />
+      <JsonInput
+        key="inputParameters"
+        label="inputParameters"
+        value={inputParameters}
+        style={{ marginBottom: "15px" }}
+        onChange={(v) => {
+          setInputParameters(v!);
           onChanged(true);
         }}
       />
@@ -113,10 +125,8 @@ const InlineTaskConfigurator = ({
 const extractTaskLevelParams = (taskConfig) => {
   const params = cloneDeep(taskConfig);
   delete params.inputExpression;
-  const evaluatorType = params.inputParameters.evaluatorType;
-  params.inputParameters = { evaluatorType: evaluatorType };
   console.log(taskConfig);
   return params;
 };
 
-export default InlineTaskConfigurator;
+export default SubWorkflowTaskConfigurator;

@@ -1,20 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Heading } from "../../../../components";
-import { cloneDeep } from "lodash";
+import _, { cloneDeep } from "lodash";
 import { TaskConfiguratorProps } from "../TaskConfigPanel";
 import { useStyles } from "./TaskConfiguratorUtils";
-import JsonInput from "../../../../components/JsonInput";
 import AttributeEditor from "./AttributeEditor";
-import { inlineTaskSchema } from "../../../../schema/task/inlineTask";
+import { JQTransformTaskSchema } from "../../../../schema/task/JQTransformTask";
+import JsonInput from "../../../../components/JsonInput";
 
-const InlineTaskConfigurator = ({
+const JQTransformTaskConfigurator = ({
   initialConfig,
   onUpdate,
   onChanged,
 }: TaskConfiguratorProps) => {
   const classes = useStyles();
-
-  const [expression, setExpression] = useState<string>("");
+  const [queryExpression, setQueryExpression] = useState<string>("{}");
   const [additionalInputParameters, setAdditionalInputParameters] =
     useState<string>("{}");
   const [taskLevelParams, setTaskLevelParams] = useState<any>({});
@@ -22,16 +21,10 @@ const InlineTaskConfigurator = ({
   // Initialize data sources and state
   useEffect(() => {
     setTaskLevelParams(extractTaskLevelParams(initialConfig));
-
-    const {
-      expression = "",
-      evaluatorType,
-      ...updatedRest
-    } = initialConfig.inputParameters || {};
-
-    setExpression(expression);
-    setAdditionalInputParameters(JSON.stringify(updatedRest));
-
+    // Initialize inputExpression
+    const { queryExpression, ...rest } = initialConfig.inputParameters || {};
+    setQueryExpression(queryExpression);
+    setAdditionalInputParameters(JSON.stringify(rest));
     // Reset changed
     onChanged(false);
 
@@ -39,19 +32,20 @@ const InlineTaskConfigurator = ({
   }, [initialConfig]);
 
   const handleApply = useCallback(() => {
-    const newTaskConfig = cloneDeep(taskLevelParams)!;
+    const newTaskConfig = _.cloneDeep(taskLevelParams)!;
+
     const newInputParameters = {
       ...JSON.parse(additionalInputParameters),
-      evaluatorType: newTaskConfig.inputParameters.evaluatorType,
-      expression: expression,
+      queryExpression: queryExpression,
     };
     newTaskConfig.inputParameters = newInputParameters;
     console.log(newTaskConfig);
+
     onUpdate(newTaskConfig);
   }, [
     onUpdate,
     taskLevelParams,
-    expression,
+    queryExpression,
     additionalInputParameters,
   ]);
 
@@ -59,8 +53,6 @@ const InlineTaskConfigurator = ({
     () => extractTaskLevelParams(initialConfig),
     [initialConfig],
   );
-
-  console.log(initialConfig);
 
   const handleOnchange = (updatedJson) => {
     setTaskLevelParams(updatedJson);
@@ -79,19 +71,19 @@ const InlineTaskConfigurator = ({
       </div>
       <div>Double-click on value to edit</div>
       <AttributeEditor
-        schema={inlineTaskSchema}
+        schema={JQTransformTaskSchema}
         initialTaskLevelParams={initialTaskLevelParams}
         onChange={handleOnchange}
-        taskType={"INLINE"}
+        taskType={"JQ_TRANSFORM"}
       />
 
       <JsonInput
-        key="expression"
-        label="expression"
-        value={expression}
+        key="queryExpression"
+        label="queryExpression"
+        value={queryExpression}
         style={{ marginBottom: "15px" }}
         onChange={(v) => {
-          setExpression(v!);
+          setQueryExpression(v!);
           onChanged(true);
         }}
         language="javascript"
@@ -113,10 +105,8 @@ const InlineTaskConfigurator = ({
 const extractTaskLevelParams = (taskConfig) => {
   const params = cloneDeep(taskConfig);
   delete params.inputExpression;
-  const evaluatorType = params.inputParameters.evaluatorType;
-  params.inputParameters = { evaluatorType: evaluatorType };
-  console.log(taskConfig);
+  delete params.inputParameters;
   return params;
 };
 
-export default InlineTaskConfigurator;
+export default JQTransformTaskConfigurator;

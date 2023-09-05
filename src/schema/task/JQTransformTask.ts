@@ -1,6 +1,6 @@
-import { TerminateTaskConfig } from "../../types/workflowDef";
+import { JQTransformTaskConfig } from "../../types/workflowDef";
 
-export const terminateTaskSchema = [
+export const JQTransformTaskSchema = [
   {
     key: "name",
     default: "",
@@ -43,27 +43,12 @@ export const terminateTaskSchema = [
     required: false,
     type: "int",
   },
-  {
-    key: "terminationStatus",
-    default: "COMPLETED",
-    required: true,
-    type: "string",
-  },
-  {
-    key: "terminationReason",
-    default: "",
-    required: false,
-    type: "string",
-  },
 ];
 
-export function createNewTerminateTask(taskReferenceName) {
+export function createNewJQTransformTask(taskReferenceName) {
   let taskParams = {};
-  let inputParameters = {};
 
-  taskParams["type"] = "TERMINATE";
-
-  terminateTaskSchema.forEach((parameter) => {
+  JQTransformTaskSchema.forEach((parameter) => {
     // Only expose fields that are marked as required
     if (parameter.required === true) {
       // Sets the value as the respective input if the key matches "name" or "taskReferenceName", otherwise, uses the default value
@@ -71,14 +56,13 @@ export function createNewTerminateTask(taskReferenceName) {
         taskParams[parameter.key] = taskReferenceName;
       } else if (parameter.key === "taskReferenceName") {
         taskParams[parameter.key] = taskReferenceName;
-      } else if (parameter.key === "terminationStatus") {
-        inputParameters[parameter.key] = parameter.default;
       } else {
         taskParams[parameter.key] = parameter.default;
       }
     }
   });
-  taskParams["inputParameters"] = inputParameters;
+  taskParams["type"] = "JSON_JQ_TRANSFORM";
+  taskParams["inputParameters"] = { queryExpression: "" };
 
-  return taskParams as TerminateTaskConfig;
+  return taskParams as JQTransformTaskConfig;
 }

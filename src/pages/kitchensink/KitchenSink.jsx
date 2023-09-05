@@ -405,18 +405,10 @@ const Buttons = () => {
             onChange={handleFormat}
             size="small"
           >
-            <ToggleButton value="bold">
-              Bold
-            </ToggleButton>
-            <ToggleButton value="italic">
-              Italic
-            </ToggleButton>
-            <ToggleButton value="underlined">
-              Underlined
-            </ToggleButton>
-            <ToggleButton value="color">
-              Color
-            </ToggleButton>
+            <ToggleButton value="bold">Bold</ToggleButton>
+            <ToggleButton value="italic">Italic</ToggleButton>
+            <ToggleButton value="underlined">Underlined</ToggleButton>
+            <ToggleButton value="color">Color</ToggleButton>
           </ToggleButtonGroup>
         </Grid>
         <Grid item>

@@ -1,6 +1,6 @@
-import { SimpleTaskConfig } from "../../types/workflowDef";
+import { DynamicForkTaskConfig } from "../../types/workflowDef";
 
-export const simpleTaskSchema = [
+export const forkJoinDynamicTaskSchema = [
   {
     key: "name",
     default: "",
@@ -26,29 +26,23 @@ export const simpleTaskSchema = [
     type: "boolean",
   },
   {
-    key: "startDelay",
-    default: 0,
-    required: false,
-    type: "int",
+    key: "dynamicForkTasksParam",
+    default: "",
+    required: true,
+    type: "string",
   },
   {
-    key: "rateLimited",
-    default: false,
-    required: false,
-    type: "boolean",
-  },
-  {
-    key: "retryCount",
-    default: 0,
-    required: false,
-    type: "int",
+    key: "dynamicForkTasksInputParamName",
+    default: "",
+    required: true,
+    type: "string",
   },
 ];
 
-export function createNewSimpleTask(taskReferenceName) {
+export function createNewForkJoinDynamicTask(taskReferenceName) {
   let taskConfig = {};
 
-  simpleTaskSchema.forEach((parameter) => {
+  forkJoinDynamicTaskSchema.forEach((parameter) => {
     // Only expose fields that are marked as required
     if (parameter.required === true) {
       // Sets the value as the respective input if the key matches "name" or "taskReferenceName", otherwise, uses the default value
@@ -61,8 +55,10 @@ export function createNewSimpleTask(taskReferenceName) {
       }
     }
   });
-  taskConfig["type"] = "SIMPLE";
+  taskConfig["type"] = "FORK_JOIN_DYNAMIC";
   taskConfig["inputParameters"] = {};
+  taskConfig["dynamicForkTasksParam"] = "";
+  taskConfig["dynamicForkTasksInputParamName"] = "";
 
-  return taskConfig as SimpleTaskConfig;
+  return taskConfig as DynamicForkTaskConfig;
 }
