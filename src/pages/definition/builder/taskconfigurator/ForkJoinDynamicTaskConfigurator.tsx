@@ -34,7 +34,7 @@ const ForkJoinDynamicTaskConfigurator = ({
     console.log(newTaskConfig);
 
     onUpdate(newTaskConfig);
-  }, [initialConfig, onUpdate, inputParameters, taskLevelParams]);
+  }, [onUpdate, inputParameters, taskLevelParams]);
 
   const initialTaskLevelParams = useMemo(
     () => extractTaskLevelParams(initialConfig),

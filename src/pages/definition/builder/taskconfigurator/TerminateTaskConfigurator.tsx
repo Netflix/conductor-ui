@@ -37,7 +37,7 @@ const TerminateTaskConfigurator = ({
     newTaskConfig.inputParameters.workflowOutput = JSON.parse(workflowOutput);
     console.log(newTaskConfig);
     onUpdate(newTaskConfig);
-  }, [initialConfig, onUpdate, taskLevelParams, workflowOutput]);
+  }, [onUpdate, taskLevelParams, workflowOutput]);
 
   const initialTaskLevelParams = useMemo(
     () => extractTaskLevelParams(initialConfig),

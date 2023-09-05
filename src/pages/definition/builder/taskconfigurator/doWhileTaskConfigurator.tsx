@@ -3,7 +3,6 @@ import { Button, Heading } from "../../../../components";
 import _, { cloneDeep } from "lodash";
 import { TaskConfiguratorProps } from "../TaskConfigPanel";
 import { useStyles } from "./TaskConfiguratorUtils";
-import ParameterExpressionToggle from "./ParameterExpressionToggle";
 import AttributeEditor from "./AttributeEditor";
 import { doWhileTaskSchema } from "../../../../schema/task/doWhileTask";
 import JsonInput from "../../../../components/JsonInput";
@@ -42,7 +41,6 @@ const DoWhileTaskConfigurator = ({
 
     onUpdate(newTaskConfig);
   }, [
-    initialConfig,
     onUpdate,
     inputParameters,
     taskLevelParams,

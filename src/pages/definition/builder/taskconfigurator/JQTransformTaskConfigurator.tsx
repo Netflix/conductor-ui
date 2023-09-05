@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Heading } from "../../../../components";
-import _, { add, cloneDeep } from "lodash";
+import _, { cloneDeep } from "lodash";
 import { TaskConfiguratorProps } from "../TaskConfigPanel";
 import { useStyles } from "./TaskConfiguratorUtils";
-import ParameterExpressionToggle from "./ParameterExpressionToggle";
 import AttributeEditor from "./AttributeEditor";
 import { JQTransformTaskSchema } from "../../../../schema/task/JQTransformTask";
 import JsonInput from "../../../../components/JsonInput";
@@ -44,7 +43,6 @@ const JQTransformTaskConfigurator = ({
 
     onUpdate(newTaskConfig);
   }, [
-    initialConfig,
     onUpdate,
     taskLevelParams,
     queryExpression,

@@ -49,7 +49,6 @@ const InlineTaskConfigurator = ({
     console.log(newTaskConfig);
     onUpdate(newTaskConfig);
   }, [
-    initialConfig,
     onUpdate,
     taskLevelParams,
     expression,

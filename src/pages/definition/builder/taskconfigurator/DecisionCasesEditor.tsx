@@ -2,14 +2,8 @@ import ReactDataGrid from "@inovua/reactdatagrid-community";
 import { TypeEditInfo } from "@inovua/reactdatagrid-community/types";
 import { useCallback, useEffect, useState } from "react";
 import {
-  booleanEditorProps,
-  dataSourceToObject,
-  evaluatorTypeEditorProps,
   getRowStyle,
-  terminationStatusEditorProps,
 } from "./TaskConfiguratorUtils";
-import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
-import SelectEditor from "@inovua/reactdatagrid-community/SelectEditor";
 import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
 import { cloneDeep } from "lodash";
 const columns = [
@@ -22,7 +16,7 @@ const columns = [
   },
   {
     name: "taskReferenceName",
-    header: "taskReferenceName",
+    header: "taskReferenceName of the First Task in This Branch",
     defaultFlex: 1,
     minWidth: 250,
     editable: false,
@@ -41,7 +35,7 @@ const columns = [
   },
   {
     name: "value",
-    header: "Value",
+    header: "Key",
     defaultFlex: 1,
     editable: true,
     render: ({ value }) => {
@@ -49,8 +43,6 @@ const columns = [
       else return null;
     },
     renderEditor: (Props) => {
-      const { data } = Props.cellProps;
-
       return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
     },
   },
@@ -92,7 +84,7 @@ function DecisionCasesEditor({ initialDecisionCases, onChange }) {
       const data = cloneDeep(dataSource)!;
       if (
         data[rowId][columnId].toString() === value.toString() ||
-        (value.toString().length == 0 && data[rowId].required === true)
+        (value.toString().length === 0 && data[rowId].required === true)
       )
         return;
       data[rowId][columnId] = value;
@@ -106,7 +98,7 @@ function DecisionCasesEditor({ initialDecisionCases, onChange }) {
       setDataSource(data);
       onChange(returnValue);
     },
-    [dataSource],
+    [dataSource, initialDecisionCases, onChange],
   );
   console.log(initialDecisionCases);
   console.log(dataSource);
@@ -126,7 +118,6 @@ function DecisionCasesEditor({ initialDecisionCases, onChange }) {
         showCellBorders={true}
         theme="conductor-light"
         rowStyle={getRowStyle}
-        showHeader={false}
       />
     </div>
   );

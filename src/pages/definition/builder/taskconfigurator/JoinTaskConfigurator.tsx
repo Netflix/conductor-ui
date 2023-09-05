@@ -29,7 +29,7 @@ const JoinTaskConfigurator = ({
     console.log(newTaskConfig);
 
     onUpdate(newTaskConfig);
-  }, [initialConfig, , onUpdate, taskLevelParams]);
+  }, [onUpdate, taskLevelParams]);
 
   const initialTaskLevelParams = useMemo(
     () => extractTaskLevelParams(initialConfig),

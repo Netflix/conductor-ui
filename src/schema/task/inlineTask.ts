@@ -1,4 +1,3 @@
-import InlineTaskConfigurator from "../../pages/definition/builder/taskconfigurator/InlineTaskConfigurator";
 import { InlineTaskConfig } from "../../types/workflowDef";
 
 export const inlineTaskSchema = [

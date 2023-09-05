@@ -1,4 +1,4 @@
-import { SimpleTaskConfig, WaitTaskConfig } from "../../types/workflowDef";
+import { WaitTaskConfig } from "../../types/workflowDef";
 
 export const waitTaskSchema = [
   {

@@ -13,7 +13,6 @@ import {
 } from "../../../../schema/task/httpTask";
 import JsonInput from "../../../../components/JsonInput";
 import _ from "lodash";
-import { TaskConfig } from "../../../../types/workflowDef";
 import { Add } from "@mui/icons-material";
 import { TaskConfiguratorProps } from "../TaskConfigPanel";
 

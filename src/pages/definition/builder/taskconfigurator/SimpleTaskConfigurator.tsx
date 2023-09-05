@@ -71,7 +71,6 @@ const SimpleTaskConfigurator = ({
 
     onUpdate(newTaskConfig);
   }, [
-    initialConfig,
     parameterOrExpression,
     onUpdate,
     inputExpression,

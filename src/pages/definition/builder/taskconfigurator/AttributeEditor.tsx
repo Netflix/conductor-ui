@@ -160,7 +160,7 @@ function AttributeEditor({
       }
     }
     setDataSource(taskLevelParams);
-  }, [initialTaskLevelParams]);
+  }, [initialTaskLevelParams, schema, taskType]);
 
   const handleDataSource = useCallback(
     (editInfo: TypeEditInfo) => {
@@ -169,7 +169,7 @@ function AttributeEditor({
       const data = cloneDeep(dataSource)!;
       if (
         data[rowId][columnId].toString() === value.toString() ||
-        (value.toString().length == 0 && data[rowId].required === true)
+        (value.toString().length === 0 && data[rowId].required === true)
       )
         return;
       data[rowId][columnId] = value;
@@ -182,7 +182,7 @@ function AttributeEditor({
       setDataSource(data);
       onChange(returnValue);
     },
-    [dataSource],
+    [dataSource, initialTaskLevelParams, onChange, taskType],
   );
   console.log(dataSource);
   console.log(initialTaskLevelParams);

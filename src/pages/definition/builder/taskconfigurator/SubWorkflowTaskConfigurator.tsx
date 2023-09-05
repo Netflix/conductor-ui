@@ -50,7 +50,6 @@ const SubWorkflowTaskConfigurator = ({
     console.log(newTaskConfig);
     onUpdate(newTaskConfig);
   }, [
-    initialConfig,
     onUpdate,
     taskLevelParams,
     inputParameters,

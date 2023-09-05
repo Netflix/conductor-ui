@@ -75,7 +75,6 @@ const WaitTaskConfigurator = ({
 
     onUpdate(newTaskConfig);
   }, [
-    initialConfig,
     durationOrUntil,
     onUpdate,
     duration,
