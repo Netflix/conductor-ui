@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import WorkflowDAG from "../components/diagram/WorkflowDAG";
+import WorkflowDAG from "./dag/WorkflowDAG";
 import { WorkflowDef } from "../types/workflowDef";
 import { Execution, ExecutionAndTasks, TaskResult } from "../types/execution";
 import { useFetch } from "./common";

@@ -1,4 +1,4 @@
-import WorkflowDAG from "../../src/components/diagram/WorkflowDAG";
+import WorkflowDAG from "../../src/data/dag/WorkflowDAG";
 import WorkflowGraph from "../../src/components/diagram/WorkflowGraph";
 import React from "react";
 

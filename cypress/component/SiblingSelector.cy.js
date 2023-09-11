@@ -1,4 +1,4 @@
-import WorkflowDAG from "../../src/components/diagram/WorkflowDAG";
+import WorkflowDAG from "../../src/data/dag/WorkflowDAG";
 import { WorkflowExecution } from "../../src/utils/test/mockWorkflow";
 import SiblingSelector from "../../src/pages/execution/taskTabs/SiblingSelector";
 import ThemeProvider from "../../src/theme/ThemeProvider";

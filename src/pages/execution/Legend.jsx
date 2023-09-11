@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import WorkflowDAG from "../../components/diagram/WorkflowDAG";
+import WorkflowDAG from "../../data/dag/WorkflowDAG";
 import WorkflowGraph from "../../components/diagram/WorkflowGraph";
 
 const workflowDef = {

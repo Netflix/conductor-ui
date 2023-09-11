@@ -8,9 +8,8 @@ export const TASK_CONFIG_TYPES = [
   "DO_WHILE",
   "SUB_WORKFLOW",
   "HTTP",
-  "TERMINATE",
   "INLINE",
-  "JQ_TRANSFORM",
+  "JSON_JQ_TRANSFORM",
   "WAIT",
 ] as const;
 export const DEPRECATED_TASK_CONFIG_TYPES = [
@@ -59,6 +58,10 @@ type BaseTaskConfig = {
   type: ExtendedTaskConfigType;
   name: string;
   inputParameters?: any;
+  inputExpression?: {
+    expression: string;
+    type: "JSON_PATH";
+  };
   aliasForRef?: string;
 };
 // Custom Task Config Types
@@ -116,7 +119,7 @@ export interface InlineTaskConfig extends BaseTaskConfig {
   type: "INLINE";
 }
 export interface JQTransformTaskConfig extends BaseTaskConfig {
-  type: "JQ_TRANSFORM";
+  type: "JSON_JQ_TRANSFORM";
 }
 export interface WaitTaskConfig extends BaseTaskConfig {
   type: "WAIT";
