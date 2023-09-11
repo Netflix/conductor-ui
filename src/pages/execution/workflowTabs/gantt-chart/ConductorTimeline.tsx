@@ -17,7 +17,7 @@ import { fontFamily, fontSizes } from "../../../../theme/variables";
 import { Datum } from "./types";
 import { TaskResult, TaskResultType } from "../../../../types/execution";
 import { TaskCoordinate } from "../../../../types/workflowDef";
-import WorkflowDAG from "../../../../components/diagram/WorkflowDAG";
+import WorkflowDAG from "../../../../data/dag/WorkflowDAG";
 import InfoIcon from "@mui/icons-material/Info";
 
 const [DO_WHILE, FORK_JOIN_DYNAMIC, FORK] = [

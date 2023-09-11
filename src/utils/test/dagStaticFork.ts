@@ -1,4 +1,4 @@
-import WorkflowDAG from "../../components/diagram/WorkflowDAG";
+import WorkflowDAG from "../../data/dag/WorkflowDAG";
 import { ForkTaskConfig } from "../../types/workflowDef";
 import { TaskResult } from "../../types/execution";
 import { WorkflowExecution } from "./mockWorkflow";

@@ -1,7 +1,7 @@
 import { ChangeEvent, useMemo } from "react";
 import { makeStyles } from "@mui/styles";
 import { Dropdown } from "../../../components";
-import WorkflowDAG from "../../../components/diagram/WorkflowDAG";
+import WorkflowDAG from "../../../data/dag/WorkflowDAG";
 import { TaskCoordinate } from "../../../types/workflowDef";
 import { TaskResult } from "../../../types/execution";
 

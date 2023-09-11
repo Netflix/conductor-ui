@@ -418,8 +418,8 @@ const additionalOptions = {
           backgroundColor: baseTheme.palette.primary.main,
           paddingTop: 0,
           paddingBottom: 0,
-          marginRight: baseTheme.spacing("space3"),
-          marginLeft: baseTheme.spacing("space3"),
+          marginRight: baseTheme.spacing(2),
+          marginLeft: baseTheme.spacing(2),
           borderRadius: baseTheme.shape.borderRadius,
           boxShadow: "none",
         },
@@ -493,6 +493,14 @@ const additionalOptions = {
         },
       },
     },
+    MuiToggleButton: {
+      styleOverrides: {
+        root: {
+          textTransform: "none",
+          fontSize: "13px",
+        },
+      },
+    },
     MuiListItemText: {
       styleOverrides: {
         secondary: {
@@ -508,8 +516,8 @@ const additionalOptions = {
         root: {
           fontSize: fontSizes.fontSize2,
           lineHeight: lineHeights.lineHeight1,
-          paddingTop: baseTheme.spacing("space0"),
-          paddingBottom: baseTheme.spacing("space0"),
+          paddingTop: baseTheme.spacing(1),
+          paddingBottom: baseTheme.spacing(1),
         },
       },
     },
@@ -541,9 +549,6 @@ const additionalOptions = {
       styleOverrides: {
         root: {
           backgroundColor: baseTheme.palette.grey[50],
-          padding: `${baseTheme.spacing("space5")} ${baseTheme.spacing(
-            "space4",
-          )}`,
           borderBottom: `1px solid ${colors.blackXXLight}`,
         },
       },
@@ -551,7 +556,7 @@ const additionalOptions = {
     MuiDialogContent: {
       styleOverrides: {
         root: {
-          padding: baseTheme.spacing("space5"),
+          paddingTop: `${baseTheme.spacing(2)} !important`,
         },
       },
     },
@@ -559,9 +564,6 @@ const additionalOptions = {
       styleOverrides: {
         root: {
           backgroundColor: baseTheme.palette.grey[50],
-          padding: `${baseTheme.spacing("space3")} ${baseTheme.spacing(
-            "space5",
-          )}`,
           borderTop: `1px solid ${colors.blackXXLight}`,
           margin: 0,
 

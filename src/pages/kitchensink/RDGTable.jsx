@@ -1,9 +1,10 @@
 import ReactDataGrid from "@inovua/reactdatagrid-community";
 import Paper from "../../components/Paper";
-
+import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
 import StringFilter from "@inovua/reactdatagrid-community/StringFilter";
 import NumberFilter from "@inovua/reactdatagrid-community/NumberFilter";
 import DateFilter from "@inovua/reactdatagrid-community/DateFilter";
+import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
 import { timestampRenderer } from "../../utils/helpers";
 
 const columns = [
@@ -20,12 +21,14 @@ const columns = [
     maxWidth: 1000,
     defaultFlex: 1,
     filterEditor: NumberFilter,
+    editor: CustomEditor,
   },
   {
     name: "birthDate",
     header: "Birth Date",
     defaultFlex: 1,
     filterEditor: DateFilter,
+    editor: TextEditor,
     render: ({ value }) => timestampRenderer(value),
   },
 ];
@@ -61,6 +64,7 @@ const dataSource = [
 export default () => (
   <Paper>
     <ReactDataGrid
+      editable
       idProperty="id"
       columns={columns}
       dataSource={dataSource}
@@ -70,3 +74,12 @@ export default () => (
     />
   </Paper>
 );
+
+function CustomEditor(props) {
+  console.log(props);
+  return props.cellProps.data.name === "John McQueen" ? (
+    <TextEditor {...props} />
+  ) : (
+    <NumericEditor {...props} />
+  );
+}

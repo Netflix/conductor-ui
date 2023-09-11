@@ -50,7 +50,6 @@ import FormikInput from "../../components/formik/FormikInput";
 import FormikJsonInput from "../../components/formik/FormikJsonInput";
 import Dropdown from "./Dropdown";
 import { ContextMenu } from "mui-nested-menu";
-
 const useStyles = makeStyles(sharedStyles);
 
 export default function KitchenSink() {
@@ -200,7 +199,7 @@ const FormikSection = () => {
         </Form>
       </Formik>
       <code>
-        <pre>{JSON.stringify(formState)}</pre>
+        <pre>{JSON.stringify(formState, null, 2)}</pre>
       </code>
     </Paper>
   );
@@ -398,6 +397,18 @@ const Buttons = () => {
               <FormatColorFillIcon />
               <ArrowDropDownIcon />
             </ToggleButton>
+          </ToggleButtonGroup>
+        </Grid>
+        <Grid item>
+          <ToggleButtonGroup
+            value={formats}
+            onChange={handleFormat}
+            size="small"
+          >
+            <ToggleButton value="bold">Bold</ToggleButton>
+            <ToggleButton value="italic">Italic</ToggleButton>
+            <ToggleButton value="underlined">Underlined</ToggleButton>
+            <ToggleButton value="color">Color</ToggleButton>
           </ToggleButtonGroup>
         </Grid>
         <Grid item>

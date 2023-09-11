@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { graphlib } from "dagre-d3";
-import { templates } from "../../pages/definition/builder/templates";
+import { templates } from "./templates";
 import {
   WorkflowDef,
   GenericTaskConfig,
@@ -53,12 +53,28 @@ export default class WorkflowDAG {
   execution?: Execution;
 
   private constructor(workflowDef: WorkflowDef) {
-    this.workflowDef = workflowDef;
-    this.taskConfigs = _.cloneDeep(workflowDef.tasks); // OK to mutate directly.
+    const { tasks, ...workflowDefWithoutTasks } = workflowDef;
+    this.workflowDef = { ...workflowDefWithoutTasks, tasks: [] };
+    this.taskConfigs = _.cloneDeep(tasks); // OK to mutate directly.
 
-    this.graph = new graphlib.Graph({ directed: true, compound: false });
-    this.taskResultsByRef = new Map();
-    this.taskResultById = new Map();
+    // Following will always be populated by initialize()
+    this.graph = undefined as unknown as graphlib.Graph;
+    this.taskResultsByRef = new Map() as Map<string, ExtendedTaskResult[]>;
+    this.taskResultById = new Map() as Map<string, ExtendedTaskResult>;
+  }
+
+  public clone() {
+    console.log("cloning dag");
+    const newDag = new WorkflowDAG(this.toWorkflowDef());
+    newDag.initialize();
+    return newDag;
+  }
+
+  public toWorkflowDef(): WorkflowDef {
+    return {
+      ...this.workflowDef,
+      tasks: this.taskConfigs,
+    };
   }
 
   public static fromWorkflowDef(workflowDef: WorkflowDef) {
@@ -168,6 +184,9 @@ export default class WorkflowDAG {
   }
 
   initialize() {
+    console.log("initializing dag");
+    this.graph = new graphlib.Graph({ directed: true, compound: false });
+
     const startTask: TerminalTaskConfig = {
       type: "TERMINAL",
       taskReferenceName: "__start",
@@ -698,6 +717,7 @@ export default class WorkflowDAG {
     } else {
       // Node not found by ref. (e.g. DF child). Return minimal TaskConfig
       const taskResult = this.getTaskResultByRef(ref);
+      console.log("taskresult", taskResult);
       if (taskResult) {
         if (taskResult.taskType === "TERMINAL") {
           throw new Error("Cannot retrieve TERMINAL task by ref");
@@ -872,6 +892,24 @@ export default class WorkflowDAG {
     return templates[type](ref);
   }
 
+  updateTask(ref: string, newTaskConfig: TaskConfig) {
+    const taskConfig = this.getTaskConfigByRef(ref);
+
+    // Delete keys in taskConfig which are not present in newTaskConfig.
+    Object.keys(taskConfig).forEach((key) => {
+      if (!(key in newTaskConfig)) {
+        delete taskConfig[key];
+      }
+    });
+
+    // Replace attributes without replacing object.
+    Object.entries(newTaskConfig).forEach(([key, value]) => {
+      taskConfig[key] = value;
+    });
+
+    this.initialize();
+  }
+
   insertAfter(ref: string, type: TaskConfigType) {
     let { taskConfig, parentArray } = this.graph.node(ref);
 
@@ -902,8 +940,7 @@ export default class WorkflowDAG {
       const newTaskConfig = this.getNextUntitled(type);
       parentArray.splice.apply(parentArray, [pos + 1, 0, ...newTaskConfig]);
     }
-
-    return this.taskConfigs;
+    this.initialize();
   }
 
   addForkTasks(parentRef: string, type: TaskConfigType) {
@@ -913,7 +950,7 @@ export default class WorkflowDAG {
     const newTaskConfig = this.getNextUntitled(type);
     taskConfig.forkTasks.push(newTaskConfig);
 
-    return this.taskConfigs;
+    this.initialize();
   }
 
   addSwitchCase(
@@ -932,8 +969,7 @@ export default class WorkflowDAG {
         `case_${Object.keys(taskConfig.decisionCases).length}`
       ] = newTaskConfig;
     }
-
-    return this.taskConfigs;
+    this.initialize();
   }
 
   addLoopTask(parentRef: string, type: TaskConfigType) {
@@ -944,7 +980,7 @@ export default class WorkflowDAG {
 
     taskConfig.loopOver = newTaskConfig;
 
-    return this.taskConfigs;
+    this.initialize();
   }
 
   deleteTask(ref: string) {
@@ -975,8 +1011,7 @@ export default class WorkflowDAG {
       // If parentArray is nested inside a FORK_JOIN or DECISION - clean up
       this.cleanupTaskListParent(parentArray);
     }
-
-    return this.taskConfigs;
+    this.initialize();
   }
 
   cleanupTaskListParent(taskList: GenericTaskConfig[]) {

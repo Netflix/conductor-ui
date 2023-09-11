@@ -71,9 +71,8 @@ export function useInvalidateWorkflows() {
 
 export function useWorkflowDef(
   workflowName: string | undefined,
-  version: string | undefined,
+  version: number | undefined,
   defaultWorkflow: WorkflowDef | undefined,
-  reactQueryOptions = {},
 ) {
   let path;
   const key = ["workflowDef", workflowName || ""];
@@ -82,13 +81,13 @@ export function useWorkflowDef(
     path = `/metadata/workflow/${workflowName}`;
     if (version) {
       path += `?version=${version}`;
-      key.push(version);
+      key.push(version.toString());
     }
   }
   return useFetch<WorkflowDef>(
     key,
     path,
-    { ...reactQueryOptions },
+    {}, // Always enabled - get defaultWorkflow when workflowName undefined
     defaultWorkflow,
   );
 }

@@ -16,6 +16,8 @@ import {
 } from "../../data/workflow";
 import _ from "lodash";
 import { useEffect } from "react";
+import { WorkflowDef } from "../../types/workflowDef";
+import produce from "immer";
 
 const useStyles = makeStyles({
   rightButtons: {
@@ -31,53 +33,66 @@ const useStyles = makeStyles({
 //const WORKFLOW_SAVED_SUCCESSFULLY = "Workflow saved successfully.";
 const WORKFLOW_SAVE_FAILED = "Failed to save the workflow definition.";
 
-export default function SaveWorkflowDialog({ onSuccess, onCancel, document }) {
+type SaveWorkflowDialogProps = {
+  onSuccess: (name: string, version: number) => void;
+  onCancel: () => void;
+  modified: WorkflowDef;
+  original: WorkflowDef;
+  open: boolean;
+};
+
+export default function SaveWorkflowDialog({
+  onSuccess,
+  onCancel,
+  modified,
+  original,
+  open,
+}: SaveWorkflowDialogProps) {
   const classes = useStyles();
   const diffMonacoRef = useRef(null);
-  const [errorMsg, setErrorMsg] = useState();
+  const [errorMsg, setErrorMsg] = useState<string | undefined>();
   const [useAutoVersion, setUseAutoVersion] = useState(true);
   const { data: namesAndVersions } = useWorkflowNamesAndVersions();
 
-  const modified = useMemo(() => {
-    if (!document || !namesAndVersions) return { text: "", obj: null };
+  const isNew = original.name !== modified.name;
+  const isClash =
+    isNew && namesAndVersions && !!namesAndVersions[modified.name]; // New workflow cannot use existing name to prevent accidental overwrite.
 
-    const parsedModified = JSON.parse(document.modified);
-    const latestVersion = _.get(
-      _.last(namesAndVersions[parsedModified.name]),
-      "version",
-      0,
-    );
+  // Increment version if needed.
+  const upVersioned = useMemo(() => {
+    if (useAutoVersion && namesAndVersions) {
+      const latestVersion = _.get(
+        _.last(namesAndVersions[modified.name]),
+        "version",
+        0,
+      );
 
-    if (useAutoVersion) {
-      parsedModified.version = _.isNumber(latestVersion)
-        ? latestVersion + 1
-        : 1;
+      return produce(modified, (draftState) => {
+        if (_.isNumber(latestVersion)) {
+          draftState.version = latestVersion + 1;
+        } else {
+          draftState.version = 1;
+        }
+      });
+    } else {
+      return modified;
     }
-    const isNew = _.get(document, "originalObj.name") !== parsedModified.name;
-    const isClash = isNew && namesAndVersions[parsedModified.name];
-
-    return {
-      text: JSON.stringify(parsedModified, null, 2),
-      obj: parsedModified,
-      isClash: isClash,
-      isNew: isNew,
-    };
-  }, [document, useAutoVersion, namesAndVersions]);
+  }, [modified, useAutoVersion, namesAndVersions]);
 
   useEffect(() => {
-    if (modified.isClash) {
+    if (isClash) {
       setErrorMsg(
         "Cannot save workflow definition. Workflow name already in use.",
       );
     } else {
       setErrorMsg(undefined);
     }
-  }, [modified]);
+  }, [isClash]);
 
   const { isLoading, mutate: saveWorkflow } = useSaveWorkflow({
     onSuccess: (data) => {
       console.log("onsuccess", data);
-      onSuccess(modified.obj.name, modified.obj.version);
+      onSuccess(upVersioned.name, upVersioned.version);
     },
     onError: (err) => {
       console.log("onerror", err);
@@ -88,8 +103,18 @@ export default function SaveWorkflowDialog({ onSuccess, onCancel, document }) {
     },
   });
 
+  // Sort top level keys
+  const originalText = useMemo(
+    () => JSON.stringify(original, Object.keys(original).sort(), 2),
+    [original],
+  );
+  const modifiedText = useMemo(
+    () => JSON.stringify(upVersioned, Object.keys(upVersioned).sort(), 2),
+    [upVersioned],
+  );
+
   const handleSave = () => {
-    saveWorkflow({ body: modified.obj, isNew: modified.isNew });
+    saveWorkflow({ body: upVersioned, isNew });
   };
 
   const diffEditorDidMount = (editor) => {
@@ -99,7 +124,7 @@ export default function SaveWorkflowDialog({ onSuccess, onCancel, document }) {
   return (
     <Dialog
       fullScreen
-      open={!!document}
+      open={open}
       onClose={() => onCancel()}
       TransitionProps={{
         onEnter: () => setUseAutoVersion(true),
@@ -107,11 +132,11 @@ export default function SaveWorkflowDialog({ onSuccess, onCancel, document }) {
     >
       <Snackbar
         open={!!errorMsg}
-        onClose={() => setErrorMsg(null)}
+        onClose={() => setErrorMsg(undefined)}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
         transitionDuration={{ exit: 0 }}
       >
-        <Alert onClose={() => setErrorMsg(null)} severity="error">
+        <Alert onClose={() => setErrorMsg(undefined)} severity="error">
           {errorMsg}
         </Alert>
       </Snackbar>
@@ -120,13 +145,10 @@ export default function SaveWorkflowDialog({ onSuccess, onCancel, document }) {
 
       <Toolbar className={classes.toolbar}>
         <Text>
-          Saving{" "}
-          <span style={{ fontWeight: "bold" }}>
-            {_.get(modified, "obj.name")}
-          </span>
+          Saving <span style={{ fontWeight: "bold" }}>{upVersioned.name}</span>
         </Text>
 
-        {modified.isNew && <Pill label="New" color="yellow" />}
+        {isNew && <Pill label="New" color="yellow" />}
 
         <div className={classes.rightButtons}>
           <FormControlLabel
@@ -134,12 +156,12 @@ export default function SaveWorkflowDialog({ onSuccess, onCancel, document }) {
               <Checkbox
                 checked={useAutoVersion}
                 onChange={(e) => setUseAutoVersion(e.target.checked)}
-                disabled={modified.isClash}
+                disabled={isClash}
               />
             }
             label="Automatically set version"
           />
-          <Button onClick={handleSave} disabled={modified.isClash}>
+          <Button onClick={handleSave} disabled={isClash}>
             Save
           </Button>
           <Button onClick={() => onCancel()} variant="secondary">
@@ -148,25 +170,22 @@ export default function SaveWorkflowDialog({ onSuccess, onCancel, document }) {
         </div>
       </Toolbar>
 
-      {document && (
-        <DiffEditor
-          height={"100%"}
-          width={"100%"}
-          theme="vs-light"
-          language="json"
-          original={document.original}
-          modified={modified.text}
-          autoIndent={true}
-          onMount={diffEditorDidMount}
-          options={{
-            selectOnLineNumbers: true,
-            readOnly: true,
-            minimap: {
-              enabled: false,
-            },
-          }}
-        />
-      )}
+      <DiffEditor
+        height={"100%"}
+        width={"100%"}
+        theme="vs-light"
+        language="json"
+        original={originalText}
+        modified={modifiedText}
+        onMount={diffEditorDidMount}
+        options={{
+          selectOnLineNumbers: true,
+          readOnly: true,
+          minimap: {
+            enabled: false,
+          },
+        }}
+      />
     </Dialog>
   );
 }

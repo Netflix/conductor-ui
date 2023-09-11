@@ -12,7 +12,7 @@ import { TypeFilterValue } from "@inovua/reactdatagrid-community/types";
 import NumberFilter from "@inovua/reactdatagrid-community/NumberFilter";
 import DateFilter from "@inovua/reactdatagrid-community/DateFilter";
 import { TaskCoordinate } from "../../../types/workflowDef";
-import WorkflowDAG from "../../../components/diagram/WorkflowDAG";
+import WorkflowDAG from "../../../data/dag/WorkflowDAG";
 
 const filterValue: TypeFilterValue = [
   { name: "taskId", operator: "contains", type: "string", value: null },
