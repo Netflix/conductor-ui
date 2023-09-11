@@ -59,14 +59,8 @@ export default class WorkflowDAG {
 
     // Following will always be populated by initialize()
     this.graph = undefined as unknown as graphlib.Graph;
-    this.taskResultsByRef = undefined as unknown as Map<
-      string,
-      ExtendedTaskResult[]
-    >;
-    this.taskResultById = undefined as unknown as Map<
-      string,
-      ExtendedTaskResult
-    >;
+    this.taskResultsByRef = new Map() as Map<string, ExtendedTaskResult[]>;
+    this.taskResultById = new Map() as Map<string, ExtendedTaskResult>;
   }
 
   public clone() {
@@ -92,7 +86,6 @@ export default class WorkflowDAG {
   public static fromExecutionAndTasks(executionAndTasks: ExecutionAndTasks) {
     const { execution, tasks } = executionAndTasks;
     const cls = new WorkflowDAG(execution!.workflowDefinition);
-    cls.initialize();
     let isTerminated = false;
     cls.execution = execution;
 
@@ -193,8 +186,6 @@ export default class WorkflowDAG {
   initialize() {
     console.log("initializing dag");
     this.graph = new graphlib.Graph({ directed: true, compound: false });
-    this.taskResultsByRef = new Map();
-    this.taskResultById = new Map();
 
     const startTask: TerminalTaskConfig = {
       type: "TERMINAL",
