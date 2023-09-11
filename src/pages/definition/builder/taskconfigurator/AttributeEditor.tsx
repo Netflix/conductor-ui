@@ -44,7 +44,7 @@ const columns = [
     header: "Value",
     defaultFlex: 1,
     render: ({ value }) => {
-      if (value !== null) return value.toString();
+      if (value !== undefined && value !== null) return value.toString();
       else return null;
     },
     renderEditor: (Props) => {

@@ -92,6 +92,7 @@ export default class WorkflowDAG {
   public static fromExecutionAndTasks(executionAndTasks: ExecutionAndTasks) {
     const { execution, tasks } = executionAndTasks;
     const cls = new WorkflowDAG(execution!.workflowDefinition);
+    cls.initialize();
     let isTerminated = false;
     cls.execution = execution;
 

@@ -21,6 +21,7 @@ import ForkJoinTaskConfigurator from "./taskconfigurator/ForkJoinTaskConfigurato
 import ForkJoinDynamicTaskConfigurator from "./taskconfigurator/ForkJoinDynamicTaskConfigurator";
 import SwitchTaskConfigurator from "./taskconfigurator/SwitchTaskConfigurator";
 import SubWorkflowTaskConfigurator from "./taskconfigurator/SubWorkflowTaskConfigurator";
+import { useStyles } from "./taskconfigurator/TaskConfiguratorUtils";
 
 export type TaskConfiguratorProps = {
   initialConfig: TaskConfig;
@@ -37,6 +38,7 @@ export default function TaskConfigPanel({
   const { dag, selectedTask, setStaging } = context!;
 
   const taskConfig = selectedTask && dag.getTaskConfigByCoord(selectedTask);
+  const classes = useStyles();
 
   const handleTaskChanged = useCallback(
     (value) => {
@@ -146,7 +148,7 @@ export default function TaskConfigPanel({
           onChanged={handleTaskChanged}
         />
       ) : (
-        <div>
+        <div className={classes.container}>
           Task Type not currently supported by Task Configurator. Please use the
           JSON panel instead.
         </div>
