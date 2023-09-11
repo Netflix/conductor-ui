@@ -122,7 +122,6 @@ export default function Execution() {
     console.log(newLayout);
     setLayout(newLayout);
   };
-
   const handleRestoreLayout = () => {
     setLayout(defaultLayout);
     dockRef.current!.loadLayout(defaultLayout);

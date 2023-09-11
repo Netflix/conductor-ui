@@ -45,22 +45,13 @@ const SwitchTaskConfigurator = ({
     newTaskConfig.expression = expression;
     newTaskConfig.inputParameters = JSON.parse(inputParameters);
     newTaskConfig.decisionCases = decisionCases;
-    console.log(newTaskConfig);
     onUpdate(newTaskConfig);
-  }, [
-    onUpdate,
-    taskLevelParams,
-    expression,
-    inputParameters,
-    decisionCases,
-  ]);
+  }, [onUpdate, taskLevelParams, expression, inputParameters, decisionCases]);
 
   const initialTaskLevelParams = useMemo(
     () => extractTaskLevelParams(initialConfig),
     [initialConfig],
   );
-
-  console.log(initialConfig);
 
   const handleTaskLevelOnchange = (updatedJson) => {
     setTaskLevelParams(updatedJson);
@@ -123,7 +114,6 @@ const SwitchTaskConfigurator = ({
 const extractTaskLevelParams = (taskConfig) => {
   const params = cloneDeep(taskConfig);
   delete params.inputExpression;
-  console.log(taskConfig);
   return params;
 };
 

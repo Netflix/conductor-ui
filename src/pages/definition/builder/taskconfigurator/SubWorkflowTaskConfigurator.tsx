@@ -47,7 +47,6 @@ const SubWorkflowTaskConfigurator = ({
     newTaskConfig.subWorkflowParam.taskToDomain = JSON.parse(taskToDomain);
     newTaskConfig.subWorkflowParam.workflowDefinition =
       JSON.parse(workflowDefinition);
-    console.log(newTaskConfig);
     onUpdate(newTaskConfig);
   }, [
     onUpdate,
@@ -62,8 +61,6 @@ const SubWorkflowTaskConfigurator = ({
     [initialConfig],
   );
 
-  console.log(initialConfig);
-
   const handleOnchange = (updatedJson) => {
     setTaskLevelParams(updatedJson);
     onChanged(true);
@@ -76,7 +73,7 @@ const SubWorkflowTaskConfigurator = ({
           <Button onClick={handleApply}>Apply</Button>
         </div>
         <Heading level={1} gutterBottom>
-          SIMPLE Task
+          SUB_WORKFLOW Task
         </Heading>
       </div>
       <div>Double-click on value to edit</div>
@@ -125,7 +122,6 @@ const SubWorkflowTaskConfigurator = ({
 const extractTaskLevelParams = (taskConfig) => {
   const params = cloneDeep(taskConfig);
   delete params.inputExpression;
-  console.log(taskConfig);
   return params;
 };
 

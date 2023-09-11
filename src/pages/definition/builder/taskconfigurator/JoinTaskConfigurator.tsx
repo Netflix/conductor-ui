@@ -26,8 +26,6 @@ const JoinTaskConfigurator = ({
   const handleApply = useCallback(() => {
     const newTaskConfig = _.cloneDeep(taskLevelParams)!;
 
-    console.log(newTaskConfig);
-
     onUpdate(newTaskConfig);
   }, [onUpdate, taskLevelParams]);
 
@@ -48,7 +46,7 @@ const JoinTaskConfigurator = ({
           <Button onClick={handleApply}>Apply</Button>
         </div>
         <Heading level={1} gutterBottom>
-          SIMPLE Task
+          JOIN Task
         </Heading>
       </div>
       <div>Double-click on value to edit</div>

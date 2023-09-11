@@ -1,9 +1,7 @@
 import ReactDataGrid from "@inovua/reactdatagrid-community";
 import { TypeEditInfo } from "@inovua/reactdatagrid-community/types";
 import { useCallback, useEffect, useState } from "react";
-import {
-  getRowStyle,
-} from "./TaskConfiguratorUtils";
+import { getRowStyle } from "./TaskConfiguratorUtils";
 import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
 import { cloneDeep } from "lodash";
 const columns = [
@@ -79,7 +77,6 @@ function DecisionCasesEditor({ initialDecisionCases, onChange }) {
 
   const handleDataSource = useCallback(
     (editInfo: TypeEditInfo) => {
-      console.log("inside oneditcomplete");
       const { value, columnId, rowId } = editInfo;
       const data = cloneDeep(dataSource)!;
       if (
@@ -94,14 +91,11 @@ function DecisionCasesEditor({ initialDecisionCases, onChange }) {
         // Using existing tasks from originalObject, only updating the key
         returnValue[item.value] = initialDecisionCases[item.originalValue];
       });
-      console.log("returnValue", returnValue);
       setDataSource(data);
       onChange(returnValue);
     },
     [dataSource, initialDecisionCases, onChange],
   );
-  console.log(initialDecisionCases);
-  console.log(dataSource);
 
   return isLoading ? (
     <div>Loading...</div>

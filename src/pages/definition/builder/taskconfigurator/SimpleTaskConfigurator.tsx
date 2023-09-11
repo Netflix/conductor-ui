@@ -37,7 +37,6 @@ const SimpleTaskConfigurator = ({
   }, [initialConfig]);
 
   useEffect(() => {
-    console.log("in useeffect");
     if (!initialConfig.inputExpression && !initialConfig.inputParameters) {
       return;
     } else if (!initialConfig.inputExpression)
@@ -66,8 +65,6 @@ const SimpleTaskConfigurator = ({
       };
       delete newTaskConfig["inputParameters"];
     }
-
-    console.log(newTaskConfig);
 
     onUpdate(newTaskConfig);
   }, [

@@ -37,15 +37,8 @@ const DoWhileTaskConfigurator = ({
     newTaskConfig.loopCondition = loopCondition;
     newTaskConfig.inputParameters = JSON.parse(inputParameters);
 
-    console.log(newTaskConfig);
-
     onUpdate(newTaskConfig);
-  }, [
-    onUpdate,
-    inputParameters,
-    taskLevelParams,
-    loopCondition,
-  ]);
+  }, [onUpdate, inputParameters, taskLevelParams, loopCondition]);
 
   const initialTaskLevelParams = useMemo(
     () => extractTaskLevelParams(initialConfig),
@@ -64,7 +57,7 @@ const DoWhileTaskConfigurator = ({
           <Button onClick={handleApply}>Apply</Button>
         </div>
         <Heading level={1} gutterBottom>
-          SIMPLE Task
+          DO_WHILE Task
         </Heading>
       </div>
       <div>Double-click on value to edit</div>

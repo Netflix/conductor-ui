@@ -31,8 +31,6 @@ const ForkJoinDynamicTaskConfigurator = ({
 
     newTaskConfig.inputParameters = JSON.parse(inputParameters);
 
-    console.log(newTaskConfig);
-
     onUpdate(newTaskConfig);
   }, [onUpdate, inputParameters, taskLevelParams]);
 
@@ -53,7 +51,7 @@ const ForkJoinDynamicTaskConfigurator = ({
           <Button onClick={handleApply}>Apply</Button>
         </div>
         <Heading level={1} gutterBottom>
-          SIMPLE Task
+          FORK_JOIN_DYNAMIC Task
         </Heading>
       </div>
       <div>Double-click on value to edit</div>

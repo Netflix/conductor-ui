@@ -164,7 +164,6 @@ function AttributeEditor({
 
   const handleDataSource = useCallback(
     (editInfo: TypeEditInfo) => {
-      console.log("inside oneditcomplete");
       const { value, columnId, rowId } = editInfo;
       const data = cloneDeep(dataSource)!;
       if (
@@ -178,14 +177,11 @@ function AttributeEditor({
         ...initialTaskLevelParams,
         ...dataSourceToObject(data, taskType),
       };
-      console.log("returnValue", returnValue);
       setDataSource(data);
       onChange(returnValue);
     },
     [dataSource, initialTaskLevelParams, onChange, taskType],
   );
-  console.log(dataSource);
-  console.log(initialTaskLevelParams);
 
   return (
     <ReactDataGrid

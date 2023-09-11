@@ -46,21 +46,13 @@ const InlineTaskConfigurator = ({
       expression: expression,
     };
     newTaskConfig.inputParameters = newInputParameters;
-    console.log(newTaskConfig);
     onUpdate(newTaskConfig);
-  }, [
-    onUpdate,
-    taskLevelParams,
-    expression,
-    additionalInputParameters,
-  ]);
+  }, [onUpdate, taskLevelParams, expression, additionalInputParameters]);
 
   const initialTaskLevelParams = useMemo(
     () => extractTaskLevelParams(initialConfig),
     [initialConfig],
   );
-
-  console.log(initialConfig);
 
   const handleOnchange = (updatedJson) => {
     setTaskLevelParams(updatedJson);
@@ -74,7 +66,7 @@ const InlineTaskConfigurator = ({
           <Button onClick={handleApply}>Apply</Button>
         </div>
         <Heading level={1} gutterBottom>
-          SIMPLE Task
+          INLINE Task
         </Heading>
       </div>
       <div>Double-click on value to edit</div>
@@ -115,7 +107,6 @@ const extractTaskLevelParams = (taskConfig) => {
   delete params.inputExpression;
   const evaluatorType = params.inputParameters.evaluatorType;
   params.inputParameters = { evaluatorType: evaluatorType };
-  console.log(taskConfig);
   return params;
 };
 

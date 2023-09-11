@@ -39,15 +39,9 @@ const JQTransformTaskConfigurator = ({
       queryExpression: queryExpression,
     };
     newTaskConfig.inputParameters = newInputParameters;
-    console.log(newTaskConfig);
 
     onUpdate(newTaskConfig);
-  }, [
-    onUpdate,
-    taskLevelParams,
-    queryExpression,
-    additionalInputParameters,
-  ]);
+  }, [onUpdate, taskLevelParams, queryExpression, additionalInputParameters]);
 
   const initialTaskLevelParams = useMemo(
     () => extractTaskLevelParams(initialConfig),
@@ -66,7 +60,7 @@ const JQTransformTaskConfigurator = ({
           <Button onClick={handleApply}>Apply</Button>
         </div>
         <Heading level={1} gutterBottom>
-          SIMPLE Task
+          JQ_TRANSFORM Task
         </Heading>
       </div>
       <div>Double-click on value to edit</div>

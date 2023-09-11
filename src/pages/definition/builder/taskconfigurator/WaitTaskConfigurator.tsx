@@ -71,16 +71,9 @@ const WaitTaskConfigurator = ({
       newTaskConfig.inputParameters = { until: until };
       delete newTaskConfig.inputParameters.duration;
     }
-    console.log(newTaskConfig);
 
     onUpdate(newTaskConfig);
-  }, [
-    durationOrUntil,
-    onUpdate,
-    duration,
-    until,
-    taskLevelParams,
-  ]);
+  }, [durationOrUntil, onUpdate, duration, until, taskLevelParams]);
 
   const initialTaskLevelParams = useMemo(
     () => extractTaskLevelParams(initialConfig),
@@ -103,7 +96,7 @@ const WaitTaskConfigurator = ({
           <Button onClick={handleApply}>Apply</Button>
         </div>
         <Heading level={1} gutterBottom>
-          SIMPLE Task
+          WAIT Task
         </Heading>
       </div>
       <div>Double-click on value to edit</div>

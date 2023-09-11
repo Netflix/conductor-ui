@@ -17,12 +17,12 @@ import { Add } from "@mui/icons-material";
 import { TaskConfiguratorProps } from "../TaskConfigPanel";
 
 const taskFormStyle = {
-  minHeight: 402.5,
+  minHeight: 362.5,
   margin: "15px 0",
 };
 
 const httpRequestFormStyle = {
-  minHeight: 282.5,
+  minHeight: 242.5,
   margin: "15px 0",
 };
 

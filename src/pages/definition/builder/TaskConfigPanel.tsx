@@ -65,14 +65,11 @@ export default function TaskConfigPanel({
   const handleTaskConfiguratorUpdate = (updatedState) => {
     const originalRef = taskConfig?.taskReferenceName;
     const newDag = dag.clone();
-    console.log(updatedState);
     if (originalRef) {
       newDag.updateTask(originalRef, updatedState);
     }
     setStaging("TaskConfigPanel", newDag.toWorkflowDef(), newDag);
   };
-
-  console.log("taskConfig", taskConfig?.type);
 
   return (
     <div style={{ height: "100%", overflowY: "scroll" }}>

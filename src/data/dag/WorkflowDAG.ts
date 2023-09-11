@@ -720,7 +720,6 @@ export default class WorkflowDAG {
 
   getTaskConfigByRef(ref: string) {
     const node = this.node(ref);
-    console.log("ref", ref);
     if (node) {
       return node.taskConfig as TaskConfig | IncompleteDFChildTaskConfig; // TODO proper type guard
     } else {

@@ -35,7 +35,6 @@ const TerminateTaskConfigurator = ({
   const handleApply = useCallback(() => {
     const newTaskConfig = cloneDeep(taskLevelParams)!;
     newTaskConfig.inputParameters.workflowOutput = JSON.parse(workflowOutput);
-    console.log(newTaskConfig);
     onUpdate(newTaskConfig);
   }, [onUpdate, taskLevelParams, workflowOutput]);
 
@@ -43,8 +42,6 @@ const TerminateTaskConfigurator = ({
     () => extractTaskLevelParams(initialConfig),
     [initialConfig],
   );
-
-  console.log(initialConfig);
 
   const handleOnchange = (updatedJson) => {
     setTaskLevelParams(updatedJson);
@@ -58,7 +55,7 @@ const TerminateTaskConfigurator = ({
           <Button onClick={handleApply}>Apply</Button>
         </div>
         <Heading level={1} gutterBottom>
-          SIMPLE Task
+          TERMINATE Task
         </Heading>
       </div>
       <div>Double-click on value to edit</div>
@@ -87,7 +84,6 @@ const extractTaskLevelParams = (taskConfig) => {
   const params = cloneDeep(taskConfig);
   delete params.inputExpression;
   delete params.inputParameters.workflowOutput;
-  console.log(taskConfig);
   return params;
 };
 

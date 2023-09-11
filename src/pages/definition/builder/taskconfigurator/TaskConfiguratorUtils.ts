@@ -75,7 +75,6 @@ export function dataSourceToObject(data, taskType) {
 
 export function validateDatasource(dataSource) {
   const data = cloneDeep(dataSource);
-  console.log(data);
   return data.some((item) => {
     if (item.required) {
       return !item.value || !item.value.trim() || item.value.length === 0;

@@ -26,8 +26,6 @@ const ForkJoinTaskConfigurator = ({
   const handleApply = useCallback(() => {
     const newTaskConfig = _.cloneDeep(taskLevelParams)!;
 
-    console.log(newTaskConfig);
-
     onUpdate(newTaskConfig);
   }, [onUpdate, taskLevelParams]);
 
@@ -48,7 +46,7 @@ const ForkJoinTaskConfigurator = ({
           <Button onClick={handleApply}>Apply</Button>
         </div>
         <Heading level={1} gutterBottom>
-          SIMPLE Task
+          FORK_JOIN Task
         </Heading>
       </div>
       <div>Double-click on value to edit</div>
