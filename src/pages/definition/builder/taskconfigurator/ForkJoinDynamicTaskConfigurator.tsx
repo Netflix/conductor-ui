@@ -54,7 +54,6 @@ const ForkJoinDynamicTaskConfigurator = ({
           FORK_JOIN_DYNAMIC Task
         </Heading>
       </div>
-      <div>Double-click on value to edit</div>
       <AttributeEditor
         schema={forkJoinDynamicTaskSchema}
         initialTaskLevelParams={initialTaskLevelParams}

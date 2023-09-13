@@ -73,7 +73,6 @@ const SwitchTaskConfigurator = ({
           SWITCH Task
         </Heading>
       </div>
-      <div>Double-click on value to edit</div>
       <AttributeEditor
         schema={SwitchTaskSchema}
         initialTaskLevelParams={initialTaskLevelParams}

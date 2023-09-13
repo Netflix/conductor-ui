@@ -367,7 +367,6 @@ const HttpTaskConfigurator = ({
           HTTP Task
         </Heading>
       </div>
-      <div>Double-click on value to edit</div>
       <ReactDataGrid
         onReady={setGridRef}
         idProperty="id"

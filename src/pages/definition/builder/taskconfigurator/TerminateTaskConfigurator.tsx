@@ -58,7 +58,6 @@ const TerminateTaskConfigurator = ({
           TERMINATE Task
         </Heading>
       </div>
-      <div>Double-click on value to edit</div>
       <AttributeEditor
         schema={terminateTaskSchema}
         initialTaskLevelParams={initialTaskLevelParams}

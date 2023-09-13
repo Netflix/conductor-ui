@@ -49,7 +49,6 @@ const JoinTaskConfigurator = ({
           JOIN Task
         </Heading>
       </div>
-      <div>Double-click on value to edit</div>
       <AttributeEditor
         schema={joinTaskSchema}
         initialTaskLevelParams={initialTaskLevelParams}

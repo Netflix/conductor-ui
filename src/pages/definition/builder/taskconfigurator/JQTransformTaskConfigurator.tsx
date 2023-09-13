@@ -63,7 +63,6 @@ const JQTransformTaskConfigurator = ({
           JQ_TRANSFORM Task
         </Heading>
       </div>
-      <div>Double-click on value to edit</div>
       <AttributeEditor
         schema={JQTransformTaskSchema}
         initialTaskLevelParams={initialTaskLevelParams}
