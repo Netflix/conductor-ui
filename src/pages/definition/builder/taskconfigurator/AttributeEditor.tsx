@@ -12,69 +12,6 @@ import NumericEditor from "@inovua/reactdatagrid-community/NumericEditor";
 import SelectEditor from "@inovua/reactdatagrid-community/SelectEditor";
 import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
 import { cloneDeep } from "lodash";
-const columns = [
-  {
-    name: "id",
-    header: "Id",
-    defaultVisible: false,
-    minWidth: 300,
-    type: "number",
-  },
-  {
-    name: "key",
-    header: "Key",
-    defaultFlex: 1,
-    minWidth: 250,
-    editable: false,
-    render: ({ value, data }) => (
-      <span>
-        {data.changed ? (
-          <span>
-            <span style={{ fontWeight: "bold" }}>{value}</span>
-          </span>
-        ) : (
-          value
-        )}
-        {data.required ? <span style={{ color: "red" }}>*</span> : null}
-      </span>
-    ),
-  },
-  {
-    name: "value",
-    header: "Value",
-    defaultFlex: 1,
-    render: ({ value }) => {
-      if (value !== undefined && value !== null) return value.toString();
-      else return null;
-    },
-    renderEditor: (Props) => {
-      const { data } = Props.cellProps;
-
-      switch (data.type) {
-        case "int":
-          return <NumericEditor {...Props} />;
-        case "boolean":
-          return <SelectEditor {...Props} editorProps={booleanEditorProps} />;
-        default:
-          if (data.key === "terminationStatus") {
-            return (
-              <SelectEditor
-                {...Props}
-                editorProps={terminationStatusEditorProps}
-              />
-            );
-          } else if (data.key === "evaluatorType") {
-            return (
-              <SelectEditor {...Props} editorProps={evaluatorTypeEditorProps} />
-            );
-          } else return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
-      }
-    },
-  },
-  { name: "changed", header: "Changed", defaultVisible: false },
-  { name: "required", header: "Required", defaultVisible: false },
-  { name: "type", header: "Type", defaultVisible: false },
-];
 
 const taskFormStyle = (taskType) => {
   if (taskType === "TERMINATE") {
@@ -116,6 +53,87 @@ function AttributeEditor({
   taskType,
 }) {
   const [dataSource, setDataSource] = useState<any[]>([]);
+
+  const [gridRef, setGridRef] = useState<any>(null);
+  const cellDOMProps = (cellProps) => {
+    return {
+      onClick: () => {
+        if (gridRef)
+          gridRef.current.startEdit({
+            columnId: cellProps.id,
+            rowIndex: cellProps.rowIndex,
+          });
+      },
+    };
+  };
+
+  const columns = [
+    {
+      name: "id",
+      header: "Id",
+      defaultVisible: false,
+      minWidth: 300,
+      type: "number",
+    },
+    {
+      name: "key",
+      header: "Key",
+      defaultFlex: 1,
+      minWidth: 250,
+      editable: false,
+      render: ({ value, data }) => (
+        <span>
+          {data.changed ? (
+            <span>
+              <span style={{ fontWeight: "bold" }}>{value}</span>
+            </span>
+          ) : (
+            value
+          )}
+          {data.required ? <span style={{ color: "red" }}>*</span> : null}
+        </span>
+      ),
+    },
+    {
+      name: "value",
+      header: "Value",
+      defaultFlex: 1,
+      cellDOMProps,
+      render: ({ value }) => {
+        if (value !== undefined && value !== null) return value.toString();
+        else return null;
+      },
+      renderEditor: (Props) => {
+        const { data } = Props.cellProps;
+
+        switch (data.type) {
+          case "int":
+            return <NumericEditor {...Props} />;
+          case "boolean":
+            return <SelectEditor {...Props} editorProps={booleanEditorProps} />;
+          default:
+            if (data.key === "terminationStatus") {
+              return (
+                <SelectEditor
+                  {...Props}
+                  editorProps={terminationStatusEditorProps}
+                />
+              );
+            } else if (data.key === "evaluatorType") {
+              return (
+                <SelectEditor
+                  {...Props}
+                  editorProps={evaluatorTypeEditorProps}
+                />
+              );
+            } else return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
+        }
+      },
+    },
+    { name: "changed", header: "Changed", defaultVisible: false },
+    { name: "required", header: "Required", defaultVisible: false },
+    { name: "type", header: "Type", defaultVisible: false },
+  ];
 
   useEffect(() => {
     // task level params
@@ -185,6 +203,7 @@ function AttributeEditor({
 
   return (
     <ReactDataGrid
+      onReady={setGridRef}
       idProperty="id"
       style={taskFormStyle(taskType)}
       onEditComplete={handleDataSource}

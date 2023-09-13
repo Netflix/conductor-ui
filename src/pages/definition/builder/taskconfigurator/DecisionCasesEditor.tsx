@@ -4,49 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import { getRowStyle } from "./TaskConfiguratorUtils";
 import TextEditor from "@inovua/reactdatagrid-community/Layout/ColumnLayout/Cell/editors/Text";
 import { cloneDeep } from "lodash";
-const columns = [
-  {
-    name: "id",
-    header: "Id",
-    defaultVisible: false,
-    minWidth: 300,
-    type: "number",
-  },
-  {
-    name: "taskReferenceName",
-    header: "taskReferenceName of the First Task in This Branch",
-    defaultFlex: 1,
-    minWidth: 250,
-    editable: false,
-    render: ({ value, data }) => (
-      <span>
-        {data.changed ? (
-          <span>
-            <span style={{ fontWeight: "bold" }}>{value}</span>
-          </span>
-        ) : (
-          value
-        )}
-        {data.required ? <span style={{ color: "red" }}>*</span> : null}
-      </span>
-    ),
-  },
-  {
-    name: "value",
-    header: "Key",
-    defaultFlex: 1,
-    editable: true,
-    render: ({ value }) => {
-      if (value !== null) return value.toString();
-      else return null;
-    },
-    renderEditor: (Props) => {
-      return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
-    },
-  },
-  { name: "changed", header: "Changed", defaultVisible: false },
-  { name: "required", header: "Required", defaultVisible: false },
-];
 
 const taskFormStyle = {
   minHeight: 162.5,
@@ -56,6 +13,64 @@ const taskFormStyle = {
 function DecisionCasesEditor({ initialDecisionCases, onChange }) {
   const [dataSource, setDataSource] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<Boolean>(true);
+
+  const [gridRef, setGridRef] = useState<any>(null);
+  const cellDOMProps = (cellProps) => {
+    return {
+      onClick: () => {
+        if (gridRef)
+          gridRef.current.startEdit({
+            columnId: cellProps.id,
+            rowIndex: cellProps.rowIndex,
+          });
+      },
+    };
+  };
+
+  const columns = [
+    {
+      name: "id",
+      header: "Id",
+      defaultVisible: false,
+      minWidth: 300,
+      type: "number",
+    },
+    {
+      name: "taskReferenceName",
+      header: "taskReferenceName of the First Task in This Branch",
+      defaultFlex: 1,
+      minWidth: 250,
+      editable: false,
+      render: ({ value, data }) => (
+        <span>
+          {data.changed ? (
+            <span>
+              <span style={{ fontWeight: "bold" }}>{value}</span>
+            </span>
+          ) : (
+            value
+          )}
+          {data.required ? <span style={{ color: "red" }}>*</span> : null}
+        </span>
+      ),
+    },
+    {
+      name: "value",
+      header: "Key",
+      defaultFlex: 1,
+      editable: true,
+      cellDOMProps,
+      render: ({ value }) => {
+        if (value !== null) return value.toString();
+        else return null;
+      },
+      renderEditor: (Props) => {
+        return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
+      },
+    },
+    { name: "changed", header: "Changed", defaultVisible: false },
+    { name: "required", header: "Required", defaultVisible: false },
+  ];
 
   useEffect(() => {
     // task level params
@@ -103,6 +118,7 @@ function DecisionCasesEditor({ initialDecisionCases, onChange }) {
     <div>
       <div style={{ fontWeight: "bold", fontSize: 13 }}>decisionCases</div>
       <ReactDataGrid
+        onReady={setGridRef}
         idProperty="id"
         style={taskFormStyle}
         onEditComplete={handleDataSource}
