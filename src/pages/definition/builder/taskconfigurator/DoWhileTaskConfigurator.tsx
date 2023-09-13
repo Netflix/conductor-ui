@@ -60,7 +60,6 @@ const DoWhileTaskConfigurator = ({
           DO_WHILE Task
         </Heading>
       </div>
-      <div>Double-click on value to edit</div>
       <AttributeEditor
         schema={doWhileTaskSchema}
         initialTaskLevelParams={initialTaskLevelParams}

@@ -76,7 +76,6 @@ const SubWorkflowTaskConfigurator = ({
           SUB_WORKFLOW Task
         </Heading>
       </div>
-      <div>Double-click on value to edit</div>
       <AttributeEditor
         schema={subWorkflowTaskSchema}
         initialTaskLevelParams={initialTaskLevelParams}

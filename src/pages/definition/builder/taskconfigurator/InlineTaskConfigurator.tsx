@@ -69,7 +69,6 @@ const InlineTaskConfigurator = ({
           INLINE Task
         </Heading>
       </div>
-      <div>Double-click on value to edit</div>
       <AttributeEditor
         schema={inlineTaskSchema}
         initialTaskLevelParams={initialTaskLevelParams}

@@ -71,86 +71,6 @@ const booleanEditorProps = {
   clearIcon: null,
 };
 
-const columns = [
-  {
-    name: "id",
-    header: "Id",
-    defaultVisible: false,
-    minWidth: 300,
-    type: "number",
-  },
-  {
-    name: "key",
-    header: "Key",
-    defaultFlex: 1,
-    minWidth: 250,
-    editable: false,
-    render: ({ value, data }) => (
-      <span>
-        {data.changed ? (
-          <span>
-            <span style={{ fontWeight: "bold" }}>{value}</span>
-          </span>
-        ) : (
-          value
-        )}
-        {data.required ? <span style={{ color: "red" }}>*</span> : null}
-      </span>
-    ),
-  },
-  {
-    name: "value",
-    header: "Value",
-    defaultFlex: 1,
-    render: ({ value }) => {
-      if (value !== null) return value.toString();
-      else return null;
-    },
-    renderEditor: (Props) => {
-      const { data } = Props.cellProps;
-
-      switch (data.type) {
-        case "int":
-          return <NumericEditor {...Props} />;
-        case "boolean":
-          return <SelectEditor {...Props} editorProps={booleanEditorProps} />;
-        default:
-          if (data.key === "method") {
-            return <SelectEditor {...Props} editorProps={methodEditorProps} />;
-          } else if (data.key === "contentType") {
-            return (
-              <SelectEditor {...Props} editorProps={contentTypeEditorProps} />
-            );
-          } else return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
-      }
-    },
-  },
-  { name: "changed", header: "Changed", defaultVisible: false },
-  { name: "required", header: "Required", defaultVisible: false },
-  { name: "type", header: "Type", defaultVisible: false },
-  { name: "level", header: "Level", defaultVisible: false },
-];
-
-const headersColumns = [
-  {
-    name: "id",
-    header: "Id",
-    defaultVisible: false,
-    minWidth: 300,
-  },
-  {
-    name: "key",
-    header: "Key",
-    defaultFlex: 1,
-    minWidth: 250,
-  },
-  {
-    name: "value",
-    header: "Value",
-    defaultFlex: 2,
-  },
-];
-
 function getRowStyle(data) {
   if (data.data.changed) {
     return { backgroundColor: "#FFF" };
@@ -174,11 +94,87 @@ const HttpTaskConfigurator = ({
   const [httpRequestDataSource, setHttpRequestDataSource] = useState<any[]>();
   const [headersDataSource, setHeadersDataSource] = useState<any[]>([]);
 
+  const [gridRef, setGridRef] = useState<any>(null);
+  const cellDOMProps = (cellProps) => {
+    return {
+      onClick: () => {
+        if (gridRef)
+          gridRef.current.startEdit({
+            columnId: cellProps.id,
+            rowIndex: cellProps.rowIndex,
+          });
+      },
+    };
+  };
+
   const contentType = useMemo(
     () =>
       httpRequestDataSource?.find((row) => row.key === "contentType")?.value,
     [httpRequestDataSource],
   );
+
+  const columns = [
+    {
+      name: "id",
+      header: "Id",
+      defaultVisible: false,
+      minWidth: 300,
+      type: "number",
+    },
+    {
+      name: "key",
+      header: "Key",
+      defaultFlex: 1,
+      minWidth: 250,
+      editable: false,
+      render: ({ value, data }) => (
+        <span>
+          {data.changed ? (
+            <span>
+              <span style={{ fontWeight: "bold" }}>{value}</span>
+            </span>
+          ) : (
+            value
+          )}
+          {data.required ? <span style={{ color: "red" }}>*</span> : null}
+        </span>
+      ),
+    },
+    {
+      name: "value",
+      header: "Value",
+      defaultFlex: 1,
+      cellDOMProps,
+      render: ({ value }) => {
+        if (value !== null) return value.toString();
+        else return null;
+      },
+      renderEditor: (Props) => {
+        const { data } = Props.cellProps;
+
+        switch (data.type) {
+          case "int":
+            return <NumericEditor {...Props} />;
+          case "boolean":
+            return <SelectEditor {...Props} editorProps={booleanEditorProps} />;
+          default:
+            if (data.key === "method") {
+              return (
+                <SelectEditor {...Props} editorProps={methodEditorProps} />
+              );
+            } else if (data.key === "contentType") {
+              return (
+                <SelectEditor {...Props} editorProps={contentTypeEditorProps} />
+              );
+            } else return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
+        }
+      },
+    },
+    { name: "changed", header: "Changed", defaultVisible: false },
+    { name: "required", header: "Required", defaultVisible: false },
+    { name: "type", header: "Type", defaultVisible: false },
+    { name: "level", header: "Level", defaultVisible: false },
+  ];
 
   // Initialize data sources and state
   useEffect(() => {
@@ -371,8 +367,8 @@ const HttpTaskConfigurator = ({
           HTTP Task
         </Heading>
       </div>
-      <div>Double-click on value to edit</div>
       <ReactDataGrid
+        onReady={setGridRef}
         idProperty="id"
         style={taskFormStyle}
         onEditComplete={handleTaskLevelDataSource}
@@ -434,6 +430,82 @@ function HttpRequestConfigurator({
   contentType,
 }) {
   const classes = useStyles();
+
+  const [gridRef, setGridRef] = useState<any>(null);
+  const cellDOMProps = (cellProps) => {
+    return {
+      onClick: () => {
+        gridRef.current.startEdit({
+          columnId: cellProps.id,
+          rowIndex: cellProps.rowIndex,
+        });
+      },
+    };
+  };
+
+  const columns = [
+    {
+      name: "id",
+      header: "Id",
+      defaultVisible: false,
+      minWidth: 300,
+      type: "number",
+    },
+    {
+      name: "key",
+      header: "Key",
+      defaultFlex: 1,
+      minWidth: 250,
+      editable: false,
+      render: ({ value, data }) => (
+        <span>
+          {data.changed ? (
+            <span>
+              <span style={{ fontWeight: "bold" }}>{value}</span>
+            </span>
+          ) : (
+            value
+          )}
+          {data.required ? <span style={{ color: "red" }}>*</span> : null}
+        </span>
+      ),
+    },
+    {
+      name: "value",
+      header: "Value",
+      defaultFlex: 1,
+      cellDOMProps,
+      render: ({ value }) => {
+        if (value !== null) return value.toString();
+        else return null;
+      },
+      renderEditor: (Props) => {
+        const { data } = Props.cellProps;
+
+        switch (data.type) {
+          case "int":
+            return <NumericEditor {...Props} />;
+          case "boolean":
+            return <SelectEditor {...Props} editorProps={booleanEditorProps} />;
+          default:
+            if (data.key === "method") {
+              return (
+                <SelectEditor {...Props} editorProps={methodEditorProps} />
+              );
+            } else if (data.key === "contentType") {
+              return (
+                <SelectEditor {...Props} editorProps={contentTypeEditorProps} />
+              );
+            } else return <TextEditor {...Props} />; // defaulting to NumericEditor or any other editor you prefer
+        }
+      },
+    },
+    { name: "changed", header: "Changed", defaultVisible: false },
+    { name: "required", header: "Required", defaultVisible: false },
+    { name: "type", header: "Type", defaultVisible: false },
+    { name: "level", header: "Level", defaultVisible: false },
+  ];
+
   const onHeadersEditComplete = useCallback(
     (editInfo: TypeEditInfo) => {
       const { value, columnId, rowId } = editInfo;
@@ -487,6 +559,7 @@ function HttpRequestConfigurator({
     <div>
       <div className={classes.subHeader}>HTTP Request Configuration</div>
       <ReactDataGrid
+        onReady={setGridRef}
         idProperty="id"
         style={httpRequestFormStyle}
         onEditComplete={onHttpRequestEditComplete}
@@ -510,15 +583,9 @@ function HttpRequestConfigurator({
 
         <div className={classes.subHeader}>Headers</div>
       </div>
-      <ReactDataGrid
-        idProperty="id"
-        onEditComplete={onHeadersEditComplete}
-        editable={true}
-        columns={headersColumns as any}
-        dataSource={headersDataSource}
-        showCellBorders={true}
-        theme="conductor-light"
-        rowStyle={getRowStyle}
+      <HeadersDataGrid
+        onHeadersEditComplete={onHeadersEditComplete}
+        headersDataSource={headersDataSource}
       />
 
       <JsonInput
@@ -530,6 +597,55 @@ function HttpRequestConfigurator({
         language={contentType === "application/json" ? "json" : "plaintext"}
       />
     </div>
+  );
+}
+
+function HeadersDataGrid({ onHeadersEditComplete, headersDataSource }) {
+  const [gridRef, setGridRef] = useState<any>(null);
+  const cellDOMProps = (cellProps) => {
+    return {
+      onClick: () => {
+        gridRef.current.startEdit({
+          columnId: cellProps.id,
+          rowIndex: cellProps.rowIndex,
+        });
+      },
+    };
+  };
+  const headersColumns = [
+    {
+      name: "id",
+      header: "Id",
+      defaultVisible: false,
+      minWidth: 300,
+    },
+    {
+      name: "key",
+      header: "Key",
+      defaultFlex: 1,
+      minWidth: 250,
+      cellDOMProps,
+    },
+    {
+      name: "value",
+      header: "Value",
+      defaultFlex: 2,
+      cellDOMProps,
+    },
+  ];
+
+  return (
+    <ReactDataGrid
+      onReady={setGridRef}
+      idProperty="id"
+      onEditComplete={onHeadersEditComplete}
+      editable={true}
+      columns={headersColumns as any}
+      dataSource={headersDataSource}
+      showCellBorders={true}
+      theme="conductor-light"
+      rowStyle={getRowStyle}
+    />
   );
 }
 

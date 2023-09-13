@@ -99,7 +99,6 @@ const WaitTaskConfigurator = ({
           WAIT Task
         </Heading>
       </div>
-      <div>Double-click on value to edit</div>
       <AttributeEditor
         schema={waitTaskSchema}
         initialTaskLevelParams={initialTaskLevelParams}
