@@ -10,7 +10,13 @@ import {
 } from "@mui/material";
 import { Paper } from "./";
 
-export default function DropdownButton({ children, icon, size, options }) {
+export default function DropdownButton({
+  children,
+  icon,
+  size,
+  options,
+  popperStyle,
+}) {
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
 
@@ -54,7 +60,7 @@ export default function DropdownButton({ children, icon, size, options }) {
         disablePortal
         placement="bottom-end"
       >
-        <Paper elevation={1}>
+        <Paper elevation={1} style={popperStyle}>
           <ClickAwayListener onClickAway={handleClose}>
             <MenuList>
               {options.map(({ label, handler }, index) => (

@@ -22,6 +22,7 @@ import { DropdownButton } from "../../components";
 import { MoreHoriz } from "@mui/icons-material";
 import tabLoader from "./tabLoader";
 import useLocalStorageState from "use-local-storage-state";
+import useSessionStorageState from "use-session-storage-state";
 import _ from "lodash";
 
 const defaultLayout: any = {
@@ -92,12 +93,18 @@ export default function Execution() {
   const dockRef = useRef<DockLayout>(null);
   const [severity, setSeverity] = useState<Severity | undefined>(undefined);
 
-  const [layout, setLayout] = useLocalStorageState<LayoutBase>(
-    "executionLayout",
-    {
-      defaultValue: defaultLayout,
-    },
-  );
+  const [
+    localStorageLayout,
+    setLocalStorageLayout,
+    { removeItem: removeLocalStorageLayout },
+  ] = useLocalStorageState<LayoutBase>("executionLayout", {
+    defaultValue: defaultLayout,
+  });
+  const [layout, setLayout, { removeItem: removeSessionLayout }] =
+    useSessionStorageState<LayoutBase>("executionLayout", {
+      defaultValue: localStorageLayout,
+    });
+
   const [selectedTaskRison, setSelectedTaskRison] = useQueryState("task", "!n");
 
   if (!params.id) {
@@ -119,13 +126,22 @@ export default function Execution() {
 
   const handleSaveLayout = () => {
     const newLayout = dockRef.current!.saveLayout() as any;
-    console.log(newLayout);
-    setLayout(newLayout);
+    setLocalStorageLayout(newLayout);
   };
   const handleRestoreLayout = () => {
-    setLayout(defaultLayout);
+    removeSessionLayout();
+    removeLocalStorageLayout();
+
     dockRef.current!.loadLayout(defaultLayout);
   };
+
+  function onLayoutChange(layout) {
+    /*
+    console.log(layout.dockbox.children.find(g => g.group === 'workflow').activeId)
+    console.log(layout.dockbox.children.find(g => g.group === 'task').activeId)
+    */
+    setLayout(layout);
+  }
 
   function panelExtra(panelData: PanelData, context: DockContext) {
     return (
@@ -202,6 +218,7 @@ export default function Execution() {
               width: "100%",
               display: "flex",
               flexDirection: "column",
+              border: "solid red 2px",
             }}
           >
             <ExecutionHeader execution={executionAndTasks.execution} />
@@ -209,9 +226,10 @@ export default function Execution() {
               ref={dockRef}
               dropMode="edge"
               style={{ width: "100%", height: "100%" }}
-              defaultLayout={layout as LayoutData}
+              layout={layout as LayoutData}
               loadTab={tabLoader}
               groups={groups}
+              onLayoutChange={onLayoutChange}
             />
           </div>
         </TileFactoryContext.Provider>

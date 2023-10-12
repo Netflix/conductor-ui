@@ -9,6 +9,7 @@ interface DropdownProps {
   icon?: JSX.Element;
   size?: string;
   options: DropdownOptions[];
+  style: any;
 }
 declare const Dropdown: FC<DropdownProp>;
 export default Dropdown;

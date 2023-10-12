@@ -333,6 +333,13 @@ const additionalOptions = {
         elevation: 3,
       },
     },
+    MuiPopper: {
+      styleOverrides: {
+        root: {
+          zIndex: 9999,
+        },
+      },
+    },
 
     MuiFormControlLabel: {
       styleOverrides: {
@@ -588,7 +595,7 @@ const additionalOptions = {
         root: {
           backgroundColor: colors.white,
           color: colors.gray00,
-          zIndex: 999,
+          zIndex: 10,
           paddingLeft: 20,
           paddingRight: 20,
           boxShadow: "0 4px 8px 0 rgb(0 0 0 / 10%), 0 0 2px 0 rgb(0 0 0 / 10%)",
@@ -598,6 +605,7 @@ const additionalOptions = {
           "& .MuiLink-underlineHover:hover": {
             textDecoration: "none !important",
           },
+          position: "static",
         },
       },
     },

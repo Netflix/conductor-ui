@@ -55,7 +55,7 @@ body > .dragging-layer > div:last-child {
   white-space: nowrap;
   outline: none;
   zoom: 1;
-  z-index: 1;
+  /*z-index: 1;*/
 }
 .dock-ink-bar {
   position: absolute;
@@ -215,6 +215,7 @@ body > .dragging-layer > div:last-child {
 .dock-top > .dock-content-holder {
   /* work around for the height issue in content holder*/
   height: 0;
+  /*z-index: 200;*/
 }
 .dock-content .dock-tabpane {
   position: relative;
@@ -515,8 +516,9 @@ body.dock-dragging iframe {
   height: 100%;
 }
 .dock-layout {
-  overflow: hidden;
   position: relative;
+  flex: "1 1 0";
+  z-index: 11;
 }
 .dock-layout > .dock-box {
   position: absolute;
@@ -527,7 +529,7 @@ body.dock-dragging iframe {
   position: absolute;
   box-sizing: border-box;
   pointer-events: none;
-  z-index: 400;
+  z-index: 9999;
   border: solid 1px #fff;
   background: #88c7f4;
   opacity: 0.5;
@@ -800,12 +802,14 @@ body.dock-dragging iframe {
 .dock-panel.dock-style-card .dock-extra-content {
   height: 35px;
 }
+/*
 .dock-panel.dock-style-task {
   z-index: 1;
 }
 .dock-panel.dock-style-workflow {
   z-index: 2;
 }
+*/
 .dock-panel.dock-style-workflow .dock {
   overflow: visible;
 }

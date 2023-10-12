@@ -1,4 +1,3 @@
-import ReactDataGrid from "@inovua/reactdatagrid-community";
 import { TaskResult } from "../../../types/execution";
 import { TypeColumns } from "@inovua/reactdatagrid-community/types/TypeColumn";
 import { Tab } from "@mui/material";
@@ -13,6 +12,7 @@ import NumberFilter from "@inovua/reactdatagrid-community/NumberFilter";
 import DateFilter from "@inovua/reactdatagrid-community/DateFilter";
 import { TaskCoordinate } from "../../../types/workflowDef";
 import WorkflowDAG from "../../../data/dag/WorkflowDAG";
+import DataGrid from "../../../components/DataGrid";
 
 const filterValue: TypeFilterValue = [
   { name: "taskId", operator: "contains", type: "string", value: null },
@@ -28,8 +28,8 @@ const filterValue: TypeFilterValue = [
   { name: "startTime", operator: "after", type: "date", value: "" },
   { name: "endTime", operator: "after", type: "date", value: "" },
   { name: "status", operator: "contains", type: "string", value: null },
-  { name: "iteration", operator: "equals", type: "number", value: null },
-  { name: "retryCount", operator: "equals", type: "number", value: null },
+  { name: "iteration", operator: "eq", type: "number", value: null },
+  { name: "retryCount", operator: "eq", type: "number", value: null },
   { name: "correlationId", operator: "contains", type: "string", value: null },
 ];
 
@@ -157,19 +157,29 @@ export default function TaskList({
             sx={{ minWidth: 50 }}
           />
         </TabList>
-        <TabPanel value="table" style={{ flex: 1, padding: 0 }}>
-          <ReactDataGrid
-            enableSelection
+        <TabPanel
+          value="table"
+          style={{
+            flex: 1,
+            padding: 0,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <div style={{ margin: 10 }}>
+            Use the context menu &#9776; (found next to each table header) to
+            add, remove or reorder columns.
+          </div>
+          <DataGrid
+            localStorageKey="ExecutionTaskList"
             selected={selectedId}
             onSelectionChange={handleSelectionChange}
             columns={columns}
             dataSource={tasks}
             columnUserSelect
-            showCellBorders="horizontal"
             idProperty="taskId"
             rowIndexColumn
-            style={{ height: "100%", flex: 1 }}
-            theme="conductor-light"
+            //theme="conductor-light"
             defaultFilterValue={filterValue}
           />
         </TabPanel>

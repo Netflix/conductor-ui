@@ -28,7 +28,6 @@ const useStyles = makeStyles({
     flexDirection: "row",
     gap: 10,
     alignItems: "center",
-    zIndex: 100,
   },
   headerSubtitle: {
     marginBottom: 20,
