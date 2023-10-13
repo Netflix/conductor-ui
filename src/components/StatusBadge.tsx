@@ -1,11 +1,15 @@
 import React from "react";
-import { Chip } from "@mui/material";
+import { Chip, ChipProps } from "@mui/material";
 
 const colorMap = {
   success: "#41b957",
   progress: "#1f83db",
   error: "#e50914",
   warning: "#fba404",
+};
+
+export type StatusBadgeProps = ChipProps & {
+  status: string;
 };
 
 export default function StatusBadge({ status, ...props }) {

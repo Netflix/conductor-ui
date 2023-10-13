@@ -4,7 +4,7 @@ import {
   NavLink,
   DataTable,
   LinearProgress,
-  TertiaryButton,
+  Button,
   Text,
 } from "../../components";
 import { Alert, AlertTitle } from "@mui/material";
@@ -53,9 +53,9 @@ function ShowMore({
 }) {
   return (
     <div style={{ textAlign: "center", padding: 15 }}>
-      <TertiaryButton onClick={() => onChangePage(currentPage + 1)}>
+      <Button variant="tertiary" onClick={() => onChangePage(currentPage + 1)}>
         Show More Results
-      </TertiaryButton>
+      </Button>
     </div>
   );
 }

@@ -1,8 +1,17 @@
 import React from "react";
-import { Tabs as RawTabs, Tab as RawTab } from "@mui/material";
+import {
+  Tabs as MuiTabs,
+  Tab as MuiTab,
+  TabsProps as MuiTabsProps,
+  TabProps as MuiTabProps,
+} from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { colors } from "../theme/variables";
 import theme from "../theme/theme";
+
+export type TabsProps = MuiTabsProps & {
+  contextual?: boolean;
+};
 
 // Override styles for 'Contextual' tabs
 const useContextualTabStyles = makeStyles({
@@ -44,25 +53,31 @@ const useContextualTabsStyles = makeStyles({
   },
 });
 
-export default function Tabs({ contextual = false, children, ...props }) {
+export default function Tabs({
+  contextual = false,
+  children,
+  ...props
+}: TabsProps) {
   const classes = useContextualTabsStyles();
   return (
-    <RawTabs
+    <MuiTabs
       variant="scrollable"
-      classes={contextual ? classes : null}
+      classes={contextual && classes}
       indicatorColor="primary"
       {...props}
     >
       {contextual
-        ? children.map((child, idx) =>
-            React.cloneElement(child, { contextual: true, key: idx }),
-          )
+        ? Array.isArray(children)
+          ? children.map((child, idx) =>
+              React.cloneElement(child, { contextual: true, key: idx }),
+            )
+          : null
         : children}
-    </RawTabs>
+    </MuiTabs>
   );
 }
 
 export function Tab({ contextual = false, ...props }) {
   const classes = useContextualTabStyles();
-  return <RawTab classes={contextual ? classes : null} {...props} />;
+  return <MuiTab classes={contextual && classes} {...props} />;
 }

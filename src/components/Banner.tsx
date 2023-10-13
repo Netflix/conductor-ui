@@ -1,5 +1,4 @@
-import React from "react";
-import { Paper } from "@mui/material";
+import { Paper, PaperProps } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles({
@@ -11,7 +10,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function Banner({ children, ...rest }) {
+export default function Banner({ children, ...rest }: PaperProps) {
   const classes = useStyles();
 
   return (

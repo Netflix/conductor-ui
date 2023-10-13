@@ -8,3 +8,4 @@ export { default as handleError } from "./utils/handleError";
 export { default as useAppContext } from "./hooks/useAppContext";
 export { default as sharedStyles } from "./pages/styles";
 export * from "./components";
+export * from "./types/execution.d";

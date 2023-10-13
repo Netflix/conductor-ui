@@ -5,6 +5,7 @@ export default function DefaultAppContextProvider({ ...props }) {
   return (
     <AppContext.Provider
       value={{
+        env: "",
         ready: true,
         stack: "default",
         defaultStack: "default",

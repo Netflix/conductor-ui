@@ -1,4 +1,4 @@
-import React from "react";
+import React, { PropsWithChildren, MouseEvent } from "react";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import {
   Button,
@@ -8,17 +8,28 @@ import {
   MenuItem,
   MenuList,
 } from "@mui/material";
-import { Paper } from "./";
+import { Paper } from ".";
+
+type DropdownOptions = {
+  label: React.ReactNode;
+  handler: (event: React.MouseEvent<HTMLLIElement, any>, index: number) => void;
+};
+
+interface DropdownProps {
+  icon?: JSX.Element;
+  size?: "small" | "medium" | "large";
+  options: DropdownOptions[];
+  children?: React.ReactNode;
+}
 
 export default function DropdownButton({
   children,
   icon,
   size,
   options,
-  popperStyle,
-}) {
+}: DropdownProps) {
   const [open, setOpen] = React.useState(false);
-  const anchorRef = React.useRef(null);
+  const anchorRef = React.useRef<any>(null);
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
@@ -60,7 +71,7 @@ export default function DropdownButton({
         disablePortal
         placement="bottom-end"
       >
-        <Paper elevation={1} style={popperStyle}>
+        <Paper elevation={1}>
           <ClickAwayListener onClickAway={handleClose}>
             <MenuList>
               {options.map(({ label, handler }, index) => (

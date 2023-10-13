@@ -87,7 +87,8 @@ export default function ExecutionHeader({
         </Button>
 
         <ActionModule execution={execution} triggerReload={invalidate} />
-        {CustomWorkflowActions && (
+
+        {!!CustomWorkflowActions && (
           <CustomWorkflowActions execution={execution} />
         )}
       </div>

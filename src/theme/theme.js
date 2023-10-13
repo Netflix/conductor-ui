@@ -14,18 +14,6 @@ function toNumber(v) {
 }
 
 const baseThemeOptions = {
-  palette: {
-    mode: "light",
-    primary: {
-      main: colors.brand,
-    },
-    secondary: {
-      main: colors.blackLight,
-    },
-    text: {
-      main: colors.black,
-    },
-  },
   typography: {
     fontFamily: fontFamily.fontFamilySans,
     fontSize: toNumber(fontSizes.fontSize2),
@@ -92,6 +80,27 @@ const baseThemeOptions = {
 const baseTheme = createTheme(baseThemeOptions);
 
 const additionalOptions = {
+  palette: {
+    mode: "light",
+    primary: baseTheme.palette.augmentColor({
+      color: {
+        main: colors.brand,
+      },
+      name: "primary",
+    }),
+    secondary: baseTheme.palette.augmentColor({
+      color: {
+        main: colors.blackLight,
+      },
+      name: "secondary",
+    }),
+    text: baseTheme.palette.augmentColor({
+      color: {
+        main: colors.black,
+      },
+      name: "text",
+    }),
+  },
   components: {
     MuiAvatar: {
       styleOverrides: {
@@ -654,4 +663,5 @@ const finalTheme = createTheme({
   ...baseTheme,
   ...additionalOptions,
 });
+
 export default finalTheme;

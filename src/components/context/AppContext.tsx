@@ -1,4 +1,10 @@
+import React from "react";
 import { createContext } from "react";
+import { Execution } from "../../export";
+
+export type WorkflowActionsProps = {
+  execution: Execution;
+};
 
 export type AppContextType = {
   ready: boolean;
@@ -8,7 +14,7 @@ export type AppContextType = {
   customTypeRenderers: any;
   customExecutionSummaryRows: Array<any>;
   customTaskSummaryRows: Array<any>;
-  CustomWorkflowActions?: Function;
+  CustomWorkflowActions?: React.ComponentType<WorkflowActionsProps>;
   fetchWithContext: (path: string, fetchParams?: any) => Promise<any>;
 };
 export default createContext<AppContextType>({

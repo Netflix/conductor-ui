@@ -16,9 +16,6 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
-  PrimaryButton,
-  SecondaryButton,
-  TertiaryButton,
   ButtonGroup,
   SplitButton,
   DropdownButton,
@@ -344,13 +341,13 @@ const Buttons = () => {
 
       <Grid container spacing={4}>
         <Grid item>
-          <PrimaryButton>Primary</PrimaryButton>
+          <Button variant="primary">Primary</Button>
         </Grid>
         <Grid item>
-          <SecondaryButton>Secondary</SecondaryButton>
+          <Button variant="secondary">Secondary</Button>
         </Grid>
         <Grid item>
-          <TertiaryButton>Tertiary</TertiaryButton>
+          <Button variant="tertiary">Tertiary</Button>
         </Grid>
         <Grid item>
           <ButtonGroup

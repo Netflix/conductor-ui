@@ -1,7 +1,12 @@
 import NavLink from "./NavLink";
 import rison from "rison";
 
-export default function ({ taskId, workflowId }) {
+export type TaskLinkProps = {
+  taskId: string;
+  workflowId: string;
+};
+
+export default function TaskLink({ taskId, workflowId }: TaskLinkProps) {
   const taskObj = rison.encode({
     id: taskId,
   });

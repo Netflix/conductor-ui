@@ -1,5 +1,5 @@
 import React from "react";
-import { Input } from "./";
+import { Input } from ".";
 import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles({

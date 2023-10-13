@@ -1,6 +1,8 @@
 import { makeStyles } from "@mui/styles";
 import clsx from "clsx";
-import LinearProgress from "@mui/material/LinearProgress";
+import MuiLinearProgress, {
+  LinearProgressProps,
+} from "@mui/material/LinearProgress";
 
 const useStyles = makeStyles({
   progress: {
@@ -9,11 +11,14 @@ const useStyles = makeStyles({
   },
 });
 
-export default function ({ className, ...props }) {
+export default function LinearProgress({
+  className,
+  ...props
+}: LinearProgressProps) {
   const classes = useStyles();
 
   return (
-    <LinearProgress
+    <MuiLinearProgress
       className={clsx([classes.progress, className])}
       {...props}
     />

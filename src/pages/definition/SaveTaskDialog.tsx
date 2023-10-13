@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo, useEffect } from "react";
+import { useRef, useState, useMemo, useEffect, ReactNode } from "react";
 import { Dialog, Toolbar, Snackbar } from "@mui/material";
 import Alert from "@mui/material/Alert";
 import { Text, Button, LinearProgress, Pill } from "../../components";
@@ -6,6 +6,11 @@ import { DiffEditor } from "@monaco-editor/react";
 import { makeStyles } from "@mui/styles";
 import { useSaveTask, useTaskNames } from "../../data/task";
 import _ from "lodash";
+
+type ErrorMsg = {
+  message: ReactNode;
+  dismissible?: boolean;
+};
 
 const useStyles = makeStyles({
   rightButtons: {
@@ -24,11 +29,17 @@ const TASK_SAVE_FAILED = "Failed to save the task definition.";
 export default function SaveTaskDialog({ onSuccess, onCancel, document }) {
   const classes = useStyles();
   const diffMonacoRef = useRef(null);
-  const [errorMsg, setErrorMsg] = useState();
+  const [errorMsg, setErrorMsg] = useState<ErrorMsg>();
   const taskNames = useTaskNames();
 
   const modified = useMemo(() => {
-    if (!taskNames || !document) return { text: "" };
+    if (!taskNames || !document)
+      return {
+        obj: undefined,
+        isNew: false,
+        isClash: false,
+        text: "",
+      };
 
     const parsedModified = JSON.parse(document.modified);
     const modifiedName = parsedModified.name;
@@ -87,7 +98,11 @@ export default function SaveTaskDialog({ onSuccess, onCancel, document }) {
       >
         <Alert
           severity="error"
-          onClose={_.get(errorMsg, "dismissible") ? () => setErrorMsg() : null}
+          onClose={
+            _.get(errorMsg, "dismissible")
+              ? () => setErrorMsg(undefined)
+              : undefined
+          }
         >
           {_.get(errorMsg, "message")}
         </Alert>
@@ -123,9 +138,9 @@ export default function SaveTaskDialog({ onSuccess, onCancel, document }) {
           language="json"
           original={document.original}
           modified={document.modified}
-          autoIndent={true}
           onMount={diffEditorDidMount}
           options={{
+            autoIndent: true,
             selectOnLineNumbers: true,
             readOnly: true,
             minimap: {

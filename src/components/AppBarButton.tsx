@@ -1,5 +1,13 @@
-import { Button as MuiButton } from "@mui/material";
+import {
+  Button as MuiButton,
+  ButtonProps as MuiButtonProps,
+} from "@mui/material";
 import NavLink from "./NavLink";
+
+export type AppBarButtonType = MuiButtonProps & {
+  selected: boolean;
+  path: string;
+};
 
 export default function AppBarButton({ selected, path, ...rest }) {
   if (selected) {
@@ -15,8 +23,8 @@ export default function AppBarButton({ selected, path, ...rest }) {
   } else {
     return (
       <MuiButton
-        color="text"
         variant="text"
+        color={"text" as any}
         component={NavLink}
         path={path}
         {...rest}

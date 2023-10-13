@@ -5,7 +5,7 @@ export default function JsonSkeleton({ lines = 10 }) {
     <div style={{ margin: 15 }}>
       <Skeleton width={50} />
       {Array(10)
-        .fill()
+        .fill(undefined)
         .map((val, idx) => {
           return (
             <Skeleton key={idx} style={{ marginLeft: 30, marginRight: 30 }} />

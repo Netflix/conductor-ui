@@ -1,10 +1,22 @@
 import React, { useRef } from "react";
-import { TextField, InputAdornment, IconButton } from "@mui/material";
+import {
+  TextField,
+  InputAdornment,
+  IconButton,
+  TextFieldProps,
+} from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 
-export default function (props) {
+export type InputProps = Omit<
+  TextFieldProps,
+  "InputLabelProps" | "InputProps" | "onBlur" | "onChange"
+> & {
+  clearable?: boolean;
+};
+
+export default function Input(props) {
   const { label, clearable, onBlur, onChange, InputProps, ...rest } = props;
-  const inputRef = useRef();
+  const inputRef = useRef<any>();
 
   function handleClear() {
     inputRef.current.value = "";

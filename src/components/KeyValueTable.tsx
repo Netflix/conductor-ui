@@ -1,4 +1,3 @@
-import React from "react";
 import { makeStyles } from "@mui/styles";
 import { List, ListItem, ListItemText, Skeleton, Tooltip } from "@mui/material";
 import _ from "lodash";
@@ -27,7 +26,18 @@ const useStyles = makeStyles((theme) => ({
 
 const SKELETON_ROWS = 10;
 
-export default function KeyValueTable({ data, loading }) {
+export type KeyValueTableEntry = {
+  label: string;
+  value: any;
+  type?: string;
+};
+
+export type KeyValueTableProps = {
+  data: KeyValueTableEntry[];
+  loading?: boolean;
+};
+
+export default function KeyValueTable({ data, loading }: KeyValueTableProps) {
   const classes = useStyles();
   const { customTypeRenderers } = useAppContext();
 

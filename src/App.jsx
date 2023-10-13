@@ -5,7 +5,7 @@ import AppLogo from "./components/AppLogo";
 
 import WorkflowSearch from "./pages/executions/WorkflowSearch";
 import TaskSearch from "./pages/executions/TaskSearch";
-import AppBarButton from "./components/AppBarButton";
+import AppBarButton from "./components/AppBarButton.tsx";
 
 import Execution from "./pages/execution/Execution";
 import WorkflowDefinitions from "./pages/definitions/Workflow";

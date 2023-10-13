@@ -1,7 +1,4 @@
 // Buttons
-export { default as PrimaryButton } from "./PrimaryButton";
-export { default as SecondaryButton } from "./SecondaryButton";
-export { default as TertiaryButton } from "./TertiaryButton";
 export { default as ButtonGroup } from "./ButtonGroup";
 export { default as DropdownButton } from "./DropdownButton";
 export { default as SplitButton } from "./SplitButton";

@@ -1,6 +1,10 @@
 import Pill from "./Pill";
 
-export default function EngineBadge({ engine }) {
+export default function EngineBadge({
+  engine,
+}: {
+  engine: string | undefined;
+}) {
   return (
     <>
       {engine && (

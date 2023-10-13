@@ -70,8 +70,11 @@ export default function BuilderToolbar() {
         <Select
           fullWidth
           label=""
-          value={!workflowVersion || _.isEmpty(versions) ? "" : workflowVersion}
-          displayEmpty
+          value={
+            !workflowVersion || _.isEmpty(versions)
+              ? ""
+              : String(workflowVersion)
+          }
           renderValue={(v: string) =>
             v === "" ? "Latest Version" : `Version ${v}`
           }

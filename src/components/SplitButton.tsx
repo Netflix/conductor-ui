@@ -1,18 +1,33 @@
 import React from "react";
-import Grid from "@mui/material/Grid";
-import Button from "@mui/material/Button";
-import ButtonGroup from "@mui/material/ButtonGroup";
+import {
+  Grid,
+  ButtonGroup,
+  Button,
+  Popper,
+  Grow,
+  Paper,
+  MenuList,
+  MenuItem,
+  ClickAwayListener,
+} from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import ClickAwayListener from "@mui/material/ClickAwayListener";
-import Grow from "@mui/material/Grow";
-import Paper from "@mui/material/Paper";
-import Popper from "@mui/material/Popper";
-import MenuItem from "@mui/material/MenuItem";
-import MenuList from "@mui/material/MenuList";
 
-export default function SplitButton({ children, options, onPrimaryClick }) {
+export type SplitButtonProps = {
+  children: React.ReactNode;
+  options: {
+    label: string;
+    handler: Function;
+  }[];
+  onPrimaryClick: React.MouseEventHandler<HTMLElement>;
+};
+
+export default function SplitButton({
+  children,
+  options,
+  onPrimaryClick,
+}: SplitButtonProps) {
   const [open, setOpen] = React.useState(false);
-  const anchorRef = React.useRef(null);
+  const anchorRef = React.useRef<any>(null);
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
