@@ -217,8 +217,7 @@ export default function Execution() {
               height: "100%",
               width: "100%",
               display: "flex",
-              flexDirection: "column",
-              border: "solid red 2px",
+              flexDirection: "column"
             }}
           >
             <ExecutionHeader execution={executionAndTasks.execution} />

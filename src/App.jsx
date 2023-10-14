@@ -32,8 +32,8 @@ window.moment = require("moment");
 const useStyles = makeStyles((theme) => {
   return {
     body: {
-      flex: 1,
-      overflow: "hidden",
+      flex: '1 1 0',
+      overflow: 'auto'
     },
     toolbarRight: {
       marginLeft: "auto",
