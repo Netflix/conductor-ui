@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) => {
   return {
     body: {
       flex: '1 1 0',
-      overflow: 'auto'
+      minHeight: 0
     },
     toolbarRight: {
       marginLeft: "auto",
