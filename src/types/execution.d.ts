@@ -25,7 +25,7 @@ type BaseTaskResult = {
   endTime: number;
   updateTime?: number;
 
-  aliasForRef?: string;  
+  aliasForRef?: string;
   workerId?: string;
   reasonForIncompletion?: string;
   subWorkflowId?: string;

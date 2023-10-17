@@ -14,11 +14,11 @@ const activatesRule: ExecutionAndTasks = {
           name: "async_http",
           taskReferenceName: "async_http",
           inputParameters: {
-            http_request: "${workflow.input.http_request}"
+            http_request: "${workflow.input.http_request}",
           },
           type: "HTTP",
           asyncComplete: true,
-        }
+        },
       ],
       name: "test_workflow",
       version: 1,
@@ -40,7 +40,6 @@ const activatesRule: ExecutionAndTasks = {
   ],
 };
 
-
 const wrongStatus: ExecutionAndTasks = {
   execution: {
     workflowId: "32cea27e-5441-4536-93b0-51f0c0b79976",
@@ -52,11 +51,11 @@ const wrongStatus: ExecutionAndTasks = {
           name: "async_http",
           taskReferenceName: "async_http",
           inputParameters: {
-            http_request: "${workflow.input.http_request}"
+            http_request: "${workflow.input.http_request}",
           },
           type: "HTTP",
           asyncComplete: true,
-        }
+        },
       ],
       name: "test_workflow",
       version: 1,
@@ -89,11 +88,11 @@ const asyncCompleteFalse: ExecutionAndTasks = {
           name: "async_http",
           taskReferenceName: "async_http",
           inputParameters: {
-            http_request: "${workflow.input.http_request}"
+            http_request: "${workflow.input.http_request}",
           },
           type: "HTTP",
           asyncComplete: false,
-        }
+        },
       ],
       name: "test_workflow",
       version: 1,
@@ -115,8 +114,6 @@ const asyncCompleteFalse: ExecutionAndTasks = {
   ],
 };
 
-
-
 describe("Check asyncComplete rule", () => {
   describe("Task that activates rule", () => {
     it("Should return an alert", () => {
@@ -134,16 +131,11 @@ describe("Check asyncComplete rule", () => {
     });
   });
 
-
-
   describe("Task that does not activate rule because taskConfig has asyncComplete=false", () => {
     it("Should return empty array", () => {
       const dag = WorkflowDAG.fromExecutionAndTasks(asyncCompleteFalse);
       const alerts = asyncCompleteInProgress(asyncCompleteFalse, dag);
       assert(alerts.length === 0);
     });
-
   });
-
-
 });

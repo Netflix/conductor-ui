@@ -1,13 +1,14 @@
-import React, { useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import Stack from "@mui/material/Stack";
 import { rules, Severity, AlertItem } from "./rules/ExpertSystemRules";
 import { ExecutionAndTasks } from "../../../../types/execution";
 import WorkflowDAG from "../../../../data/dag/WorkflowDAG";
+import { Alert, AlertColor } from "@mui/material";
 
 export default function WorkflowAlerts({
   executionAndTasks,
   setSeverity,
-  dag
+  dag,
 }: {
   executionAndTasks: ExecutionAndTasks;
   setSeverity: Function;
@@ -15,6 +16,7 @@ export default function WorkflowAlerts({
 }) {
   const alerts = useMemo(() => {
     const allAlerts: AlertItem[] = [];
+    console.log("Evaluating workflow insight rules");
     try {
       rules.forEach((rule) => {
         const ruleAlerts = rule(executionAndTasks, dag);
@@ -24,7 +26,7 @@ export default function WorkflowAlerts({
       console.log("error evaluating rules", e);
     }
     return allAlerts;
-  }, [executionAndTasks]);
+  }, [executionAndTasks, dag]);
 
   useEffect(() => {
     const maxSeverity = findMaxSeverity(alerts);
@@ -38,7 +40,9 @@ export default function WorkflowAlerts({
   return (
     <Stack sx={{ margin: "15px" }} spacing={2}>
       {alerts.map((alert, index) => (
-        <React.Fragment key={index}>{alert.component}</React.Fragment>
+        <Alert key={index} color={alert.severity.toLowerCase() as AlertColor}>
+          {alert.component}
+        </Alert>
       ))}
     </Stack>
   );

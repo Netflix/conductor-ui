@@ -14,7 +14,10 @@ export type AlertItem = {
   severity: Severity;
 };
 
-export type Rule = (executionAndTasks: ExecutionAndTasks, dag: WorkflowDAG) => AlertItem[];
+export type Rule = (
+  executionAndTasks: ExecutionAndTasks,
+  dag: WorkflowDAG,
+) => AlertItem[];
 
 export const rules: Rule[] = [
   checkPollCountAndCallBackAfterSeconds,

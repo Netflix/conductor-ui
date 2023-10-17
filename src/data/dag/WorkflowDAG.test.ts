@@ -678,7 +678,7 @@ describe("Static Fork", () => {
     });
 
     it("Retry history can be retrieved", () => {
-      const taskResults = dag.getTaskResultsByRef("static_fork_task_3");      
+      const taskResults = dag.getTaskResultsByRef("static_fork_task_3");
       assert.equal(taskResults?.[0].status, "FAILED");
       assert.equal(taskResults?.[1].status, "COMPLETED");
     });
@@ -793,7 +793,7 @@ describe("Do-While", () => {
         inProgress: 0,
         canceled: 0,
         failed: 0,
-        iterations: ITERATIONS
+        iterations: ITERATIONS,
       });
     });
 
@@ -836,7 +836,7 @@ describe("Do-While", () => {
         inProgress: 0,
         canceled: 0,
         failed: 1,
-        iterations: ITERATIONS
+        iterations: ITERATIONS,
       });
     });
 
@@ -862,7 +862,7 @@ describe("Do-While", () => {
         inProgress: 0,
         canceled: 0,
         failed: 1,
-        iterations: ITERATIONS
+        iterations: ITERATIONS,
       });
     });
 

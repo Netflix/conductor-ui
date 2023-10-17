@@ -7,7 +7,7 @@ import WorkflowDAG from "../../../data/dag/WorkflowDAG";
 export default function Summary({
   executionAndTasks,
   setSeverity,
-  dag
+  dag,
 }: {
   executionAndTasks: ExecutionAndTasks;
   setSeverity: Function;

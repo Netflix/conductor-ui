@@ -67,15 +67,13 @@ const validObjectWithPollCountThreeCbas: ExecutionAndTasks = {
   ],
 };
 
-
 const validObjectWithPollCount1: ExecutionAndTasks = {
   execution: {
     workflowId: "32cea27e-5441-4536-93b0-51f0c0b79976",
     workflowName: "Crayon",
     status: "IN_PROGRESS",
     workflowDefinition: {
-      tasks: [
-      ],
+      tasks: [],
       name: "placeholder",
       version: 3,
     },
@@ -164,7 +162,6 @@ const invalidObjectsMissingFields: ExecutionAndTasks = {
 
 describe("Check Poll Count rule", () => {
   describe("Task that activates rule", () => {
-
     describe("Task that activates rule", () => {
       it("Should return an alert without cbas clause", () => {
         const dag = WorkflowDAG.fromExecutionAndTasks(
@@ -181,7 +178,6 @@ describe("Check Poll Count rule", () => {
         );
       });
     });
-  
 
     it("Should return an alert with cbas clause", () => {
       const dag = WorkflowDAG.fromExecutionAndTasks(
@@ -198,12 +194,10 @@ describe("Check Poll Count rule", () => {
       );
     });
   });
-  
+
   describe("Task that should not trigger an alert because pollCount is too small", () => {
     it("Should return empty array", () => {
-      const dag = WorkflowDAG.fromExecutionAndTasks(
-        validObjectWithPollCount1,
-      );
+      const dag = WorkflowDAG.fromExecutionAndTasks(validObjectWithPollCount1);
       const alerts = checkPollCountAndCallBackAfterSeconds(
         validObjectWithPollCount1,
         dag,
@@ -211,13 +205,10 @@ describe("Check Poll Count rule", () => {
       assert.equal(0, alerts.length);
     });
   });
-
 
   describe("Task that should not trigger an alert because status is not SCHEDULED", () => {
     it("Should return empty array", () => {
-      const dag = WorkflowDAG.fromExecutionAndTasks(
-        validObjectNotScheduled,
-      );
+      const dag = WorkflowDAG.fromExecutionAndTasks(validObjectNotScheduled);
       const alerts = checkPollCountAndCallBackAfterSeconds(
         validObjectNotScheduled,
         dag,
@@ -225,8 +216,6 @@ describe("Check Poll Count rule", () => {
       assert.equal(0, alerts.length);
     });
   });
-
-
 
   describe("Task missing needed fields", () => {
     it("Should return empty array and not crash", () => {
