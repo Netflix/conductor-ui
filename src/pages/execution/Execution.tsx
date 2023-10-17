@@ -6,7 +6,7 @@ import { useExecutionAndTasks, useWorkflowDag } from "../../data/execution";
 import { TaskCoordinate } from "../../types/workflowDef";
 import { Alert, AlertTitle } from "@mui/material";
 import { TileFactoryContext } from "./tabLoader";
-import { Severity } from "./workflowTabs/ExpertSystemRules";
+import { Severity } from "./workflowTabs/insights/rules/ExpertSystemRules";
 
 import DockLayout, {
   LayoutBase,

@@ -1,20 +1,23 @@
 import React, { useEffect, useMemo } from "react";
 import Stack from "@mui/material/Stack";
-import { rules, Severity, AlertItem } from ".//ExpertSystemRules";
-import { ExecutionAndTasks } from "../../../types/execution";
+import { rules, Severity, AlertItem } from "./rules/ExpertSystemRules";
+import { ExecutionAndTasks } from "../../../../types/execution";
+import WorkflowDAG from "../../../../data/dag/WorkflowDAG";
 
 export default function WorkflowAlerts({
   executionAndTasks,
   setSeverity,
+  dag
 }: {
   executionAndTasks: ExecutionAndTasks;
   setSeverity: Function;
+  dag: WorkflowDAG;
 }) {
   const alerts = useMemo(() => {
     const allAlerts: AlertItem[] = [];
     try {
       rules.forEach((rule) => {
-        const ruleAlerts = rule(executionAndTasks);
+        const ruleAlerts = rule(executionAndTasks, dag);
         allAlerts.push(...ruleAlerts);
       });
     } catch (e) {

@@ -63,6 +63,7 @@ type BaseTaskConfig = {
     type: "JSON_PATH";
   };
   aliasForRef?: string;
+  asyncComplete?: boolean;
 };
 // Custom Task Config Types
 

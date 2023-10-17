@@ -1,15 +1,17 @@
-import React from "react";
 import { NavLink, KeyValueTable } from "../../../components";
 import { useAppContext } from "../../../export";
 import { ExecutionAndTasks } from "../../../types/execution";
-import WorkflowAlerts from "./WorkflowAlerts";
+import WorkflowAlerts from "./insights/WorkflowAlerts";
+import WorkflowDAG from "../../../data/dag/WorkflowDAG";
 
 export default function Summary({
   executionAndTasks,
   setSeverity,
+  dag
 }: {
   executionAndTasks: ExecutionAndTasks;
   setSeverity: Function;
+  dag: WorkflowDAG;
 }) {
   const { customExecutionSummaryRows } = useAppContext();
 
@@ -86,6 +88,7 @@ export default function Summary({
       <WorkflowAlerts
         executionAndTasks={executionAndTasks}
         setSeverity={setSeverity}
+        dag={dag}
       />
       <KeyValueTable data={data} />
     </div>

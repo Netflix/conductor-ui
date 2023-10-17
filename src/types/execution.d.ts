@@ -20,14 +20,15 @@ type BaseTaskResult = {
   status: TaskStatus;
   workflowInstanceId: string;
 
+  scheduledTime?: number;
   startTime: number;
   endTime: number;
-  aliasForRef: string;
-  reasonForIncompletion: string;
-  workerId: string;
-  subWorkflowId: string;
+  updateTime?: number;
 
-  scheduledTime?: number;
+  aliasForRef?: string;  
+  workerId?: string;
+  reasonForIncompletion?: string;
+  subWorkflowId?: string;
   parentTaskReferenceName?: string;
   retryCount?: number;
   iteration?: number;
@@ -35,7 +36,6 @@ type BaseTaskResult = {
   domain?: string;
   workflowTask?: TaskConfig;
   pollCount?: number;
-  updateTime?: number;
   callbackAfterSeconds?: number;
 };
 

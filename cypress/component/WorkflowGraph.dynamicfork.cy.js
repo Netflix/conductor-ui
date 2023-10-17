@@ -152,11 +152,11 @@ describe("Dynamic Fork", () => {
         "have.class",
         "type-DF_CHILDREN_PLACEHOLDER",
       );
-      // TODO
-      // cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER").should(
-      //   "have.class",
-      //   "status_FAILED",
-      // );
+  
+      cy.get("#dynamic_fork_DF_CHILDREN_PLACEHOLDER").should(
+        "have.class",
+        "status_COMPLETED",
+      );
     });
 
     it("Spawned task placeholder has placeholder text", () => {

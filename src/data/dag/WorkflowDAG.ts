@@ -64,7 +64,6 @@ export default class WorkflowDAG {
   }
 
   public clone() {
-    console.log("cloning dag");
     const newDag = new WorkflowDAG(this.toWorkflowDef());
     newDag.initialize();
     return newDag;
@@ -184,7 +183,6 @@ export default class WorkflowDAG {
   }
 
   initialize() {
-    console.log("initializing dag");
     this.graph = new graphlib.Graph({ directed: true, compound: false });
 
     const startTask: TerminalTaskConfig = {
@@ -717,7 +715,6 @@ export default class WorkflowDAG {
     } else {
       // Node not found by ref. (e.g. DF child). Return minimal TaskConfig
       const taskResult = this.getTaskResultByRef(ref);
-      console.log("taskresult", taskResult);
       if (taskResult) {
         if (taskResult.taskType === "TERMINAL") {
           throw new Error("Cannot retrieve TERMINAL task by ref");
@@ -790,7 +787,7 @@ export default class WorkflowDAG {
           },
         );
 
-      if (tally.total > 1 && tally.success === tally.total) {
+      if (tally.success === tally.total) {
         status = "COMPLETED";
       } else if (tally.inProgress > 0) {
         status = "IN_PROGRESS";

@@ -23,7 +23,7 @@ import WorkflowVariables from "./workflowTabs/WorkflowVariables";
 import WorkflowJson from "./workflowTabs/WorkflowJson";
 import { TabBase, TabData } from "rc-dock";
 import SiblingSelector from "./taskTabs/SiblingSelector";
-import { Severity } from "./workflowTabs/ExpertSystemRules";
+import { Severity } from "./workflowTabs/insights/rules/ExpertSystemRules";
 
 export type TaskSelection = {
   taskResult: TaskResult;
@@ -102,10 +102,11 @@ export default function tabLoader(tabBase: TabBase): TabData {
         content: (
           <React.Fragment>
             <TileFactoryContext.Consumer>
-              {({ executionAndTasks, setSeverity }) => (
+              {({ executionAndTasks, setSeverity, dag }) => (
                 <Summary
                   executionAndTasks={executionAndTasks}
                   setSeverity={setSeverity}
+                  dag={dag}
                 />
               )}
             </TileFactoryContext.Consumer>
