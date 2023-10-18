@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { defaultFormatter, idAccessor, yAccessor } from "../utils";
 import { rowsAtom, yScaleAtom, graphOffset, canvasHeightAtom } from "../atoms";
 import { useAtom, useAtomValue } from "jotai";

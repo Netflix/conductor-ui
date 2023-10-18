@@ -1,3 +1,4 @@
+//@ts-nocheck
 import Paper from "@mui/material/Paper";
 import IconButton from "@mui/material/IconButton";
 import ButtonGroup from "@mui/material/ButtonGroup";

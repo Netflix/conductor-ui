@@ -28,7 +28,6 @@ const useStyles = makeStyles({
     flexDirection: "row",
     gap: 10,
     alignItems: "center",
-    zIndex: 100,
   },
   headerSubtitle: {
     marginBottom: 20,
@@ -88,12 +87,22 @@ export default function ExecutionHeader({
         </Button>
 
         <ActionModule execution={execution} triggerReload={invalidate} />
-        {CustomWorkflowActions && (
+
+        {!!CustomWorkflowActions && (
           <CustomWorkflowActions execution={execution} />
         )}
       </div>
       {execution.reasonForIncompletion && (
-        <Alert severity="error" style={{ margin: "0 20px 20px 20px" }}>
+        <Alert
+          severity={
+            execution.status === "FAILED"
+              ? "error"
+              : execution.status === "COMPLETED"
+              ? "success"
+              : "info"
+          }
+          style={{ margin: "0 20px 20px 20px" }}
+        >
           {execution.reasonForIncompletion}
         </Alert>
       )}

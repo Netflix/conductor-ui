@@ -16,7 +16,7 @@ import ZoomOutIcon from "@mui/icons-material/ZoomOut";
 import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
 import HomeIcon from "@mui/icons-material/Home";
 import "./diagram.scss";
-import WorkflowDAG, { NodeData } from "./WorkflowDAG";
+import WorkflowDAG, { NodeData } from "../../data/dag/WorkflowDAG";
 import {
   DagEdgeProperties,
   ExtendedTaskConfigType,
@@ -563,7 +563,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
         break;
       case "LOOP_CHILDREN_PLACEHOLDER":
         retval.shape = "stack";
-        const labelArray = [];
+        const labelArray: string[] = [];
         const { tally, containsTaskRefs } = dagNode;
         if (tally?.iterations) {
           labelArray.push(

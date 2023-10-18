@@ -1,7 +1,7 @@
 import { useFetch } from "./common";
 
 export const useEventHandlers = () => {
-  return useFetch(["event"], "/event");
+  return useFetch<any[]>(["event"], "/event");
 };
 
 export const useLogs = ({ taskId }: { taskId?: string }) => {

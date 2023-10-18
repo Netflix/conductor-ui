@@ -1,4 +1,4 @@
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useState } from "react";
 import rison from "rison";
 import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
@@ -6,8 +6,8 @@ import { useExecutionAndTasks, useWorkflowDag } from "../../data/execution";
 import { TaskCoordinate } from "../../types/workflowDef";
 import { Alert, AlertTitle } from "@mui/material";
 import { TileFactoryContext } from "./tabLoader";
+import { Severity } from "./workflowTabs/insights/rules/ExpertSystemRules";
 
-import "../../components/rc-dock.css";
 import DockLayout, {
   LayoutBase,
   LayoutData,
@@ -22,6 +22,7 @@ import { DropdownButton } from "../../components";
 import { MoreHoriz } from "@mui/icons-material";
 import tabLoader from "./tabLoader";
 import useLocalStorageState from "use-local-storage-state";
+import useSessionStorageState from "use-session-storage-state";
 import _ from "lodash";
 
 const defaultLayout: any = {
@@ -90,12 +91,20 @@ const defaultLayout: any = {
 export default function Execution() {
   const params = useParams<{ id: string }>();
   const dockRef = useRef<DockLayout>(null);
-  const [layout, setLayout] = useLocalStorageState<LayoutBase>(
-    "executionLayout",
-    {
-      defaultValue: defaultLayout,
-    },
-  );
+  const [severity, setSeverity] = useState<Severity | undefined>(undefined);
+
+  const [
+    localStorageLayout,
+    setLocalStorageLayout,
+    { removeItem: removeLocalStorageLayout },
+  ] = useLocalStorageState<LayoutBase>("executionLayout", {
+    defaultValue: defaultLayout,
+  });
+  const [layout, setLayout, { removeItem: removeSessionLayout }] =
+    useSessionStorageState<LayoutBase>("executionLayout", {
+      defaultValue: localStorageLayout,
+    });
+
   const [selectedTaskRison, setSelectedTaskRison] = useQueryState("task", "!n");
 
   if (!params.id) {
@@ -117,14 +126,22 @@ export default function Execution() {
 
   const handleSaveLayout = () => {
     const newLayout = dockRef.current!.saveLayout() as any;
-    console.log(newLayout);
-    setLayout(newLayout);
+    setLocalStorageLayout(newLayout);
   };
-
   const handleRestoreLayout = () => {
-    setLayout(defaultLayout);
+    removeSessionLayout();
+    removeLocalStorageLayout();
+
     dockRef.current!.loadLayout(defaultLayout);
   };
+
+  function onLayoutChange(layout) {
+    /*
+    console.log(layout.dockbox.children.find(g => g.group === 'workflow').activeId)
+    console.log(layout.dockbox.children.find(g => g.group === 'task').activeId)
+    */
+    setLayout(layout);
+  }
 
   function panelExtra(panelData: PanelData, context: DockContext) {
     return (
@@ -191,6 +208,8 @@ export default function Execution() {
             dag,
             selectedTask,
             setSelectedTask,
+            severity,
+            setSeverity,
           }}
         >
           <div
@@ -206,9 +225,10 @@ export default function Execution() {
               ref={dockRef}
               dropMode="edge"
               style={{ width: "100%", height: "100%" }}
-              defaultLayout={layout as LayoutData}
+              layout={layout as LayoutData}
               loadTab={tabLoader}
               groups={groups}
+              onLayoutChange={onLayoutChange}
             />
           </div>
         </TileFactoryContext.Provider>

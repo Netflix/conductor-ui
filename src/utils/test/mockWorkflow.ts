@@ -180,6 +180,7 @@ export class WorkflowExecution implements Execution {
       taskDefName: ref + "_name",
       status: "COMPLETED",
       workflowInstanceId: this.workflowId,
+      iteration: count,
     });
 
     for (let i = 0; i < count; i++) {

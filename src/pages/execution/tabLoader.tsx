@@ -1,4 +1,9 @@
-import React, { useContext, useMemo } from "react";
+import React, { useContext } from "react";
+import { TabBase, TabData } from "rc-dock";
+
+import WorkflowDAG from "../../data/dag/WorkflowDAG";
+import WorkflowGraph from "../../components/diagram/WorkflowGraph";
+
 import TaskInput from "./taskTabs/TaskInput";
 import TaskOutput from "./taskTabs/TaskOutput";
 import TaskSummary from "./taskTabs/TaskSummary";
@@ -6,14 +11,7 @@ import TaskPollData from "./taskTabs/TaskPollData";
 import TaskLogs from "./taskTabs/TaskLogs";
 import TaskExecution from "./taskTabs/TaskExecution";
 import TaskConfiguration from "./taskTabs/TaskConfiguration";
-import { ExecutionAndTasks, TaskResult } from "../../types/execution";
-import WorkflowDAG from "../../components/diagram/WorkflowDAG";
-import WorkflowGraph from "../../components/diagram/WorkflowGraph";
-import {
-  IncompleteDFChildTaskConfig,
-  TaskConfig,
-  TaskCoordinate,
-} from "../../types/workflowDef";
+
 import Summary from "./workflowTabs/Summary";
 import TaskList from "./workflowTabs/TaskList";
 import TimelineComponent from "./workflowTabs/Timeline";
@@ -21,20 +19,21 @@ import WorkflowInput from "./workflowTabs/WorkflowInput";
 import WorkflowOutput from "./workflowTabs/WorkflowOutput";
 import WorkflowVariables from "./workflowTabs/WorkflowVariables";
 import WorkflowJson from "./workflowTabs/WorkflowJson";
-import { TabBase, TabData } from "rc-dock";
-import SiblingSelector from "./taskTabs/SiblingSelector";
 
-export type TaskSelection = {
-  taskResult: TaskResult;
-  workflowId: string;
-  taskConfig: TaskConfig | IncompleteDFChildTaskConfig;
-};
+import SiblingSelector from "./taskTabs/SiblingSelector";
+import TaskSelectionWrapper from "./taskTabs/TaskSelectionWrapper";
+
+import type { ExecutionAndTasks } from "../../types/execution";
+import type { TaskCoordinate } from "../../types/workflowDef";
+import type { Severity } from "./workflowTabs/insights/rules/ExpertSystemRules";
 
 type ITileFactoryContext = {
   executionAndTasks: ExecutionAndTasks;
   dag: WorkflowDAG;
   selectedTask: TaskCoordinate | null;
   setSelectedTask: (selectedTask: TaskCoordinate | null) => void;
+  severity: Severity | undefined;
+  setSeverity: React.Dispatch<React.SetStateAction<Severity | undefined>>;
 };
 
 export const TileFactoryContext = React.createContext<ITileFactoryContext>(
@@ -95,15 +94,22 @@ export default function tabLoader(tabBase: TabBase): TabData {
     case "WorkflowSummary":
       return {
         id: "WorkflowSummary",
-        title: "Summary",
+        title: <SummaryTabHead />,
         content: (
-          <TileFactoryContext.Consumer>
-            {({ executionAndTasks }) => (
-              <Summary execution={executionAndTasks.execution} />
-            )}
-          </TileFactoryContext.Consumer>
+          <React.Fragment>
+            <TileFactoryContext.Consumer>
+              {({ executionAndTasks, setSeverity, dag }) => (
+                <Summary
+                  executionAndTasks={executionAndTasks}
+                  setSeverity={setSeverity}
+                  dag={dag}
+                />
+              )}
+            </TileFactoryContext.Consumer>
+          </React.Fragment>
         ),
         group: "workflow",
+        cached: true,
       };
     case "WorkflowJson":
       return {
@@ -124,10 +130,13 @@ export default function tabLoader(tabBase: TabBase): TabData {
         title: "Tasks",
         content: (
           <TileFactoryContext.Consumer>
-            {({ executionAndTasks }) => (
+            {({ executionAndTasks, setSelectedTask, selectedTask, dag }) => (
               <TaskList
                 tasks={executionAndTasks.tasks}
                 workflowId={executionAndTasks.execution.workflowId}
+                setSelectedTask={setSelectedTask}
+                selectedTask={selectedTask}
+                dag={dag}
               />
             )}
           </TileFactoryContext.Consumer>
@@ -255,23 +264,31 @@ export default function tabLoader(tabBase: TabBase): TabData {
   };
 }
 
-function TaskSelectionWrapper({ TaskPanel: Tab }: { TaskPanel: any }) {
-  const { dag, selectedTask, executionAndTasks } =
-    useContext(TileFactoryContext);
+function SummaryTabHead() {
+  const { severity } = useContext(TileFactoryContext);
 
-  const taskSelection: TaskSelection | undefined = useMemo(() => {
-    if (!dag || !selectedTask) {
-      return undefined;
-    }
-    const taskResult = dag.getTaskResultByCoord(selectedTask) as TaskResult;
-    const taskConfig = dag.getTaskConfigByCoord(selectedTask);
+  let dotColor;
+  if (severity === "ERROR") {
+    dotColor = "red";
+  } else if (severity === "WARNING") {
+    dotColor = "orange";
+  } else {
+    dotColor = "rgba(0, 128, 255, 0.6)";
+  }
 
-    return {
-      taskResult: taskResult,
-      workflowId: executionAndTasks.execution.workflowId,
-      taskConfig: taskConfig,
-    };
-  }, [dag, selectedTask, executionAndTasks]);
-
-  return <Tab taskSelection={taskSelection} />;
+  return (
+    <div style={{ display: "flex", alignItems: "center" }}>
+      <span style={{ marginRight: "5px" }}>Summary</span>
+      {!!severity && (
+        <div
+          style={{
+            width: "10px",
+            height: "10px",
+            backgroundColor: dotColor,
+            borderRadius: "50%",
+          }}
+        />
+      )}
+    </div>
+  );
 }

@@ -5,7 +5,7 @@ import AppLogo from "./components/AppLogo";
 
 import WorkflowSearch from "./pages/executions/WorkflowSearch";
 import TaskSearch from "./pages/executions/TaskSearch";
-import AppBarButton from "./components/AppBarButton";
+import AppBarButton from "./components/AppBarButton.tsx";
 
 import Execution from "./pages/execution/Execution";
 import WorkflowDefinitions from "./pages/definitions/Workflow";
@@ -20,7 +20,9 @@ import DiagramTest from "./pages/kitchensink/DiagramTest";
 import Examples from "./pages/kitchensink/Examples";
 import Gantt from "./pages/kitchensink/Gantt";
 import Workbench from "./pages/workbench/Workbench";
-import RcDockTest from "./pages/kitchensink/RCDockTest";
+
+// For rc-dock
+import "./components/rc-dock.css";
 
 // For RDG
 import "@inovua/reactdatagrid-community/base.css";
@@ -31,7 +33,7 @@ const useStyles = makeStyles((theme) => {
   return {
     body: {
       flex: 1,
-      overflow: "hidden",
+      minHeight: 0,
     },
     toolbarRight: {
       marginLeft: "auto",
@@ -92,7 +94,6 @@ export default function App({
           <Route path="/kitchen/diagram" element={<DiagramTest />} />
           <Route path="/kitchen/examples" element={<Examples />} />
           <Route path="/kitchen/gantt" element={<Gantt />} />
-          <Route path="/kitchen/rcdock" element={<RcDockTest />} />
 
           {customRoutes}
         </Routes>

@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { dragAtom, draggingAtom } from "../atoms";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useUpdateAtom } from "jotai/utils";

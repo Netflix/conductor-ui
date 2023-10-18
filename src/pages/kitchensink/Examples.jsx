@@ -1,5 +1,5 @@
 import { Component } from "react";
-import { NavLink, Paper, PrimaryButton, Heading } from "../../components";
+import { NavLink, Paper, Button, Heading } from "../../components";
 import update from "immutability-helper";
 class Examples extends Component {
   constructor() {
@@ -27,7 +27,9 @@ class Examples extends Component {
   render() {
     return (
       <Paper style={{ marginTop: 30 }} padded>
-        <PrimaryButton onClick={this.click}>Hello</PrimaryButton>
+        <Button variant="primary" onClick={this.click}>
+          Hello
+        </Button>
         <h1>
           {this.state.count} {this.state.negcount.nested}
         </h1>

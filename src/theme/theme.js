@@ -14,18 +14,6 @@ function toNumber(v) {
 }
 
 const baseThemeOptions = {
-  palette: {
-    mode: "light",
-    primary: {
-      main: colors.brand,
-    },
-    secondary: {
-      main: colors.blackLight,
-    },
-    text: {
-      main: colors.black,
-    },
-  },
   typography: {
     fontFamily: fontFamily.fontFamilySans,
     fontSize: toNumber(fontSizes.fontSize2),
@@ -92,6 +80,27 @@ const baseThemeOptions = {
 const baseTheme = createTheme(baseThemeOptions);
 
 const additionalOptions = {
+  palette: {
+    mode: "light",
+    primary: baseTheme.palette.augmentColor({
+      color: {
+        main: colors.brand,
+      },
+      name: "primary",
+    }),
+    secondary: baseTheme.palette.augmentColor({
+      color: {
+        main: colors.blackLight,
+      },
+      name: "secondary",
+    }),
+    text: baseTheme.palette.augmentColor({
+      color: {
+        main: colors.black,
+      },
+      name: "text",
+    }),
+  },
   components: {
     MuiAvatar: {
       styleOverrides: {
@@ -333,6 +342,13 @@ const additionalOptions = {
         elevation: 3,
       },
     },
+    MuiPopper: {
+      styleOverrides: {
+        root: {
+          zIndex: 9999,
+        },
+      },
+    },
 
     MuiFormControlLabel: {
       styleOverrides: {
@@ -418,8 +434,8 @@ const additionalOptions = {
           backgroundColor: baseTheme.palette.primary.main,
           paddingTop: 0,
           paddingBottom: 0,
-          marginRight: baseTheme.spacing("space3"),
-          marginLeft: baseTheme.spacing("space3"),
+          marginRight: baseTheme.spacing(2),
+          marginLeft: baseTheme.spacing(2),
           borderRadius: baseTheme.shape.borderRadius,
           boxShadow: "none",
         },
@@ -493,6 +509,14 @@ const additionalOptions = {
         },
       },
     },
+    MuiToggleButton: {
+      styleOverrides: {
+        root: {
+          textTransform: "none",
+          fontSize: "13px",
+        },
+      },
+    },
     MuiListItemText: {
       styleOverrides: {
         secondary: {
@@ -508,8 +532,8 @@ const additionalOptions = {
         root: {
           fontSize: fontSizes.fontSize2,
           lineHeight: lineHeights.lineHeight1,
-          paddingTop: baseTheme.spacing("space0"),
-          paddingBottom: baseTheme.spacing("space0"),
+          paddingTop: baseTheme.spacing(1),
+          paddingBottom: baseTheme.spacing(1),
         },
       },
     },
@@ -541,9 +565,6 @@ const additionalOptions = {
       styleOverrides: {
         root: {
           backgroundColor: baseTheme.palette.grey[50],
-          padding: `${baseTheme.spacing("space5")} ${baseTheme.spacing(
-            "space4",
-          )}`,
           borderBottom: `1px solid ${colors.blackXXLight}`,
         },
       },
@@ -551,7 +572,7 @@ const additionalOptions = {
     MuiDialogContent: {
       styleOverrides: {
         root: {
-          padding: baseTheme.spacing("space5"),
+          paddingTop: `${baseTheme.spacing(2)} !important`,
         },
       },
     },
@@ -559,9 +580,6 @@ const additionalOptions = {
       styleOverrides: {
         root: {
           backgroundColor: baseTheme.palette.grey[50],
-          padding: `${baseTheme.spacing("space3")} ${baseTheme.spacing(
-            "space5",
-          )}`,
           borderTop: `1px solid ${colors.blackXXLight}`,
           margin: 0,
 
@@ -586,7 +604,7 @@ const additionalOptions = {
         root: {
           backgroundColor: colors.white,
           color: colors.gray00,
-          zIndex: 999,
+          zIndex: 10,
           paddingLeft: 20,
           paddingRight: 20,
           boxShadow: "0 4px 8px 0 rgb(0 0 0 / 10%), 0 0 2px 0 rgb(0 0 0 / 10%)",
@@ -596,6 +614,7 @@ const additionalOptions = {
           "& .MuiLink-underlineHover:hover": {
             textDecoration: "none !important",
           },
+          position: "static",
         },
       },
     },
@@ -644,4 +663,5 @@ const finalTheme = createTheme({
   ...baseTheme,
   ...additionalOptions,
 });
+
 export default finalTheme;

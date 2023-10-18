@@ -6,7 +6,7 @@ import InputLabel from "@mui/material/InputLabel";
 import CloseIcon from "@mui/icons-material/Close";
 import { InputAdornment, CircularProgress } from "@mui/material";
 
-interface DropdownProps<T>
+export interface DropdownProps<T>
   extends Omit<
     AutocompleteProps<
       T,

@@ -16,9 +16,6 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
-  PrimaryButton,
-  SecondaryButton,
-  TertiaryButton,
   ButtonGroup,
   SplitButton,
   DropdownButton,
@@ -50,7 +47,6 @@ import FormikInput from "../../components/formik/FormikInput";
 import FormikJsonInput from "../../components/formik/FormikJsonInput";
 import Dropdown from "./Dropdown";
 import { ContextMenu } from "mui-nested-menu";
-
 const useStyles = makeStyles(sharedStyles);
 
 export default function KitchenSink() {
@@ -200,7 +196,7 @@ const FormikSection = () => {
         </Form>
       </Formik>
       <code>
-        <pre>{JSON.stringify(formState)}</pre>
+        <pre>{JSON.stringify(formState, null, 2)}</pre>
       </code>
     </Paper>
   );
@@ -345,13 +341,13 @@ const Buttons = () => {
 
       <Grid container spacing={4}>
         <Grid item>
-          <PrimaryButton>Primary</PrimaryButton>
+          <Button variant="primary">Primary</Button>
         </Grid>
         <Grid item>
-          <SecondaryButton>Secondary</SecondaryButton>
+          <Button variant="secondary">Secondary</Button>
         </Grid>
         <Grid item>
-          <TertiaryButton>Tertiary</TertiaryButton>
+          <Button variant="tertiary">Tertiary</Button>
         </Grid>
         <Grid item>
           <ButtonGroup
@@ -398,6 +394,18 @@ const Buttons = () => {
               <FormatColorFillIcon />
               <ArrowDropDownIcon />
             </ToggleButton>
+          </ToggleButtonGroup>
+        </Grid>
+        <Grid item>
+          <ToggleButtonGroup
+            value={formats}
+            onChange={handleFormat}
+            size="small"
+          >
+            <ToggleButton value="bold">Bold</ToggleButton>
+            <ToggleButton value="italic">Italic</ToggleButton>
+            <ToggleButton value="underlined">Underlined</ToggleButton>
+            <ToggleButton value="color">Color</ToggleButton>
           </ToggleButtonGroup>
         </Grid>
         <Grid item>

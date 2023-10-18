@@ -10,7 +10,7 @@ import {
   DataTable,
   DropdownButton,
   LinearProgress,
-  PrimaryButton,
+  Button,
   Heading,
 } from "../../components";
 import {
@@ -174,7 +174,9 @@ export default function BulkActionModule({ selectedRows }) {
             )}
           </DialogContent>
           <DialogActions>
-            <PrimaryButton onClick={handleClose}>Close</PrimaryButton>
+            <Button variant="primary" onClick={handleClose}>
+              Close
+            </Button>
           </DialogActions>
         </Dialog>
       )}

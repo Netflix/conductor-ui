@@ -1,4 +1,4 @@
-import WorkflowDAG from "../../components/diagram/WorkflowDAG";
+import WorkflowDAG from "../../data/dag/WorkflowDAG";
 import { WorkflowExecution } from "./mockWorkflow";
 
 // Test DAG objects

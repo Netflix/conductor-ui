@@ -2,7 +2,7 @@
 import { HttpTaskConfig } from "../types/workflowDef";
 
 export const NEW_WORKFLOW_TEMPLATE = {
-  name: "",
+  name: "new_workflow",
   description:
     "Edit or extend this sample workflow. Set the workflow name to get started",
   version: 1,
@@ -149,7 +149,7 @@ export const WORKFLOW_SCHEMA = {
                 type: "HTTP",
               },
             ],
-            required: ["name", "taskReferenceName", "inputParameters", "type"],
+            required: ["name", "taskReferenceName", "type"],
             properties: {
               name: {
                 $id: "#/properties/tasks/items/anyOf/0/properties/name",

@@ -3034,14 +3034,14 @@
   .InovuaReactDataGrid__locked-row-cell {
   background: #f5f5f5;
 }
-.InovuaReactDataGrid--theme-conductor-light.InovuaReactDataGrid--show-hover-rows
+/* .InovuaReactDataGrid--theme-conductor-light.InovuaReactDataGrid--show-hover-rows
   .InovuaReactDataGrid__row--even:not(.InovuaReactDataGrid__row--scrolling):not(
     .InovuaReactDataGrid__row--empty
   )
   .InovuaReactDataGrid__row-hover-target:hover {
   background: #f5f5f5;
   color: rgba(0, 0, 0, 0.9);
-}
+} */
 .InovuaReactDataGrid--theme-conductor-light.InovuaReactDataGrid--show-hover-rows
   .InovuaReactDataGrid__row--even:not(.InovuaReactDataGrid__row--scrolling):not(
     .InovuaReactDataGrid__row--empty
@@ -3084,7 +3084,7 @@
   background: #d7dbef;
   color: rgba(0, 0, 0, 0.9);
 }
-.InovuaReactDataGrid--theme-conductor-light.InovuaReactDataGrid--show-hover-rows
+/* .InovuaReactDataGrid--theme-conductor-light.InovuaReactDataGrid--show-hover-rows
   .InovuaReactDataGrid__row--no-zebra:not(
     .InovuaReactDataGrid__row--scrolling
   ):not(.InovuaReactDataGrid__row--empty)
@@ -3096,7 +3096,7 @@
   .InovuaReactDataGrid__row-hover-target:hover {
   background: #f5f5f5;
   color: rgba(0, 0, 0, 0.9);
-}
+} */
 .InovuaReactDataGrid--theme-conductor-light.InovuaReactDataGrid--show-hover-rows
   .InovuaReactDataGrid__row--no-zebra:not(
     .InovuaReactDataGrid__row--scrolling

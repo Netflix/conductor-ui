@@ -4,7 +4,7 @@ import { FormControl, Grid, InputLabel } from "@mui/material";
 import {
   Paper,
   Heading,
-  PrimaryButton,
+  Button,
   Dropdown,
   Input,
   WorkflowNameInput,
@@ -202,7 +202,9 @@ export default function WorkflowPanel() {
           <Grid item xs={1}>
             <FormControl>
               <InputLabel>&nbsp;</InputLabel>
-              <PrimaryButton onClick={doSearch}>Search</PrimaryButton>
+              <Button variant="primary" onClick={doSearch}>
+                Search
+              </Button>
             </FormControl>
           </Grid>
         </Grid>
