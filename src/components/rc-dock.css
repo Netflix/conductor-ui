@@ -517,8 +517,7 @@ body.dock-dragging iframe {
 }
 .dock-layout {
   position: relative;
-  flex: "1 1 0";
-  z-index: 11;
+  flex: 1;
 }
 .dock-layout > .dock-box {
   position: absolute;
@@ -802,14 +801,11 @@ body.dock-dragging iframe {
 .dock-panel.dock-style-card .dock-extra-content {
   height: 35px;
 }
-/*
-.dock-panel.dock-style-task {
-  z-index: 1;
-}
 .dock-panel.dock-style-workflow {
-  z-index: 2;
+  z-index: 12;
 }
-*/
+.dock-panel.dock-style-task {
+}
 .dock-panel.dock-style-workflow .dock {
   overflow: visible;
 }

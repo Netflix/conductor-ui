@@ -32,7 +32,7 @@ window.moment = require("moment");
 const useStyles = makeStyles((theme) => {
   return {
     body: {
-      flex: "1 1 0",
+      flex: 1,
       minHeight: 0,
     },
     toolbarRight: {
