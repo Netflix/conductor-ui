@@ -1,4 +1,9 @@
-import React, { useContext, useMemo } from "react";
+import React, { useContext } from "react";
+import { TabBase, TabData } from "rc-dock";
+
+import WorkflowDAG from "../../data/dag/WorkflowDAG";
+import WorkflowGraph from "../../components/diagram/WorkflowGraph";
+
 import TaskInput from "./taskTabs/TaskInput";
 import TaskOutput from "./taskTabs/TaskOutput";
 import TaskSummary from "./taskTabs/TaskSummary";
@@ -6,14 +11,7 @@ import TaskPollData from "./taskTabs/TaskPollData";
 import TaskLogs from "./taskTabs/TaskLogs";
 import TaskExecution from "./taskTabs/TaskExecution";
 import TaskConfiguration from "./taskTabs/TaskConfiguration";
-import { ExecutionAndTasks, TaskResult } from "../../types/execution";
-import WorkflowDAG from "../../data/dag/WorkflowDAG";
-import WorkflowGraph from "../../components/diagram/WorkflowGraph";
-import {
-  IncompleteDFChildTaskConfig,
-  TaskConfig,
-  TaskCoordinate,
-} from "../../types/workflowDef";
+
 import Summary from "./workflowTabs/Summary";
 import TaskList from "./workflowTabs/TaskList";
 import TimelineComponent from "./workflowTabs/Timeline";
@@ -21,15 +19,13 @@ import WorkflowInput from "./workflowTabs/WorkflowInput";
 import WorkflowOutput from "./workflowTabs/WorkflowOutput";
 import WorkflowVariables from "./workflowTabs/WorkflowVariables";
 import WorkflowJson from "./workflowTabs/WorkflowJson";
-import { TabBase, TabData } from "rc-dock";
-import SiblingSelector from "./taskTabs/SiblingSelector";
-import { Severity } from "./workflowTabs/insights/rules/ExpertSystemRules";
 
-export type TaskSelection = {
-  taskResult: TaskResult;
-  workflowId: string;
-  taskConfig: TaskConfig | IncompleteDFChildTaskConfig;
-};
+import SiblingSelector from "./taskTabs/SiblingSelector";
+import TaskSelectionWrapper from "./taskTabs/TaskSelectionWrapper";
+
+import type { ExecutionAndTasks } from "../../types/execution";
+import type { TaskCoordinate } from "../../types/workflowDef";
+import type { Severity } from "./workflowTabs/insights/rules/ExpertSystemRules";
 
 type ITileFactoryContext = {
   executionAndTasks: ExecutionAndTasks;
@@ -295,25 +291,4 @@ function SummaryTabHead() {
       )}
     </div>
   );
-}
-
-function TaskSelectionWrapper({ TaskPanel: Tab }: { TaskPanel: any }) {
-  const { dag, selectedTask, executionAndTasks } =
-    useContext(TileFactoryContext);
-
-  const taskSelection: TaskSelection | undefined = useMemo(() => {
-    if (!dag || !selectedTask) {
-      return undefined;
-    }
-    const taskResult = dag.getTaskResultByCoord(selectedTask) as TaskResult;
-    const taskConfig = dag.getTaskConfigByCoord(selectedTask);
-
-    return {
-      taskResult: taskResult,
-      workflowId: executionAndTasks.execution.workflowId,
-      taskConfig: taskConfig,
-    };
-  }, [dag, selectedTask, executionAndTasks]);
-
-  return <Tab taskSelection={taskSelection} />;
 }

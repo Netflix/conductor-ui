@@ -1,17 +1,12 @@
-import React from "react";
 import { KeyValueTable } from "../../../components";
 import { usePollData, useQueueSize } from "../../../data/task";
 import _ from "lodash";
 import { timestampRenderer } from "../../../utils/helpers";
-import { TaskSelection } from "../tabLoader";
-import Blank from "../../../components/NoTaskSelected";
+import { TaskPanelProps } from "./TaskSelectionWrapper";
+import Blank from "../../../components/Blank";
 import Alert from "@mui/material/Alert";
 
-export default function TaskPollData({
-  taskSelection,
-}: {
-  taskSelection?: TaskSelection;
-}) {
+export default function TaskPollData({ taskSelection }: TaskPanelProps) {
   const { data: pollData, isLoading: isLoadingPollData } = usePollData(
     taskSelection?.taskConfig.name,
   );

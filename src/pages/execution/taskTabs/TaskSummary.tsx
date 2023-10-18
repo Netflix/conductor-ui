@@ -3,15 +3,11 @@ import { NavLink, KeyValueTable, ClipboardButton } from "../../../components";
 import { useTime } from "../../../hooks/useTime";
 import { useAppContext } from "../../../export";
 import { KeyValueTableEntry } from "../../../components/KeyValueTable";
-import { TaskSelection } from "../tabLoader";
-import Blank from "../../../components/NoTaskSelected";
+import { TaskPanelProps } from "./TaskSelectionWrapper";
+import Blank from "../../../components/Blank";
 import { SubworkflowTaskConfig } from "../../../types/workflowDef";
 
-export default function TaskSummary({
-  taskSelection,
-}: {
-  taskSelection?: TaskSelection;
-}) {
+export default function TaskSummary({ taskSelection }: TaskPanelProps) {
   const now = useTime();
   const { customTaskSummaryRows } = useAppContext();
 

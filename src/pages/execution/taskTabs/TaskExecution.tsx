@@ -1,13 +1,8 @@
-import React from "react";
 import { ReactJson } from "../../../components";
-import Blank from "../../../components/NoTaskSelected";
-import { TaskSelection } from "../tabLoader";
+import Blank from "../../../components/Blank";
+import { TaskPanelProps } from "./TaskSelectionWrapper";
 
-export default function TaskExecution({
-  taskSelection,
-}: {
-  taskSelection?: TaskSelection;
-}) {
+export default function TaskExecution({ taskSelection }: TaskPanelProps) {
   if (!taskSelection) {
     return <Blank />;
   }
