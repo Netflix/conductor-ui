@@ -154,7 +154,8 @@ export default function ConductorTimeline({
         } else {
           let retryTask: Series =
             series[seenTaskNameToIndexMap.get(referenceTaskName)];
-          retryTask.data.push(span);
+          retryTask.data?.push(span); 
+          //TODO: mtork -> Figure out why retryTask might be null.
         }
       },
     );
