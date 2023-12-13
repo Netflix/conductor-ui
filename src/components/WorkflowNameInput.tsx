@@ -5,17 +5,21 @@ import { DropdownProps } from "./Dropdown";
 
 export type WorkflowNameInputProps = Omit<
   DropdownProps<string>,
-  "options" | "multiple" | "freeSolo" | "loading"
+  "options" | "freeSolo" | "loading"
 >;
 
-export default function WorkflowNameInput(props: WorkflowNameInputProps) {
+export default function WorkflowNameInput({
+  label,
+  multiple = true,
+  ...props
+}: WorkflowNameInputProps) {
   const workflowNames = useWorkflowNames();
 
   return (
     <Dropdown
-      label={props.label || "Workflow Name"}
+      label={label || "Workflow Name"}
       options={workflowNames}
-      multiple
+      multiple={multiple}
       freeSolo
       loading={isEmpty(workflowNames)}
       {...props}

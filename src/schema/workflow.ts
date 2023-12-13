@@ -1,37 +1,4 @@
 /* eslint-disable no-template-curly-in-string */
-import { HttpTaskConfig } from "../types/workflowDef";
-
-export const NEW_WORKFLOW_TEMPLATE = {
-  name: "new_workflow",
-  description:
-    "Edit or extend this sample workflow. Set the workflow name to get started",
-  version: 1,
-  tasks: [
-    {
-      name: "get_population_data",
-      taskReferenceName: "get_population_data",
-      inputParameters: {
-        http_request: {
-          uri: "https://datausa.io/api/data?drilldowns=Nation&measures=Population",
-          method: "GET",
-        },
-      },
-      type: "HTTP",
-    } as HttpTaskConfig,
-  ],
-  inputParameters: [],
-  outputParameters: {
-    data: "${get_population_data.output.response.body.data}",
-    source: "${get_population_data.output.response.body.source}",
-  },
-  schemaVersion: 2,
-  restartable: true,
-  workflowStatusListenerEnabled: false,
-  ownerEmail: "example@email.com",
-  timeoutPolicy: "ALERT_ONLY",
-  timeoutSeconds: 0,
-};
-
 export const WORKFLOW_SCHEMA = {
   $schema: "http://json-schema.org/draft-07/schema",
   $id: "http://example.com/example.json",

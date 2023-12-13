@@ -1,84 +1,46 @@
 import { TerminateTaskConfig } from "../../types/workflowDef";
+import { extendSchema, generateBoilerplateTask } from "../schemaUtils";
 
-export const terminateTaskSchema = [
-  {
-    key: "name",
-    default: "",
-    required: true,
-    type: "string",
-  },
-  {
-    key: "taskReferenceName",
-    default: "",
-    required: true,
-    type: "string",
-  },
-  {
-    key: "description",
-    default: "",
-    required: false,
-    type: "string",
-  },
-  {
-    key: "optional",
-    default: false,
-    required: false,
-    type: "boolean",
-  },
-  {
-    key: "startDelay",
-    default: 0,
-    required: false,
-    type: "int",
-  },
-  {
-    key: "rateLimited",
-    default: false,
-    required: false,
-    type: "boolean",
-  },
-  {
-    key: "retryCount",
-    default: 0,
-    required: false,
-    type: "int",
-  },
+export const terminateTaskSchema = extendSchema("TERMINATE", [
+  "name",
+  "taskReferenceName",
+  "description",
+  "rateLimited",
+  "retryCount",
+  "startDelay",
+  "optional",
+  "asyncComplete",
+]);
+
+export const terminateInputParametersSchema = [
   {
     key: "terminationStatus",
-    default: "COMPLETED",
+    defaultValue: "COMPLETED",
     required: true,
     type: "string",
   },
   {
     key: "terminationReason",
-    default: "",
+    defaultValue: "",
     required: false,
     type: "string",
+  },
+  {
+    key: "workflowOutput",
+    defaultValue: undefined,
+    required: false,
+    type: "object",
   },
 ];
 
 export function createNewTerminateTask(taskReferenceName) {
-  let taskParams = {};
-  let inputParameters = {};
-
-  taskParams["type"] = "TERMINATE";
-
-  terminateTaskSchema.forEach((parameter) => {
-    // Only expose fields that are marked as required
-    if (parameter.required === true) {
-      // Sets the value as the respective input if the key matches "name" or "taskReferenceName", otherwise, uses the default value
-      if (parameter.key === "name") {
-        taskParams[parameter.key] = taskReferenceName;
-      } else if (parameter.key === "taskReferenceName") {
-        taskParams[parameter.key] = taskReferenceName;
-      } else if (parameter.key === "terminationStatus") {
-        inputParameters[parameter.key] = parameter.default;
-      } else {
-        taskParams[parameter.key] = parameter.default;
-      }
-    }
-  });
-  taskParams["inputParameters"] = inputParameters;
-
-  return taskParams as TerminateTaskConfig;
+  return generateBoilerplateTask<TerminateTaskConfig>(
+    terminateTaskSchema,
+    taskReferenceName,
+    {
+      inputParameters: {
+        terminationStatus: "COMPLETED",
+      },
+    },
+  );
 }

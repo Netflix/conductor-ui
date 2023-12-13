@@ -145,8 +145,12 @@ const additionalOptions = {
             //backgroundColor: baseTheme.palette.grey.A100,
           },
         },
-        textSizeSmall: {
-          fontSize: "0.8125rem",
+        sizeSmall: {
+          fontSize: 13,
+          paddingBottom: 4,
+          paddingLeft: 10,
+          paddingRight: 10,
+          paddingTop: 4,
         },
         outlined: {
           paddingTop: spacings.space1,

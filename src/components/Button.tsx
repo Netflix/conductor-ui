@@ -3,8 +3,10 @@ import {
   ButtonProps as MuiButtonProps,
 } from "@mui/material";
 
-export type ButtonProps = Omit<MuiButtonProps, "variant"> & {
+export type ButtonProps = Omit<MuiButtonProps, "variant" | "component"> & {
   variant?: "primary" | "secondary" | "tertiary";
+  // All other props
+  [x: string]: any;
 };
 
 export default function Button({ variant = "primary", ...props }: ButtonProps) {

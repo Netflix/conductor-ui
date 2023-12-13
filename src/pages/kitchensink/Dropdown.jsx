@@ -3,6 +3,7 @@ import { Paper, Heading, Select } from "../../components";
 import { MenuItem } from "@mui/material";
 import top100Films from "./sampleMovieData";
 import Dropdown from "../../components/Dropdown";
+import TaskPicker from "../../components/diagram/TaskPicker";
 
 export default function () {
   const [value, setValue] = useState(10);
@@ -124,6 +125,8 @@ export default function () {
         value={dropdownValues}
         onChange={(e, v) => setDropdownValues(v)}
       />
+
+      <TaskPicker />
     </Paper>
   );
 }

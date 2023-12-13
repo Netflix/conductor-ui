@@ -38,7 +38,8 @@ import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import * as Yup from "yup";
 import EnhancedTable from "./EnhancedTable";
 import DataTableDemo from "./DataTableDemo";
-import RCDTable from "./RDGTable";
+import RDGTable from "./RDGTable";
+import DeleteButton from "../../components/diagram/nodes/BuilderButton";
 
 import sharedStyles from "../styles";
 import { makeStyles } from "@mui/styles";
@@ -98,7 +99,7 @@ export default function KitchenSink() {
           <FormikSection />
         </Grid>
         <Grid item xs={12}>
-          <RCDTable />
+          <RDGTable />
         </Grid>
       </Grid>
     </div>
@@ -441,6 +442,19 @@ const Buttons = () => {
           <IconButton size="large">
             <DeleteIcon fontSize="inherit" />
           </IconButton>
+          <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
+            <Button variant="primary" size="large">
+              Large
+            </Button>
+
+            <Button variant="primary" size="medium">
+              Medium
+            </Button>
+
+            <Button variant="primary" size="small">
+              Small
+            </Button>
+          </div>
           <DropdownButton
             icon={<DeleteIcon />}
             options={[
@@ -458,6 +472,7 @@ const Buttons = () => {
               },
             ]}
           />
+          <DeleteButton />
         </Grid>
         <Grid item xs={12}>
           <ButtonGroup

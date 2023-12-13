@@ -18,6 +18,7 @@ import _ from "lodash";
 import { useEffect } from "react";
 import { WorkflowDef } from "../../types/workflowDef";
 import produce from "immer";
+import stringify from "json-stable-stringify";
 
 const useStyles = makeStyles({
   rightButtons: {
@@ -34,7 +35,7 @@ const useStyles = makeStyles({
 const WORKFLOW_SAVE_FAILED = "Failed to save the workflow definition.";
 
 type SaveWorkflowDialogProps = {
-  onSuccess: (name: string, version: number) => void;
+  onSuccess: (name: string, version: string) => void;
   onCancel: () => void;
   modified: WorkflowDef;
   original: WorkflowDef;
@@ -54,7 +55,7 @@ export default function SaveWorkflowDialog({
   const [useAutoVersion, setUseAutoVersion] = useState(true);
   const { data: namesAndVersions } = useWorkflowNamesAndVersions();
 
-  const isNew = original.name !== modified.name;
+  const isNew = !original || original.name !== modified.name;
   const isClash =
     isNew && namesAndVersions && !!namesAndVersions[modified.name]; // New workflow cannot use existing name to prevent accidental overwrite.
 
@@ -92,7 +93,7 @@ export default function SaveWorkflowDialog({
   const { isLoading, mutate: saveWorkflow } = useSaveWorkflow({
     onSuccess: (data) => {
       console.log("onsuccess", data);
-      onSuccess(upVersioned.name, upVersioned.version);
+      onSuccess(upVersioned.name, upVersioned.version.toString());
     },
     onError: (err) => {
       console.log("onerror", err);
@@ -105,11 +106,11 @@ export default function SaveWorkflowDialog({
 
   // Sort top level keys
   const originalText = useMemo(
-    () => JSON.stringify(original, Object.keys(original).sort(), 2),
+    () => (original ? stringify(original, { space: 2 }) : ""),
     [original],
   );
   const modifiedText = useMemo(
-    () => JSON.stringify(upVersioned, Object.keys(upVersioned).sort(), 2),
+    () => stringify(upVersioned, { space: 2 }),
     [upVersioned],
   );
 

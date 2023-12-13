@@ -18,7 +18,6 @@ import TaskQueue from "./pages/misc/TaskQueue";
 import KitchenSink from "./pages/kitchensink/KitchenSink";
 import DiagramTest from "./pages/kitchensink/DiagramTest";
 import Examples from "./pages/kitchensink/Examples";
-import Gantt from "./pages/kitchensink/Gantt";
 import Workbench from "./pages/workbench/Workbench";
 
 // For rc-dock
@@ -93,8 +92,6 @@ export default function App({
           <Route path="/kitchen" element={<KitchenSink />} />
           <Route path="/kitchen/diagram" element={<DiagramTest />} />
           <Route path="/kitchen/examples" element={<Examples />} />
-          <Route path="/kitchen/gantt" element={<Gantt />} />
-
           {customRoutes}
         </Routes>
       </div>

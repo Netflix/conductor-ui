@@ -1,17 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Heading } from "../../../../components";
 import _, { cloneDeep } from "lodash";
-import { TaskConfiguratorProps } from "../TaskConfigPanel";
-import { useStyles } from "./TaskConfiguratorUtils";
-import AttributeEditor from "./AttributeEditor";
+import { useStyles } from "../TaskConfiguratorUtils";
+import AttributeTable from "../AttributeTable";
 import { doWhileTaskSchema } from "../../../../schema/task/doWhileTask";
 import JsonInput from "../../../../components/JsonInput";
 
-const DoWhileTaskConfigurator = ({
-  initialConfig,
-  onUpdate,
-  onChanged,
-}: TaskConfiguratorProps) => {
+const DoWhileTaskConfigurator = ({ initialConfig, onUpdate, onChanged }) => {
   const classes = useStyles();
   const [loopCondition, setLoopCondition] = useState<string>("");
   const [taskLevelParams, setTaskLevelParams] = useState<any>({});
@@ -60,7 +55,7 @@ const DoWhileTaskConfigurator = ({
           DO_WHILE Task
         </Heading>
       </div>
-      <AttributeEditor
+      <AttributeTable
         schema={doWhileTaskSchema}
         initialTaskLevelParams={initialTaskLevelParams}
         onChange={handleOnchange}

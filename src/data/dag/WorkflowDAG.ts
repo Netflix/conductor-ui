@@ -1,12 +1,10 @@
 import _ from "lodash";
-import { graphlib } from "dagre-d3";
+import { graphlib, Node } from "dagre";
 import { templates } from "./templates";
 import {
   WorkflowDef,
   GenericTaskConfig,
-  TerminalTaskConfig,
   Tally,
-  DagEdgeProperties,
   SwitchTaskConfig,
   DynamicForkTaskConfig,
   DoWhileTaskConfig,
@@ -19,9 +17,10 @@ import {
   PlaceholderTaskConfig,
   TaskConfigType,
   TaskConfig,
+  StartTaskConfig,
+  FinalTaskConfig,
 } from "../../types/workflowDef";
 import {
-  ExtendedTaskResult,
   ForkTaskResult,
   TaskResult,
   ExecutionAndTasks,
@@ -33,34 +32,37 @@ import {
 const DYNAMIC_FORK_COLLAPSE_LIMIT = 3;
 
 export type NodeData = {
+  id: string;
   taskConfig: GenericTaskConfig;
   parentArray: GenericTaskConfig[];
-  taskResults: ExtendedTaskResult[];
+  taskResults: TaskResult[];
 
   status?: TaskStatus;
   tally?: Tally;
   containsTaskRefs?: string[];
 };
 
+export type NodeWithData = Node<NodeData>;
+
 export default class WorkflowDAG {
-  workflowDef: WorkflowDef;
+  workflowDef: Omit<WorkflowDef, "tasks">;
   taskConfigs: TaskConfig[];
 
-  graph: graphlib.Graph;
-  taskResultsByRef: Map<string, ExtendedTaskResult[]>;
-  taskResultById: Map<string, ExtendedTaskResult>;
+  graph: graphlib.Graph<NodeData>;
+  taskResultsByRef: Map<string, TaskResult[]>;
+  taskResultById: Map<string, TaskResult>;
 
   execution?: Execution;
 
   private constructor(workflowDef: WorkflowDef) {
-    const { tasks, ...workflowDefWithoutTasks } = workflowDef;
-    this.workflowDef = { ...workflowDefWithoutTasks, tasks: [] };
-    this.taskConfigs = _.cloneDeep(tasks); // OK to mutate directly.
+    this.workflowDef = _.omit(workflowDef, "tasks");
+    this.taskConfigs = _.cloneDeep(workflowDef.tasks);
+    // OK to mutate - taskConfigs appended with reconstructed configs from dynamically forked tasks.
 
     // Following will always be populated by initialize()
-    this.graph = undefined as unknown as graphlib.Graph;
-    this.taskResultsByRef = new Map() as Map<string, ExtendedTaskResult[]>;
-    this.taskResultById = new Map() as Map<string, ExtendedTaskResult>;
+    this.graph = undefined as unknown as graphlib.Graph<NodeData>;
+    this.taskResultsByRef = new Map() as Map<string, TaskResult[]>;
+    this.taskResultById = new Map() as Map<string, TaskResult>;
   }
 
   public clone() {
@@ -145,15 +147,25 @@ export default class WorkflowDAG {
     // Always add start bubble, and mark it as executed.
     cls.addTaskResult({
       referenceTaskName: "__start",
-      taskType: "TERMINAL",
+      taskType: "START",
       status: "COMPLETED",
+      taskId: "",
+      taskDefName: "",
+      workflowInstanceId: "",
+      startTime: 0,
+      endTime: 0,
     });
 
     if (execution!.status === "COMPLETED" && !isTerminated) {
       cls.addTaskResult({
         referenceTaskName: "__final",
-        taskType: "TERMINAL",
+        taskType: "FINAL",
         status: "COMPLETED",
+        taskId: "",
+        taskDefName: "",
+        workflowInstanceId: "",
+        startTime: 0,
+        endTime: 0,
       });
     }
 
@@ -163,21 +175,21 @@ export default class WorkflowDAG {
   }
 
   node(ref: string) {
-    return this.graph.node(ref) as NodeData;
+    return this.graph.node(ref) as NodeWithData;
   }
 
-  addTaskResult(task: ExtendedTaskResult) {
+  addTaskResult(task: TaskResult) {
     if (!this.taskResultsByRef.has(task.referenceTaskName)) {
       this.taskResultsByRef.set(task.referenceTaskName, []);
     }
 
     // Cannot be undefined since we just pushed an empty array.
-    (
-      this.taskResultsByRef.get(task.referenceTaskName) as ExtendedTaskResult[]
-    ).push(task);
+    (this.taskResultsByRef.get(task.referenceTaskName) as TaskResult[]).push(
+      task,
+    );
 
     // Terminal and Placeholder pseudotasks do not have IDs
-    if (task.taskType !== "TERMINAL") {
+    if (task.taskType !== "START" || task.taskType !== "FINAL") {
       this.taskResultById.set((task as TaskResult).taskId, task);
     }
   }
@@ -185,8 +197,8 @@ export default class WorkflowDAG {
   initialize() {
     this.graph = new graphlib.Graph({ directed: true, compound: false });
 
-    const startTask: TerminalTaskConfig = {
-      type: "TERMINAL",
+    const startTask: StartTaskConfig = {
+      type: "START",
       taskReferenceName: "__start",
       name: "start",
     };
@@ -202,8 +214,8 @@ export default class WorkflowDAG {
     }
 
     // Add completed bubble for all workflows.
-    const endTask: TerminalTaskConfig = {
-      type: "TERMINAL",
+    const endTask: FinalTaskConfig = {
+      type: "FINAL",
       taskReferenceName: "__final",
       name: "final",
     };
@@ -236,6 +248,7 @@ export default class WorkflowDAG {
     const taskResult = _.last(this.taskResultsByRef.get(effectiveRef)); //undefined if unexecuted
 
     let vertex: NodeData = {
+      id: taskConfig.taskReferenceName,
       parentArray: parentArray,
       taskConfig: taskConfig,
       taskResults: this.getTaskResultsByRef(effectiveRef),
@@ -252,46 +265,43 @@ export default class WorkflowDAG {
     this.graph.setNode(taskConfig.taskReferenceName, vertex);
 
     for (let antecedentConfig of antecedentConfigs) {
-      const antecedentExecuted = !!this.graph.node(
-        antecedentConfig.taskReferenceName,
+      const antecedentExecuted = !!(
+        this.graph.node(antecedentConfig.taskReferenceName) as NodeWithData
       ).status;
-      let edgeParams: DagEdgeProperties;
+      let edgeParams: any = {};
 
       if (
-        antecedentExecuted &&
-        (antecedentConfig.type === "SWITCH" ||
-          antecedentConfig.type === "DECISION")
+        antecedentConfig.type === "SWITCH" ||
+        antecedentConfig.type === "DECISION"
       ) {
-        // Special case - When the antecedent of an executed node is a SWITCH or DECISION,
-        // the edge may not necessarily be highlighted.
-        //
-        // No need for special case for DO_WHILE_END any more because executed loops are always collapsed.
-
+        // Figure out caseValue no matter what
         const caseValue = getCaseValue(
           taskConfig.taskReferenceName,
           antecedentConfig,
         );
+        edgeParams.caseValue = caseValue;
 
-        if (taskResult) {
-          edgeParams = {
-            caseValue,
-            executed: this.isBranchTaken(
+        if (antecedentExecuted) {
+          // Special case - When the antecedent of an executed node is a SWITCH or DECISION,
+          // the edge may not necessarily be highlighted.
+          //
+          // No need for special case for DO_WHILE_END any more because executed loops are always collapsed.
+
+          if (taskResult) {
+            edgeParams.executed = this.isBranchTaken(
               caseValue,
               taskResult as TaskResult,
               antecedentConfig,
-            ),
-          };
+            );
+          } else {
+            edgeParams.executed = false;
+          }
         } else {
-          edgeParams = {
-            executed: false,
-            caseValue,
-          };
+          // General case - edge highlighted if task is executed.
+          edgeParams.executed = !!vertex.status && antecedentExecuted;
         }
       } else {
-        // General case - edge highlighted if task is executed.
-        edgeParams = {
-          executed: antecedentExecuted && !!vertex.status,
-        };
+        edgeParams.executed = !!vertex.status && antecedentExecuted;
       }
 
       this.graph.setEdge(
@@ -409,7 +419,7 @@ export default class WorkflowDAG {
     );
 
     if (doWhileTaskResult) {
-      const loopTaskResults: ExtendedTaskResult[] = [];
+      const loopTaskResults: TaskResult[] = [];
       for (let ref of loopOverRefs) {
         const refList = this.taskResultsByRef.get(ref) || [];
         loopTaskResults.push(...refList);
@@ -665,15 +675,13 @@ export default class WorkflowDAG {
           parentResult?.taskType === "FORK_JOIN_DYNAMIC" ||
           parentResult?.taskType === "FORK"
         ) {
-          const placeholderRef = (successors as string[])?.find(
-            (successor: string) =>
-              successor.includes("_DF_CHILDREN_PLACEHOLDER"),
+          const placeholderRef = successors?.find((successor) =>
+            successor.id.includes("_DF_CHILDREN_PLACEHOLDER"),
           );
           return placeholderRef;
         } else if (parentResult?.taskType === "DO_WHILE") {
-          const placeholderRef = (successors as string[])?.find(
-            (successor: string) =>
-              successor.includes("_LOOP_CHILDREN_PLACEHOLDER"),
+          const placeholderRef = successors?.find((successor) =>
+            successor.id.includes("_LOOP_CHILDREN_PLACEHOLDER"),
           );
           return placeholderRef;
         }
@@ -711,21 +719,17 @@ export default class WorkflowDAG {
   getTaskConfigByRef(ref: string) {
     const node = this.node(ref);
     if (node) {
-      return node.taskConfig as TaskConfig | IncompleteDFChildTaskConfig; // TODO proper type guard
+      return node.taskConfig;
     } else {
       // Node not found by ref. (e.g. DF child). Return minimal TaskConfig
       const taskResult = this.getTaskResultByRef(ref);
       if (taskResult) {
-        if (taskResult.taskType === "TERMINAL") {
-          throw new Error("Cannot retrieve TERMINAL task by ref");
-        } else {
-          return {
-            taskReferenceName: ref,
-            name: (taskResult as TaskResult).taskDefName,
-          } as IncompleteDFChildTaskConfig;
-        }
+        return {
+          taskReferenceName: ref,
+          name: (taskResult as TaskResult).taskDefName,
+        } as IncompleteDFChildTaskConfig;
       } else {
-        throw new Error("No taskConfig found for ref.");
+        throw new Error("No taskConfig found for ref: " + ref);
       }
     }
   }
@@ -830,7 +834,7 @@ export default class WorkflowDAG {
       })
       .flat()
       .reduce(
-        (prev: Tally, curr: ExtendedTaskResult) => {
+        (prev: Tally, curr: TaskResult) => {
           const retval: Tally = { ...prev };
 
           retval.total = prev.total + 1;
@@ -920,10 +924,10 @@ export default class WorkflowDAG {
         taskConfig.type === "FORK_JOIN"
       ) {
         const successors = this.graph.successors(ref);
-        if ((successors as string[])?.length !== 1) {
+        if (successors?.length !== 1) {
           throw new Error("Fork must be followed by Join");
         }
-        const successorNode = this.graph.node(successors[0]);
+        const successorNode = successors[0];
         if (successorNode.taskConfig.type !== "JOIN") {
           throw new Error("Fork must be followed by Join");
         }
@@ -941,11 +945,10 @@ export default class WorkflowDAG {
   }
 
   addForkTasks(parentRef: string, type: TaskConfigType) {
-    const { taskConfig }: { taskConfig: ForkTaskConfig } =
-      this.graph.node(parentRef);
+    const { taskConfig } = this.graph.node(parentRef);
 
     const newTaskConfig = this.getNextUntitled(type);
-    taskConfig.forkTasks.push(newTaskConfig);
+    (taskConfig as ForkTaskConfig).forkTasks.push(newTaskConfig);
 
     this.initialize();
   }
@@ -955,8 +958,8 @@ export default class WorkflowDAG {
     type: TaskConfigType,
     isDefault: boolean = false,
   ) {
-    const { taskConfig }: { taskConfig: SwitchTaskConfig } =
-      this.graph.node(parentRef);
+    const taskConfig = this.graph.node(parentRef)
+      .taskConfig as SwitchTaskConfig;
 
     const newTaskConfig = this.getNextUntitled(type);
     if (isDefault) {
@@ -970,8 +973,8 @@ export default class WorkflowDAG {
   }
 
   addLoopTask(parentRef: string, type: TaskConfigType) {
-    const { taskConfig }: { taskConfig: DoWhileTaskConfig } =
-      this.graph.node(parentRef);
+    const taskConfig = this.graph.node(parentRef)
+      .taskConfig as DoWhileTaskConfig;
 
     const newTaskConfig = this.getNextUntitled(type);
 
@@ -1036,7 +1039,7 @@ export default class WorkflowDAG {
 
   isBranchTaken(
     caseValue: string,
-    branchTaskResult: ExtendedTaskResult,
+    branchTaskResult: TaskResult,
     switchTaskConfig: SwitchTaskConfig,
   ) {
     let retval;

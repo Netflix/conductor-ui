@@ -68,15 +68,6 @@ export type TaskResult =
   | SwitchTaskResult
   | DoWhileTaskResult;
 
-type TerminalTaskResult = {
-  referenceTaskName: string;
-  taskType: "TERMINAL";
-  status: TaskStatus;
-  parentTaskReferenceName?: string;
-};
-
-export type ExtendedTaskResult = TaskResult | TerminalTaskResult;
-
 export type ExecutionAndTasks = {
   execution: Execution;
   tasks: TaskResult[];

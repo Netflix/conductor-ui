@@ -3,8 +3,8 @@ import { Button, Pill } from "../../../components";
 import { Toolbar, Tooltip } from "@mui/material";
 import _ from "lodash";
 import Editor, { Monaco } from "@monaco-editor/react";
-
-import { DefEditorContext, EditorTabSeverity } from "../WorkflowDefinition";
+import { EditorTabSeverity } from "./EditorTabHead";
+import { DefEditorContext } from "../WorkflowDefinition";
 import { makeStyles } from "@mui/styles";
 import { WORKFLOW_SCHEMA } from "../../../schema/workflow";
 import WorkflowDAG from "../../../data/dag/WorkflowDAG";
@@ -52,14 +52,10 @@ export function configureMonaco(monaco: any) {
   });
 }
 
-export default function JsonPanel({
-  setSeverity,
-}: {
-  setSeverity: (EditorTabSeverity) => void;
-}) {
+export default function JsonPanel({ tabId }) {
   const classes = useStyles();
   const context = useContext(DefEditorContext);
-  const { selectedTask, dag, setStaging } = context!;
+  const { selectedTask, dag, setDag, setSeverity } = context!;
 
   // false=idle (dialog closed)
   // undefined= Ask to reset to current_version
@@ -77,7 +73,6 @@ export default function JsonPanel({
   useEffect(() => {
     if (editorRef.current) {
       if (selectedTask) {
-        console.log('here')
         const editor = editorRef.current.getModel();
 
         const searchResult = editor.findMatches(
@@ -131,7 +126,7 @@ export default function JsonPanel({
     try {
       const workingDef = JSON.parse(workingText!);
       const dag = WorkflowDAG.fromWorkflowDef(workingDef);
-      setStaging("JsonPanel", workingDef, dag);
+      setDag("JsonPanel", dag);
     } catch (e) {
       console.log("error parsing into dag");
     }
@@ -151,8 +146,8 @@ export default function JsonPanel({
   }, [jsonErrors, changed]);
 
   useEffect(() => {
-    setSeverity(errorLevel);
-  }, [setSeverity, errorLevel]);
+    setSeverity(tabId, errorLevel);
+  }, [tabId, setSeverity, errorLevel]);
 
   return (
     <div className={classes.column}>

@@ -71,8 +71,8 @@ export function useInvalidateWorkflows() {
 
 export function useWorkflowDef(
   workflowName: string | undefined,
-  version: number | undefined,
-  defaultWorkflow: WorkflowDef | undefined,
+  version: string | undefined,
+  options?: any,
 ) {
   let path;
   const key = ["workflowDef", workflowName || ""];
@@ -81,15 +81,13 @@ export function useWorkflowDef(
     path = `/metadata/workflow/${workflowName}`;
     if (version) {
       path += `?version=${version}`;
-      key.push(version.toString());
+      key.push(version);
     }
   }
-  return useFetch<WorkflowDef>(
-    key,
-    path,
-    {}, // Always enabled - get defaultWorkflow when workflowName undefined
-    defaultWorkflow,
-  );
+  return useFetch<WorkflowDef>(key, path, {
+    enabled: !!workflowName,
+    ...options,
+  });
 }
 
 export function useWorkflowDefs() {
@@ -194,9 +192,10 @@ export function useWorkflowNames() {
   // Extract unique names
   return useMemo(() => {
     if (data) {
-      return Object.keys(data)
-        .map((val) => val.trim())
-        .sort();
+      const keys = Object.keys(data).map((val) => val.trim());
+
+      const deduped = new Set(keys);
+      return Array.from(deduped).sort();
     } else {
       return [];
     }

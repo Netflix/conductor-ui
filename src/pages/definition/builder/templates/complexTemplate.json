@@ -1,0 +1,393 @@
+{
+  "createTime": 1637788913385,
+  "updateTime": 1684521699682,
+  "accessPolicy": {},
+  "name": "complex_test_wf",
+  "description": "complex_test_wf",
+  "version": 4,
+  "inputParameters": [],
+  "outputParameters": {},
+  "schemaVersion": 2,
+  "restartable": true,
+  "workflowStatusListenerEnabled": true,
+  "ownerEmail": "test@test123.xyz",
+  "timeoutPolicy": "ALERT_ONLY",
+  "timeoutSeconds": 0,
+  "variables": {},
+  "inputTemplate": {},
+  "tasks": [
+    {
+      "name": "perf_task_1",
+      "taskReferenceName": "perf_task_1",
+      "inputParameters": {
+        "mod": "${workflow.input.mod}",
+        "oddEven": "${workflow.input.oddEven}"
+      },
+      "type": "SIMPLE",
+      "startDelay": 0,
+      "optional": false,
+      "asyncComplete": false
+    },
+    {
+      "name": "dyntask",
+      "taskReferenceName": "perf_task_2",
+      "inputParameters": {
+        "taskToExecute": "${workflow.input.task2Name}"
+      },
+      "type": "DYNAMIC",
+      "dynamicTaskNameParam": "taskToExecute"
+    },
+    {
+      "name": "fork",
+      "taskReferenceName": "fork",
+      "inputParameters": {},
+      "type": "FORK_JOIN",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [
+        [
+          {
+            "name": "inline",
+            "taskReferenceName": "inline",
+            "inputParameters": {
+              "value": "${workflow.input.name}",
+              "evaluatorType": "javascript",
+              "expression": "(function() { return 'Hello ' + $.value })()"
+            },
+            "type": "INLINE"
+          },
+          {
+            "name": "jq",
+            "taskReferenceName": "jq_transform_task",
+            "inputParameters": {
+              "input": "${workflow.input}",
+              "queryExpression": ".input as $_ | { out: ($_.in1.array + $_.in2.array) }"
+            },
+            "type": "JSON_JQ_TRANSFORM"
+          }
+        ],
+        [
+          {
+            "name": "set_variable",
+            "taskReferenceName": "set_variable_1",
+            "inputParameters": {
+              "globalvar": "${workflow.input.mod}"
+            },
+            "type": "SET_VARIABLE"
+          }
+        ]
+      ]
+    },
+    {
+      "name": "join",
+      "taskReferenceName": "join",
+      "inputParameters": {},
+      "type": "JOIN",
+      "joinOn": ["t2", "t3"]
+    },
+    {
+      "name": "http_with_metatron",
+      "taskReferenceName": "http_metatron_1",
+      "inputParameters": {
+        "http_request": {
+          "vipAddress": "svip://workflowbeta-secure:8443",
+          "uri": "/admin/health",
+          "method": "GET",
+          "appName": "workflow"
+        }
+      },
+      "type": "HTTP"
+    },
+    {
+      "name": "http_non_metatron",
+      "taskReferenceName": "http_non_metatron_1",
+      "inputParameters": {
+        "http_request": {
+          "vipAddress": "discoveryreadonly.cloud.netflix.net:7001",
+          "uri": "/healthcheck",
+          "method": "GET",
+          "accept": "text/plain"
+        }
+      },
+      "type": "HTTP",
+      "startDelay": 0,
+      "optional": false,
+      "asyncComplete": false
+    },
+    {
+      "name": "oddEvenDecision",
+      "taskReferenceName": "oddEvenDecision",
+      "inputParameters": {
+        "oddEven": "${perf_task_3.output.oddEven}"
+      },
+      "type": "SWITCH",
+      "evaluatorType": "value-param",
+      "expression": "oddEven",
+      "defaultCase": [],
+      "decisionCases": {
+        "0": [
+          {
+            "name": "perf_task_4",
+            "taskReferenceName": "perf_task_4",
+            "inputParameters": {
+              "mod": "${perf_task_3.output.mod}",
+              "oddEven": "${perf_task_3.output.oddEven}"
+            },
+            "type": "SIMPLE"
+          },
+          {
+            "name": "dynamic_fanout",
+            "taskReferenceName": "fanout1",
+            "inputParameters": {
+              "dynamicTasks": "${perf_task_4.output.dynamicTasks}",
+              "input": "${perf_task_4.output.inputs}"
+            },
+            "type": "FORK_JOIN_DYNAMIC",
+            "dynamicForkTasksParam": "dynamicTasks",
+            "dynamicForkTasksInputParamName": "input"
+          },
+          {
+            "name": "dynamic_join",
+            "taskReferenceName": "join1",
+            "inputParameters": {},
+            "type": "JOIN"
+          },
+          {
+            "name": "perf_task_5",
+            "taskReferenceName": "perf_task_5",
+            "inputParameters": {
+              "mod": "${perf_task_4.output.mod}",
+              "oddEven": "${perf_task_4.output.oddEven}"
+            },
+            "type": "SIMPLE"
+          },
+          {
+            "name": "perf_task_6",
+            "taskReferenceName": "perf_task_6",
+            "inputParameters": {
+              "mod": "${perf_task_5.output.mod}",
+              "oddEven": "${perf_task_5.output.oddEven}"
+            },
+            "type": "SIMPLE"
+          }
+        ],
+        "1": [
+          {
+            "name": "perf_task_7",
+            "taskReferenceName": "perf_task_7",
+            "inputParameters": {
+              "mod": "${perf_task_3.output.mod}",
+              "oddEven": "${perf_task_3.output.oddEven}"
+            },
+            "type": "SIMPLE"
+          },
+          {
+            "name": "perf_task_8",
+            "taskReferenceName": "perf_task_8",
+            "inputParameters": {
+              "mod": "${perf_task_7.output.mod}",
+              "oddEven": "${perf_task_7.output.oddEven}"
+            },
+            "type": "SIMPLE"
+          },
+          {
+            "name": "perf_task_9",
+            "taskReferenceName": "perf_task_9",
+            "inputParameters": {
+              "mod": "${perf_task_8.output.mod}",
+              "oddEven": "${perf_task_8.output.oddEven}"
+            },
+            "type": "SIMPLE"
+          },
+          {
+            "name": "modDecision",
+            "taskReferenceName": "modDecision",
+            "inputParameters": {
+              "mod": "${perf_task_8.output.mod}"
+            },
+            "type": "SWITCH",
+            "decisionCases": {
+              "0": [
+                {
+                  "name": "perf_task_12",
+                  "taskReferenceName": "perf_task_12",
+                  "inputParameters": {
+                    "mod": "${perf_task_9.output.mod}",
+                    "oddEven": "${perf_task_9.output.oddEven}"
+                  },
+                  "type": "SIMPLE"
+                },
+                {
+                  "name": "perf_task_13",
+                  "taskReferenceName": "perf_task_13",
+                  "inputParameters": {
+                    "mod": "${perf_task_12.output.mod}",
+                    "oddEven": "${perf_task_12.output.oddEven}"
+                  },
+                  "type": "SIMPLE"
+                },
+                {
+                  "name": "sub_workflow_x",
+                  "taskReferenceName": "wf1",
+                  "inputParameters": {
+                    "mod": "${perf_task_12.output.mod}",
+                    "oddEven": "${perf_task_12.output.oddEven}"
+                  },
+                  "type": "SUB_WORKFLOW",
+                  "subWorkflowParam": {
+                    "name": "sub_flow_1",
+                    "version": 2
+                  }
+                }
+              ],
+              "1": [
+                {
+                  "name": "perf_task_15",
+                  "taskReferenceName": "perf_task_15",
+                  "inputParameters": {
+                    "mod": "${perf_task_9.output.mod}",
+                    "oddEven": "${perf_task_9.output.oddEven}"
+                  },
+                  "type": "SIMPLE"
+                },
+                {
+                  "name": "perf_task_16",
+                  "taskReferenceName": "perf_task_16",
+                  "inputParameters": {
+                    "mod": "${perf_task_15.output.mod}",
+                    "oddEven": "${perf_task_15.output.oddEven}"
+                  },
+                  "type": "SIMPLE"
+                },
+                {
+                  "name": "sub_workflow_x",
+                  "taskReferenceName": "wf2",
+                  "inputParameters": {
+                    "mod": "${perf_task_12.output.mod}",
+                    "oddEven": "${perf_task_12.output.oddEven}"
+                  },
+                  "type": "SUB_WORKFLOW",
+                  "subWorkflowParam": {
+                    "name": "sub_flow_1",
+                    "version": 2
+                  }
+                }
+              ],
+              "4": [
+                {
+                  "name": "start_workflow",
+                  "taskReferenceName": "start_workflow",
+                  "inputParameters": {
+                    "startWorkflow": {
+                      "name": "myWorkflow",
+                      "version": 1
+                    }
+                  },
+                  "type": "START_WORKFLOW"
+                },
+                {
+                  "name": "wait",
+                  "taskReferenceName": "wait0",
+                  "inputParameters": {
+                    "duration": "10m20s"
+                  },
+                  "type": "WAIT"
+                },
+                {
+                  "name": "human_task",
+                  "taskReferenceName": "human_task",
+                  "inputParameters": {},
+                  "type": "HUMAN"
+                }
+              ],
+              "5": [
+                {
+                  "name": "perf_task_21",
+                  "taskReferenceName": "perf_task_21",
+                  "inputParameters": {
+                    "mod": "${perf_task_9.output.mod}",
+                    "oddEven": "${perf_task_9.output.oddEven}"
+                  },
+                  "type": "SIMPLE"
+                },
+                {
+                  "name": "terminate",
+                  "taskReferenceName": "terminate0",
+                  "inputParameters": {
+                    "terminationStatus": "COMPLETED",
+                    "workflowOutput": {
+                      "foo": "bar"
+                    }
+                  },
+                  "type": "TERMINATE"
+                }
+              ]
+            },
+            "defaultCase": [
+              {
+                "name": "perf_task_24",
+                "taskReferenceName": "perf_task_24",
+                "inputParameters": {
+                  "mod": "${perf_task_9.output.mod}",
+                  "oddEven": "${perf_task_9.output.oddEven}"
+                },
+                "type": "SIMPLE"
+              },
+              {
+                "name": "sub_workflow_x",
+                "taskReferenceName": "wf4",
+                "inputParameters": {
+                  "mod": "${perf_task_12.output.mod}",
+                  "oddEven": "${perf_task_12.output.oddEven}"
+                },
+                "type": "SUB_WORKFLOW",
+                "subWorkflowParam": {
+                  "name": "sub_flow_1",
+                  "version": 2
+                }
+              },
+              {
+                "name": "perf_task_25",
+                "taskReferenceName": "perf_task_25",
+                "inputParameters": {
+                  "mod": "${perf_task_24.output.mod}",
+                  "oddEven": "${perf_task_24.output.oddEven}"
+                },
+                "type": "SIMPLE"
+              }
+            ],
+            "evaluatorType": "value-param",
+            "expression": "mod"
+          }
+        ]
+      }
+    },
+    {
+      "name": "perf_task_28",
+      "taskReferenceName": "perf_task_28",
+      "inputParameters": {
+        "mod": "${perf_task_3.output.mod}",
+        "oddEven": "${perf_task_3.output.oddEven}"
+      },
+      "type": "SIMPLE"
+    },
+    {
+      "name": "perf_task_29",
+      "taskReferenceName": "perf_task_29",
+      "inputParameters": {
+        "mod": "${perf_task_28.output.mod}",
+        "oddEven": "${perf_task_28.output.oddEven}"
+      },
+      "type": "SIMPLE"
+    },
+    {
+      "name": "perf_task_30",
+      "taskReferenceName": "perf_task_30",
+      "inputParameters": {
+        "mod": "${perf_task_29.output.mod}",
+        "oddEven": "${perf_task_29.output.oddEven}"
+      },
+      "type": "SIMPLE"
+    }
+  ]
+}

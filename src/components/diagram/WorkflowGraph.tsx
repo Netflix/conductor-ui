@@ -275,9 +275,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
 
     // Render Edges
     for (const dagreEdge of graph.edges()) {
-      const dagEdge = dagGraph.edge({ v: dagreEdge.v, w: dagreEdge.w }) as
-        | DagEdgeProperties
-        | undefined;
+      const dagEdge = dagGraph.edge({ v: dagreEdge.v, w: dagreEdge.w });
       const graphEdge = graph.edge(dagreEdge);
 
       let classes: string[] = [];
@@ -516,7 +514,8 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
       case "SUB_WORKFLOW":
         retval.label = `${ref}\n(${name})`;
         break;
-      case "TERMINAL":
+      case "START":
+      case "FINAL":
         retval.label = name;
         retval.shape = "circle";
         break;
@@ -638,7 +637,7 @@ class WorkflowGraph extends React.Component<WorkflowGraphProps> {
 
     if (this.props.executionMode) {
       if (dagNode.status) {
-        if (type !== "TERMINAL") {
+        if (type !== "START" && type !== "FINAL") {
           retval.class += ` status_${dagNode.status}`;
         }
       } else {

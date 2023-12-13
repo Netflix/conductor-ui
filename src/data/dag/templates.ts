@@ -1,12 +1,16 @@
 import {
   DoWhileTaskConfig,
   DynamicForkTaskConfig,
+  DynamicTaskConfig,
   ForkTaskConfig,
   HttpTaskConfig,
+  HumanTaskConfig,
   InlineTaskConfig,
   JQTransformTaskConfig,
   JoinTaskConfig,
+  SetVariableTaskConfig,
   SimpleTaskConfig,
+  StartWorkflowTaskConfig,
   SubworkflowTaskConfig,
   SwitchTaskConfig,
   TaskConfig,
@@ -19,7 +23,7 @@ import { createNewInlineTask } from "../../schema/task/inlineTask";
 import { createNewHttpTask } from "../../schema/task/httpTask";
 import { createNewTerminateTask } from "../../schema/task/terminateTask";
 import { createNewWaitTask } from "../../schema/task/waitTask";
-import { createNewJQTransformTask } from "../../schema/task/JQTransformTask";
+import { createNewJqTransformTask } from "../../schema/task/jqTransformTask";
 import { createNewDoWhileTask } from "../../schema/task/doWhileTask";
 import {
   createNewJoinTask,
@@ -29,6 +33,10 @@ import { createNewForkJoinTask } from "../../schema/task/forkJoinTask";
 import { createNewForkJoinDynamicTask } from "../../schema/task/forkJoinDynamicTask";
 import { createNewSwitchTask } from "../../schema/task/switchTask";
 import { createNewSubWorkflowTask } from "../../schema/task/subWorkflowTask";
+import { createDynamicTask } from "../../schema/task/dynamicTask";
+import { createNewHumanTask } from "../../schema/task/humanTask";
+import { createNewStartWorkflowTask } from "../../schema/task/startWorkflowTask";
+import { createNewSetVariableTask } from "../../schema/task/setVariableTask";
 export const templates: {
   [key in TaskConfigType]: (ref: string) => TaskConfig[];
 } = {
@@ -38,6 +46,10 @@ export const templates: {
   },
   SWITCH: (ref) => {
     const retval: SwitchTaskConfig = createNewSwitchTask(ref);
+    return [retval];
+  },
+  DYNAMIC: (ref) => {
+    const retval: DynamicTaskConfig = createDynamicTask(ref);
     return [retval];
   },
   FORK_JOIN: (ref) => {
@@ -69,7 +81,7 @@ export const templates: {
     return [retval];
   },
   JSON_JQ_TRANSFORM: (ref) => {
-    const retval: JQTransformTaskConfig = createNewJQTransformTask(ref);
+    const retval: JQTransformTaskConfig = createNewJqTransformTask(ref);
     return [retval];
   },
   INLINE: (ref) => {
@@ -80,6 +92,19 @@ export const templates: {
     const retval: WaitTaskConfig = createNewWaitTask(ref);
     return [retval];
   },
+  HUMAN: (ref) => {
+    const retval: HumanTaskConfig = createNewHumanTask(ref);
+    return [retval];
+  },
+  START_WORKFLOW: (ref) => {
+    const retval: StartWorkflowTaskConfig = createNewStartWorkflowTask(ref);
+    return [retval];
+  },
+  SET_VARIABLE: (ref) => {
+    const retval: SetVariableTaskConfig = createNewSetVariableTask(ref);
+    return [retval];
+  },
+  EVENT: (ref) => [],
   DECISION: (ref) => [],
   JOIN: (ref) => [],
   EXCLUSIVE_JOIN: (ref) => [],

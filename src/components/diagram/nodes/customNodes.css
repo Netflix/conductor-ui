@@ -1,0 +1,77 @@
+.react-flow__node {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Helvetica, Roboto, sans-serif;
+  font-size: 12px;
+  color: #222;
+  text-align: center;
+  background-color: white;
+  line-height: 15px;
+}
+
+.react-flow__node-SIMPLE,
+.react-flow__node-HTTP,
+.react-flow__node-LAMBDA,
+.react-flow__node-INLINE,
+.react-flow__node-JSON_JQ_TRANSFORM,
+.react-flow__node-EVENT,
+.react-flow__node-START_WORKFLOW,
+.react-flow__node-SET_VARIABLE,
+.react-flow__node-SUB_WORKFLOW,
+.react-flow__node-HUMAN,
+.react-flow__node-WAIT,
+.react-flow__node-DYNAMIC {
+  border-radius: 3px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #1a192b;
+}
+
+.react-flow__node-SUB_WORKFLOW {
+  border-width: 5px;
+}
+
+.react-flow__node-SWITCH {
+  background: none;
+}
+
+.react-flow__node-FORK_JOIN,
+.react-flow__node-JOIN,
+.react-flow__node-FORK_JOIN_DYNAMIC {
+  color: #fff;
+  background: #1a192b;
+}
+
+.react-flow__node-DF_CHILDREN_PLACEHOLDER {
+  border: none;
+  background: none;
+}
+
+.react-flow__node > .react-flow__handle {
+  display: none;
+}
+.react-flow__edge-path,
+.react-flow__connection-path {
+  stroke: #000;
+  stroke-width: 1;
+  fill: none;
+}
+
+.react-flow__node.selectable.selected {
+  outline: 5px solid rgba(0, 144, 237, 0.4);
+}
+
+.react-flow__node-DF_CHILDREN_PLACEHOLDER.selectable.selected,
+.react-flow__node-SWITCH.selectable.selected,
+.react-flow__node-START.selectable.selected,
+.react-flow__node-TERMINATE.selectable.selected {
+  outline: none;
+  border: none;
+}
+
+.react-flow__node-SWITCH.selectable.selected svg,
+.react-flow__node-START.selectable.selected svg,
+.react-flow__node-TERMINATE.selectable.selected svg {
+  filter: url(#outline);
+}

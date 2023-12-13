@@ -24,7 +24,7 @@ const columns = [
   {
     name: "name",
     renderer: (val) => (
-      <NavLink path={`/workflowDef/${val.trim()}`}>{val.trim()}</NavLink>
+      <NavLink path={`/workflowDef/${val?.trim()}`}>{val?.trim()}</NavLink>
     ),
     grow: 2,
   },
@@ -86,7 +86,7 @@ const columns = [
     searchable: false,
     grow: 0.5,
     renderer: (name) => (
-      <NavLink path={`/?workflowType=${name.trim()}`} newTab>
+      <NavLink path={`/?workflowType=${name?.trim()}`} newTab>
         Query
       </NavLink>
     ),

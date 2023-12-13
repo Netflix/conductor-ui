@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { ReactElement, ReactNode, useRef } from "react";
 import Editor, { OnChange } from "@monaco-editor/react";
 import { makeStyles } from "@mui/styles";
 import { FormHelperText, InputLabel } from "@mui/material";
@@ -30,7 +30,7 @@ const useStyles = makeStyles({
 });
 
 type JsonInputProps = {
-  label: string;
+  label: ReactNode;
   value: string;
   onChange: OnChange;
   language?: string;
