@@ -8,6 +8,7 @@ import PanelContainer from "./BasePanel";
 import { PanelProps } from "../tabRouter";
 import { SubWorkflowIcon } from "../../../../components/diagram/icons/taskIcons";
 import {
+  allVisible,
   loadInputParameters,
   normalizeObject,
   parseWithDefault,
@@ -151,7 +152,7 @@ const SubWorkflowTaskConfigurator = ({
       </div>
       <AttributeTable
         style={{ marginBottom: 30 }}
-        schema={subWorkflowParamSchema}
+        schema={allVisible(subWorkflowParamSchema)}
         config={subWorkflowParam}
         onChange={handleSubworkflowParamChange}
       />

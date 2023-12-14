@@ -8,7 +8,7 @@ import PanelContainer from "./BasePanel";
 import { PanelProps } from "../tabRouter";
 import { TerminateIcon } from "../../../../components/diagram/icons/taskIcons";
 import AttributeTable from "../taskconfigurator/AttributeTable";
-import { normalizeObject } from "../../../../schema/schemaUtils";
+import { allVisible, normalizeObject } from "../../../../schema/schemaUtils";
 import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles({
@@ -112,7 +112,7 @@ const TerminateConfigPanel = ({
           Terminate Parameters
         </div>
         <AttributeTable
-          schema={terminateInputParametersSchema}
+          schema={allVisible(terminateInputParametersSchema)}
           config={inputParameters}
           onChange={handleTerminateInputParametersChange}
         />

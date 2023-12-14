@@ -1,7 +1,7 @@
 import { JQTransformTaskConfig } from "../../types/workflowDef";
 import { extendSchema, generateBoilerplateTask } from "../schemaUtils";
 
-export const jqTransformTaskSchema = extendSchema("SET_VARIABLE", [
+export const jqTransformTaskSchema = extendSchema("JSON_JQ_TRANSFORM", [
   "name",
   "taskReferenceName",
   "description",

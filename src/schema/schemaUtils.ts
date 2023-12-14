@@ -110,3 +110,10 @@ export function loadInputParameters(config: GenericTaskConfig): string {
     ? JSON.stringify(config.inputParameters, null, 2)
     : "{}";
 }
+
+export function allVisible(fields: InterimSchemaField[]) {
+  return fields.map((field) => ({
+    ...field,
+    visible: true,
+  }));
+}

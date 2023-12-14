@@ -10,6 +10,7 @@ import { PanelProps } from "../tabRouter";
 import { HttpIcon } from "../../../../components/diagram/icons/taskIcons";
 import AttributeTable from "../taskconfigurator/AttributeTable";
 import {
+  allVisible,
   generateBoilerplate,
   normalizeObject,
 } from "../../../../schema/schemaUtils";
@@ -187,7 +188,7 @@ const HttpTaskConfigurator = ({
               HTTP Request
             </div>
             <AttributeTable
-              schema={httpRequestParameters}
+              schema={allVisible(httpRequestParameters)}
               config={httpRequest}
               onChange={handleHttpRequestChange}
             />

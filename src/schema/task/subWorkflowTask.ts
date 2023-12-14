@@ -22,14 +22,12 @@ export const subWorkflowParamSchema = [
     defaultValue: "",
     required: true,
     type: "string" as SchemaType,
-    visible: true,
   },
   {
     key: "version",
     defaultValue: "",
     required: false,
     type: "number" as SchemaType,
-    visible: true,
   },
 ];
 

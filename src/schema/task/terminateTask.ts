@@ -22,14 +22,12 @@ export const terminateInputParametersSchema = [
     defaultValue: "COMPLETED",
     required: true,
     type: "string" as SchemaType,
-    visible: true,
   },
   {
     key: "terminationReason",
     defaultValue: "",
     required: false,
     type: "string" as SchemaType,
-    visible: true,
   },
 ];
 
