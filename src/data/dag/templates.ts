@@ -23,7 +23,7 @@ import { createNewInlineTask } from "../../schema/task/inlineTask";
 import { createNewHttpTask } from "../../schema/task/httpTask";
 import { createNewTerminateTask } from "../../schema/task/terminateTask";
 import { createNewWaitTask } from "../../schema/task/waitTask";
-import { createNewJqTransformTask } from "../../schema/task/jqTransformTask";
+import { createNewJqTransformTask } from "../../schema/task/transformTask";
 import { createNewDoWhileTask } from "../../schema/task/doWhileTask";
 import {
   createNewJoinTask,

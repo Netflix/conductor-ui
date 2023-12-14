@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import _ from "lodash";
-import { jqTransformTaskSchema } from "../../../../schema/task/jqTransformTask";
+import { jqTransformTaskSchema } from "../../../../schema/task/transformTask";
 import JsonInput from "../../../../components/JsonInput";
 import PanelContainer from "./BasePanel";
 import { PanelProps } from "../tabRouter";
