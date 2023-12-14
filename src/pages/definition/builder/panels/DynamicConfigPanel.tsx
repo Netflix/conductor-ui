@@ -71,7 +71,6 @@ const DynamicConfigPanel = ({
         schema={dynamicTaskSchema}
         config={taskLevelParams}
         onChange={handleTaskLevelParamsChange}
-        hideFields={["type"]}
         style={{ marginBottom: 30 }}
       />
 

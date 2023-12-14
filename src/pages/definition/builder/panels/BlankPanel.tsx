@@ -1,6 +1,10 @@
-import React from "react";
+import { ReactNode } from "react";
 
-export default function BlankPanel({ message }) {
+export type BlankPanelProps = {
+  message?: ReactNode;
+};
+
+export default function BlankPanel({ message }: BlankPanelProps) {
   return (
     <div
       style={{

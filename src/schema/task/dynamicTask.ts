@@ -1,3 +1,4 @@
+import { DynamicTaskConfig } from "../../types/workflowDef";
 import { extendSchema, generateBoilerplateTask } from "../schemaUtils";
 
 export const dynamicTaskSchema = extendSchema(
@@ -14,10 +15,14 @@ export const dynamicTaskSchema = extendSchema(
 );
 
 export function createDynamicTask(taskReferenceName) {
-  return generateBoilerplateTask(dynamicTaskSchema, taskReferenceName, {
-    dynamicTaskNameParam: "taskToExecute",
-    inputParameters: {
-      taskToExecute: "",
+  return generateBoilerplateTask<DynamicTaskConfig>(
+    dynamicTaskSchema,
+    taskReferenceName,
+    {
+      dynamicTaskNameParam: "taskToExecute",
+      inputParameters: {
+        taskToExecute: "",
+      },
     },
-  });
+  );
 }

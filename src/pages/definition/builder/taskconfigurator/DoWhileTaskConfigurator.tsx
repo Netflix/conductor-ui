@@ -2,9 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Heading } from "../../../../components";
 import _, { cloneDeep } from "lodash";
 import { useStyles } from "../TaskConfiguratorUtils";
-import AttributeTable from "../AttributeTable";
 import { doWhileTaskSchema } from "../../../../schema/task/doWhileTask";
 import JsonInput from "../../../../components/JsonInput";
+import AttributeTable from "./AttributeTable";
 
 const DoWhileTaskConfigurator = ({ initialConfig, onUpdate, onChanged }) => {
   const classes = useStyles();
@@ -57,9 +57,8 @@ const DoWhileTaskConfigurator = ({ initialConfig, onUpdate, onChanged }) => {
       </div>
       <AttributeTable
         schema={doWhileTaskSchema}
-        initialTaskLevelParams={initialTaskLevelParams}
+        config={initialTaskLevelParams}
         onChange={handleOnchange}
-        taskType={"DO_WHILE"}
       />
 
       <JsonInput

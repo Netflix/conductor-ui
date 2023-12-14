@@ -270,10 +270,7 @@ export default class WorkflowDAG {
       ).status;
       let edgeParams: any = {};
 
-      if (
-        antecedentConfig.type === "SWITCH" ||
-        antecedentConfig.type === "DECISION"
-      ) {
+      if (antecedentConfig.type === "SWITCH") {
         // Figure out caseValue no matter what
         const caseValue = getCaseValue(
           taskConfig.taskReferenceName,
@@ -465,8 +462,7 @@ export default class WorkflowDAG {
       // Special case - Connect the end of each case to the loop end
       // This only occurs in DefOnly view. Executed loops are always collapsed.
       else if (
-        (lastLoopTask?.type === "SWITCH" ||
-          lastLoopTask?.type === "DECISION") &&
+        lastLoopTask?.type === "SWITCH" &&
         !(
           _.isEmpty(lastLoopTask.defaultCase) &&
           _.isEmpty(lastLoopTask.decisionCases)

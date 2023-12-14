@@ -18,7 +18,6 @@ import HomeIcon from "@mui/icons-material/Home";
 import "./diagram.scss";
 import WorkflowDAG, { NodeData } from "../../data/dag/WorkflowDAG";
 import {
-  DagEdgeProperties,
   ExtendedTaskConfigType,
   TaskCoordinate,
 } from "../../types/workflowDef";

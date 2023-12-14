@@ -1,3 +1,4 @@
+import { HttpTaskConfig } from "../../types/workflowDef";
 import {
   InterimSchemaField,
   extendSchema,
@@ -72,12 +73,16 @@ export const httpRequestParameters: InterimSchemaField[] = [
 ];
 
 export function createNewHttpTask(taskReferenceName: string) {
-  return generateBoilerplateTask(httpTaskLevelParameters, taskReferenceName, {
-    inputParameters: {
-      http_request: {
-        ...generateBoilerplate(httpRequestParameters),
-        headers: [],
+  return generateBoilerplateTask<HttpTaskConfig>(
+    httpTaskLevelParameters,
+    taskReferenceName,
+    {
+      inputParameters: {
+        http_request: {
+          ...generateBoilerplate(httpRequestParameters),
+          headers: [],
+        },
       },
     },
-  });
+  );
 }

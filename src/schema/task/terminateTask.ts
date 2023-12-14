@@ -1,5 +1,9 @@
 import { TerminateTaskConfig } from "../../types/workflowDef";
-import { extendSchema, generateBoilerplateTask } from "../schemaUtils";
+import {
+  SchemaType,
+  extendSchema,
+  generateBoilerplateTask,
+} from "../schemaUtils";
 
 export const terminateTaskSchema = extendSchema("TERMINATE", [
   "name",
@@ -17,19 +21,15 @@ export const terminateInputParametersSchema = [
     key: "terminationStatus",
     defaultValue: "COMPLETED",
     required: true,
-    type: "string",
+    type: "string" as SchemaType,
+    visible: true,
   },
   {
     key: "terminationReason",
     defaultValue: "",
     required: false,
-    type: "string",
-  },
-  {
-    key: "workflowOutput",
-    defaultValue: undefined,
-    required: false,
-    type: "object",
+    type: "string" as SchemaType,
+    visible: true,
   },
 ];
 

@@ -47,6 +47,8 @@ export function generateBoilerplateTask<T extends TaskConfig>(
 export function normalizeObject(schema: InterimSchemaField[], object: any) {
   const retval = {};
 
+  if (!object) return {};
+
   for (const field of schema) {
     if (field.required || field.alwaysInclude) {
       retval[field.key] = object[field.key] || field.defaultValue;

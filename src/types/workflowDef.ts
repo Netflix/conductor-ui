@@ -81,7 +81,7 @@ type BaseTaskConfig = {
 // Custom Task Config Types
 
 export interface SwitchTaskConfig extends BaseTaskConfig {
-  type: "DECISION" | "SWITCH";
+  type: "SWITCH";
   defaultCase: GenericTaskConfig[];
   evaluatorType: string;
   expression: string;
@@ -158,6 +158,11 @@ export interface SetVariableTaskConfig extends BaseTaskConfig {
   type: "SET_VARIABLE";
 }
 
+// Deprecated
+export interface DecisionTaskConfig extends BaseTaskConfig {
+  type: "DECISION";
+}
+
 // Config used to backfill DF child whose WorkflowTask is not available.
 export interface IncompleteDFChildTaskConfig extends BaseTaskConfig {
   type: "UNKNOWN";
@@ -191,6 +196,7 @@ export type TaskConfig =
   | HumanTaskConfig
   | StartWorkflowTaskConfig
   | DynamicTaskConfig
-  | SetVariableTaskConfig;
+  | SetVariableTaskConfig
+  | DecisionTaskConfig;
 
 export type GenericTaskConfig = TaskConfig | VirtualTaskConfig;
