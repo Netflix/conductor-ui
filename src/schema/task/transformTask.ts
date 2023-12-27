@@ -5,11 +5,6 @@ export const jqTransformTaskSchema = extendSchema("JSON_JQ_TRANSFORM", [
   "name",
   "taskReferenceName",
   "description",
-  "rateLimited",
-  "retryCount",
-  "startDelay",
-  "optional",
-  "asyncComplete",
 ]);
 
 export function createNewJqTransformTask(taskReferenceName) {

@@ -3,13 +3,14 @@ import { extendSchema, generateBoilerplateTask } from "../schemaUtils";
 
 export const SwitchTaskSchema = extendSchema(
   "SWITCH",
-  ["name", "taskReferenceName", "description", "optional"],
+  ["name", "taskReferenceName", "description"],
   [
     {
       key: "evaluatorType",
       defaultValue: "value-param",
       required: true,
-      type: "string",
+      type: "select",
+      options: ["value-param", "javascript"],
     },
   ],
 );

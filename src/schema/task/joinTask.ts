@@ -5,7 +5,6 @@ export const joinTaskSchema = extendSchema("JOIN", [
   "name",
   "taskReferenceName",
   "description",
-  "optional",
 ]);
 
 export function createNewJoinTask(taskReferenceName) {

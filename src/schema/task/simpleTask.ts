@@ -5,11 +5,9 @@ export const simpleTaskSchema = extendSchema("SIMPLE", [
   "name",
   "taskReferenceName",
   "description",
-  "rateLimited",
   "retryCount",
   "startDelay",
   "optional",
-  "asyncComplete",
 ]);
 
 export function createNewSimpleTask(taskReferenceName) {

@@ -115,6 +115,7 @@ const TerminateConfigPanel = ({
           schema={allVisible(terminateInputParametersSchema)}
           config={inputParameters}
           onChange={handleTerminateInputParametersChange}
+          style={{ height: 120 }}
         />
       </div>
 

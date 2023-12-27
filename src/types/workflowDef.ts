@@ -29,6 +29,7 @@ export const VIRTUAL_TASK_CONFIG_TYPES = [
   "DO_WHILE_END",
   "DF_CHILDREN_PLACEHOLDER",
   "LOOP_CHILDREN_PLACEHOLDER",
+  "LOOP_CONTAINER",
   "UNKNOWN",
 ] as const;
 
@@ -157,6 +158,9 @@ export interface StartWorkflowTaskConfig extends BaseTaskConfig {
 export interface SetVariableTaskConfig extends BaseTaskConfig {
   type: "SET_VARIABLE";
 }
+export interface LoopContainerConfig extends BaseTaskConfig {
+  type: "LOOP_CONTAINER";
+}
 
 // Deprecated
 export interface DecisionTaskConfig extends BaseTaskConfig {
@@ -175,7 +179,8 @@ export type VirtualTaskConfig =
   | StartTaskConfig
   | FinalTaskConfig
   | PlaceholderTaskConfig
-  | IncompleteDFChildTaskConfig;
+  | IncompleteDFChildTaskConfig
+  | LoopContainerConfig;
 
 export type TaskConfig =
   | SwitchTaskConfig

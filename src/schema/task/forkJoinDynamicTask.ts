@@ -3,7 +3,7 @@ import { extendSchema, generateBoilerplateTask } from "../schemaUtils";
 
 export const forkJoinDynamicTaskSchema = extendSchema(
   "FORK_JOIN_DYNAMIC",
-  ["name", "taskReferenceName", "description", "optional"],
+  ["name", "taskReferenceName", "description"],
   [
     {
       key: "dynamicForkTasksParam",

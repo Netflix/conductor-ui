@@ -9,11 +9,6 @@ export const terminateTaskSchema = extendSchema("TERMINATE", [
   "name",
   "taskReferenceName",
   "description",
-  "rateLimited",
-  "retryCount",
-  "startDelay",
-  "optional",
-  "asyncComplete",
 ]);
 
 export const terminateInputParametersSchema = [
@@ -21,7 +16,8 @@ export const terminateInputParametersSchema = [
     key: "terminationStatus",
     defaultValue: "COMPLETED",
     required: true,
-    type: "string" as SchemaType,
+    type: "select" as SchemaType,
+    options: ["COMPLETED", "FAILED"],
   },
   {
     key: "terminationReason",

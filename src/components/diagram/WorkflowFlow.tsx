@@ -1,4 +1,4 @@
-import dagre from "dagre";
+import dagre from "dagre-cluster-fix";
 import intersectPolygon from "./intersect/intersect-polygon";
 import intersectRect from "./intersect/intersect-rect";
 import _ from "lodash";
@@ -19,18 +19,20 @@ import {
   ReactFlow,
   Node,
   Edge,
-  applyEdgeChanges,
   NodeSelectionChange,
+  NodeChange,
+  useReactFlow,
 } from "reactflow";
 
 import { TaskResult } from "../../types/execution";
 import {
+  DoWhileTaskConfig,
   ExtendedTaskConfigType,
   SwitchTaskConfig,
   TaskConfigType,
   TaskCoordinate,
 } from "../../types/workflowDef";
-import WorkflowDAG from "../../data/dag/WorkflowDAG";
+import WorkflowDAG, { NodeWithData } from "../../data/dag/WorkflowDAG";
 import "./diagram.scss";
 import PolyLineEdge from "./PolyLineEdge";
 
@@ -41,7 +43,6 @@ import TaskNode, { hasIcon } from "./nodes/TaskNode";
 import ForkNode from "./nodes/ForkNode";
 import JoinNode from "./nodes/JoinNode";
 import StackNode from "./nodes/StackNode";
-import pluralize from "pluralize";
 
 import "reactflow/dist/style.css";
 import "./nodes/customNodes.css";
@@ -49,6 +50,7 @@ import { Point } from "./intersect";
 import { FINAL_SIZE } from "./nodes/FinalNode";
 import DotNode from "./nodes/DotNode";
 import TerminateNode from "./nodes/TerminateNode";
+import DoWhileNode, { DO_WHILE_HEADER_HEIGHT } from "./nodes/DoWhileNode";
 
 interface WorkflowFlowProps
   extends Omit<
@@ -57,7 +59,7 @@ interface WorkflowFlowProps
   > {
   dag: WorkflowDAG;
   selectedTask: TaskCoordinate | null;
-  onTaskSelect?: (task: TaskCoordinate | null) => void;
+  onTaskSelect: (task: TaskCoordinate | null) => void;
   handleNewTasks?: (dag: WorkflowDAG) => void;
 }
 type Tally = {
@@ -75,13 +77,11 @@ interface GraphNodeProperties {
   padding?: number;
   selectable?: boolean;
 
-  reactFlowType?: string;
   label: string[];
   id?: string;
   name?: string;
   type?: ExtendedTaskConfigType;
   ref?: string;
-  class?: string;
   tally?: Tally;
   aliasForRef?: string;
   placeholderRef?: string;
@@ -90,6 +90,7 @@ interface GraphNodeProperties {
   fanDir?: FanDir;
   points?: Point[];
   hasDefaultCase?: boolean;
+  isEmpty?: boolean;
 }
 export type GraphNode = dagre.Node<GraphNodeProperties>;
 
@@ -131,6 +132,7 @@ const nodeTypes = {
   DF_CHILDREN_PLACEHOLDER: StackNode,
   TERMINATE: TerminateNode,
   DOT: DotNode,
+  DO_WHILE: DoWhileNode,
 };
 
 export default function WorkflowFlow({
@@ -153,30 +155,59 @@ export default function WorkflowFlow({
   }, [dag]);
 
   const initNodes = useMemo(() => {
-    const nodes: Node[] = graph.nodes().map((nodeId) => {
-      const node: GraphNode = graph.node(nodeId);
-      return {
-        id: nodeId,
-        position: {
-          x: node.x - node.width / 2,
-          y: node.y - node.height / 2,
-        },
-        data: {
-          label: node.label,
+    const nodes: Node[] = graph
+      .nodes()
+      .filter((nodeId) => !nodeId.endsWith("_loopContainer"))
+      .map((nodeId) => {
+        const node: GraphNode = graph.node(nodeId);
+        let width, height, y;
+        if (node.type === "DO_WHILE") {
+          const container = graph.node(nodeId + "_loopContainer");
+          width = container.width;
+          if (node.isEmpty) {
+            height = container.height;
+          } else {
+            height = container.height - DO_WHILE_HEADER_HEIGHT;
+          }
+          y = node.y - DO_WHILE_HEADER_HEIGHT / 2;
+        } else {
+          width = node.width;
+          height = node.height;
+          y = node.y - height / 2;
+        }
+
+        const retval: any = {
+          id: nodeId,
+          position: {
+            x: node.x - width / 2,
+            y,
+          },
+          data: {
+            label: node.label,
+            type: node.type,
+            width: width,
+            height: height,
+            fanDir: node.fanDir,
+            hasDefaultCase: node.hasDefaultCase,
+            aliasForRef: node.aliasForRef,
+            isEmpty: node.isEmpty,
+          },
           type: node.type,
-          width: node.width,
-          height: node.height,
-          fanDir: node.fanDir,
-          hasDefaultCase: node.hasDefaultCase,
-        },
-        type: node.type,
-        style: {
-          width: node.width,
-          height: node.height,
-        },
-        selectable: node.selectable,
-      };
-    });
+          style: {
+            width: width,
+            height: height,
+          },
+          selectable: node.selectable,
+        };
+        if (node.type === "DO_WHILE") {
+          retval.zIndex = -1;
+          if (node.isEmpty) {
+            retval.className = "emptyLoop";
+          }
+        }
+
+        return retval;
+      });
 
     return nodes;
   }, [graph]);
@@ -217,6 +248,7 @@ export default function WorkflowFlow({
 
   const [nodes, setNodes] = useState(initNodes);
   const [edges, setEdges] = useState(initEdges);
+  const reactFlowInstance = useReactFlow();
 
   useEffect(() => {
     setNodes(initNodes);
@@ -227,42 +259,22 @@ export default function WorkflowFlow({
   }, [initEdges]);
 
   useEffect(() => {
-    setNodes((ns) => {
+    setNodes(() => {
       const newNodes = _.cloneDeep(initNodes);
-      const ourNode = newNodes.find((node) => node.id === selectedTask?.ref);
-      if (ourNode) {
-        ourNode.selected = true;
-      }
+      newNodes
+        .filter(
+          (node) =>
+            selectedTask &&
+            (node.id === selectedTask.ref ||
+              node.data.aliasForRef === selectedTask.ref),
+        )
+        .forEach((node) => {
+          node.selected = true;
+        });
+
       return newNodes;
     });
   }, [selectedTask, initNodes]);
-
-  const onNodesChange = useCallback(
-    (changes) => {
-      // Swallow changes and wait for useEffect on selectedTask to apply
-      setNodes((ns) => {
-        return [...ns];
-      });
-
-      const selection = changes.find(
-        (change) => change.type === "select" && change.selected,
-      ) as NodeSelectionChange;
-      if (onTaskSelect) {
-        if (selection) {
-          onTaskSelect({ ref: selection.id });
-        }
-      }
-    },
-    [onTaskSelect],
-  );
-
-  const onEdgesChange = useCallback(
-    (changes) =>
-      setEdges((es) => {
-        return applyEdgeChanges(changes, es);
-      }),
-    [],
-  );
 
   const handleInsert = useCallback(
     (ref: string, type: TaskConfigType) => {
@@ -311,6 +323,30 @@ export default function WorkflowFlow({
     [dag, handleNewTasks],
   );
 
+  const handleNodesChange = useCallback(
+    (changes: NodeChange[]) => {
+      const selectionChange = changes.find(
+        (change) => change.type === "select" && change.selected,
+      ) as NodeSelectionChange | undefined;
+
+      const selectedNode =
+        selectionChange && reactFlowInstance.getNode(selectionChange.id);
+
+      // Swallow changes
+      setNodes((ns) => [...ns]);
+
+      // push selection upstream
+      if (!selectedNode) {
+        onTaskSelect!(null);
+      } else if (selectedNode.data.aliasForRef) {
+        onTaskSelect!({ ref: selectedNode.data.aliasForRef });
+      } else {
+        onTaskSelect!({ ref: selectedNode.id });
+      }
+    },
+    [onTaskSelect, reactFlowInstance],
+  );
+
   return (
     <FlowContext.Provider
       value={{
@@ -342,8 +378,8 @@ export default function WorkflowFlow({
             }}
             multiSelectionKeyCode={null}
             zoomOnDoubleClick={false}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
+            onNodesChange={handleNodesChange}
+            //onEdgesChange={onEdgesChange}
           >
             <Background />
             <Controls />
@@ -362,8 +398,6 @@ function composeBarNode(
 ) {
   return {
     id: ref,
-    shape: "bar",
-    class: `type-${type}`,
     type: type,
     label: [`${ref} (${name})`],
     fanDir: dir,
@@ -389,21 +423,46 @@ function drawGraph(dag: WorkflowDAG): FlowGraph {
     graph.setEdge(v, w);
   }
 
+  const loopMap = new Map();
+  const loops = new Set<NodeWithData>();
+
   // Render Nodes
   for (const ref of dagGraph.nodes()) {
-    graph.setNode(ref, renderVertex(ref, barNodes, dag)); // Update nodes with render info
+    const dagNode = dagGraph.node(ref);
+    graph.setNode(ref, renderVertex(dagNode, barNodes, dag)); // Update nodes with render info
+
+    // Task part of loop - flag for special treatment
+    if (dagNode.taskConfig.type === "DO_WHILE") {
+      loops.add(dagNode);
+    }
+    if (dagNode.loopParentRef) {
+      loopMap.set(ref, dagNode.loopParentRef);
+    }
+  }
+
+  // Add containers for DO_WHILE
+  for (const doWhileNode of loops) {
+    const doWhileRef = doWhileNode.id;
+    const containerId = `${doWhileRef}_loopContainer`;
+
+    graph.setNode(containerId, {
+      id: containerId,
+      type: "LOOP_CONTAINER",
+      aliasForRef: doWhileRef,
+      label: doWhileRef,
+    });
+    graph.setParent(doWhileRef, containerId);
+  }
+
+  // Set loop parents
+  for (const [ref, parent] of loopMap) {
+    const id = `${parent}_loopContainer`;
+    graph.setParent(ref, id);
   }
 
   // Render Edges
   for (const edge of dagGraph.edges()) {
     const dagEdge = dagGraph.edge({ v: edge.v, w: edge.w });
-
-    let classes: string[] = [];
-
-    // TODO: replace classes
-    if (!!dagEdge?.reverse) {
-      classes.push("reverse");
-    }
 
     const label = dagEdge.label || dagEdge.caseValue;
     graph.setEdge(
@@ -418,8 +477,6 @@ function drawGraph(dag: WorkflowDAG): FlowGraph {
     );
   }
 
-  // Expand barNodes and rerender
-
   // Run Layout
   dagre.layout(graph);
 
@@ -427,22 +484,25 @@ function drawGraph(dag: WorkflowDAG): FlowGraph {
 
   assignNodeIntersects(graph);
 
+  // Expand BarNodes
   for (const barRef of barNodes) {
     expandBar(barRef, graph);
   }
 
+  // Expand Loop Nodes
+
   return graph;
 }
 
-function renderVertex(ref: string, barNodes, dag: WorkflowDAG) {
-  const dagNode = dag.graph.node(ref);
+function renderVertex(dagNode: NodeWithData, barNodes, dag: WorkflowDAG) {
+  //  const dagNode = dag.graph.node(ref);
+  const ref = dagNode.id;
   const { type, name } = dagNode.taskConfig;
 
   let retval: GraphNodeProperties = {
     id: ref,
-    class: `type-${type}`,
     type: type,
-    label: [name],
+    label: [ref, `(${name})`],
   };
 
   switch (type) {
@@ -494,74 +554,11 @@ function renderVertex(ref: string, barNodes, dag: WorkflowDAG) {
       }
       retval.selectable = false;
       break;
-    case "LOOP_CHILDREN_PLACEHOLDER":
-      const labelArray: string[] = [];
-      const { tally, containsTaskRefs } = dagNode;
-      if (tally?.iterations) {
-        labelArray.push(
-          `${tally.iterations} ${pluralize("iterations", tally.iterations)}`,
-        );
-      }
-      if (!tally || tally.total === 0) {
-        labelArray.push("No tasks in loop");
-      } else {
-        if (tally?.success) {
-          labelArray.push(`${tally.success} succeeded`);
-        }
-        if (tally?.failed) {
-          labelArray.push(`${tally.failed} failed`);
-        }
-        if (tally?.inProgress) {
-          labelArray.push(`${tally.inProgress} in-progress`);
-        }
-        if (tally?.canceled) {
-          labelArray.push(`${tally.canceled} canceled`);
-        }
-        retval.placeholderRef = containsTaskRefs?.[0];
-      }
-      retval.label = labelArray;
-      break;
-    /*
     case "DO_WHILE":
-      retval = composeBarNode(
-        ref,
-        `${ref} (${name}) [DO_WHILE]`,
-        type,
-        "down",
+      retval.isEmpty = _.isEmpty(
+        (dagNode.taskConfig as DoWhileTaskConfig).loopOver,
       );
-      barNodes.push(ref);
       break;
-    case "DO_WHILE_END":
-      const alias = dagNode.taskConfig.aliasForRef as string;
-      const aliasName = dag.getTaskConfigByRef(alias).name;
-      retval = {
-        ...composeBarNode(
-          ref,
-          aliasName,
-          //`${alias} (${aliasName}) [DO_WHILE]`,
-          type,
-          "down",
-        ),
-        aliasForRef: alias,
-      };
-      barNodes.push(ref);
-
-      // Add reverse decorative edge      
-      this.graph.setEdge(
-        alias,
-        ref,
-        {
-          label: "LOOP",
-          reverse: true,
-          executed: !!dagNode.status,
-        } as GraphEdge,
-        `${ref}_loop_reverse`,
-      );
-      
-      break;
-      */
-    default:
-      retval.label = [ref, `(${name})`];
   }
 
   const attempts = dag.getTaskResultsByRef(ref)?.length || 0;
@@ -699,7 +696,7 @@ function expandBar(barRef: string, graph: FlowGraph) {
     const edges = graph.outEdges(barRef)!;
     for (const edge of edges) {
       const graphEdge = graph.edge(edge);
-      const originX = _.first(graphEdge.points)?.x!;
+      const originX = (_.first(graphEdge.points) as any).x!;
       let maxAbsDeviation = -Infinity;
       let extremeX;
 
@@ -719,7 +716,7 @@ function expandBar(barRef: string, graph: FlowGraph) {
     const edges = graph.inEdges(barRef)!;
     for (const edge of edges) {
       const graphEdge = graph.edge(edge);
-      const originX = _.last(graphEdge.points)?.x!;
+      const originX = (_.last(graphEdge.points) as any).x!;
       let maxAbsDeviation = -Infinity;
       let extremeX;
 
@@ -753,7 +750,10 @@ function isDiamond(type: ExtendedTaskConfigType | undefined) {
 
 function isBar(type: ExtendedTaskConfigType | undefined) {
   return (
-    type === "FORK_JOIN" || type === "FORK_JOIN_DYNAMIC" || type === "JOIN"
+    type === "FORK_JOIN" ||
+    type === "FORK_JOIN_DYNAMIC" ||
+    type === "JOIN" ||
+    type === "DO_WHILE"
   );
 }
 

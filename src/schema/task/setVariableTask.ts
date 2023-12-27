@@ -5,11 +5,6 @@ export const setVariableSchema = extendSchema("SET_VARIABLE", [
   "name",
   "taskReferenceName",
   "description",
-  "rateLimited",
-  "retryCount",
-  "startDelay",
-  "optional",
-  "asyncComplete",
 ]);
 
 export function createNewSetVariableTask(taskReferenceName) {

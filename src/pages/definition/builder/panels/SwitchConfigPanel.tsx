@@ -44,15 +44,25 @@ const SwitchConfigPanel = ({
   }, [initialConfig, onChanged]);
 
   const handleApply = useCallback(() => {
+    const defaultCase = (initialConfig as SwitchTaskConfig).defaultCase || [];
+
     const newTaskConfig = {
       ...taskLevelParams,
       expression,
       decisionCases,
+      defaultCase,
       inputParameters: parseWithDefault(inputParameters),
     };
 
     onUpdate(newTaskConfig);
-  }, [onUpdate, taskLevelParams, expression, inputParameters, decisionCases]);
+  }, [
+    initialConfig,
+    taskLevelParams,
+    expression,
+    decisionCases,
+    inputParameters,
+    onUpdate,
+  ]);
 
   const handleTaskLevelChange = useCallback(
     (updatedJson) => {

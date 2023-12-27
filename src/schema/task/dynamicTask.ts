@@ -3,7 +3,7 @@ import { extendSchema, generateBoilerplateTask } from "../schemaUtils";
 
 export const dynamicTaskSchema = extendSchema(
   "DYNAMIC",
-  ["name", "taskReferenceName", "optional"],
+  ["name", "taskReferenceName", "retryCount", "startDelay", "optional"],
   [
     {
       key: "dynamicTaskNameParam",

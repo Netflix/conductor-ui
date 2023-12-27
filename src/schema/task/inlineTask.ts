@@ -5,11 +5,6 @@ export const inlineTaskSchema = extendSchema("INLINE", [
   "name",
   "taskReferenceName",
   "description",
-  "rateLimited",
-  "retryCount",
-  "startDelay",
-  "optional",
-  "asyncComplete",
 ]);
 
 export const inlineInputParamsSchema = [

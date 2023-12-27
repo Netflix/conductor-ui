@@ -3,8 +3,6 @@ import { useCallback, useMemo, useState } from "react";
 import { produce } from "immer";
 import ValueEditor from "./ValueEditor";
 import { InterimSchemaField } from "../../../../schema/schemaUtils";
-import _ from "lodash";
-
 const ROW_HEIGHT = 40;
 
 function headerRenderer({ value, data }) {
@@ -65,19 +63,13 @@ export default function AttributeTable({
         if (config?.hasOwnProperty(field.key)) {
           const configValue = config[field.key];
           return {
-            key: field.key,
+            ...field,
             value: configValue,
-            required: field.required,
-            type: field.type,
-            defaultValue: field.defaultValue,
           };
         } else {
           return {
-            key: field.key,
+            ...field,
             value: field.defaultValue,
-            required: field.required,
-            type: field.type,
-            defaultValue: field.defaultValue,
           };
         }
       });
@@ -118,9 +110,9 @@ export default function AttributeTable({
       const { value, columnId, rowIndex, data } = editInfo;
       const newDataSource = produce(dataSource, (draft) => {
         if (data.type === "number") {
-          draft[rowIndex][columnId] = _.isEmpty(value)
-            ? undefined
-            : parseInt(value);
+          const parsed = parseInt(value);
+
+          draft[rowIndex][columnId] = isNaN(parsed) ? undefined : parsed;
         } else {
           draft[rowIndex][columnId] = value; // Note: columnId should always be 'value'.
         }

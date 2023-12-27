@@ -5,11 +5,9 @@ export const startWorkflowSchema = extendSchema("START_WORKFLOW", [
   "name",
   "taskReferenceName",
   "description",
-  "rateLimited",
   "retryCount",
   "startDelay",
   "optional",
-  "asyncComplete",
 ]);
 
 export function createNewStartWorkflowTask(taskReferenceName) {

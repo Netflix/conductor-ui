@@ -10,6 +10,16 @@
   line-height: 15px;
 }
 
+.react-flow__node-DO_WHILE.selectable.selected {
+  z-index: -1 !important;
+}
+.react-flow__node-DO_WHILE.selectable.selected.emptyLoop {
+  z-index: 2 !important;
+}
+.react-flow__node-DO_WHILE.emptyLoop {
+  z-index: 2 !important;
+}
+
 .react-flow__node-SIMPLE,
 .react-flow__node-HTTP,
 .react-flow__node-LAMBDA,

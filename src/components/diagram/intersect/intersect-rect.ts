@@ -1,5 +1,5 @@
 import { Point } from ".";
-import type { Node } from "dagre";
+import type { Node } from "dagre-cluster-fix";
 
 /*
  * Finds where a line starting at point ({x, y}) would intersect a rectangle

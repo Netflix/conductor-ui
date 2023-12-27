@@ -3,8 +3,11 @@ import PanelContainer from "./BasePanel";
 import { PanelProps } from "../tabRouter";
 import { HumanIcon } from "../../../../components/diagram/icons/taskIcons";
 import AttributeTable from "../taskconfigurator/AttributeTable";
-import { humanTaskSchema } from "../../../../schema/task/humanTask";
-import { normalizeObject } from "../../../../schema/schemaUtils";
+import {
+  humanTaskInputParameters,
+  humanTaskSchema,
+} from "../../../../schema/task/humanTask";
+import { allVisible, normalizeObject } from "../../../../schema/schemaUtils";
 
 const HumanConfigPanel = ({
   tabId,
@@ -13,23 +16,38 @@ const HumanConfigPanel = ({
   onUpdate,
 }: PanelProps) => {
   const [taskLevelParams, setTaskLevelParams] = useState<any>({});
+  const [inputParameters, setInputParameters] = useState<any>({});
 
   // Initialize data sources and state
   useEffect(() => {
     setTaskLevelParams(normalizeObject(humanTaskSchema, initialConfig));
+    setInputParameters(
+      normalizeObject(
+        humanTaskInputParameters,
+        initialConfig.inputParameters || {},
+      ),
+    );
     onChanged(false);
   }, [initialConfig, onChanged]);
 
   const handleApply = useCallback(() => {
     onUpdate({
       ...taskLevelParams,
-      inputParameters: {}, // unused but must be present
+      inputParameters: inputParameters,
     });
-  }, [onUpdate, taskLevelParams]);
+  }, [inputParameters, onUpdate, taskLevelParams]);
 
   const handleTaskLevelParamsChange = useCallback(
     (obj) => {
       setTaskLevelParams(obj);
+      onChanged(true);
+    },
+    [onChanged],
+  );
+
+  const handleInputParametersChange = useCallback(
+    (obj) => {
+      setInputParameters(obj);
       onChanged(true);
     },
     [onChanged],
@@ -53,6 +71,12 @@ const HumanConfigPanel = ({
         schema={humanTaskSchema}
         config={taskLevelParams}
         onChange={handleTaskLevelParamsChange}
+      />
+
+      <AttributeTable
+        schema={allVisible(humanTaskInputParameters)}
+        config={inputParameters}
+        onChange={handleInputParametersChange}
       />
     </PanelContainer>
   );

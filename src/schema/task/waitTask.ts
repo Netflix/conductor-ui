@@ -5,11 +5,6 @@ export const waitTaskSchema = extendSchema("WAIT", [
   "name",
   "taskReferenceName",
   "description",
-  "rateLimited",
-  "retryCount",
-  "startDelay",
-  "optional",
-  "asyncComplete",
 ]);
 
 export function createNewWaitTask(taskReferenceName) {

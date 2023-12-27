@@ -3,7 +3,12 @@ import { joinTaskSchema } from "../../../../schema/task/joinTask";
 import PanelContainer from "./BasePanel";
 import { PanelProps } from "../tabRouter";
 import AttributeTable from "../taskconfigurator/AttributeTable";
-import { normalizeObject } from "../../../../schema/schemaUtils";
+import {
+  normalizeObject,
+  parseWithDefault,
+} from "../../../../schema/schemaUtils";
+import JsonInput from "../../../../components/JsonInput";
+import { JoinTaskConfig } from "../../../../types/workflowDef";
 
 const JoinConfigPanel = ({
   tabId,
@@ -12,10 +17,13 @@ const JoinConfigPanel = ({
   onUpdate,
 }: PanelProps) => {
   const [taskLevelParams, setTaskLevelParams] = useState<any>({});
+  const [joinOn, setJoinOn] = useState<string>("[]");
 
   // Initialize data sources and state
   useEffect(() => {
+    const config = initialConfig as JoinTaskConfig;
     setTaskLevelParams(normalizeObject(joinTaskSchema, initialConfig));
+    setJoinOn(config.joinOn ? JSON.stringify(config.joinOn, null, 2) : "[]");
     // Reset changed
     onChanged(false);
 
@@ -25,16 +33,25 @@ const JoinConfigPanel = ({
   const handleApply = useCallback(() => {
     const newTaskConfig = {
       ...taskLevelParams,
+      joinOn: parseWithDefault(joinOn),
       inputParameters: {}, // unused but must be present
     };
 
     onUpdate(newTaskConfig);
-  }, [onUpdate, taskLevelParams]);
+  }, [joinOn, onUpdate, taskLevelParams]);
 
   const handleTaskLevelParamsChange = (updatedJson) => {
     setTaskLevelParams(updatedJson);
     onChanged(true);
   };
+
+  const handleJoinOnChange = useCallback(
+    (val) => {
+      setJoinOn(val);
+      onChanged(true);
+    },
+    [onChanged],
+  );
 
   return (
     <PanelContainer tabId={tabId} handleApply={handleApply} heading="Join Task">
@@ -48,6 +65,21 @@ const JoinConfigPanel = ({
         schema={joinTaskSchema}
         config={taskLevelParams}
         onChange={handleTaskLevelParamsChange}
+      />
+
+      <div style={{ marginTop: 15 }}>
+        Note: <code>joinOn</code> should be empty when following a Dynamic Fork.
+        However, it must be populated manually to contain the refs of the final
+        task in each branch of a Static Fork. If a preceding SWITCH is present,
+        that Switch task must be followed by an EXCLUSIVE_JOIN, otherwise this
+        JOIN task may get stuck and never complete.
+      </div>
+      <JsonInput
+        style={{ marginTop: 15 }}
+        label="Join On"
+        language="json"
+        value={joinOn}
+        onChange={handleJoinOnChange}
       />
     </PanelContainer>
   );

@@ -1,4 +1,4 @@
-import React, { useContext, memo, useCallback, useState, useMemo } from "react";
+import { useContext, memo, useCallback, useState } from "react";
 import { Handle, Position, NodeProps, NodeToolbar, useStore } from "reactflow";
 import { Svg, Kite } from "react-svg-path";
 import { makeStyles } from "@mui/styles";
@@ -8,9 +8,6 @@ import InsertButton from "./InsertButton";
 import { FlowContext } from "../WorkflowFlow";
 import { Popover } from "@mui/material";
 import TaskPicker from "../TaskPicker";
-import { DefEditorContext } from "../../../pages/definition/WorkflowDefinition";
-import { SwitchTaskConfig } from "../../../types/workflowDef";
-import _ from "lodash";
 
 const useStyles: any = makeStyles({
   label: {
@@ -120,7 +117,6 @@ function SwitchNode({ id, data }: NodeProps) {
           className={classes.buttonGroup}
         >
           <BuilderButton
-            className={classes.deleteButton}
             label="Delete Task"
             color="#e50914"
             hoverColor="#f5e1e2"
@@ -130,7 +126,6 @@ function SwitchNode({ id, data }: NodeProps) {
           </BuilderButton>
 
           <BuilderButton
-            className={classes.addButton}
             label="Add Case"
             color="#2172e3"
             hoverColor="#dfe9f7"
@@ -145,7 +140,6 @@ function SwitchNode({ id, data }: NodeProps) {
           </BuilderButton>
           <BuilderButton
             disabled={hasDefaultCase}
-            className={classes.addButton}
             label="Add Default Case"
             color="#2172e3"
             hoverColor="#dfe9f7"

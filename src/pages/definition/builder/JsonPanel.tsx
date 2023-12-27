@@ -173,7 +173,7 @@ export default function JsonPanel({ tabId }) {
         <div style={{ flex: 1 }}></div>
 
         <Button disabled={!_.isEmpty(jsonErrors)} onClick={handleCommit}>
-          Validate
+          Stage Changes
         </Button>
       </Toolbar>
       <Editor

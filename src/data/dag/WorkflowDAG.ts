@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { graphlib, Node } from "dagre";
+import { graphlib, Node } from "dagre-cluster-fix";
 import { templates } from "./templates";
 import {
   WorkflowDef,
@@ -40,6 +40,7 @@ export type NodeData = {
   status?: TaskStatus;
   tally?: Tally;
   containsTaskRefs?: string[];
+  loopParentRef?: string;
 };
 
 export type NodeWithData = Node<NodeData>;
@@ -203,13 +204,19 @@ export default class WorkflowDAG {
       name: "start",
     };
 
-    let currAntecedents = this.processTask(startTask, [], this.taskConfigs);
+    let currAntecedents = this.processTask(
+      startTask,
+      [],
+      this.taskConfigs,
+      undefined,
+    );
 
     for (const task of this.taskConfigs) {
       currAntecedents = this.processTask(
         task,
         currAntecedents,
         this.taskConfigs,
+        undefined,
       );
     }
 
@@ -219,7 +226,7 @@ export default class WorkflowDAG {
       taskReferenceName: "__final",
       name: "final",
     };
-    this.processTask(endTask, currAntecedents, this.taskConfigs);
+    this.processTask(endTask, currAntecedents, this.taskConfigs, undefined);
 
     // Cleanup - All branches are terminated by a user-defined 'TERMINATE' task.
     if (_.isEmpty(this.graph.inEdges("__final"))) {
@@ -238,10 +245,11 @@ export default class WorkflowDAG {
     taskConfig: GenericTaskConfig,
     antecedentConfigs: GenericTaskConfig[],
     parentArray: GenericTaskConfig[],
-    overrides?: {
+    overrides: {
       status?: TaskStatus;
       tally?: Tally;
       containsTaskRefs?: string[];
+      loopParentRef?: string;
     },
   ) {
     const effectiveRef = taskConfig.aliasForRef || taskConfig.taskReferenceName;
@@ -260,6 +268,7 @@ export default class WorkflowDAG {
       vertex.status = overrides.status;
       vertex.tally = overrides.tally;
       vertex.containsTaskRefs = overrides.containsTaskRefs;
+      vertex.loopParentRef = overrides.loopParentRef;
     }
 
     this.graph.setNode(taskConfig.taskReferenceName, vertex);
@@ -312,10 +321,16 @@ export default class WorkflowDAG {
   processTaskList(
     tasks: GenericTaskConfig[],
     antecedents: GenericTaskConfig[],
+    loopParentRef: string | undefined,
   ) {
     let currAntecedents = antecedents;
     for (const task of tasks) {
-      currAntecedents = this.processTask(task, currAntecedents, tasks);
+      currAntecedents = this.processTask(
+        task,
+        currAntecedents,
+        tasks,
+        loopParentRef,
+      );
     }
 
     return currAntecedents;
@@ -326,23 +341,28 @@ export default class WorkflowDAG {
     decisionTask: SwitchTaskConfig,
     antecedents: GenericTaskConfig[],
     parentArray: GenericTaskConfig[],
+    loopParentRef: string | undefined,
   ) {
     const retval: GenericTaskConfig[] = [];
 
-    this.addVertex(decisionTask, antecedents, parentArray);
+    this.addVertex(decisionTask, antecedents, parentArray, { loopParentRef });
 
     if (_.isEmpty(decisionTask.defaultCase)) {
       retval.push(decisionTask); // Empty default path
     } else {
       retval.push(
-        ...this.processTaskList(decisionTask.defaultCase, [decisionTask]),
+        ...this.processTaskList(
+          decisionTask.defaultCase,
+          [decisionTask],
+          loopParentRef,
+        ),
       );
     }
 
     retval.push(
       ..._.flatten(
         Object.entries(decisionTask.decisionCases).map(([caseValue, tasks]) => {
-          return this.processTaskList(tasks, [decisionTask]);
+          return this.processTaskList(tasks, [decisionTask], loopParentRef);
         }),
       ),
     );
@@ -353,9 +373,10 @@ export default class WorkflowDAG {
     dfTask: DynamicForkTaskConfig,
     antecedents: GenericTaskConfig[],
     parentArray: GenericTaskConfig[],
+    loopParentRef: string | undefined,
   ) {
     // This is the DF task (dotted bar) itself.
-    this.addVertex(dfTask, antecedents, parentArray);
+    this.addVertex(dfTask, antecedents, parentArray, { loopParentRef });
 
     // Only add placeholder if there are 0 spawned tasks for this DF
     const dfTaskResult = this.getTaskResultByRef(dfTask.taskReferenceName) as
@@ -378,6 +399,7 @@ export default class WorkflowDAG {
         status,
         tally,
         containsTaskRefs,
+        loopParentRef,
       });
       return [placeholderTaskConfig];
     } else {
@@ -386,7 +408,7 @@ export default class WorkflowDAG {
         const taskResult = this.getTaskResultByRef(taskRef) as TaskResult;
         const taskConfig = makeTaskConfigFromTaskResult(taskResult);
         taskConfigs.push(taskConfig);
-        this.addVertex(taskConfig, [dfTask], parentArray);
+        this.addVertex(taskConfig, [dfTask], parentArray, { loopParentRef });
       }
       return taskConfigs;
     }
@@ -396,20 +418,15 @@ export default class WorkflowDAG {
     doWhileTaskConfig: DoWhileTaskConfig,
     antecedents: GenericTaskConfig[],
     parentArray: GenericTaskConfig[],
+    loopParentRef: string | undefined,
   ) {
     const doWhileTaskResult = this.getTaskResultByRef(
       doWhileTaskConfig.taskReferenceName,
     );
 
-    this.addVertex(doWhileTaskConfig, antecedents, parentArray);
-
-    // aliasForRef indicates when the bottom bar is clicked one we should highlight the ref
-    let endDoWhileTaskConfig: EndDoWhileTaskConfig = {
-      type: "DO_WHILE_END",
-      name: doWhileTaskConfig.name,
-      taskReferenceName: doWhileTaskConfig.taskReferenceName + "-END",
-      aliasForRef: doWhileTaskConfig.taskReferenceName,
-    };
+    this.addVertex(doWhileTaskConfig, antecedents, parentArray, {
+      loopParentRef,
+    });
 
     const loopOverRefs = doWhileTaskConfig.loopOver.map(
       (t) => t.taskReferenceName,
@@ -436,7 +453,16 @@ export default class WorkflowDAG {
         status: doWhileTaskResult.status,
         tally,
         containsTaskRefs,
+        loopParentRef,
       });
+
+      // aliasForRef indicates when the bottom bar is clicked one we should highlight the ref
+      const endDoWhileTaskConfig: EndDoWhileTaskConfig = {
+        type: "DO_WHILE_END",
+        name: doWhileTaskConfig.name,
+        taskReferenceName: doWhileTaskConfig.taskReferenceName + "-END",
+        aliasForRef: doWhileTaskConfig.taskReferenceName,
+      };
 
       // Add bar marking End of Loop - inherit DO_WHILE status
       this.addVertex(
@@ -445,23 +471,23 @@ export default class WorkflowDAG {
         parentArray,
         {
           status: doWhileTaskResult.status,
+          loopParentRef,
         },
       );
+      return [endDoWhileTaskConfig];
     } else {
       // Definition view (or not executed)
 
-      this.processTaskList(doWhileTaskConfig.loopOver, [doWhileTaskConfig]);
+      this.processTaskList(
+        doWhileTaskConfig.loopOver,
+        [doWhileTaskConfig],
+        doWhileTaskConfig.taskReferenceName,
+      );
 
       const lastLoopTask = _.last(doWhileTaskConfig.loopOver);
-
-      // Invalid case - loopTask cannot be empty. But allow
-      // as intermediate state duing point-and-click workflow building.
       if (!lastLoopTask) {
-        this.addVertex(endDoWhileTaskConfig, [doWhileTaskConfig], parentArray);
-      }
-      // Special case - Connect the end of each case to the loop end
-      // This only occurs in DefOnly view. Executed loops are always collapsed.
-      else if (
+        return [doWhileTaskConfig];
+      } else if (
         lastLoopTask?.type === "SWITCH" &&
         !(
           _.isEmpty(lastLoopTask.defaultCase) &&
@@ -479,31 +505,29 @@ export default class WorkflowDAG {
             lastLoopTask.defaultCase[lastLoopTask.defaultCase.length - 1],
           );
         }
-
-        this.addVertex(endDoWhileTaskConfig, tails, parentArray);
+        return tails;
       } else {
-        this.addVertex(endDoWhileTaskConfig, [lastLoopTask], parentArray);
+        return [lastLoopTask];
       }
     }
-
-    return [endDoWhileTaskConfig];
   }
 
   processForkJoin(
     forkJoinTask: ForkTaskConfig,
     antecedents: GenericTaskConfig[],
     parentArray: GenericTaskConfig[],
+    loopParentRef: string | undefined,
   ) {
     let outerForkTasks = forkJoinTask.forkTasks;
 
     // Add FORK_JOIN task itself (solid bar)
-    this.addVertex(forkJoinTask, antecedents, parentArray);
+    this.addVertex(forkJoinTask, antecedents, parentArray, { loopParentRef });
 
     // Each sublist is executed in parallel. Tasks within sublist executed sequentially
     if (!_.isEmpty(outerForkTasks)) {
       return _.flatten(
         outerForkTasks.map((innerForkTasks) =>
-          this.processTaskList(innerForkTasks, [forkJoinTask]),
+          this.processTaskList(innerForkTasks, [forkJoinTask], loopParentRef),
         ),
       );
     } else {
@@ -516,8 +540,9 @@ export default class WorkflowDAG {
     joinTask: JoinTaskConfig,
     antecedents: GenericTaskConfig[],
     parentArray: GenericTaskConfig[],
+    loopParentRef: string | undefined,
   ) {
-    this.addVertex(joinTask, antecedents, parentArray);
+    this.addVertex(joinTask, antecedents, parentArray, { loopParentRef });
     return [joinTask];
   }
 
@@ -525,14 +550,25 @@ export default class WorkflowDAG {
     task: GenericTaskConfig,
     antecedents: GenericTaskConfig[],
     parentArray: GenericTaskConfig[],
+    loopParentRef: string | undefined,
   ): GenericTaskConfig[] {
     switch (task.type) {
       case "FORK_JOIN": {
-        return this.processForkJoin(task, antecedents, parentArray);
+        return this.processForkJoin(
+          task,
+          antecedents,
+          parentArray,
+          loopParentRef,
+        );
       }
 
       case "FORK_JOIN_DYNAMIC": {
-        return this.processForkJoinDynamic(task, antecedents, parentArray);
+        return this.processForkJoinDynamic(
+          task,
+          antecedents,
+          parentArray,
+          loopParentRef,
+        );
       }
 
       case "DECISION": // DECISION is deprecated and will be removed in a future release
@@ -541,20 +577,26 @@ export default class WorkflowDAG {
           task as unknown as SwitchTaskConfig,
           antecedents,
           parentArray,
+          loopParentRef,
         );
       }
 
       case "TERMINATE": {
-        this.addVertex(task, antecedents, parentArray);
+        this.addVertex(task, antecedents, parentArray, { loopParentRef });
         return [];
       }
 
       case "DO_WHILE": {
-        return this.processDoWhileTask(task, antecedents, parentArray);
+        return this.processDoWhileTask(
+          task,
+          antecedents,
+          parentArray,
+          loopParentRef,
+        );
       }
 
       case "JOIN": {
-        return this.processJoin(task, antecedents, parentArray);
+        return this.processJoin(task, antecedents, parentArray, loopParentRef);
       }
       /*
       case "TERMINAL":
@@ -563,7 +605,7 @@ export default class WorkflowDAG {
       case "EXCLUSIVE_JOIN":
       */
       default: {
-        this.addVertex(task, antecedents, parentArray);
+        this.addVertex(task, antecedents, parentArray, { loopParentRef });
         return [task];
       }
     }
@@ -941,11 +983,26 @@ export default class WorkflowDAG {
   }
 
   addForkTasks(parentRef: string, type: TaskConfigType) {
-    const { taskConfig } = this.graph.node(parentRef);
+    const parentNode = this.graph.node(parentRef) as NodeWithData;
+    const { taskConfig } = parentNode;
+    // const parentArray: GenericTaskConfig[] = parentNode.parentArray;
 
     const newTaskConfig = this.getNextUntitled(type);
     (taskConfig as ForkTaskConfig).forkTasks.push(newTaskConfig);
 
+    // Use parentArray to infer matching join
+    /*
+    const forkIdx = parentArray.findIndex(tc => tc.taskReferenceName === parentRef);
+    if(forkIdx > -1 && (parentArray.length > forkIdx + 1) && parentArray[forkIdx + 1].type === "JOIN"){
+      const joinTask = parentArray[forkIdx + 1] as JoinTaskConfig;
+      if(_.isArray(joinTask.joinOn)){
+        joinTask.joinOn.push(newTaskConfig[0].taskReferenceName);
+      }
+      else {
+        joinTask.joinOn = [newTaskConfig[0].taskReferenceName];
+      }
+    }
+    */
     this.initialize();
   }
 
@@ -974,7 +1031,7 @@ export default class WorkflowDAG {
 
     const newTaskConfig = this.getNextUntitled(type);
 
-    taskConfig.loopOver = newTaskConfig;
+    taskConfig.loopOver = [...newTaskConfig, ...taskConfig.loopOver];
 
     this.initialize();
   }

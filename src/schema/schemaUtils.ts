@@ -1,4 +1,3 @@
-import { rowsAtom } from "../pages/execution/workflowTabs/gantt-chart/atoms";
 import {
   GenericTaskConfig,
   TaskConfig,
@@ -6,7 +5,7 @@ import {
 } from "../types/workflowDef";
 import { baseTaskSchema } from "./task/baseTask";
 
-export type SchemaType = "number" | "string" | "boolean" | "object";
+export type SchemaType = "number" | "string" | "boolean" | "select";
 
 export type InterimSchemaField = {
   key: string;
@@ -16,6 +15,7 @@ export type InterimSchemaField = {
   type: SchemaType;
   alwaysInclude?: boolean;
   visible?: boolean;
+  options?: any[];
 };
 
 export function generateBoilerplate(schema: InterimSchemaField[]) {

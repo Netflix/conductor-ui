@@ -5,11 +5,6 @@ export const doWhileTaskSchema = extendSchema("DO_WHILE", [
   "name",
   "taskReferenceName",
   "description",
-  "rateLimited",
-  "retryCount",
-  "startDelay",
-  "optional",
-  "asyncComplete",
 ]);
 
 export function createNewDoWhileTask(taskReferenceName) {

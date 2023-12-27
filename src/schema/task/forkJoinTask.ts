@@ -5,7 +5,6 @@ export const forkJoinTaskSchema = extendSchema("FORK_JOIN", [
   "name",
   "taskReferenceName",
   "description",
-  "optional",
 ]);
 
 export function createNewForkJoinTask(taskReferenceName) {

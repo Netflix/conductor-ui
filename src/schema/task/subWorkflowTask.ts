@@ -9,11 +9,9 @@ export const subWorkflowTaskSchema = extendSchema("SUB_WORKFLOW", [
   "name",
   "taskReferenceName",
   "description",
-  "rateLimited",
   "retryCount",
   "startDelay",
   "optional",
-  "asyncComplete",
 ]);
 
 export const subWorkflowParamSchema = [

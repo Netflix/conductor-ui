@@ -4,6 +4,7 @@ import React, { useContext, useCallback } from "react";
 import { DefEditorContext } from "../WorkflowDefinition";
 import WorkflowDAG from "../../../data/dag/WorkflowDAG";
 import { shallowCompare } from "../../../utils/helpers";
+import { ReactFlowProvider } from "reactflow";
 
 const WorkflowFlowMemo = React.memo(WorkflowFlow, (prevProps, nextProps) => {
   // Optimize away extra rerenders
@@ -29,11 +30,13 @@ export default function WorkflowBuilder() {
   );
 
   return (
-    <WorkflowFlowMemo
-      dag={dag}
-      onTaskSelect={handleTaskSelect}
-      selectedTask={selectedTask}
-      handleNewTasks={handleNewTasks}
-    />
+    <ReactFlowProvider>
+      <WorkflowFlowMemo
+        dag={dag}
+        onTaskSelect={handleTaskSelect}
+        selectedTask={selectedTask}
+        handleNewTasks={handleNewTasks}
+      />
+    </ReactFlowProvider>
   );
 }

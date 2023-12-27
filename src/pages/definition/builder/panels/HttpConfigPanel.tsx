@@ -201,7 +201,6 @@ const HttpTaskConfigurator = ({
       {parameterOrExpression === "expression" && (
         <JsonInput
           className={classes.marginTop}
-          key="expression"
           label="inputExpression (JsonPath)"
           language="plaintext"
           value={inputExpression}

@@ -20,12 +20,6 @@ export const baseTaskSchema: InterimSchemaField[] = [
     type: "string",
   },
   {
-    key: "rateLimited",
-    defaultValue: false,
-    required: false,
-    type: "boolean",
-  },
-  {
     key: "retryCount",
     defaultValue: 0,
     required: false,

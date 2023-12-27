@@ -24,6 +24,7 @@ import { FC, useCallback, useContext, useMemo } from "react";
 import { GenericTaskConfig, TaskConfig } from "../../../types/workflowDef";
 import StartWorkflowConfigPanel from "./panels/StartWorkflowConfigPanel";
 import HttpRequestBodyPanel from "./panels/HttpRequestBodyPanel";
+import DoWhileConfigPanel from "./panels/DoWhileConfigPanel";
 
 export function getTabs(selectedTask, dag: WorkflowDAG) {
   let tabs: TabBase[] = [];
@@ -67,6 +68,8 @@ export function getTabs(selectedTask, dag: WorkflowDAG) {
     tabs = [{ id: "SubworkflowConfigPanel" }];
   } else if (taskConfig.type === "DYNAMIC") {
     tabs = [{ id: "DynamicConfigPanel" }];
+  } else if (taskConfig.type === "DO_WHILE") {
+    tabs = [{ id: "DoWhileConfigPanel" }];
   } else {
     tabs = [{ id: "BlankPanel" }];
   }
@@ -133,6 +136,8 @@ export function loadTab(tab: TabBase): TabData {
     return makePanel(SubworkflowConfigPanel, id);
   } else if (id === "StartWorkflowConfigPanel") {
     return makePanel(StartWorkflowConfigPanel, id);
+  } else if (id === "DoWhileConfigPanel") {
+    return makePanel(DoWhileConfigPanel, id);
   } else {
     return {
       id,
